@@ -25,10 +25,48 @@ function cambiarTextos(nombre, buscar, poner) {
   html = html.split(buscar).join(poner);
 }
 
+// 0. Vista previa al compartir el link (WhatsApp, Facebook, etc.): etiquetas Open Graph al comienzo del <head>.
+//    La página pesa varios MB y los lectores de vista previa solo leen el principio, así que van antes de todo.
+const SITIO = "https://100natural2.vercel.app";
+const OG = {
+  titulo: "100% Natural",
+  descripcion: "Agua purificada y alcalina, papas y helados con despacho a domicilio en Viña del Mar, Concón, Valparaíso, Curauma, Quilpué y Villa Alemana. Crea tu cuenta y haz tu pedido en línea.",
+};
+{
+  const esc = t => t.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const etiquetas = [
+    `<title>${esc(OG.titulo)}</title>`,
+    `<meta name="description" content="${esc(OG.descripcion)}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="${esc(OG.titulo)}">`,
+    `<meta property="og:locale" content="es_CL">`,
+    `<meta property="og:url" content="${SITIO}/">`,
+    `<meta property="og:title" content="${esc(OG.titulo)}">`,
+    `<meta property="og:description" content="${esc(OG.descripcion)}">`,
+    `<meta property="og:image" content="${SITIO}/og.jpg">`,
+    `<meta property="og:image:secure_url" content="${SITIO}/og.jpg">`,
+    `<meta property="og:image:type" content="image/jpeg">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+    `<meta property="og:image:alt" content="Logo de 100% Natural sobre un paisaje de montañas y lago">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:title" content="${esc(OG.titulo)}">`,
+    `<meta name="twitter:description" content="${esc(OG.descripcion)}">`,
+    `<meta name="twitter:image" content="${SITIO}/og.jpg">`,
+    `<link rel="canonical" href="${SITIO}/">`,
+    `<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">`,
+    `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`,
+    `<meta name="theme-color" content="#2f6a12">`,
+  ].join("");
+  const ini = "<head><meta charset=utf8>";
+  if (!html.startsWith("<!doctype html><html>" + ini)) throw new Error("Cambio «Open Graph»: el HTML no empieza como se esperaba.");
+  html = html.replace(ini, () => ini + etiquetas);
+}
+
 // 1. Adaptador antes de cualquier script de la app (en el <head> del comienzo del archivo).
 {
   const i = html.indexOf("</head>");
-  if (i < 0 || i > 2000) throw new Error("Cambio «cargar adaptador»: no encontré el </head> inicial.");
+  if (i < 0 || i > 8000) throw new Error("Cambio «cargar adaptador»: no encontré el </head> inicial.");
   html = html.slice(0, i) +
     `<script>window.PYA_SUPABASE=${JSON.stringify(SUPABASE)};</script>` +
     `<script src="vendor/supabase.js"></script><script src="supabase-db.js"></script>` + html.slice(i);
@@ -82,6 +120,7 @@ mkdirSync("public/vendor", { recursive: true });
 writeFileSync("public/index.html", html);
 copyFileSync("web/supabase-db.js", "public/supabase-db.js");
 copyFileSync("web/importar.html", "public/importar.html");
+for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png"]) copyFileSync("web/" + f, "public/" + f);
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve("@supabase/supabase-js/dist/umd/supabase.js"), "public/vendor/supabase.js");
 console.log("Listo: public/index.html (" + Math.round(html.length / 1024) + " KB)");
