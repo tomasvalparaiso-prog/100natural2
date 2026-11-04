@@ -4,6 +4,11 @@
 (() => {
   "use strict";
   const CFG = window.PYA_SUPABASE;
+  /* Antes de que arranque la app: si recuerda sesiones pero Supabase no tiene ninguna guardada, olvidarlas.
+     Si no, la app se creería con sesión y recibiría listas vacías (y podría «conciliar» datos que no ve). */
+  try {
+    if (!localStorage.getItem("pya.supabase") && localStorage.getItem("pya.sesion.v1")) localStorage.removeItem("pya.sesion.v1");
+  } catch (_) {}
   const sb = window.supabase.createClient(CFG.url, CFG.anonKey, {
     auth: { persistSession: true, autoRefreshToken: true, storageKey: "pya.supabase" },
     realtime: { params: { eventsPerSecond: 20 } },
@@ -35,11 +40,25 @@
 
   /* ---------- Escuchas en vivo: un canal para toda la tabla, se reparte por colección ---------- */
   const escuchas = new Map(); // coleccion -> Set(listener)
+  const registro = new Set();  // todas las escuchas, en el orden en que la app se suscribió
+  /* «Época» de sesión: sube en cada cambio de sesión. Una lectura que empezó en una época anterior
+     se descarta, para no entregar a la app datos leídos con los permisos de otra sesión. */
+  let epoca = 0;
   function avisar(col) {
     const set = escuchas.get(col); if (!set) return;
     for (const l of set) l.pedir();
   }
-  function avisarTodos() { for (const set of escuchas.values()) for (const l of set) l.pedir(); }
+  function avisarTodos() { for (const l of registro) l.pedir(); }
+  /* Al cambiar de sesión: leer TODAS las escuchas con la sesión nueva y recién entonces entregarlas, en orden
+     de suscripción. Así la app nunca combina, p. ej., el stock real con una lista de pedidos aún vacía
+     (su conciliación de bidones tomaría todos los pedidos como eliminados). */
+  async function refrescarTodos() {
+    epoca++;
+    const ls = [...registro];
+    for (const l of ls) l.cancelar();
+    const rs = await Promise.all(ls.map(l => l.leer().then(s => ({ s }), e => ({ e }))));
+    ls.forEach((l, i) => l.entregar(rs[i]));
+  }
   let canal = null;
   function conectarCanal() {
     if (canal) return;
@@ -53,23 +72,34 @@
   function escuchar(col, leer, next, error) {
     let vivo = true, timer = null, enCurso = false, otraVez = false;
     const l = {
+      leer,
+      cancelar() { clearTimeout(timer); otraVez = false; },
+      entregar(r) {
+        if (!vivo) return;
+        if (r.e) { if (error) error(r.e && r.e.code ? r.e : traducir(r.e)); }
+        else next(r.s);
+      },
       pedir() {
         if (!vivo) return;
         clearTimeout(timer);
         timer = setTimeout(async () => {
           if (enCurso) { otraVez = true; return; }
           enCurso = true;
-          try { const s = await leer(); if (vivo) next(s); }
-          catch (e) { if (vivo && error) error(e && e.code ? e : traducir(e)); }
-          finally { enCurso = false; if (otraVez) { otraVez = false; l.pedir(); } }
+          const mia = epoca;
+          let r;
+          try { r = { s: await leer() }; } catch (e) { r = { e }; }
+          enCurso = false;
+          if (mia === epoca) l.entregar(r); else otraVez = false; // la sesión cambió mientras leía: descartar
+          if (otraVez) { otraVez = false; l.pedir(); }
         }, 120);
       },
     };
     if (!escuchas.has(col)) escuchas.set(col, new Set());
     escuchas.get(col).add(l);
+    registro.add(l);
     conectarCanal();
     l.pedir();
-    return () => { vivo = false; clearTimeout(timer); const s = escuchas.get(col); if (s) s.delete(l); };
+    return () => { vivo = false; clearTimeout(timer); registro.delete(l); const s = escuchas.get(col); if (s) s.delete(l); };
   }
 
   /* ---------- Referencias ---------- */
@@ -145,6 +175,7 @@
   const db = Object.freeze({ doc: path => { const [c, i] = partes(path); return docRef(c, i); }, collection: collRef });
 
   /* ---------- Sesiones: inicio de sesión y registro en el servidor ---------- */
+  let saliendo = false, entrando = 0, ultimoIngreso = 0;
   const RANGO = { admin: 3, repartidor: 2, agua: 2, papas: 2, pos: 2, utfsm: 2, prueba: 2, cliente: 1, pizzas: 1, prov: 1 };
   async function sesionActual() { const { data } = await sb.auth.getSession(); const u = data && data.session && data.session.user; return u ? (u.app_metadata || {}) : null; }
   async function llamar(cuerpo) {
@@ -165,35 +196,57 @@
     if (actual && actual.portal && (RANGO[actual.portal] || 0) > (RANGO[portal] || 0)) return;
     const r = await sb.auth.setSession(s);
     if (r.error) throw traducir(r.error);
-    avisarTodos();
+    ultimoIngreso = Date.now();
+    await refrescarTodos();
   }
   const pya = {
     /* Devuelve una instantánea de la cuenta (sin claveHash) o null si usuario/clave no coinciden. */
     async entrar(portal, usuario, clave) {
-      const r = await llamar({ accion: "entrar", portal, usuario, clave });
-      if (!r || !r.ok) return null;
-      await usarSesion(portal, r.sesion);
-      return docSnap("cuenta", r.cuenta.id, r.cuenta.data);
+      entrando++;
+      try {
+        const r = await llamar({ accion: "entrar", portal, usuario, clave });
+        if (!r || !r.ok) return null;
+        await usarSesion(portal, r.sesion);
+        return docSnap("cuenta", r.cuenta.id, r.cuenta.data);
+      } finally { entrando--; ultimoIngreso = Date.now(); }
     },
     /* { ok, cuenta } o { existe: true }. Lanza err("codigo") si el código del personal no es correcto. */
     async registrar(portal, usuario, clave, datos, codigo, porAdmin) {
-      const r = await llamar({ accion: "registrar", portal, usuario, clave, datos, codigo, porAdmin: !!porAdmin });
-      if (r && r.ok && r.sesion) await usarSesion(portal, r.sesion);
-      return r || {};
+      entrando++;
+      try {
+        const r = await llamar({ accion: "registrar", portal, usuario, clave, datos, codigo, porAdmin: !!porAdmin });
+        if (r && r.ok && r.sesion) await usarSesion(portal, r.sesion);
+        return r || {};
+      } finally { entrando--; ultimoIngreso = Date.now(); }
     },
-    salir: () => sb.auth.signOut().then(avisarTodos),
+    salir: async () => { saliendo = true; try { await sb.auth.signOut(); } finally { saliendo = false; } avisarTodos(); },
     cliente: sb,
   };
   window.__pya = pya;
 
   /* Si la app ya no tiene ninguna sesión de la cuenta con la que entramos (cerró sesión), cerrar también aquí. */
+  /* Mientras se inicia sesión (y unos segundos después) la app todavía no guardó su sesión: no revisar.
+     Y solo cerrar si en dos revisiones seguidas la app no tiene la sesión. */
+  let faltas = 0;
   setInterval(async () => {
-    const m = await sesionActual(); if (!m || !m.cuenta) return;
+    if (entrando || Date.now() - ultimoIngreso < 10000) { faltas = 0; return; }
+    const m = await sesionActual(); if (!m || !m.cuenta) { faltas = 0; return; }
     let ses = {}; try { ses = JSON.parse(localStorage.getItem("pya.sesion.v1") || "{}") || {}; } catch (_) {}
     const sigue = Object.values(ses).some(v => v && (v.id === m.cuenta || v.usuario === m.cuenta));
-    if (!sigue) pya.salir();
+    faltas = sigue ? 0 : faltas + 1;
+    if (faltas >= 2) { faltas = 0; pya.salir(); }
   }, 3000);
-  sb.auth.onAuthStateChange(ev => { if (ev === "SIGNED_IN" || ev === "SIGNED_OUT" || ev === "TOKEN_REFRESHED") avisarTodos(); });
+  /* Si la sesión se pierde sin que nadie la cierre (venció y no se pudo renovar), recargar la página:
+     así la app vuelve a comprobar sus sesiones en vez de recibir listas vacías creyendo que sigue con sesión. */
+  sb.auth.onAuthStateChange(ev => {
+    if (ev === "SIGNED_OUT" && !saliendo) {
+      try { localStorage.removeItem("pya.sesion.v1"); } catch (_) {}
+      let ultima = 0; try { ultima = Number(sessionStorage.getItem("pya.recarga") || 0); } catch (_) {}
+      if (Date.now() - ultima > 60000) { try { sessionStorage.setItem("pya.recarga", String(Date.now())); } catch (_) {} location.reload(); }
+      return;
+    }
+    if (ev === "TOKEN_REFRESHED") avisarTodos();
+  });
 
   /* ---------- Descargas: el navegador guarda el archivo ---------- */
   const downloads = Object.freeze({

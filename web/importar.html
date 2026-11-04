@@ -33,6 +33,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   <form class="card" id="f">
     <label>Archivo de respaldo (.json)<input type="file" id="archivo" accept=".json,application/json" required></label>
     <label>Clave de importación<input type="password" id="clave" autocomplete="off" required></label>
+    <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400"><input type="checkbox" id="vaciar" style="width:auto;min-height:0;margin-top:4px"><span><b>Vaciar el servidor antes de importar.</b> Borra todo lo que hay en Supabase y deja solo lo del archivo. Úsalo para el cambio definitivo.</span></label>
     <button type="submit" id="btn">Importar</button>
   </form>
   <section class="card" id="res" hidden>
@@ -61,6 +62,10 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
       const r = JSON.parse(await $("#archivo").files[0].text());
       if (r.formato !== "100natural-respaldo-v1" || !r.colecciones) throw new Error("El archivo no es un respaldo de 100% Natural.");
       const cols = Object.keys(r.colecciones);
+      if ($("#vaciar").checked) {
+        if (!confirm("Se borrará todo lo que hay en el servidor y quedará solo lo del archivo. ¿Continuar?")) { estado("Cancelado."); return; }
+        estado("Vaciando el servidor…"); await llamar(clave, { accion: "vaciar" });
+      }
       let hechos = 0, total = cols.reduce((t, c) => t + Object.keys(r.colecciones[c]).length, 0);
       for (const c of cols) {
         const ents = Object.entries(r.colecciones[c]);
@@ -76,8 +81,9 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
       estado("Comprobando…");
       const { conteos } = await llamar(clave, { accion: "contar" });
       let malos = 0;
+      const vacio = $("#vaciar").checked;
       for (const c of cols) {
-        const a = Object.keys(r.colecciones[c]).length, b = conteos[c] || 0, ok = b >= a;
+        const a = Object.keys(r.colecciones[c]).length, b = conteos[c] || 0, ok = vacio ? b === a : b >= a;
         if (!ok) malos++;
         const tr = document.createElement("tr");
         tr.innerHTML = `<td></td><td class="n">${a}</td><td class="n">${b}</td><td class="${ok ? "ok" : "bad"}">${ok ? "✓" : "faltan"}</td>`;

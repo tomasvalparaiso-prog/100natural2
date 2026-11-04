@@ -42,6 +42,13 @@ Deno.serve(async (req) => {
     return json({ ok: true, cargados: filas.length });
   }
 
+  if (b.accion === "vaciar") {
+    // Borra todos los documentos antes de una importación completa (solo con la clave de importación).
+    const { error } = await adm.from("documentos").delete().neq("coleccion", "");
+    if (error) return json({ error: error.message }, 500);
+    return json({ ok: true });
+  }
+
   if (b.accion === "contar") {
     const { data, error } = await adm.rpc("contar_documentos");
     if (error) return json({ error: error.message }, 500);
