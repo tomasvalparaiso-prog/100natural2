@@ -570,6 +570,50 @@ body[data-portal="cfd"][data-cfdv="mn"] #barra .btn.primario{background:#fff;col
 .portales.con-pzusr > button[aria-selected="true"] .pt-i{color:inherit!important}
 #tab-pzusr .pt-nom{display:block;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#tab-pzusr .pt-tipo{display:block;font-size:.72rem;font-weight:700;opacity:.8}#tab-pzusr .pt-t{min-width:0;max-width:100%}
 .pzz-top-esp{height:8px}
+.pzz.pzz .pzz-cats{margin:0 0 10px!important;padding:0 0 2px!important;width:100%;box-sizing:border-box}.pzz-cats .chip-ico[aria-pressed="true"]{background:var(--ink)!important;border-color:var(--ink)!important}.pzz-cats .chip-ico[aria-pressed="true"] .chip-t,.pzz-cats .chip-ico[aria-pressed="true"] .chip-i{color:var(--bg)!important}
+.pzz-pag{margin:0 0 16px;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pzz-pag-img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;max-height:420px}
+.pzz-pag-b{padding:16px 16px 18px;display:grid;gap:10px}.pzz-pag-b h2{margin:0;font-size:1.5rem}.pzz-pag-d{margin:0;color:var(--muted)}
+@media(min-width:760px){.pzz-pag{display:grid;grid-template-columns:1.2fr 1fr}.pzz-pag-img{height:100%;max-height:none;aspect-ratio:auto}}.pzz-cats .chip-t{text-transform:capitalize}
+.tabs.rep-tabs > button.pos-tab-salir{color:#b91c1c}.tabs.rep-tabs > button.pos-tab-salir .rep-ti{color:#dc2626!important}
+.rep-avisos{display:flex;justify-content:flex-end;margin:0 0 6px;font-size:.88rem}.rep-avisos:has(.avisos-slot:empty){display:none}
+.local-switch > .local-btn.local-btn:not(.ls-volver) > span.red-cnt{position:absolute;left:auto;right:6px;top:5px;width:auto!important;min-width:20px;padding:0 6px}.local-switch > .local-btn.l-salir{color:#b91c1c!important}.local-switch > .local-btn.local-btn.l-salir > svg{color:#dc2626!important}
+.portales.cfd-solo{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.ad-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;font-size:.88rem}.ad-pt-tog{min-height:38px}
+.portales.ad-solo{grid-template-columns:minmax(0,220px)}
+/* Clientes: categorías y barra inferior un poco más grandes */
+body[data-portal="cliente"] .cat-ico-chips .chip.chip-ico{flex-basis:96px;width:96px;min-height:106px;gap:8px}
+body[data-portal="cliente"] .cat-ico-chips .chip-ico .chip-i.chip-sv{height:38px}
+body[data-portal="cliente"] .cat-ico-chips .chip-ico .chip-i.chip-sv svg{width:36px!important;height:36px!important}
+body[data-portal="cliente"] .cat-ico-chips .chip-ico .chip-t{font-size:.82rem!important}
+@media(min-width:900px){body[data-portal="cliente"] .cat-ico-chips .chip.chip-ico{flex-basis:132px;width:132px;min-height:114px}body[data-portal="cliente"] .cat-ico-chips .chip-ico .chip-t{font-size:1rem!important}}
+body[data-portal="cliente"].sin-portales,body[data-portal="cliente"]:has(.cli-tabs){--cli-nav-h:80px}
+body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs>button{min-height:70px;font-size:.66rem;letter-spacing:-.02em;gap:4px;padding:6px 2px 5px;flex:0 0 72px;min-width:72px;scroll-snap-align:start}
+body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs{gap:8px!important;padding-left:10px;padding-right:10px;justify-content:flex-start;overflow-x:auto!important;scroll-padding:0 10px}
+@media(min-width:700px){body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs{justify-content:center}body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs>button{flex-basis:96px;min-width:96px}}
+body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs>button .rep-ti{width:54px;height:34px}
+body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs>button .rep-ti svg{width:27px;height:27px}
+@media(min-width:700px){body[data-portal="cliente"] .tabs.rep-tabs.cli-tabs.cli-tabs>button{font-size:.88rem}}
+body[data-portal="cliente"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"],body[data-portal="cfd"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+body[data-portal="cliente"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"] .chip-t,body[data-portal="cfd"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"] .chip-t{color:var(--bg)!important}
+body[data-portal="cliente"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"] .chip-i,body[data-portal="cfd"] .cat-ico-chips .chip.chip-ico[aria-pressed="true"] .chip-i{color:var(--bg)!important}
+body[data-portal="cliente"] #catalogo .cat:has(> .afiche) > .cat-h{display:none}
+/* En todas las secciones: si hay foto (afiche) de agua o papas, se muestra solo la foto, sin título. */
+.cat:has(> .afiche:not([hidden])) > .cat-h{display:none!important}
+body[data-portal="cliente"] #catalogo .cat:has(> .afiche) > .afiche{border-radius:18px 18px 0 0}
+/* Banner superior flotante: queda arriba al bajar por la página y se achica para no tapar el contenido. */
+/* El banner grande queda en su lugar; al bajar aparece una copia fija y más baja arriba (sin mover el contenido). */
+.banner-flot{position:fixed;left:50%;top:0;z-index:60;width:var(--banner-w,min(960px,calc(100% - 32px)));aspect-ratio:2112/521;height:auto;margin-top:env(safe-area-inset-top,0px);transform:translate(-50%,-115%);transition:transform .22s ease;background:var(--banner-url) center/cover no-repeat;border-radius:0 0 16px 16px;box-shadow:0 10px 24px -14px var(--shadow),0 0 0 1px var(--line);pointer-events:none}
+body.banner-mini .banner-flot{transform:translate(-50%,0)}
+
+html{scroll-padding-top:calc(var(--banner-h,70px) + 16px)}
+/* Inventario general: botones Local agua / Local papas separados de la sección */
+.inv-gen .inv-gen-tabs{gap:10px;margin:0 0 14px}
+.inv-gen .inv-gen-t{border:1px solid var(--line);border-radius:16px;margin-bottom:0;background:var(--surface);box-shadow:0 8px 20px -18px var(--shadow);padding:12px 14px}
+.inv-gen .inv-gen-t[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:none;padding:12px 14px}
+.inv-gen .inv-gen-t[aria-selected="true"] .inv-gen-l small{color:inherit;opacity:.8}
+.inv-gen .inv-loc,.inv-gen-papa .inv-loc,.inv-gen-agua .inv-loc{border:1px solid var(--line);border-radius:16px!important}
+.suel-ed-t{grid-column:1/-1;margin:0;font-weight:800}.suel-acc{display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px}.suel-ox small .suel-acc{flex-direction:row;gap:8px}
 .pos-cli-sub{margin:0 0 12px}
 .aut-n{margin:0 0 8px}@media(min-width:900px){.aut-lista{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}}
 .apz-ico{font-size:1.1rem;line-height:1}
@@ -1814,7 +1858,7 @@ body[data-portal="cliente"]:has(.cli-tabs):has(#barra:not([hidden])) #toast{bott
 const CODIGO_HASH = "bb88784654f77e34b711d69167d3850b55471f83db1c47c5a61945993e6e1a2a";
 const CODIGO_PROD_HASH = "da1777a2edd74195c3a70b8f3d21b1cd0633f061c0bd880509c77d282d2484de";
 const CODIGO_PAGOS_HASH = "fbdb999d98618a949ebed85ea7a1ea325b88b05a554a97e4aae98481a327dd88";
-const CODIGO_PRUEBA_HASH = "24f3ef83fd0e863eac3bf0f47bc063fba75ed41ac59578cfc6eecc28020903ef";
+const CODIGO_PRUEBA_HASH = "fd6c7bd5cad3e224cfecc0d8a30d1d25cc2d1e066728b36c873c45f4611e44da";
 const CODIGO_POS_HASH = "df75339fa8ed5ed45b2c633f712cb1e77ae780785b669c1dea0318139c1ce0a7";
 const CODIGO_ADMIN_HASH = "eb567c43092e0806101fa055b37147bb0da578abe7cf0a5b7cdf3f6e780f12a9";
 const PORTALES = ["cliente", "repartidor", "agua", "papas", "pizzas", "prov", "pos", "utfsm", "prueba", "cfd", "admin"];
@@ -2203,11 +2247,22 @@ async function enviarARep(id, btn) {
     toast("Pedido enviado a la página de repartidores.");
   } catch (e) { toast(msgError(e)); if (btn && btn.isConnected) ocupar(btn, false); }
 }
+/* Banner flotante: se achica al bajar; bannerH() da su alto para no esconder contenido debajo de él al desplazarse. */
+const bannerH = () => { const b = document.querySelector(".banner-flot"); return b ? b.offsetHeight : 0; };
+(() => { if (!document.querySelector(".banner-flot")) document.body.insertAdjacentHTML("beforeend", `<div class="banner-flot" aria-hidden="true"></div>`);
+  let t = false; const f = () => { t = false; const bn = document.getElementById("banner"), lim = bn ? bn.getBoundingClientRect().bottom + window.scrollY - 20 : 90; const mini = window.scrollY > lim; if (document.body.classList.contains("banner-mini") !== mini) document.body.classList.toggle("banner-mini", mini); document.documentElement.style.setProperty("--banner-h", Math.round(bannerH()) + "px"); if (bn && bn.offsetWidth) document.documentElement.style.setProperty("--banner-w", bn.offsetWidth + "px"); };
+  window.addEventListener("scroll", () => { if (!t) { t = true; requestAnimationFrame(f); } }, { passive: true }); window.addEventListener("resize", f); setTimeout(f, 0); })();
 function renderHeader() {
   const solo = !S.ses.admin && S.portal !== "admin" && !!S.ses[S.portal];
   $("#portales").hidden = false;
   $("#portales").classList.toggle("solo", solo);
   for (const p of PORTALES) $("#tab-" + p).hidden = solo && p !== S.portal;
+  /* Administrador: puede esconder los botones de las demás páginas (queda solo Administrador). */
+  $("#portales").classList.remove("ad-solo");
+  /* Prueba de interfaces (usa la sesión de Clientes): solo se ve su botón (y Administrador, si hay sesión de administrador, para volver). */
+  const enCfd = S.portal === "cfd" && !!S.ses.cliente;
+  if (enCfd) for (const p of PORTALES) $("#tab-" + p).hidden = !(p === "cfd" || (p === "admin" && S.ses.admin));
+  $("#portales").classList.toggle("solo", solo || (enCfd && !S.ses.admin)); $("#portales").classList.toggle("cfd-solo", enCfd && !!S.ses.admin);
   /* Clientes: con sesión iniciada, el botón muestra el nombre y el tipo de usuario, y al lado va el botón Salir. */
   const c = S.ses.cliente, tc = $("#tab-cliente"), tt = tc && tc.querySelector(".pt-t");
   if (tt) { const html = c ? `<b class="pt-nom">${esc(c.nombre)}</b><small class="pt-tipo">${esc(c.tipo || "Cliente")}</small>` : "Clientes"; if (tt.innerHTML !== html) tt.innerHTML = html; tc.classList.toggle("con-ses", !!c); tc.setAttribute("aria-label", c ? `Clientes: ${c.nombre}, ${c.tipo || "cliente"}` : "Clientes"); }
@@ -2222,6 +2277,9 @@ function renderHeader() {
   if (pu) { const h = `<b class="pt-nom">${esc(pu.nombre || "")}</b><small class="pt-tipo">Cliente pizzas</small>`; const t = ub.querySelector(".pt-t"); if (t.innerHTML !== h) t.innerHTML = h; ub.setAttribute("aria-label", `Mi perfil: ${pu.nombre || ""}`); }
   $("#portales").classList.toggle("con-pzusr", !!pu);
   pzMarcarTop();
+  /* Cliente con sesión (sin administrador): no se muestra la barra de botones de arriba; la página parte directo en las categorías. */
+  const soloCli = (S.portal === "admin" && !!S.ses.admin && !!AD.ocultarPortales) || (S.portal === "cfd" && !!S.ses.cliente) || solo && (S.portal === "cliente" || S.portal === "pizzas" || S.portal === "pos" || S.portal === "utfsm" || S.portal === "repartidor" || S.portal === "agua" || S.portal === "papas" || S.portal === "prov" || S.portal === "prueba");
+  $("#portales").hidden = soloCli; document.body.classList.toggle("sin-portales", soloCli);
 }
 function renderAviso() {
   const a = $("#aviso");
@@ -2493,18 +2551,15 @@ function pzMarcarTop() {
 function pizzasHTML() {
   const staff = !!S.ses.admin, n = pzN();
   const nuevos = PZZ.docs.filter(d => d.estado === "recibido").length;
-  const tit = { menu: "Local pizzas", carro: "Tu pedido", ok: "¡Pedido enviado!", mis: "Mis pedidos", recibidos: "Pedidos recibidos", perfil: "Mi perfil" }[PZZ.vista] || "Local pizzas";
-  return `${PZZ.vista !== "menu" ? `<header class="pzz-bar">
-      <button type="button" class="pzz-volver" data-pz="ir" data-v="menu" aria-label="Volver al menú">‹</button>
-      <h2>${tit}</h2>
-    </header>` : `<div class="pzz-top-esp"></div>`}
-    ${PZZ.vista === "carro" ? pzCarroHTML() : PZZ.vista === "ok" ? pzOkHTML() : PZZ.vista === "mis" ? pzMisHTML() : PZZ.vista === "recibidos" && staff ? pzRecHTML() : PZZ.vista === "perfil" ? pzPerfilHTML() : pzMenuHTML()}
+  const tit = { menu: "Local pizzas", carro: "Tu pedido", ok: "¡Pedido enviado!", mis: "Mis pedidos", recibidos: "Pedidos recibidos", perfil: "Mi perfil", pizza: (pzP(PZZ.sel) || {}).nombre || "Pizza" }[PZZ.vista] || "Local pizzas";
+  return `<div class="pzz-top-esp"></div>
+    ${pzCatsHTML(PZZ.vista === "pizza" ? PZZ.sel : "")}${PZZ.vista === "carro" ? pzCarroHTML() : PZZ.vista === "ok" ? pzOkHTML() : PZZ.vista === "mis" ? pzMisHTML() : PZZ.vista === "recibidos" && staff ? pzRecHTML() : PZZ.vista === "perfil" ? pzPerfilHTML() : PZZ.vista === "pizza" ? pzPizzaHTML() : pzMenuHTML()}
     ${PZZ.vista === "menu" && n ? `<button type="button" class="pzz-cartbar" data-pz="ir" data-v="carro"><span><b>${n}</b> ${n === 1 ? "pizza" : "pizzas"}</span><span>Ver pedido</span><b>${clp(pzTot())}</b></button>` : ""}
     <nav class="pzz-nav" aria-label="Menú Local pizzas">
       ${pzNavB("menu", PZ_ICO.pizza, "Pizzas")}${pzNavB("carro", PZ_ICO.carro, "Mi pedido", n)}${pzNavB("mis", PZ_ICO.mis, "Pedidos")}${staff ? pzNavB("recibidos", PZ_ICO.rec, "Recibidos", nuevos, "pzz-rec-n") : ""}${pzNavB("perfil", PZ_ICO.perfil, "Perfil")}
       ${S.portal === "admin" ? "" : `<button type="button" data-act="salir" data-k="pizzas"><span class="pzz-ni" aria-hidden="true">${PZ_ICO.salir}</span><span>Salir</span></button>`}
     </nav>
-    ${PZZ.sel ? pzSheetHTML() : ""}`;
+    ${PZZ.sel && PZZ.vista !== "pizza" ? pzSheetHTML() : ""}`;
 }
 const PZ_SVG = p => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const PZ_ICO = {
@@ -2515,10 +2570,34 @@ const PZ_ICO = {
   perfil: PZ_SVG('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
   salir: PZ_SVG('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>')
 };
-const pzNavB = (v, ico, txt, cnt, id) => `<button type="button" data-pz="ir" data-v="${v}" aria-current="${PZZ.vista === v || (v === "carro" && PZZ.vista === "ok") ? "page" : "false"}"><span class="pzz-ni" aria-hidden="true">${ico}</span><span>${txt}</span><b class="pzz-nc"${id ? ` id="${id}"` : ""}>${cnt || ""}</b></button>`;
+const pzNavB = (v, ico, txt, cnt, id) => `<button type="button" data-pz="ir" data-v="${v}" aria-current="${PZZ.vista === v || (v === "carro" && PZZ.vista === "ok") || (v === "menu" && PZZ.vista === "pizza") ? "page" : "false"}"><span class="pzz-ni" aria-hidden="true">${ico}</span><span>${txt}</span><b class="pzz-nc"${id ? ` id="${id}"` : ""}>${cnt || ""}</b></button>`;
+/* Botones de categorías de Local pizzas: una por cada pizza disponible (texto + ícono). */
+function pzCatsHTML(sel) {
+  const disp = PZ_MENU.filter(p => !pzAgotada(p.id));
+  const todas = `<button type="button" class="chip chip-ico" data-pz="ir" data-v="menu" aria-pressed="${PZZ.vista === "menu"}"><span class="chip-i chip-sv" aria-hidden="true" style="--c:var(--ic2)">${CAT_SVG('<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>')}</span><span class="chip-t">Todas</span></button>`;
+  return disp.length ? `<nav class="chips cat-ico-chips pzz-cats" aria-label="Pizzas disponibles">${todas}${disp.map((p, i) => `<button type="button" class="chip chip-ico" data-pz="ver" data-id="${p.id}" aria-pressed="${sel === p.id}"><span class="chip-i chip-sv" aria-hidden="true" style="--c:var(--ic${(i % 8) + 1})">${PZ_ICO.pizza}</span><span class="chip-t">${esc(p.nombre.replace(/^Pizza /i, "").replace(/\s+pizza$/i, ""))}</span></button>`).join("")}</nav>` : "";
+}
+/* Página propia de cada pizza (foto grande, descripción, tamaño, cantidad y agregar). */
+function pzPizzaHTML() {
+  const p = pzP(PZZ.sel); if (!p) return pzMenuHTML();
+  const precio = p[PZZ.tam];
+  return `<article class="pzz-pag">
+    <img class="pzz-pag-img" src="${PZ_IMG[p.id]}" alt="${esc(p.nombre)}">
+    <div class="pzz-pag-b">
+      <h2>${esc(p.nombre)}</h2><p class="pzz-pag-d">${esc(p.desc)}</p>
+      <p class="pzz-lbl">Tamaño</p>
+      <div class="pzz-tams">${["m", "f"].map(t => `<button type="button" data-pz="tam" data-t="${t}" aria-pressed="${PZZ.tam === t}"><span>${PZ_TAM[t]}</span><b>${clp(p[t])}</b></button>`).join("")}</div>
+      <p class="pzz-lbl">Cantidad</p>
+      <div class="pzz-cant"><button type="button" data-pz="cant" data-d="-1" aria-label="Menos">−</button><b id="pzz-cant">${PZZ.cant}</b><button type="button" data-pz="cant" data-d="1" aria-label="Más">+</button></div>
+      <button type="button" class="pzz-add pzz-w" data-pz="agregar">Agregar ${PZZ.cant} · ${clp(precio * PZZ.cant)}</button>
+      <button type="button" class="pzz-sec pzz-w" data-pz="ir" data-v="menu">‹ Ver todas las pizzas</button>
+    </div>
+  </article>`;
+}
 function pzMenuHTML() {
   subPzCfg();
-  return `<div class="pzz-grid">${PZ_MENU.map(p => { const ag = pzAgotada(p.id); return `<button type="button" class="pzz-card ${ag ? "pzz-agotada" : ""}" data-pz="ver" data-id="${p.id}" ${ag ? 'disabled aria-disabled="true"' : ""}>
+  const cats = "";
+  return `${cats}<div class="pzz-grid">${PZ_MENU.map(p => { const ag = pzAgotada(p.id); return `<button type="button" class="pzz-card ${ag ? "pzz-agotada" : ""}" data-pz="ver" data-id="${p.id}" ${ag ? 'disabled aria-disabled="true"' : ""}>
       <span class="pzz-imgw"><img src="${PZ_IMG[p.id]}" alt="" loading="lazy">${ag ? `<span class="pzz-ag">Agotada</span>` : ""}</span>
       <span class="pzz-cap">${esc(p.nombre)}<small>${ag ? "No disponible por ahora" : `desde ${clp(p.m)}`}</small></span>
     </button>`; }).join("")}</div>`;
@@ -2648,22 +2727,27 @@ document.addEventListener("click", e => {
   if (a !== "menu" && PZZ.menuAbierto) PZZ.menuAbierto = false;
   if (PZZ.vista === "carro") pzLeerForm();
   if (a === "menu") PZZ.menuAbierto = !PZZ.menuAbierto;
-  else if (a === "ir") { PZZ.vista = b.dataset.v; PZZ.sel = null; window.scrollTo(0, 0); }
-  else if (a === "ver") { if (pzAgotada(b.dataset.id)) return; PZZ.sel = b.dataset.id; PZZ.tam = "m"; PZZ.cant = 1; }
+  else if (a === "ir") { PZZ.vista = b.dataset.v; PZZ.sel = null; PZZ.irDesdeCats = !!b.closest(".pzz-cats"); if (!PZZ.irDesdeCats) window.scrollTo(0, 0); }
+  else if (a === "ver") { if (pzAgotada(b.dataset.id)) return; PZZ.sel = b.dataset.id; PZZ.tam = "m"; PZZ.cant = 1; PZZ.vista = "pizza"; PZZ.irCats = !b.closest(".pzz-cats"); }
   else if (a === "cerrar") PZZ.sel = null;
   else if (a === "tam") PZZ.tam = b.dataset.t;
   else if (a === "cant") PZZ.cant = Math.max(1, Math.min(20, PZZ.cant + Number(b.dataset.d)));
   else if (a === "agregar") {
     const p = pzP(PZZ.sel), ex = PZZ.cart.find(i => i.id === p.id && i.tam === PZZ.tam);
     if (ex) ex.cant += PZZ.cant; else PZZ.cart.push({ id: p.id, tam: PZZ.tam, precio: p[PZZ.tam], cant: PZZ.cant });
-    pzGuardarCart(); toast(`${PZZ.cant}× ${p.nombre} agregada${PZZ.cant > 1 ? "s" : ""} a tu pedido.`); PZZ.sel = null;
+    pzGuardarCart(); toast(`${PZZ.cant}× ${p.nombre} agregada${PZZ.cant > 1 ? "s" : ""} a tu pedido.`); PZZ.sel = null; if (PZZ.vista === "pizza") { PZZ.vista = "menu"; window.scrollTo(0, 0); }
   } else if (a === "icant") { const i = PZZ.cart[Number(b.dataset.k)]; if (i) { i.cant += Number(b.dataset.d); if (i.cant <= 0) PZZ.cart.splice(Number(b.dataset.k), 1); pzGuardarCart(); } }
   else if (a === "estado") {
     const id = b.dataset.id, est = b.dataset.e; b.disabled = true;
     conReintento(() => S.db.collection("pedidos_pizzas").doc(id).update({ estado: est, ["en_" + est]: Date.now() })).then(() => toast(`Pedido marcado: ${PZ_EST[est]}.`)).catch(er => toast(msgError(er)));
     const d = PZZ.docs.find(x => x.id === id); if (d) d.estado = est;
   }
-  renderPizzas(); if (S.portal === "admin") renderAdPz();
+  { const y = window.scrollY, c0 = $(".pzz-cats"), sx = c0 ? c0.scrollLeft : 0; renderPizzas(); if (S.portal === "admin") renderAdPz();
+    /* La fila de categorías mantiene su desplazamiento lateral y deja visible la pizza elegida. */
+    { const c1 = $(".pzz-cats"); if (c1) { c1.scrollLeft = sx; const on = c1.querySelector('[aria-pressed="true"]'); if (on) { const l = on.offsetLeft - c1.offsetLeft, r = l + on.offsetWidth; if (l < c1.scrollLeft) c1.scrollLeft = l - 6; else if (r > c1.scrollLeft + c1.clientWidth) c1.scrollLeft = r - c1.clientWidth + 6; } } }
+    /* Al elegir una pizza no se vuelve al inicio de la página: desde la fila de categorías se queda donde está; desde la foto, baja hasta las categorías. */
+    if (a === "ir" && PZZ.irDesdeCats) { window.scrollTo(0, y); PZZ.irDesdeCats = false; }
+    if (a === "ver") { if (PZZ.irCats) { const c = $(".pzz-cats"); if (c) window.scrollTo({ top: Math.max(0, c.getBoundingClientRect().top + window.scrollY - 12 - bannerH()), behavior: "smooth" }); } else window.scrollTo(0, y); PZZ.irCats = false; } }
 });
 document.addEventListener("change", e => { const t = e.target; if (!pzActivo() || !t.closest || !t.closest("#pzz-form")) return; if (t.name === "entrega") { const d = $(".pzz-dir"); if (d) d.hidden = t.value !== "Despacho"; } });
 document.addEventListener("submit", e => { if (e.target && e.target.id === "pzz-form") { e.preventDefault(); pzEnviar(); } });
@@ -2944,10 +3028,11 @@ async function suelAdGuardar(fm) {
   const monto = Number(String($("#suel-ad-monto").value).replace(/\D/g, "")), fecha = $("#suel-ad-fecha").value || hoy(), nota = String($("#suel-ad-nota").value || "").trim();
   if (!(monto > 0)) { if (err) err.textContent = ox ? "Escribe el monto del extra." : "Escribe el monto del adelanto."; return; }
   if (ox && !nota) { if (err) err.textContent = "Escribe el motivo del extra (ej.: bono)."; return; }
-  const doc = SUEL.pagos[mes] || {}, p = Object.assign({}, doc[per] || {}), campo = ox ? "otros" : "adelantos";
-  p[campo] = [...(Array.isArray(p[campo]) ? p[campo] : []), { id: (ox ? "ox" : "ad") + Date.now().toString(36), monto, fecha, nota, por: (S.ses.admin || {}).nombre || "", en: Date.now() }];
+  const doc = SUEL.pagos[mes] || {}, p = Object.assign({}, doc[per] || {}), campo = ox ? "otros" : "adelantos", edit = fm.dataset.edit;
+  if (edit) p[campo] = (Array.isArray(p[campo]) ? p[campo] : []).map(x => x.id === edit ? Object.assign({}, x, { monto, fecha, nota, editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "" }) : x);
+  else p[campo] = [...(Array.isArray(p[campo]) ? p[campo] : []), { id: (ox ? "ox" : "ad") + Date.now().toString(36), monto, fecha, nota, por: (S.ses.admin || {}).nombre || "", en: Date.now() }];
   const d2 = Object.assign({}, doc, { [per]: p }); SUEL.pagos[mes] = d2; SUEL.form = ""; SUEL.f = {}; suelRender();
-  try { await conReintento(() => S.db.doc("sueldos_pagos/" + mes).set(d2)); toast(ox ? `Extra de ${clp(monto)} guardado; se suma al sueldo del mes.` : `Adelanto de ${clp(monto)} guardado; se descuenta del sueldo líquido del mes.`); } catch (e) { toast(msgError(e)); }
+  try { await conReintento(() => S.db.doc("sueldos_pagos/" + mes).set(d2)); toast(edit ? "Cambios guardados." : ox ? `Extra de ${clp(monto)} guardado; se suma al sueldo del mes.` : `Adelanto de ${clp(monto)} guardado; se descuenta del sueldo líquido del mes.`); } catch (e) { toast(msgError(e)); }
 }
 async function suelAdBorrar(mes, per, id, tipo) {
   const ox = tipo === "ox", campo = ox ? "otros" : "adelantos";
@@ -2988,14 +3073,15 @@ function suelCardHTML(p, C, ro) {
   const { mes, a, b } = C, K = suelCalc(p, C), { pk, pp, rows, ads, adT, saldoBase, otros, extT, yaPag, pend } = K;
   const btnPag = (item, ok) => ro ? (ok ? `<span class="suel-pg si">✓ Pagado</span>` : `<span></span>`) : `<button type="button" class="suel-pg ${ok ? "si" : ""}" data-act="suel-pag" data-mes="${mes}" data-per="${pk}" data-item="${item}" aria-pressed="${!!ok}">${ok ? "✓ Pagado" : "Marcar pagado"}</button>`;
   const fecha0 = hoy() >= a && hoy() <= b ? hoy() : b;
-  const form = tipo => SUEL.form === (tipo === "ox" ? "x:" : "") + pk ? `<form class="suel-ad-form" data-per="${pk}" data-mes="${mes}" data-tipo="${tipo}" novalidate><label class="campo"><span>${tipo === "ox" ? "Monto del extra" : "Monto del adelanto"}</span><input id="suel-ad-monto" inputmode="numeric" placeholder="Ej.: ${tipo === "ox" ? "50.000" : "100.000"}" value="${esc(SUEL.f.monto || "")}" autocomplete="off"></label><label class="campo"><span>Fecha</span><input type="date" id="suel-ad-fecha" value="${esc(SUEL.f.fecha || fecha0)}" min="${a}" max="${b}"></label><label class="campo suel-ad-nota"><span>${tipo === "ox" ? "Motivo" : "Nota <em>opcional</em>"}</span><input id="suel-ad-nota" value="${esc(SUEL.f.nota || "")}" maxlength="80" placeholder="${tipo === "ox" ? "Ej.: bono, horas extra, feriado" : "Ej.: adelanto quincena"}"></label><p class="err" id="suel-ad-err" role="alert"></p><div class="suel-ad-acc"><button type="button" class="btn suave chico" data-act="suel-ad-no">Cancelar</button><button type="submit" class="btn primario chico">${tipo === "ox" ? "Guardar extra" : "Guardar adelanto"}</button></div></form>` : "";
-  const delBtn = (x, tipo) => ro ? "" : SUEL.adDel === x.id ? `<span class="suel-ad-del"><button type="button" class="btn chico peligro" data-act="suel-ad-del-si" data-mes="${mes}" data-per="${pk}" data-id="${esc(x.id)}" data-tipo="${tipo}">Borrar</button><button type="button" class="btn chico suave" data-act="suel-ad-del-no">No</button></span>` : `<button type="button" class="link" data-act="suel-ad-del" data-id="${esc(x.id)}">Borrar</button>`;
+  const form = (tipo, editId) => (editId ? SUEL.form === "e:" + editId : SUEL.form === (tipo === "ox" ? "x:" : "") + pk) ? `<form class="suel-ad-form" data-per="${pk}" data-mes="${mes}" data-tipo="${tipo}"${editId ? ` data-edit="${esc(editId)}"` : ""} novalidate>${editId ? `<p class="suel-ed-t">✏️ Editar ${tipo === "ox" ? "extra" : "adelanto"}</p>` : ""}<label class="campo"><span>${tipo === "ox" ? "Monto del extra" : "Monto del adelanto"}</span><input id="suel-ad-monto" inputmode="numeric" placeholder="Ej.: ${tipo === "ox" ? "50.000" : "100.000"}" value="${esc(SUEL.f.monto || "")}" autocomplete="off"></label><label class="campo"><span>Fecha</span><input type="date" id="suel-ad-fecha" value="${esc(SUEL.f.fecha || fecha0)}" min="${a}" max="${b}"></label><label class="campo suel-ad-nota"><span>${tipo === "ox" ? "Motivo" : "Nota <em>opcional</em>"}</span><input id="suel-ad-nota" value="${esc(SUEL.f.nota || "")}" maxlength="80" placeholder="${tipo === "ox" ? "Ej.: bono, horas extra, feriado" : "Ej.: adelanto quincena"}"></label><p class="err" id="suel-ad-err" role="alert"></p><div class="suel-ad-acc"><button type="button" class="btn suave chico" data-act="suel-ad-no">Cancelar</button><button type="submit" class="btn primario chico">${editId ? "Guardar cambios" : tipo === "ox" ? "Guardar extra" : "Guardar adelanto"}</button></div></form>` : "";
+  const delBtn = (x, tipo) => ro ? "" : SUEL.adDel === x.id ? `<span class="suel-ad-del"><button type="button" class="btn chico peligro" data-act="suel-ad-del-si" data-mes="${mes}" data-per="${pk}" data-id="${esc(x.id)}" data-tipo="${tipo}">Borrar</button><button type="button" class="btn chico suave" data-act="suel-ad-del-no">No</button></span>` : `<span class="suel-acc"><button type="button" class="link suel-ed-b" data-act="suel-edit" data-mes="${mes}" data-per="${pk}" data-id="${esc(x.id)}" data-tipo="${tipo}">Editar</button><button type="button" class="link" data-act="suel-ad-del" data-id="${esc(x.id)}">Borrar</button></span>`;
   const quien = x => `${esc(fmtFecha(x.fecha || hoy()))}${x.nota ? " · " + esc(x.nota) : ""}${x.por && !ro ? " · " + esc(x.por) : ""}`;
   return `<article class="suel-card">
       <div class="suel-h"><span class="pcc-av" aria-hidden="true">${esc(p.nombre[0])}</span><b>${esc(p.nombre)}</b><span class="suel-tot">${p.base ? clp(p.base) : "—"}<small>${p.base ? "sueldo líquido" : "sin sueldo fijo"}</small></span></div>
       <ul class="suel-rows">${p.base ? `<li><span>Sueldo líquido${adT ? ` <small>${clp(p.base)} − adelantos ${clp(adT)}</small>` : ""}${pp.base ? ` <small>pagado el ${esc(fmtFecha(ymd(new Date(pp.base.en))))}${pp.base.por && !ro ? " · " + esc(pp.base.por) : ""}</small>` : ` <small>${adT ? "saldo pendiente" : "pendiente"}</small>`}</span><b>${clp(saldoBase)}</b>${btnPag("base", pp.base)}</li>
         ${ads.map(x => `<li class="suel-ad"><span>Adelanto <small>${quien(x)}</small></span><b>${clp(x.monto)}</b>${delBtn(x, "ad") || "<span></span>"}</li>`).join("")}` : ""}${rows.map(r => `<li><span>${esc(r.lbl)}${r.marc ? ` <small>pagado el ${esc(fmtFecha(ymd(new Date(r.marc.en))))}${r.marc.por && !ro ? " · " + esc(r.marc.por) : ""}</small>` : r.n ? ` <small>${r.pg >= r.t ? "pagado" : r.pg ? `pagado ${clp(r.pg)} · pendiente ${clp(r.t - r.pg)}` : "pendiente"}</small>` : ` <small>sin registros este mes</small>`}</span><b>${r.n ? "+ " : ""}${clp(r.t)}</b>${r.n || r.marc ? btnPag(r.cat, r.marc) : `<span></span>`}</li>`).join("")}
         ${otros.map(x => `<li class="suel-ox"><span>${esc(x.nota || "Otro extra")} <small>${esc(fmtFecha(x.fecha || hoy()))}${x.por && !ro ? " · " + esc(x.por) : ""}${!ro ? ` · ${delBtn(x, "ox")}` : ""}</small></span><b>+ ${clp(x.monto)}</b>${btnPag("ox_" + x.id, pp["ox_" + x.id])}</li>`).join("")}</ul>
+      ${ro ? "" : [...ads.map(x => form("ad", x.id)), ...otros.map(x => form("ox", x.id))].join("")}
       ${ro ? "" : `<div class="suel-btns">${p.base ? (form("ad") || (SUEL.form === "x:" + pk ? "" : `<button type="button" class="btn suave chico suel-ad-btn" data-act="suel-ad" data-per="${pk}">＋ Agregar adelanto</button>`)) : ""}${form("ox") || (SUEL.form === pk ? "" : `<button type="button" class="btn suave chico suel-ad-btn" data-act="suel-ox" data-per="${pk}">＋ Agregar otro extra</button>`)}</div>`}
       <div class="suel-eq" aria-label="Cálculo del pendiente"><span class="suel-eq-f">Pendiente = sueldo líquido − adelantos + extras${yaPag ? " − ya pagado" : ""}</span>
         <span class="suel-eq-n">${clp(p.base)} − ${clp(adT)} + ${clp(extT)}${yaPag ? ` − ${clp(yaPag)}` : ""} = <b>${clp(pend)}</b></span></div>
@@ -3033,6 +3119,7 @@ document.addEventListener("input", e => { const t = e.target; if (t && /^suel-ad
 document.addEventListener("click", e => { const b = e.target.closest('[data-act^="suel-"]'); if (!b) return; if (b.dataset.act === "suel-pag") { suelMarcar(b.dataset.mes, b.dataset.per, b.dataset.item, b); return; }
   if (b.dataset.act === "suel-ad" || b.dataset.act === "suel-ox") { SUEL.form = (b.dataset.act === "suel-ox" ? "x:" : "") + b.dataset.per; SUEL.f = {}; suelRender(); const m = $("#suel-ad-monto"); if (m) m.focus(); return; }
   if (b.dataset.act === "suel-ad-no") { SUEL.form = ""; suelRender(); return; }
+  if (b.dataset.act === "suel-edit") { const pp = ((SUEL.pagos[b.dataset.mes] || {})[b.dataset.per]) || {}, lista = b.dataset.tipo === "ox" ? pp.otros : pp.adelantos, x = (lista || []).find(z => z.id === b.dataset.id); if (!x) return; SUEL.form = "e:" + x.id; SUEL.adDel = ""; SUEL.f = { monto: Number(x.monto || 0).toLocaleString("es-CL"), fecha: x.fecha || "", nota: x.nota || "" }; suelRender(); const m = $("#suel-ad-monto"); if (m) { m.focus(); m.scrollIntoView({ block: "center", behavior: "smooth" }); } return; }
   if (b.dataset.act === "suel-ad-del") { SUEL.adDel = b.dataset.id; suelRender(); return; }
   if (b.dataset.act === "suel-ad-del-no") { SUEL.adDel = ""; suelRender(); return; }
   if (b.dataset.act === "suel-ad-del-si") { suelAdBorrar(b.dataset.mes, b.dataset.per, b.dataset.id, b.dataset.tipo); return; } if (b.dataset.act === "suel-mover") SUEL.ref = moverPeriodo("mes", SUEL.ref, Number(b.dataset.d)); else SUEL.ref = hoy(); suelRender(); });
@@ -3439,7 +3526,9 @@ function catsCliente() {
   return CATALOGO.map(c => ({ c, items: c.items.map(([id]) => PROD[id]).filter(p => ed || !oc.has(p.id) || S.carrito[p.id]) })).filter(x => x.items.length);
 }
 function catChipsHTML(cats) {
-  return `<nav class="chips cat-ico-chips" aria-label="Categorías">${(cats || catsCliente()).map(({ c }) => `<button class="chip chip-ico col-${c.color}" data-act="ir" data-to="cat-${c.key}"><span class="chip-i chip-sv" aria-hidden="true" style="--c:${(CAT_SV[c.key] || CAT_SV.otro)[1]}">${(CAT_SV[c.key] || CAT_SV.otro)[0]}</span><span class="chip-t">${c.titulo.replace(/^Papas naturales /, "Papas ").replace(/^Dispensadores$/, "Dispensa&shy;dores")}</span></button>`).join("")}</nav>`;
+  const lista = cats || catsCliente(); if (S.cliCat && !lista.some(({ c }) => c.key === S.cliCat)) S.cliCat = "";
+  const todos = `<button class="chip chip-ico" data-act="cli-cat" data-k="" aria-pressed="${!S.cliCat}"><span class="chip-i chip-sv" aria-hidden="true" style="--c:var(--ic2)">${CAT_SVG('<rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>')}</span><span class="chip-t">Todos</span></button>`;
+  return `<nav class="chips cat-ico-chips" aria-label="Categorías">${todos}${lista.map(({ c }) => `<button class="chip chip-ico col-${c.color}" data-act="cli-cat" data-k="${c.key}" aria-pressed="${S.cliCat === c.key}"><span class="chip-i chip-sv" aria-hidden="true" style="--c:${(CAT_SV[c.key] || CAT_SV.otro)[1]}">${(CAT_SV[c.key] || CAT_SV.otro)[0]}</span><span class="chip-t">${c.titulo.replace(/^Papas naturales /, "Papas ").replace(/^Dispensadores$/, "Dispensa&shy;dores")}</span></button>`).join("")}</nav>`;
 }
 const ocultos = () => (S.ses.cliente && Array.isArray(S.ses.cliente.ocultos) ? S.ses.cliente.ocultos : []);
 function catalogoHTML() {
@@ -3451,7 +3540,7 @@ function catalogoHTML() {
       <button class="btn ${ed ? "primario" : "suave"} chico" data-act="editar-prods">${ed ? "Listo" : "Editar productos"}</button>
     </div>
     ${ed ? `<p class="edit-aviso">Toca <b>Quitar</b> en los productos que no quieres ver en tus pedidos. Tu selección queda guardada en tu cuenta y puedes volver a mostrarlos cuando quieras.</p>` : ""}
-    ${cats.length ? cats.map(x => seccion(x.c, x.items, oc)).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos.")}
+    ${cats.length ? cats.filter(x => !S.cliCat || x.c.key === S.cliCat).map(x => seccion(x.c, x.items, oc)).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos.")}
     ${!ed && n && cats.length ? `<p class="ocultos-nota">${n} ${n === 1 ? "producto oculto" : "productos ocultos"} · <button class="link" data-act="editar-prods">Mostrar de nuevo</button></p>` : ""}`;
 }
 function renderCatalogo() {
@@ -4823,7 +4912,7 @@ function subProvs() {
 }
 function vistaProv() {
   if (PV.adTab === "ingreso") PV.adTab = "pedidos";
-  return `${sesionProd("prov", "Proveedor")}${tabsProd("pv-adtab", [["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>`;
+  return `${conSalir(tabsProd("pv-adtab", [["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab), "prov")}<div id="prov-panel"></div>`;
 }
 function renderProvCrear() {
   const el = $("#prov-crear"); if (!el) return;
@@ -5244,7 +5333,7 @@ function usuariosHTML() {
 /* ---------- Repartidor ---------- */
 function vistaRep() {
   const r = S.ses.repartidor;
-  return `<div class="sesion"><span>Repartidor: <b>${esc(r.nombre)}</b></span><span class="avisos-slot">${avisosBtnHTML()}</span><button class="link" data-act="salir" data-k="repartidor">Salir</button></div>${repBodyHTML()}`;
+  return `<div class="rep-avisos"><span class="avisos-slot">${avisosBtnHTML()}</span></div>${repBodyHTML()}`;
 }
 const repUsuario = () => usuarioProd("repartidor");
 const REP_SVG = p => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -5265,7 +5354,7 @@ const REP_ICO = {
 function repBodyHTML() {
   if (S.repTab === "agregar") S.repTab = "ultimos"; /* La pestaña Agregar pedidos fue eliminada. */
   const tab = (t, txt) => `<button role="tab" data-act="rep-tab" data-t="${t}" aria-selected="${S.repTab === t}"><span class="rep-ti" aria-hidden="true">${REP_ICO[t] || ""}</span><span class="rep-tt">${txt}</span><span class="cnt" id="cnt-${t}"></span></button>`;
-  return `<div class="tabs rep-tabs" role="tablist" aria-label="Comandas">${tab("ultimos", "Últimos pedidos")}${S.portal === "repartidor" || (S.portal === "admin" && S.ses.admin) ? tab("tdisp", "Modo ruta") : ""}${tab("tomar", "Por tomar")}${tab("mios", "Pendientes")}${tab("ent", "Entregados")}${tab("total", "Total reparto")}${tab("pagos", "Pago reparto extra")}${tab("efe", "Pago en efectivo")}${tab("vac", "Vacaciones")}${S.portal === "repartidor" && suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : ""}${tab("buscar", "Buscar pedidos")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") : ""}</div>
+  return `<div class="tabs rep-tabs" role="tablist" aria-label="Comandas">${tab("ultimos", "Últimos pedidos")}${S.portal === "repartidor" || (S.portal === "admin" && S.ses.admin) ? tab("tdisp", "Modo ruta") : ""}${tab("tomar", "Por tomar")}${tab("mios", "Pendientes")}${tab("ent", "Entregados")}${tab("total", "Total reparto")}${tab("pagos", "Pago reparto extra")}${tab("efe", "Pago en efectivo")}${tab("vac", "Vacaciones")}${S.portal === "repartidor" && suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : ""}${tab("buscar", "Buscar pedidos")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") : ""}${S.portal === "repartidor" ? `<button type="button" class="pos-tab-salir" data-act="salir" data-k="repartidor"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>` : ""}</div>
   <div class="rep-top">
     <div id="tomar-seg" class="tomar-seg"></div>
     <div class="fecha-nav" role="group" aria-label="Fecha de entrega">
@@ -6129,6 +6218,9 @@ const todosBtn = key => { const t = todosDe(key), on = !!t && t[0]() === "todo";
 function salirTodos(key) { const t = todosDe(key); if (t && t[0]() === "todo") t[1]("dia"); }
 const segHTML = (act, actual) => `<div class="seg-per" role="group" aria-label="Organizar por">${PERIODOS.map(([k, l]) => `<button type="button" data-act="${act}" data-g="${k}" aria-pressed="${actual === k}">${l}</button>`).join("")}</div>`;
 const cuandoISO = iso => { const d = new Date(iso); if (isNaN(d)) return ""; const k = ymd(d); return `${relativo(k) || fmtFecha(k)} ${fmtHora(d.getTime())}`; };
+/* Botón Salir dentro de la grilla de secciones (categorías) de cada página. */
+const salirTabBtn = k => `<button type="button" class="pos-tab-salir" data-act="salir" data-k="${k}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`;
+const conSalir = (html, k) => html.replace(/<\/div>$/, salirTabBtn(k) + "</div>");
 const sesionProd = (k, titulo) => `<div class="sesion"><span>${titulo}: <b>${esc(S.ses[k].nombre)}</b></span><button class="link" data-act="salir" data-k="${k}">Salir</button></div>`;
 /* Menús de Local agua, Local papas y Punto de venta: ícono sobre cada texto. */
 const TAB_SVG = p => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -6238,7 +6330,7 @@ const tabsAguaUsu = () => { const o = OCULTAS_AGUA[((S.ses.agua || {}).id || "")
 function vistaAgua() {
   const tabs = tabsAguaUsu();
   if (!tabs.some(([k]) => k === AG.tab)) AG.tab = tabs[0][0];
-  return `${sesionProd("agua", "Local agua")}${tabsProd("agua-tab", tabs, AG.tab)}<div id="agua-panel"></div>`;
+  return `${conSalir(tabsProd("agua-tab", tabs, AG.tab), "agua")}<div id="agua-panel"></div>`;
 }
 function asegurarAgua() {
   if (AG.subs || !S.db) return;
@@ -7433,9 +7525,8 @@ function vistaPapas() {
   if (!PAPAS_CLIENTES) PP.sec = "prod";
   const cli = PP.sec === "clientes";
   if (cli) AD.local = "papas";
-  return `${sesionProd("papas", "Local papas")}
-    ${PAPAS_CLIENTES ? `<div class="sec-switch pp-sec" role="tablist" aria-label="Sección">${[["clientes", "Clientes"], ["prod", "Producción"]].map(([k, l]) => `<button type="button" role="tab" data-act="pp-sec" data-s="${k}" aria-selected="${PP.sec === k}">${l}</button>`).join("")}</div>` : ""}
-    ${cli ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? "Total pedidos papas" : l]), AD.tab)}<div id="admin-panel"></div>` : `${tabsProd("papas-tab", tabsSuel(TABS_PAPAS, (S.ses.papas || {}).nombre), (PP.tab === "pv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`;
+  return `${PAPAS_CLIENTES ? `<div class="sec-switch pp-sec" role="tablist" aria-label="Sección">${[["clientes", "Clientes"], ["prod", "Producción"]].map(([k, l]) => `<button type="button" role="tab" data-act="pp-sec" data-s="${k}" aria-selected="${PP.sec === k}">${l}</button>`).join("")}</div>` : ""}
+    ${cli ? `${conSalir(tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? "Total pedidos papas" : l]), AD.tab), "papas")}<div id="admin-panel"></div>` : `${conSalir(tabsProd("papas-tab", tabsSuel(TABS_PAPAS, (S.ses.papas || {}).nombre), (PP.tab === "pv" ? (PP.tab = "ped") : PP.tab)), "papas")}<div id="papas-panel"></div>`}`;
 }
 function renderPapasCli() { AD.local = "papas"; asegurarAdmin(); asegurarTipos(); renderAdminPanel(); }
 function asegurarPapas() {
@@ -8585,13 +8676,14 @@ function agpHTML() {
     <div class="usu-tipo agp-loc" role="group" aria-label="Tipo de pedido">${[["agua", "💧 Agua"], ["papas", "🥔 Papas"]].map(([k, l]) => `<button type="button" data-act="agp-loc" data-v="${k}" aria-pressed="${L === k}">${l}</button>`).join("")}</div>
     <div id="admin-panel"></div>`;
 }
+AD.ocultarPortales = true; /* Al entrar a Administrador la barra de páginas parte oculta. */
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
-  return `${sesionProd("admin", "Administrador").replace('<button class="link" data-act="salir"', `<span class="avisos-slot">${avisosBtnHTML()}</span><button class="link" data-act="salir"`)}
+  return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button><span class="avisos-slot">${avisosBtnHTML()}</span></div>
     <div id="ad-aprobar"></div>
     <div class="local-switch ${AD.menuCerrado ? "ls-uno" : ""}" role="tablist" aria-label="Local">
       ${AD.menuCerrado ? `<button type="button" class="local-btn ls-volver" data-act="ad-menu">‹ Volver</button>` : ""}
-      ${[["agp", "Agregar pedido"], ["ult", "Últimos pedidos"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["posad", "Punto de venta"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pag", "Ventas / pedidos"], ["pper", "Sueldos"], ["ploc", "Pagos"], ["efead", "Pagos en efectivo"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["usu", "Lista usuarios"], ["est", "Estadísticas"], ["red", "Pedidos redundantes"], ["cuentas", "Cuentas locales"], ["pron", "Pronóstico de la demanda"], ["imp", "Imprimir pedidos"], ["reg", "Registro / sistema"], ["inv", "Inventario general"], ["osm", "Osmosis inversa"], ["bus", "Buscador de pedidos"]].map(([k, l]) => `<button type="button" role="tab" class="local-btn l-${k}" data-act="ad-local" data-l="${k}" aria-selected="${AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc"))}">${k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`).join("")}
+      ${[["agp", "Agregar pedido"], ["ult", "Últimos pedidos"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["posad", "Punto de venta"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pag", "Ventas / pedidos"], ["pper", "Sueldos"], ["ploc", "Pagos"], ["efead", "Pagos en efectivo"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["usu", "Lista usuarios"], ["est", "Estadísticas"], ["red", "Pedidos redundantes"], ["cuentas", "Cuentas locales"], ["pron", "Pronóstico de la demanda"], ["imp", "Imprimir pedidos"], ["reg", "Registro / sistema"], ["inv", "Inventario general"], ["osm", "Osmosis inversa"], ["bus", "Buscador de pedidos"]].map(([k, l]) => `<button type="button" role="tab" class="local-btn l-${k}" data-act="ad-local" data-l="${k}" aria-selected="${AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc"))}">${k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`).join("")}${AD.menuCerrado ? "" : `<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button>`}
     </div>
     ${AD.local === "agp" ? agpHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? `${tabsProd("pos-tab", [["pcli", "Clientes"], ["ventas", "Pedidos"], ["inv", "Inventario"]], ["pcli", "ventas", "inv"].includes(POS.tab) ? POS.tab : (POS.tab = "pcli"))}<div id="pos-panel"></div>` : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div class="card bus-card ult-bus"><label class="campo"><span>Buscar pedidos</span><input type="search" id="ult-q" value="${esc(ULT.q || "")}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado.</p></div><div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : `<div class="sec-switch" role="tablist" aria-label="Sección">
       ${[["clientes", "Clientes"], ["prod", "Producción"]].map(([k, l]) => `<button type="button" role="tab" data-act="ad-sec" data-s="${k}" aria-selected="${AD.seccion === k}">${l}</button>`).join("")}
@@ -9155,18 +9247,17 @@ const PRB = { sel: "menu", noAuto: false };
 function vistaPrueba() {
   const sel = PRUEBAS.find(p => p.id === PRB.sel);
   const ses = S.ses.prueba || {};
-  return `<div class="sesion"><span>Interfaces disponibles: <b>${esc(ses.nombre || "")}</b></span><button class="link" data-act="salir" data-k="prueba">Salir</button></div>
-  <div class="prb">
+  return `<div class="prb">
     <p class="eyebrow">Interfaces disponibles</p>
     <h1 class="h1">Laboratorio de interfaces</h1>
     <p class="lead">Aquí se prueban interfaces nuevas antes de agregarlas a la página. Lo que se haga en esta pestaña no cambia pedidos, clientes ni inventarios.</p>
-    ${PRUEBAS.length ? `<div class="tabs rep-tabs prb-tabs" role="tablist" aria-label="Interfaces en prueba">${PRUEBAS.map(p => `<button type="button" role="tab" data-act="prb-sel" data-id="${p.id}" aria-selected="${PRB.sel === p.id}"><span class="rep-ti" aria-hidden="true">${TI.mas}</span><span class="rep-tt">${esc(p.nombre)}</span></button>`).join("")}</div>
+    ${PRUEBAS.length ? `<div class="tabs rep-tabs prb-tabs" role="tablist" aria-label="Interfaces en prueba">${PRUEBAS.map(p => `<button type="button" role="tab" data-act="prb-sel" data-id="${p.id}" aria-selected="${PRB.sel === p.id}"><span class="rep-ti" aria-hidden="true">${TI.mas}</span><span class="rep-tt">${esc(p.nombre)}</span></button>`).join("")}${salirTabBtn("prueba")}</div>
       ${sel ? `<section class="prb-area"><div class="prb-area-h"><b>${esc(sel.nombre)}</b><small>${esc(sel.desc || "")}</small></div><div class="prb-lienzo">${sel.html()}</div></section>` : `<p class="muted-s">Elige una interfaz para probarla.</p>`}`
     : `<section class="prb-vacio">
         <span aria-hidden="true">🧪</span>
         <h2>Aún no hay interfaces en prueba</h2>
         <p>Pídeme una interfaz nueva (por ejemplo "en prueba interfaces haz una pantalla de…") y la agrego aquí para que la revises antes de pasarla a la página.</p>
-      </section>`}
+      </section><div class="tabs rep-tabs prb-tabs">${salirTabBtn("prueba")}</div>`}
   </div>`;
 }
 
@@ -9380,14 +9471,15 @@ function introUtfsm() {
 function vistaUtfsm() {
   const ses = S.ses.utfsm;
   if (!["capt", "captados"].includes(POS.tab)) POS.tab = "capt";
-  return `<div class="sesion"><span>UTFSM: <b>${esc(ses.nombre)}</b></span><button class="link" data-act="salir" data-k="utfsm">Salir</button></div>
-    ${tabsProd("pos-tab", [["capt", "Captación de clientes"], ["captados", "Clientes captados"]], POS.tab)}<div id="pos-panel"></div>`;
+  const salir = `<button type="button" class="pos-tab-salir" data-act="salir" data-k="utfsm" aria-label="Salir de ${esc(ses.nombre || "UTFSM")}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`;
+  return `${tabsProd("pos-tab", [["capt", "Captación de clientes"], ["captados", "Clientes captados"]], POS.tab).replace(/<\/div>$/, salir + "</div>")}<div id="pos-panel"></div>`;
 }
 function vistaPos() {
   const ses = S.ses.pos;
-  return `<div class="sesion"><span>Punto de venta: <b>${esc(ses.nombre)}</b></span><button class="link" data-act="salir" data-k="pos">Salir</button></div>
-    <div id="pos-local-slot">${posLocalHTML()}</div>
-    ${tabsProd("pos-tab", [["capt", "Captación de clientes"], ["vender", "Ingresar pedido"], ["ventas", "Pedidos"], ["insumos", "Ingresar inventario"], ["inv", "Inventario"], ["cons", "Consumo de inventario"], ["pcli", "Clientes"]], posTabNorm())}<div id="pos-panel"></div>`;
+  const salir = `<button type="button" class="pos-tab-salir" data-act="salir" data-k="pos" aria-label="Salir de ${esc(ses.nombre || "Punto de venta")}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`;
+  const tabs = tabsProd("pos-tab", [["capt", "Captación de clientes"], ["vender", "Ingresar pedido"], ["ventas", "Pedidos"], ["insumos", "Ingresar inventario"], ["inv", "Inventario"], ["cons", "Consumo de inventario"], ["pcli", "Clientes"]], posTabNorm()).replace(/<\/div>$/, salir + "</div>");
+  return `<div id="pos-local-slot">${posLocalHTML()}</div>
+    ${tabs}<div id="pos-panel"></div>`;
 }
 function renderPos() {
   const el = $("#pos-panel"); if (!el) return;
@@ -12442,7 +12534,7 @@ document.addEventListener("click", e => {
   if (a === "ver-todos") { const t = todosDe(b.dataset.k); if (t) { t[1](t[0]() === "todo" ? "dia" : "todo"); t[2](); } return; }
   if (/hoy$/.test(a) && a !== "ver-todos") { const pr = hoyPer(a, b); if (pr) { if (a === "pps-hoy") { if (pr[0]() === "todo") pr[1]("semana"); } else pr[1]("dia"); } }
   if (a === "portal") {
-    S.portal = b.dataset.p; S.confirmar = null; if (S.portal === "pos") POS.loc = "papas";
+    S.portal = b.dataset.p; S.confirmar = null; if (S.portal === "pos") POS.loc = "papas"; if (S.portal === "admin") AD.ocultarPortales = true;
     if (S.portal === "cliente" || S.portal === "cfd") { S.cliTab = "nuevo"; S.misSub = "pend"; }
     else if (S.portal === "repartidor") S.repTab = "tdisp";
     else if (S.portal === "agua") { AG.tab = "agregar"; AG.pdpFecha = hoy(); AG.pdpEst = false; }
@@ -12468,6 +12560,13 @@ document.addEventListener("click", e => {
     const q = Math.max(0, Math.min(99, (S.carrito[id] || 0) + (a === "mas" ? 1 : -1)));
     if (q) S.carrito[id] = q; else delete S.carrito[id];
     updateCarritoUI();
+  } else if (a === "cli-cat") {
+    /* Categorías de Clientes: cada botón abre su propia página (solo esa categoría); "Todos" muestra todos los productos. */
+    S.cliCat = b.dataset.k || ""; const fija = !!b.closest("#cli-cats-fija"), nav0 = b.closest(".cat-ico-chips"), sx = nav0 ? nav0.scrollLeft : 0;
+    if (fija) cambiarCliTab("nuevo");
+    renderCatalogo();
+    { const nav = document.querySelector("#catalogo .cat-ico-chips"); if (nav) { nav.scrollLeft = sx; const on = nav.querySelector('[aria-pressed="true"]'); if (on) { const l = on.offsetLeft - nav.offsetLeft, r = l + on.offsetWidth; if (l < nav.scrollLeft) nav.scrollLeft = l - 6; else if (r > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = r - nav.clientWidth + 6; } } }
+    const ct = document.querySelector("#catalogo .cat-tools"); if (ct) { const y = ct.getBoundingClientRect().top + window.scrollY - 10 - bannerH(); if (fija || ct.getBoundingClientRect().top < 0) window.scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
   } else if (a === "ir") {
     if (b.closest("#cli-cats-fija")) cambiarCliTab("nuevo");
     const el = document.getElementById(b.dataset.to);
@@ -12936,6 +13035,7 @@ document.addEventListener("click", e => {
   else if (a === "tp-est") { TP.est = b.dataset.v; renderTP(); }
   else if (a === "ad-test") { AD.tEst = b.dataset.v; renderAdminPanel(); }
   else if (a === "ad-menu") { AD.menuCerrado = false; renderView(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else if (a === "ad-portales") { AD.ocultarPortales = !AD.ocultarPortales; renderHeader(); b.setAttribute("aria-pressed", String(!AD.ocultarPortales)); b.textContent = AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"; }
   else if (a === "ad-local") { const L = b.dataset.l; AD.menuCerrado = true; AD.agpFicha = "";
     if (L === "usu") { US.pag = "todos"; US.edit = ""; US.del = ""; US.crear = false; }
     if (L === "agp") { AD.tab = "crear"; AD.clienteId = ""; AD.nuevo = false; AD.cliQ = ""; }
@@ -13633,5 +13733,68 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
 })();
 </script>
 
+
+<script>
+/* Respaldo completo de la base de datos (solo con sesión de Administrador). Descarga un JSON para migrar a otro servidor. */
+(() => {
+  const COLS = ["agua_disp","agua_lavado","agua_lavado_fotos","agua_produccion","agua_stock","agua_vacios","agua_vacios_mov","agua_ventas_local","bidones_deuda","bidones_elim","clientes","comprobantes","comprobantes_prov","config","consumo","cuentas_locales","facturas","insumos","insumos_mov","osmosis_cfg","osmosis_mant","pagadores","papas_bodega","papas_lavado","papas_lavado_fotos","papas_pagos","papas_pagos_sem","papas_produccion","papas_vacaciones","pedidos","pedidos_pizzas","piezas_cfg","piezas_mov","pizzas_config","pos_captacion","pos_clientes","pos_consumos","pos_ingresos","pos_ventas","programados","programados_auto","promociones","prov_pedidos","proveedores","redundantes_ok","registro_sistema","rep_pagos","rep_vacaciones","repartidores","stock_ajustes","sueldos_pagos","usuarios_admin","usuarios_agua","usuarios_papas","usuarios_pizzas","usuarios_pos","usuarios_prueba","usuarios_utfsm"];
+  const CAMPOS_ORDEN = ["creado", "en", "fecha", "creadoEn", "ts"];
+  const esAdmin = () => { try { return !!(JSON.parse(localStorage.getItem("pya.sesion.v1") || "{}") || {}).admin; } catch (_) { return false; } };
+  const btn = document.createElement("button");
+  btn.type = "button"; btn.id = "respaldo-btn"; btn.hidden = true;
+  btn.textContent = "Descargar respaldo";
+  btn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface,#fff);color:var(--ink,#000);font:inherit;font-weight:700;box-shadow:0 8px 20px -12px rgb(0 0 0 / .5);cursor:pointer";
+  document.body.appendChild(btn);
+  const ver = () => { btn.hidden = !(esAdmin() && location.hash.slice(1) === "admin") && !btn.dataset.ocupado; };
+  ver(); setInterval(ver, 1500); addEventListener("hashchange", ver);
+  const filas = s => s.docs.filter(d => d.exists !== false).map(d => [d.id, d.data() || {}]);
+  async function leerColeccion(db, nombre, avisos) {
+    const docs = {};
+    const s0 = await db.collection(nombre).limit(1000).get();
+    for (const [id, d] of filas(s0)) docs[id] = d;
+    if (s0.docs.length < 1000) return docs;
+    /* Más de 1000: paginar por un campo de fecha presente en los documentos. */
+    const muestra = Object.values(docs);
+    const campo = CAMPOS_ORDEN.find(c => muestra.every(d => d[c] !== undefined && typeof d[c] === typeof muestra[0][c]));
+    if (!campo) { avisos.push(`${nombre}: más de 1000 documentos y sin campo de fecha común; se guardaron ${Object.keys(docs).length}.`); return docs; }
+    let ultimo = null;
+    for (let vuelta = 0; vuelta < 60; vuelta++) {
+      let q = db.collection(nombre).orderBy(campo, "asc");
+      if (ultimo !== null) q = q.where(campo, ">=", ultimo);
+      const s = await q.limit(1000).get();
+      const fs = filas(s);
+      let nuevos = 0;
+      for (const [id, d] of fs) { if (!(id in docs)) nuevos++; docs[id] = d; }
+      if (fs.length < 1000) break;
+      const sig = fs[fs.length - 1][1][campo];
+      if (sig === ultimo && !nuevos) { avisos.push(`${nombre}: más de 1000 documentos con el mismo valor de «${campo}»; puede faltar alguno.`); break; }
+      ultimo = sig;
+    }
+    return docs;
+  }
+  btn.addEventListener("click", async () => {
+    if (btn.dataset.ocupado) return;
+    btn.dataset.ocupado = "1"; btn.disabled = true;
+    const db = await window.claude.use("db"), dl = await window.claude.use("downloads");
+    if (!db || !dl) { alert("No se pudo acceder a la base de datos o a las descargas en esta vista."); delete btn.dataset.ocupado; btn.disabled = false; return; }
+    const out = { formato: "100natural-respaldo-v1", exportado: new Date().toISOString(), colecciones: {}, conteos: {}, avisos: [] };
+    try {
+      for (let i = 0; i < COLS.length; i++) {
+        btn.textContent = `Leyendo ${i + 1}/${COLS.length}: ${COLS[i]}…`;
+        try { out.colecciones[COLS[i]] = await leerColeccion(db, COLS[i], out.avisos); }
+        catch (e) { out.avisos.push(`${COLS[i]}: error al leer (${(e && (e.code || e.message)) || e}).`); out.colecciones[COLS[i]] = {}; }
+        out.conteos[COLS[i]] = Object.keys(out.colecciones[COLS[i]]).length;
+      }
+      const total = Object.values(out.conteos).reduce((a, b) => a + b, 0);
+      out.total = total;
+      btn.textContent = "Preparando archivo…";
+      const blob = new Blob([JSON.stringify(out)], { type: "application/json" });
+      const r = await dl.save({ filename: `respaldo-100natural-${out.exportado.slice(0, 10)}.json`, data: blob });
+      alert(r && r.status === "saved" ? `Respaldo descargado: ${total} documentos.${out.avisos.length ? "\n\nAvisos:\n" + out.avisos.join("\n") : ""}` : "No se guardó el respaldo.");
+    } catch (e) { alert("No se pudo generar el respaldo: " + ((e && (e.code || e.message)) || e)); }
+    finally { delete btn.dataset.ocupado; btn.disabled = false; btn.textContent = "Descargar respaldo"; ver(); }
+  });
+})();
+</script>
 
 </body></html>

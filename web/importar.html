@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Importar respaldo</title>
+<style>
+:root{--bg:#ECF2F3;--surface:#FAFCFC;--ink:#0F2A32;--muted:#567078;--line:#D0DFE2;--accent:#0A7DA1;--ok:#13785F;--bad:#A0461E;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#08161B;--surface:#0E222A;--ink:#E1EFF2;--muted:#8DA7AE;--line:#1D3741;--accent:#47BEE2;--ok:#4ACFA2;--bad:#F2A07A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#08161B;--surface:#0E222A;--ink:#E1EFF2;--muted:#8DA7AE;--line:#1D3741;--accent:#47BEE2;--ok:#4ACFA2;--bad:#F2A07A;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:24px 16px 48px;display:grid;gap:16px}
+h1{margin:0;font-size:1.6rem}
+p{margin:0;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;gap:12px}
+label{display:grid;gap:6px;font-weight:600}
+input{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:44px;width:100%}
+button{font:inherit;font-weight:700;min-height:48px;border-radius:12px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:6px 4px;border-top:1px solid var(--line)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.ok{color:var(--ok);font-weight:700}.bad{color:var(--bad);font-weight:700}
+#estado{white-space:pre-wrap}
+</style>
+</head>
+<body>
+<main>
+  <h1>Importar respaldo</h1>
+  <p>Carga en el servidor el archivo que descargaste con el botón «Descargar respaldo» del artifact de claude.ai. Se puede repetir: los documentos existentes se reemplazan por los del archivo.</p>
+  <form class="card" id="f">
+    <label>Archivo de respaldo (.json)<input type="file" id="archivo" accept=".json,application/json" required></label>
+    <label>Clave de importación<input type="password" id="clave" autocomplete="off" required></label>
+    <button type="submit" id="btn">Importar</button>
+  </form>
+  <section class="card" id="res" hidden>
+    <p id="estado" role="status"></p>
+    <table id="tabla"><thead><tr><th>Colección</th><th class="n">En el archivo</th><th class="n">En el servidor</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<script>
+(() => {
+  const URL_FN = "https://zfbytqxlyuhqgrplgbre.supabase.co/functions/v1/importar";
+  const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpmYnl0cXhseXVocWdycGxnYnJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NjE1NjIsImV4cCI6MjEwOTMzNzU2Mn0.EXTcSR4ucP1-6Fb96nUQsth_aDQd_m-2x3WuD5UiuGA";
+  const $ = s => document.querySelector(s);
+  const estado = t => { $("#estado").textContent = t; };
+  async function llamar(clave, cuerpo) {
+    const r = await fetch(URL_FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: ANON, Authorization: "Bearer " + ANON, "x-importar-clave": clave }, body: JSON.stringify(cuerpo) });
+    const b = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(b.error || ("HTTP " + r.status));
+    return b;
+  }
+  $("#f").addEventListener("submit", async ev => {
+    ev.preventDefault();
+    const btn = $("#btn"), clave = $("#clave").value, tbody = $("#tabla tbody");
+    btn.disabled = true; $("#res").hidden = false; tbody.textContent = "";
+    try {
+      estado("Leyendo el archivo…");
+      const r = JSON.parse(await $("#archivo").files[0].text());
+      if (r.formato !== "100natural-respaldo-v1" || !r.colecciones) throw new Error("El archivo no es un respaldo de 100% Natural.");
+      const cols = Object.keys(r.colecciones);
+      let hechos = 0, total = cols.reduce((t, c) => t + Object.keys(r.colecciones[c]).length, 0);
+      for (const c of cols) {
+        const ents = Object.entries(r.colecciones[c]);
+        let lote = [], tam = 0;
+        const enviar = async () => { if (!lote.length) return; await llamar(clave, { accion: "cargar", coleccion: c, docs: lote }); hechos += lote.length; lote = []; tam = 0; estado(`Importando… ${hechos} de ${total} documentos (${c})`); };
+        for (const [id, data] of ents) {
+          const s = JSON.stringify(data).length;
+          if (lote.length && (tam + s > 1500000 || lote.length >= 300)) await enviar();
+          lote.push({ id, data }); tam += s;
+        }
+        await enviar();
+      }
+      estado("Comprobando…");
+      const { conteos } = await llamar(clave, { accion: "contar" });
+      let malos = 0;
+      for (const c of cols) {
+        const a = Object.keys(r.colecciones[c]).length, b = conteos[c] || 0, ok = b >= a;
+        if (!ok) malos++;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td></td><td class="n">${a}</td><td class="n">${b}</td><td class="${ok ? "ok" : "bad"}">${ok ? "✓" : "faltan"}</td>`;
+        tr.firstChild.textContent = c; tbody.appendChild(tr);
+      }
+      estado(malos ? `Terminó con ${malos} colecciones incompletas. Revisa la tabla.` : `Listo: ${total} documentos importados.` + (r.avisos && r.avisos.length ? "\n\nAvisos del respaldo:\n" + r.avisos.join("\n") : ""));
+    } catch (e) { estado("Error: " + e.message); }
+    finally { btn.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
