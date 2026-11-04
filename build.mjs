@@ -32,9 +32,8 @@ const OG = {
   titulo: "100% Natural",
   descripcion: "Agua purificada y alcalina, papas y helados con despacho a domicilio en Viña del Mar, Concón, Valparaíso, Curauma, Quilpué y Villa Alemana. Crea tu cuenta y haz tu pedido en línea.",
 };
-{
-  const esc = t => t.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-  const etiquetas = [
+const esc = t => t.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const ETIQUETAS_OG = [
     `<title>${esc(OG.titulo)}</title>`,
     `<meta name="description" content="${esc(OG.descripcion)}">`,
     `<meta property="og:type" content="website">`,
@@ -57,11 +56,18 @@ const OG = {
     `<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">`,
     `<link rel="apple-touch-icon" href="/apple-touch-icon.png">`,
     `<meta name="theme-color" content="#2f6a12">`,
-  ].join("");
+].join("");
+{
   const ini = "<head><meta charset=utf8>";
   if (!html.startsWith("<!doctype html><html>" + ini)) throw new Error("Cambio «Open Graph»: el HTML no empieza como se esperaba.");
-  html = html.replace(ini, () => ini + etiquetas);
+  html = html.replace(ini, () => ini + ETIQUETAS_OG);
 }
+// Página liviana solo para los lectores de vista previa (WhatsApp, Facebook, Telegram…): la app pesa varios MB
+// y WhatsApp abandona antes de armar la vista previa. vercel.json la sirve en «/» a esos lectores.
+const COMPARTIR = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${ETIQUETAS_OG}</head>` +
+  `<body style="font-family:system-ui,sans-serif;text-align:center;padding:24px"><img src="/og.jpg" alt="" width="600" height="315" style="max-width:100%;height:auto;border-radius:12px">` +
+  `<h1>${esc(OG.titulo)}</h1><p>${esc(OG.descripcion)}</p><p><a href="/app.html">Abrir 100% Natural</a></p>` +
+  `<script>location.replace("/app.html" + location.hash);</script></body></html>`;
 
 // 1. Adaptador antes de cualquier script de la app (en el <head> del comienzo del archivo).
 {
@@ -117,10 +123,11 @@ cambiar("mensaje genérico de permiso", 'if (c === "quota_exceeded")',
 // Salida
 rmSync("public", { recursive: true, force: true });
 mkdirSync("public/vendor", { recursive: true });
-writeFileSync("public/index.html", html);
+writeFileSync("public/app.html", html);
+writeFileSync("public/compartir.html", COMPARTIR);
 copyFileSync("web/supabase-db.js", "public/supabase-db.js");
 copyFileSync("web/importar.html", "public/importar.html");
 for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png"]) copyFileSync("web/" + f, "public/" + f);
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve("@supabase/supabase-js/dist/umd/supabase.js"), "public/vendor/supabase.js");
-console.log("Listo: public/index.html (" + Math.round(html.length / 1024) + " KB)");
+console.log("Listo: public/app.html (" + Math.round(html.length / 1024) + " KB), public/compartir.html (" + Math.round(COMPARTIR.length / 1024) + " KB)");
