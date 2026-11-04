@@ -1,0 +1,11 @@
+{
+  "name": "100natural",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.49.4"
+  }
+}

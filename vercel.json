@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    { "source": "/", "destination": "/100_%20Natural.html" }
-  ]
+  "buildCommand": "npm run build",
+  "outputDirectory": "public"
 }
