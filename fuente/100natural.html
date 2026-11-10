@@ -1157,6 +1157,7 @@ body[data-perfil="1"] .ini-row{display:none!important}
 @media(min-width:761px){.uc-tbl td.uc-who{min-width:170px}.uc-tbl .uc-n b{overflow-wrap:normal;word-break:normal}.uc-tbl td.uc-dir{min-width:150px}.uc-tbl td.uc-tipo,.uc-tbl td.uc-tipo *{white-space:nowrap}}
 @media(max-width:760px){.card.adcap{padding-left:10px!important;padding-right:10px!important}}
 .pex-cat{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--surface)}.pex-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.pex-h span{font-weight:800}.pex-cat .track{margin:0 0 6px}.pex-cat small{display:block}
+.sem-nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:0 0 10px}.sem-nav-t{display:grid;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:6px 8px}.sem-nav-t small{color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.sem-nav-t b{font-size:1rem}.sem-nav .btn[disabled]{opacity:.35}.sem-hoy{width:100%;margin:0 0 10px}.sem-tbl tbody tr{cursor:pointer}.sem-tbl tr.sem-on td{background:color-mix(in srgb,var(--accent) 10%,transparent);font-weight:700}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -6170,6 +6171,7 @@ function kgEntregadoHTML(lista) {
 const UMBRAL_KG_SEM = 6000, PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 40;
 const extraSemRep = (lt, kgp) => { const t = lt + kgp, x = Math.max(0, t - UMBRAL_KG_SEM); const xlt = t > 0 ? Math.round(x * lt / t * 10) / 10 : 0; return { x, xlt, xkg: Math.round((x - xlt) * 10) / 10 }; };
 const pagoSemRep = (lt, kgp) => { const e = extraSemRep(lt, kgp); return Math.round(e.xlt * PAGO_LT_AGUA + e.xkg * PAGO_KG_PAPA); };
+const semCorta = (l, f) => { const d = x => new Date(x + "T12:00").toLocaleDateString("es-CL", { day: "numeric", month: "short" }).replace(".", ""); return l.slice(0, 7) === f.slice(0, 7) ? `${+l.slice(8)} – ${d(f)}` : `${d(l)} – ${d(f)}`; };
 const extraDet = w => [w.xlt ? `${fmtL(w.xlt)} L agua extra` : "", w.xkg ? `${fmtL(w.xkg)} kg papas extra` : ""].filter(Boolean).join(" · ");
 const fEntRep = p => p.fechaEntrega || (p.entregado ? ymd(new Date(p.entregado)) : "");
 function semanaRep(u, lunes) {
@@ -6194,7 +6196,8 @@ function adminPagosRepHTML() {
 }
 function misPagosHTML(me, nomRep, adm) {
   subRepPagos();
-  const per = S.mpPer || "dia", [a, b] = rangoPeriodo(per, S.mpRef), nom = nomRep || (S.ses.repartidor || {}).nombre || "Repartidor";
+  S.mpPer = "semana"; /* El pago reparto extra siempre se ve por semana (lunes a domingo). */
+  const per = "semana", [a, b] = rangoPeriodo(per, S.mpRef), nom = nomRep || (S.ses.repartidor || {}).nombre || "Repartidor";
   const corto = per === "dia" || per === "semana";
   // Semanas del período: en día/semana, la semana que contiene la fecha; en mes/año, las semanas que terminan (domingo) dentro del período.
   const sems = [];
@@ -6237,15 +6240,13 @@ function misPagosHTML(me, nomRep, adm) {
         ${w.pago > 0 ? repPagoDiaHTML(me, nom, w.lunes, w.pago, !adm, !!adm) : ""}</article>`).join("")}` : "");
   const lblFila = f => porMes ? cap(etiquetaPeriodo("mes", f + "-01", f + "-01")) : cap(fmtFecha(f));
   const totLbl = { dia: "Total día", semana: "Total semana", mes: "Total mes" }[per] || (per === "todo" ? "Total" : "Total año");
-  return `${segHTML("mp-per", per)}
-    <div class="fecha-nav prod-nav">
-      <button class="btn suave ico-btn" data-act="mp-mover" data-d="-1" aria-label="Período anterior">‹</button>
-      <input type="date" id="mp-fecha" value="${S.mpRef}" aria-label="Fecha">
-      <button class="btn suave ico-btn" data-act="mp-mover" data-d="1" aria-label="Período siguiente">›</button>
-      <button class="btn suave" data-act="mp-hoy">Hoy</button>
-      ${todosBtn("mp-hoy")}
+  return `
+    <div class="sem-nav">
+      <button class="btn suave ico-btn" data-act="mp-mover" data-d="-1" aria-label="Semana anterior">‹</button>
+      <div class="sem-nav-t"><small>${lunesDe(hoy()) === a ? "Esta semana" : "Semana"}</small><b>${esc(semCorta(a, b))}</b></div>
+      <button class="btn suave ico-btn" data-act="mp-mover" data-d="1" aria-label="Semana siguiente" ${lunesDe(hoy()) <= a ? "disabled" : ""}>›</button>
     </div>
-    <p class="rango-lbl">${esc(etiquetaPeriodo(per, a, b))}</p>
+    ${lunesDe(hoy()) === a ? "" : `<button class="btn suave sem-hoy" data-act="mp-hoy">Volver a esta semana</button>`}
     ${pend.length ? `<div class="otras"><span>Semanas con pago pendiente:</span>${pend.slice(0, 8).map(x => `<button class="chip" data-act="mp-ir" data-f="${x.lunes}">${esc(fmtFecha(x.lunes))} – ${esc(fmtFecha(x.fin))} · ${clp(x.pago)}</button>`).join("")}</div>` : ""}
     ${hero}
     <div class="tiles3">
@@ -6254,12 +6255,14 @@ function misPagosHTML(me, nomRep, adm) {
       <div><span>Papas</span><b>${fmtL(kgp)}</b><small>kg</small></div>
     </div>
     ${estados}
-    ${!S.cargado ? vacio("Cargando entregas…", "Un momento.") : filas.length ? `<h3 class="sec">Kilos por ${porMes ? "mes" : "día"}</h3>
-      <div class="tbl-wrap"><table class="tbl tbl-con"><thead><tr><th>${porMes ? "Mes" : "Día"}</th><th class="r">Entregas</th><th class="r">Kilos</th></tr></thead>
-        <tbody>${filas.map(([f, d]) => `<tr><td>${esc(lblFila(f))}<small class="con-pen">${fmtL(d.lt)} L agua · ${fmtL(d.kgp)} kg papas</small></td><td class="r">${fmtN(d.n)}</td><td class="r">${fmtL(d.lt + d.kgp)}</td></tr>`).join("")}</tbody>
-        <tfoot><tr><td>${totLbl}</td><td class="r">${fmtN(n)}</td><td class="r">${fmtL(lt + kgp)}</td></tr></tfoot></table></div>`
-      : vacio("Sin entregas en este período", "Cambia el período o la fecha. Cuando marques pedidos como entregados, aquí se irán sumando tus kilos.")}
-    <p class="muted nota-disp">El pago extra es semanal (lunes a domingo): se suman los litros de agua y los kilos de papas entregados (1 litro = 1 kilo). Lo que pase de ${fmtN(UMBRAL_KG_SEM)} kg en total se paga a ${clp(PAGO_LT_AGUA)} por litro de agua y ${clp(PAGO_KG_PAPA)} por kilo de papas, repartiendo esos kilos extra entre agua y papas en la misma proporción en que se repartieron en la semana. En la vista por día se muestra el pago de la semana a la que pertenece ese día; en mes y año se suman las semanas que terminan dentro del período.</p>`;
+    ${!S.cargado ? vacio("Cargando entregas…", "Un momento.") : (() => {
+      const ls = []; for (let i = 0, l = lunesDe(hoy()); i < 8; i++, l = addDias(l, -7)) ls.push(l);
+      const ws = ls.map(l => semanaRep(me, l));
+      return `<h3 class="sec">Últimas semanas</h3>
+      <div class="tbl-wrap"><table class="tbl tbl-con sem-tbl"><thead><tr><th>Semana</th><th class="r">Kilos</th><th class="r">Pago extra</th></tr></thead>
+        <tbody>${ws.map(w => `<tr class="${w.lunes === a ? "sem-on" : ""}" data-act="mp-ir" data-f="${w.lunes}" role="button" tabindex="0"><td>${esc(semCorta(w.lunes, w.fin))}<small class="con-pen">${fmtL(w.lt)} L agua · ${fmtL(w.kgp)} kg papas</small></td><td class="r">${fmtL(w.kg)}</td><td class="r"><b>${w.pago ? clp(w.pago) : "—"}</b></td></tr>`).join("")}</tbody></table></div>`;
+    })()}
+    <p class="muted nota-disp">El pago extra es semanal (lunes a domingo): se suman los litros de agua y los kilos de papas entregados (1 litro = 1 kilo). Lo que pase de ${fmtN(UMBRAL_KG_SEM)} kg en total se paga a ${clp(PAGO_LT_AGUA)} por litro de agua y ${clp(PAGO_KG_PAPA)} por kilo de papas, repartiendo esos kilos extra entre agua y papas en la misma proporción en que se repartieron en la semana. Usa las flechas para ver otras semanas.</p>`;
 }
 function repTipoChipsHTML(lista) {
   const t = S.repTipo || "", nL = lista.filter(p => tipoCli(p) === "Local comercial").length;
