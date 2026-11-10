@@ -1158,6 +1158,7 @@ body[data-perfil="1"] .ini-row{display:none!important}
 @media(max-width:760px){.card.adcap{padding-left:10px!important;padding-right:10px!important}}
 .pex-cat{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--surface)}.pex-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.pex-h span{font-weight:800}.pex-cat .track{margin:0 0 6px}.pex-cat small{display:block}
 .sem-nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:0 0 10px}.sem-nav-t{display:grid;text-align:center;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:6px 8px}.sem-nav-t small{color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}.sem-nav-t b{font-size:1rem}.sem-nav .btn[disabled]{opacity:.35}.sem-hoy{width:100%;margin:0 0 10px}.sem-tbl tbody tr{cursor:pointer}.sem-tbl tr.sem-on td{background:color-mix(in srgb,var(--accent) 10%,transparent);font-weight:700}
+.mp-orden,.mp-ruta{list-style:none;margin:0;padding:0;display:grid;gap:8px}.mp-orden>li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--surface)}.mp-orden>li.mp-1{border:2px solid #c58a1c;background:color-mix(in srgb,#c58a1c 10%,var(--surface))}.mp-orden>li>div{display:grid;gap:2px;min-width:0}.mp-orden small,.mp-ruta small{color:var(--muted);font-size:.8rem}.mp-n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font-weight:800;flex:0 0 32px}.mp-orden>li.mp-1 .mp-n{background:#c58a1c;color:#fff}.mp-kg{display:grid;text-align:right}.mp-kg b{font-size:1.1rem}.mp-okall{border:1px solid var(--line);border-radius:14px;padding:12px;background:color-mix(in srgb,#15803d 10%,var(--surface));font-weight:700}.mp-ruta>li{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);box-shadow:inset 4px 0 0 #15803d}.mp-ruta>li.falta{box-shadow:inset 4px 0 0 #dc2626}.mp-rh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.mp-rh .mp-n{width:28px;height:28px;flex-basis:28px;font-size:.85rem}.mp-ruta ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}.mp-ruta ul li{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.92rem}.mp-ruta ul li>span{display:grid}.mp-ruta em{font-style:normal;font-weight:700;font-size:.8rem;white-space:nowrap;padding:2px 8px;border-radius:999px}.mp-s{color:#15803d;background:color-mix(in srgb,#15803d 12%,transparent)}.mp-f,.mp-fx{color:#dc2626}.mp-f{background:color-mix(in srgb,#dc2626 12%,transparent)}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -6971,11 +6972,12 @@ const TI = {
   carro: TAB_SVG('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 0 0 1 .8h9.6a1 1 0 0 0 1-.8L21 7H6"/>'),
   cancel: TAB_SVG('<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>'),
   sol: TAB_SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  fabrica: TAB_SVG('<path d="M3 21V10l5 3V10l5 3V10l5 3V4h3v17z"/><path d="M7 17h2M12 17h2M17 17h2"/>'),
   boleta: TAB_SVG('<path d="M5 2h14v20l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>')
 };
 const TAB_ICO = {
   "agua-tab": { pv: "tienda", pdped: "cal", agregar: "mas", stock: "cajas", pedidos: "baja", pdiaria: "barras", pago: "plata", pcapt: "persMas", insumos: "llave", ainv: "lista", acons: "listaMenos", belim: "basura", bidpend: "vuelta", sueldo: "plata", lavado: "lavar", lavpago: "plata", osm: "gota" },
-  "papas-tab": { pv: "tienda", ped: "cal", prod: "mas", disp: "cajas", cped: "baja", hist: "barras", sacos: "plata", prv: "camion", ing: "entra", stock: "cajas", csac: "menos", lav: "lavar", lavpago: "plata", piezas: "llave", pinv: "lista", pcons: "listaMenos", vac: "sol", sueldo: "plata" },
+  "papas-tab": { pv: "tienda", ped: "cal", mprod: "fabrica", prod: "mas", disp: "cajas", cped: "baja", hist: "barras", sacos: "plata", prv: "camion", ing: "entra", stock: "cajas", csac: "menos", lav: "lavar", lavpago: "plata", piezas: "llave", pinv: "lista", pcons: "listaMenos", vac: "sol", sueldo: "plata" },
   "pv-adtab": { ing: "entra", ingreso: "mas", pedidos: "boleta", pagos: "plata" },
   "ad-vtab": { pag: "plata", ped: "cajas", vloc: "tienda", graf: "barras" },
   "pos-tab": { capt: "persMas", captados: "pers", vender: "carro", ventas: "boleta", insumos: "llave", inv: "lista", cons: "listaMenos", pcli: "pers" }
@@ -8206,7 +8208,7 @@ const KG_SACO = 25;
 const PROVEEDORES = ["Sra Josefina", "Angelo"];
 /* Local papas: secciones que van en la barra inferior (no en la página de inicio). */
 const PA_BARRA = ["ped", "prod", "ing"];
-const TABS_PAPAS = [["pv", "Punto de venta"], ["ped", "Pedidos diarios"], ["prod", "Ingresar producción"], ["disp", "Inventario producción"], ["cped", "Consumo producción"], ["hist", "Producción diaria"], ["sacos", "Pago sacos extras"], ["ing", "Ingresar sacos"], ["stock", "Inventario sacos"], ["csac", "Consumo sacos"], ["lav", "Ingresar lavado cajas"], ["lavpago", "Pago lavado cajas"], ["piezas", "Ingresar insumos"], ["pinv", "Inventario insumos"], ["pcons", "Consumo de insumos"], ["vac", "Vacaciones"], ["sueldo", "Mi sueldo"]];
+const TABS_PAPAS = [["pv", "Punto de venta"], ["ped", "Pedidos diarios"], ["mprod", "Modo producción"], ["prod", "Ingresar producción"], ["disp", "Inventario producción"], ["cped", "Consumo producción"], ["hist", "Producción diaria"], ["sacos", "Pago sacos extras"], ["ing", "Ingresar sacos"], ["stock", "Inventario sacos"], ["csac", "Consumo sacos"], ["lav", "Ingresar lavado cajas"], ["lavpago", "Pago lavado cajas"], ["piezas", "Ingresar insumos"], ["pinv", "Inventario insumos"], ["pcons", "Consumo de insumos"], ["vac", "Vacaciones"], ["sueldo", "Mi sueldo"]];
 const PP = { tab: "ped", pend: {}, fecha: hoy(), prov: "", bq: 0, bfecha: hoy(), prod: [], bodega: [], cargadoP: false, cargadoB: false, subs: false, gStock: "dia", gPrv: "dia", prvSel: PROVEEDORES[0], guardando: false, gHist: "dia", histUsr: "", confDel: null, pagos: {}, cargadoPag: false, pagosSem: {}, cargadoPS: false, semRef: lunesDe(hoy()) };
 CORTES.forEach(([k]) => { PP.pend[k] = 0; });
 /* Sacos de pedidos a proveedores ya entregados (Proveedores) que no vienen de Ingresar sacos: también suman al inventario. */
@@ -8283,6 +8285,7 @@ function refrescarPapas() {
   if (S.portal === "prov" && PV.adTab === "ing") { const el = $("#bod-ult"); if (el) el.innerHTML = papasUltIngHTML(); }
   if (!$("#papas-panel")) return;
   if (PP.tab === "pv") { if (!$("#papas-panel .pos-emb-papas")) renderPapasPanel(); return; }
+  if (PP.tab === "mprod") { renderPapasPanel(); return; }
   if (PP.tab === "prod") {
     const el = $("#pp-stock"); if (el) el.textContent = fmtS(saldoSacos().saldo);
     const et = $("#pp-stock-t"); if (et) et.innerHTML = sacosTipoTxt(saldoSacos());
@@ -8633,7 +8636,7 @@ function renderPapasPanel() {
   if (t === "perfil") { el.innerHTML = perfilHTML("papas"); window.scrollTo(0, 0); return; }
   if (t === "sueldo") { const n = (S.ses.papas || {}).nombre || ""; el.innerHTML = `<div id="suel-perfil" data-nombre="${esc(n)}">${suelPerfilHTML(n)}</div>`; return; }
   if (t === "vac") { VAC_G = "papas"; subUsuarios(); subVac("papas"); const a = document.activeElement, keep = a && a.closest && a.closest("#vac-form") ? a.id : ""; el.innerHTML = `<div id="vac-panel" data-g="papas">${vacHTML()}</div>`; if (keep) { const n = document.getElementById(keep); if (n) n.focus(); } return; }
-  el.innerHTML = t === "piezas" || t === "pinv" || t === "pcons" ? `<div id="pz-panel">${piezasHTML()}</div>` : t === "prod" ? papasProdHTML() : t === "hist" ? papasHistHTML() : t === "ped" ? papasPedidosHTML() : t === "sacos" ? papasSacosHTML() : t === "disp" ? papasDispHTML() : t === "cped" ? papasConsPedHTML() : t === "csac" ? papasConsSacHTML() : t === "ing" ? papasIngHTML() : t === "stock" ? papasStockHTML() : t === "lav" ? lavHTML("cajas") : t === "lavpago" ? lavPagoHTML("cajas") : papasPrvHTML();
+  el.innerHTML = t === "piezas" || t === "pinv" || t === "pcons" ? `<div id="pz-panel">${piezasHTML()}</div>` : t === "prod" ? papasProdHTML() : t === "hist" ? papasHistHTML() : t === "ped" ? papasPedidosHTML() : t === "sacos" ? papasSacosHTML() : t === "disp" ? papasDispHTML() : t === "mprod" ? papasModoProdHTML() : t === "cped" ? papasConsPedHTML() : t === "csac" ? papasConsSacHTML() : t === "ing" ? papasIngHTML() : t === "stock" ? papasStockHTML() : t === "lav" ? lavHTML("cajas") : t === "lavpago" ? lavPagoHTML("cajas") : papasPrvHTML();
   if (t === "prod") barraPapas();
 }
 function ppUsrOpts() {
@@ -9114,6 +9117,57 @@ function papasConsPedHTML() {
     ${prods.length ? `<h3 class="sec">Por producto</h3><div class="tbl-wrap"><table class="tbl cpp-tbl"><thead><tr><th>Producto</th><th class="r">Bolsas</th><th class="r">Kilos</th></tr></thead><tbody>${prods.map(([id, g]) => `<tr><td>${esc(etiqueta(PROD[id]))}<small class="cpp-sub">${esc(detalle(PROD[id]))}</small></td><td class="r">${fmtN(g.b)}</td><td class="r">${fmtN(g.kg)} kg</td></tr>`).join("")}</tbody></table></div>` : ""}
     <h3 class="sec">Pedidos <small>${fmtN(peds.length)}</small></h3>
     <ul class="log">${!S.cargado ? `<li class="vacio-li">Cargando…</li>` : peds.length ? peds.slice(0, 150).map(({ p, est, kg }) => `<li><time>${esc(pzFY(p.fechaEntrega))}</time><div><p class="who">${esc(p.clienteNombre || p.nombre || "Cliente")} · <b>${fmtN(kg)} kg</b></p><p class="what">${items(p).filter(i => CORTE_DE[i.id]).map(i => `${fmtN(i.cant)} × ${esc(etiqueta(PROD[i.id] || { nombre: i.nombre || i.id }))}${PROD[i.id] ? " " + esc(PROD[i.id].medida) : ""}`).join(" · ")}</p><p class="what"><span class="cpp-est cpp-${est}">${est === "ent" ? "Entregado" : "Por entregar"}</span></p></div></li>`).join("") : `<li class="vacio-li">Sin pedidos de papas en este período.</li>`}</ul>`;
+}
+/* ---------- Local papas · Modo producción ----------
+   Ordena los pedidos del día (pendientes o en camino, con entrega hoy o atrasados) en el mismo orden del Modo ruta:
+   primero las rutas ya tomadas por los repartidores (en su orden de paradas) y luego los pedidos por tomar con la ruta sugerida
+   desde Viña del Mar. Recorre las paradas descontando el inventario producción de cada corte (producido − entregado);
+   cuando un corte no alcanza, lo que falta pasa a la lista de producción, en el orden en que se necesita. */
+function modoProdPapas() {
+  const r = calcPapasDisp(null), stock = {};
+  for (const [k] of CORTES) stock[k] = Math.max(0, (r.prod[k] || 0) - (r.ent[k] || 0));
+  const st0 = Object.assign({}, stock), h = hoy();
+  const conPapa = p => items(p).some(i => CORTE_DE[i.id]);
+  const delDia = (S.pedidos || []).filter(p => (p.estado === "pendiente" || p.estado === "en_camino") && !p.porAprobar && p.fechaEntrega && p.fechaEntrega <= h && conPapa(p));
+  const enRuta = delDia.filter(p => p.estado === "en_camino" && p.rutaId && Number(p.rutaOrden) > 0);
+  const rutas = [...new Set(enRuta.map(p => p.rutaId))].map(id => enRuta.filter(p => p.rutaId === id).sort((a, b) => a.rutaOrden - b.rutaOrden))
+    .sort((a, b) => Math.min(...a.map(p => p.tomado || 0)) - Math.min(...b.map(p => p.tomado || 0)));
+  const resto = delDia.filter(p => !enRuta.includes(p)), sal = RUTA_COM[3];
+  const orden = [...rutas.flat(), ...(resto.length ? rutaOrdenar(resto, { lat: sal[2], lng: sal[3] }).orden : [])];
+  const falta = new Map(), nec = {};
+  const paradas = orden.map((p, ix) => {
+    const its = items(p).filter(i => CORTE_DE[i.id]).map(i => {
+      const c = CORTE_DE[i.id], kg = kgDe(i), usa = Math.min(stock[c], kg), f = Math.round((kg - usa) * 100) / 100;
+      stock[c] -= usa; nec[c] = (nec[c] || 0) + kg;
+      if (f > 0) { const x = falta.get(c) || { c, kg: 0, primera: ix + 1, cli: p.clienteNombre || "Cliente", n: 0 }; x.kg += f; x.n++; falta.set(c, x); }
+      return { i, c, kg, f };
+    });
+    return { p, n: ix + 1, its, ok: its.every(x => !x.f) };
+  });
+  return { paradas, falta: [...falta.values()], st0, nec, cargando: r.cargando, enRuta: enRuta.length };
+}
+function papasModoProdHTML() {
+  asegurarPapas();
+  const M = modoProdPapas(), nomC = c => (CORTES.find(([k]) => k === c) || [c, c])[1];
+  if (M.cargando) return vacio("Cargando producción y pedidos…", "Un momento.");
+  const sacos = kg => Math.ceil(kg / KG_SACO - 1e-9);
+  const lista = M.falta.length
+    ? `<ol class="mp-orden">${M.falta.map((x, i) => `<li class="${i ? "" : "mp-1"}"><span class="mp-n">${i + 1}</span><div><b>${esc(nomC(x.c))}</b><small>Se necesita primero en la parada ${x.primera} · ${esc(x.cli)}${x.n > 1 ? ` · ${x.n} productos sin stock` : ""}</small></div><span class="mp-kg"><b>${fmtL(x.kg)} kg</b><small>≈ ${fmtN(sacos(x.kg))} ${sacos(x.kg) === 1 ? "saco" : "sacos"}</small></span></li>`).join("")}</ol>`
+    : M.paradas.length ? `<div class="mp-okall">✅ Hay stock de todos los cortes para los pedidos de hoy. No hace falta producir para el reparto.</div>` : "";
+  const paradas = M.paradas.length ? `<h3 class="sec">Pedidos del día en orden de ruta <small>${fmtN(M.paradas.length)} ${M.paradas.length === 1 ? "pedido" : "pedidos"}</small></h3>
+    <ol class="mp-ruta">${M.paradas.map(x => `<li class="${x.ok ? "ok" : "falta"}"><div class="mp-rh"><span class="mp-n">${x.n}</span><b>${esc(x.p.clienteNombre || "Cliente")}</b><small>${esc(nomComuna(x.p.comuna))}${x.p.estado === "en_camino" ? " · 🚚 en ruta" : ""}${esPrio(x.p) ? " · ⚡" : ""}</small></div>
+      <ul>${x.its.map(y => `<li><span>${fmtN(Number(y.i.cant) || 0)}× ${esc(etiqueta(PROD[y.i.id] || { nombre: y.i.id }))}<small>${esc(nomC(y.c))} · ${fmtL(y.kg)} kg</small></span>${y.f ? `<em class="mp-f">Faltan ${fmtL(y.f)} kg</em>` : `<em class="mp-s">✓ En stock</em>`}</li>`).join("")}</ul></li>`).join("")}</ol>` : "";
+  const usados = CORTES.filter(([k]) => M.nec[k] || M.st0[k] > 0);
+  const tabla = usados.length ? `<h3 class="sec">Inventario producción por corte</h3>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Corte</th><th class="r">Stock</th><th class="r">Pedidos hoy</th><th class="r">Falta</th></tr></thead>
+    <tbody>${usados.map(([k, n]) => { const f = Math.max(0, (M.nec[k] || 0) - M.st0[k]); return `<tr><td>${esc(n)}</td><td class="r">${fmtL(M.st0[k])} kg</td><td class="r">${M.nec[k] ? fmtL(M.nec[k]) + " kg" : "—"}</td><td class="r">${f ? `<b class="mp-fx">${fmtL(f)} kg</b>` : "—"}</td></tr>`; }).join("")}</tbody></table></div>` : "";
+  return `<section class="card mp-card">
+    <h3 class="h2">Modo producción</h3>
+    <p class="lead-sm">Qué corte de papa hay que hacer primero, según el inventario producción y los pedidos de hoy ordenados como en el <b>Modo ruta</b>.</p>
+    ${M.paradas.length ? `<h3 class="sec">Producir en este orden</h3>${lista}` : vacio("No hay pedidos de papas para hoy", "Cuando lleguen pedidos con entrega hoy, aquí verás qué corte producir primero.")}
+  </section>
+  ${paradas}${tabla}
+  <p class="muted nota-disp">El orden sigue las paradas del reparto: primero las rutas que los repartidores ya tomaron y después los pedidos por tomar, con la ruta sugerida desde Viña del Mar (prioridad ⚡ y entregas antes de las 14:00 primero). Cada parada usa el stock disponible del corte; cuando no alcanza, lo que falta se agrega a la lista para producir. Los sacos son aproximados (${KG_SACO} kg por saco).</p>`;
 }
 function papasDispHTML() {
   const per = PP.dPer || "todo", ref = PP.dRef || hoy(), todo = per === "todo", rango = todo ? null : rangoPeriodo(per, ref);
@@ -13714,7 +13768,7 @@ function suscribir() {
     pintarPorAprobar();
     if (AG.tab === "bidpend" && $("#agua-panel") && !bdEditando()) renderAguaPanel();
     if (AG.tab === "agregar" && $("#agua-panel")) refrescarAgua();
-    if (PP.tab === "disp" || PP.tab === "cped") refrescarPapas();
+    if (PP.tab === "disp" || PP.tab === "cped" || PP.tab === "mprod") refrescarPapas();
     if (PP.tab === "ped" && $("#papas-panel")) renderPapasPanel();
     if (["admin", "agua", "repartidor"].includes(S.portal)) { subDsp(); reconciliarDsp(); }
     reconciliarVacDev(); reconciliarPagoFijo();
