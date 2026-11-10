@@ -6167,8 +6167,8 @@ function kgEntregadoHTML(lista) {
   return `<div class="carga-kg"><b>${fmtL(lt + kgp)} kg</b><small>${fmtL(lt)} L agua · ${fmtL(kgp)} kg papas</small></div>`;
 }
 /* Pago reparto extra semanal: cuenta desde los 6.000 kilos en total (agua + papas, 1 litro = 1 kilo).
-   Lo que pasa de 6.000 se reparte entre agua y papas según lo repartido, y se paga a $20 por litro de agua y $40 por kilo de papas. */
-const UMBRAL_KG_SEM = 6000, PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 40;
+   Lo que pasa de 6.000 se reparte entre agua y papas según lo repartido, y se paga a $20 por litro de agua y $20 por kilo de papas. */
+const UMBRAL_KG_SEM = 6000, PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 20;
 const extraSemRep = (lt, kgp) => { const t = lt + kgp, x = Math.max(0, t - UMBRAL_KG_SEM); const xlt = t > 0 ? Math.round(x * lt / t * 10) / 10 : 0; return { x, xlt, xkg: Math.round((x - xlt) * 10) / 10 }; };
 const pagoSemRep = (lt, kgp) => { const e = extraSemRep(lt, kgp); return Math.round(e.xlt * PAGO_LT_AGUA + e.xkg * PAGO_KG_PAPA); };
 const semCorta = (l, f) => { const d = x => new Date(x + "T12:00").toLocaleDateString("es-CL", { day: "numeric", month: "short" }).replace(".", ""); return l.slice(0, 7) === f.slice(0, 7) ? `${+l.slice(8)} – ${d(f)}` : `${d(l)} – ${d(f)}`; };
