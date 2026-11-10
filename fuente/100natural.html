@@ -1104,46 +1104,59 @@ body[data-perfil="1"] .ini-row{display:none!important}
 .sec-switch.sw-oculto{display:none!important}
 .tabs.cv-uno>button[aria-selected="true"] .cv-ruta{order:-1;flex:0 0 100%;width:100%;text-align:center;font-weight:600;opacity:.8;font-size:.8rem;line-height:1.2;white-space:normal}
 .tabs.cv-uno.cv-uno>button[aria-selected="true"]:has(.cv-ruta){flex-wrap:wrap!important;row-gap:2px!important;align-content:center;padding-top:6px!important;padding-bottom:6px!important}.tabs.cv-uno.cv-uno>button[aria-selected="true"]:has(.cv-ruta) .rep-tt{width:auto!important}
-/* ===== Administrador › Registrados: listas más compactas ===== */
+/* ===== Administrador › Registrados: tarjetas ordenadas ===== */
 @media(max-width:760px){
-.uc-tbl tbody tr.uc-tr{grid-template-columns:minmax(0,1fr) auto!important;gap:8px 10px!important;padding:12px 12px 10px 16px!important;margin:0 0 8px!important;border-radius:16px!important}
+.uc-tbl tbody tr.uc-tr{grid-template-columns:minmax(0,1fr) auto!important;gap:10px 10px!important;padding:14px 14px 12px 18px!important;margin:0 0 10px!important;border-radius:16px!important;box-shadow:inset 5px 0 0 var(--rc),0 1px 2px rgb(0 0 0 / .05)!important}
 .uc-tbl td.uc-who{grid-column:1!important;grid-row:1}
-.uc-tbl td.uc-tipo{grid-column:2!important;grid-row:1;align-self:center;justify-self:end}
-.uc-tbl td.uc-tel{grid-column:1!important}
-.uc-tbl td.uc-reg{grid-column:2!important;text-align:right}
-.uc-tbl td.uc-dir,.uc-tbl td.uc-cli,.uc-tbl td.uc-acc{grid-column:1/-1!important}
-.uc-tbl td[data-l]::before{font-size:.6rem!important;margin-bottom:1px!important}
-.uc-tbl .uc-reg small{display:none}
-.uc-tbl .uc-reg .uc-f{font-weight:600;font-size:.88rem}
-.uc-tbl td.uc-acc{padding-top:8px!important}
-.uc-btns .btn{min-height:36px!important;font-size:.8rem!important}
-.uc-av{flex-basis:36px!important;width:36px!important;height:36px!important;font-size:.82rem!important}
-.uc-n b{font-size:.98rem}
-.uc-rol{font-size:.72rem!important;padding:2px 8px 2px 5px!important}
+.uc-tbl td.uc-tipo{grid-column:2!important;grid-row:1;align-self:start;justify-self:end}
+.uc-tbl td.uc-tel,.uc-tbl td.uc-reg,.uc-tbl td.uc-dir,.uc-tbl td.uc-cli{grid-column:1/-1!important;display:flex!important;align-items:center;gap:10px;font-size:.92rem;min-height:30px;padding:0!important;line-height:1.3}
+.uc-tbl tbody tr.uc-tr{row-gap:8px!important}.uc-tbl td.uc-tel{grid-row:2;padding-top:10px!important;border-top:1px dashed var(--line)!important}
+.uc-tbl td[data-l]::before{content:""!important;flex:0 0 30px;width:30px;height:30px;margin:0!important;border-radius:9px;background:var(--surface-2) center/16px no-repeat;display:block!important}
+.uc-tbl td.uc-tel::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z'/%3E%3C/svg%3E")}
+.uc-tbl td.uc-dir::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E")}
+.uc-tbl td.uc-reg::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E")}
+.uc-tbl td.uc-cli::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 21h18M5 21V7l7-4 7 4v14'/%3E%3C/svg%3E")}
+.uc-tbl td.uc-tipo::before{display:none!important}
+.uc-tbl .uc-reg .uc-f{font-weight:500!important;font-size:.92rem!important;display:inline!important}
+.uc-tbl .uc-reg small{display:none!important}
+.uc-tbl .uc-reg .uc-f::after{content:" · registro";color:var(--muted);font-size:.8rem}
+.uc-tbl td.uc-acc{grid-column:1/-1!important;padding-top:10px!important}
+.uc-btns{gap:6px!important}
+.uc-btns .btn{min-height:38px!important;font-size:.82rem!important;border-radius:10px!important}
+.uc-av{flex-basis:42px!important;width:42px!important;height:42px!important;font-size:.88rem!important}
+.uc-n b{font-size:1.02rem}
+.uc-rol{font-size:.72rem!important;padding:3px 9px 3px 6px!important}
 }
-.uc-tel .tel-wa{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
-/* Filtros: fila de chips deslizable */
-#usu-panel .usu-fam,#usu-panel .usu-tipo,#usu-panel .usu-pags:not([hidden]){display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px!important;margin:0 0 8px!important;background:none!important;border:0!important;grid-template-columns:none!important;box-shadow:none!important}
-#usu-panel .usu-fam::-webkit-scrollbar,#usu-panel .usu-tipo::-webkit-scrollbar,#usu-panel .usu-pags::-webkit-scrollbar{display:none}
-#usu-panel .usu-fam>button,#usu-panel .usu-tipo>button,#usu-panel .usu-pags>button{flex:0 0 auto!important;display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:0!important;min-height:40px!important;padding:6px 14px!important;border-radius:999px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink)!important;font-size:.88rem!important;font-weight:700!important;white-space:nowrap!important;box-shadow:none!important}
-#usu-panel .usu-fam>button[aria-pressed="true"],#usu-panel .usu-tipo>button[aria-pressed="true"],#usu-panel .usu-pags>button[aria-pressed="true"]{background:var(--ink)!important;color:var(--bg)!important;border-color:var(--ink)!important}
-#usu-panel .usu-tipo svg,#usu-panel .usu-pags svg{width:18px!important;height:18px!important}
-#usu-panel .usu-pags>button b,#usu-panel .usu-pags>button .cnt,#usu-panel .usu-fam>button b{font-size:.78rem;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--ink);margin:0!important;position:static!important}
-#usu-panel .usu-pags>button[aria-pressed="true"] b,#usu-panel .usu-pags>button[aria-pressed="true"] .cnt,#usu-panel .usu-fam>button[aria-pressed="true"] b{background:rgb(255 255 255 / .2);color:inherit}
-#usu-panel .usu-pags>button>*{display:inline!important;margin:0!important}
+.uc-tel .tel-wa{display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap;white-space:nowrap}
+.uc-tel .tel-num{font-weight:700}
+.uc-tel .wa-btn{font-size:0!important;width:30px;height:30px;padding:0!important;border-radius:50%!important;display:inline-grid!important;place-items:center;flex:0 0 30px}
+.uc-tel .wa-btn svg{width:17px!important;height:17px!important;margin:0!important}
+/* Filtros de las tres listas: mismos botones (íconos) que las demás secciones */
+#usu-panel .usu-fam,#usu-panel .usu-tipo,#usu-panel .usu-pags:not([hidden]),.adcap .adcap-tabs{grid-auto-rows:1fr!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;padding:0!important;margin:0 0 10px!important;background:none!important;border:0!important;box-shadow:none!important;max-width:none!important;overflow:visible!important}
+@media(min-width:760px){#usu-panel .usu-fam,#usu-panel .usu-tipo,#usu-panel .usu-pags:not([hidden]),.adcap .adcap-tabs{gap:6px!important}}
+#usu-panel .usu-fam>button,#usu-panel .usu-tipo>button,#usu-panel .usu-pags>button,.adcap .tabs.rep-tabs.adcap-tabs>button{letter-spacing:-.01em;overflow-wrap:anywhere;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:auto!important;min-width:0!important;min-height:93px!important;height:auto!important;padding:12px 2px 11px!important;margin:0!important;border-radius:12px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink)!important;font-size:.75rem!important;font-weight:700!important;line-height:1.15!important;text-align:center!important;white-space:normal!important;box-shadow:none!important;flex:initial!important}
+#usu-panel .usu-fam>button[aria-pressed="true"],#usu-panel .usu-tipo>button[aria-pressed="true"],#usu-panel .usu-pags>button[aria-pressed="true"],.adcap .tabs.rep-tabs.adcap-tabs>button[aria-pressed="true"],.adcap .tabs.rep-tabs.adcap-tabs>button[aria-selected="true"]{background:var(--ink)!important;color:var(--bg)!important;border-color:var(--ink)!important}
+#usu-panel .usu-tipo svg,#usu-panel .usu-pags svg,.adcap .adcap-tabs svg{width:30px!important;height:30px!important}
+#usu-panel .usu-fam .usu-fe{font-size:24px;line-height:30px;height:30px}
+#usu-panel .usu-fam>button,#usu-panel .usu-pags>button{position:relative!important}#usu-panel .usu-fam>button b,#usu-panel .usu-pags>button b{display:block!important;font-size:.68rem!important;font-weight:800;min-width:20px;padding:0 6px;border-radius:999px;background:var(--surface-2);color:var(--ink);margin:0!important;position:absolute!important;top:6px;right:6px;line-height:1.6}
+#usu-panel .usu-fam>button[aria-pressed="true"] b,#usu-panel .usu-pags>button[aria-pressed="true"] b{background:rgb(255 255 255 / .2);color:inherit}
+#usu-panel .usu-pags>button>span{display:block!important;margin:0!important}
 /* Captados */
-.adcap .cap-lista{display:grid;gap:8px;list-style:none;margin:0;padding:0}
-.adcap .cap-lista>li.capc{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;align-items:start;padding:12px 12px 12px 14px!important;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:inset 4px 0 0 var(--rc);font-size:.95rem}
-.capc-av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--rc);color:#fff;font-weight:800;font-size:.85rem}
-.capc-b{display:grid;gap:3px;min-width:0}
-.adcap .cap-lista li.capc{font-size:.95rem!important;gap:2px 12px!important}.adcap .cap-lista li.capc b.capc-n{font-size:1.04rem!important;line-height:1.2;overflow-wrap:anywhere}.adcap .cap-lista li.capc small.capc-f{font-size:.78rem!important}
-.capc-l{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:.9rem}.capc-l a{font-weight:700}
-.capc-nota{margin:0;font-size:.86rem;background:var(--surface-2);border-radius:8px;padding:4px 8px}
-.capc-f{color:var(--muted);font-size:.78rem}
-.capc-del{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:1rem;cursor:pointer;display:grid;place-items:center}
-.capc-conf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
-.adcap .adcap-h{font-size:1.02rem;margin:14px 0 8px}.adcap .adcap-h small{display:block;font-size:.75rem;font-weight:500;color:var(--muted);margin-top:2px}
+.adcap .cap-lista{display:grid;gap:10px;list-style:none;margin:0;padding:0}
+.adcap .cap-lista>li.capc{position:relative;display:grid!important;grid-template-columns:auto minmax(0,1fr);gap:0 12px!important;align-items:start;padding:14px 14px 12px 18px!important;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:inset 5px 0 0 var(--rc),0 1px 2px rgb(0 0 0 / .05);font-size:.92rem!important}
+.capc-av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--rc);color:#fff;font-weight:800;font-size:.88rem}
+.capc-b{display:grid;gap:6px;min-width:0;padding-right:40px}
+.adcap .cap-lista li.capc b.capc-n{font-size:1.02rem!important;line-height:1.25;overflow-wrap:anywhere;padding-top:2px}
+.capc-l{display:grid;gap:4px;font-size:.92rem}.capc-l>span{display:flex;align-items:center;gap:6px;overflow-wrap:anywhere}.capc-l a{font-weight:700}
+.capc-nota{margin:0;font-size:.86rem;background:var(--surface-2);border-radius:10px;padding:6px 10px;line-height:1.35}
+.adcap .cap-lista li.capc small.capc-f{font-size:.76rem!important;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px}
+.capc-del{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:.95rem;cursor:pointer;display:grid;place-items:center;padding:0}
+.capc-conf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.adcap .adcap-h{font-size:1.02rem;margin:16px 0 8px}.adcap .adcap-h small{display:block;font-size:.75rem;font-weight:500;color:var(--muted);margin-top:2px}
 @media(min-width:760px){.adcap .cap-lista{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:761px){.uc-tbl td.uc-who{min-width:170px}.uc-tbl .uc-n b{overflow-wrap:normal;word-break:normal}.uc-tbl td.uc-dir{min-width:150px}.uc-tbl td.uc-tipo,.uc-tbl td.uc-tipo *{white-space:nowrap}}
+@media(max-width:760px){.card.adcap{padding-left:10px!important;padding-right:10px!important}}
+.pex-cat{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--surface)}.pex-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}.pex-h span{font-weight:800}.pex-cat .track{margin:0 0 6px}.pex-cat small{display:block}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -2173,7 +2186,7 @@ const CATALOGO = [
     ["aa20", "Bidón", "20 L", 3500], ["aa10", "Bidón", "10 L", 3000], ["aa5", "Botellón", "5 L", 2500],
     ["aa3", "Botella", "3 L", 1990], ["aa1v", "Botella de vidrio", "1 L", 3000], ["aa05", "Botella", "500 cc", 1750] ] },
   { key: "dispensadores", titulo: "Dispensadores", fam: "agua", color: "pur", items: [
-    ["dusb", "Dispensador", "USB", 8000], ["dsob", "Dispensador", "sobremesa", 9000] ] },
+    ["dusb", "Dispensador", "USB", 9000], ["dsob", "Dispensador", "sobremesa", 8000] ] },
   { key: "papas1", titulo: "Papas naturales 1 kg", fam: "papa", color: "papa", tag: "Listas para usar", items: [
     ["p1g", "Papa gajo chico", "1 kg", 1490], ["p1b12", "Papa bastón 12 mm chico", "1 kg", 1490] ] },
   { key: "papas5", titulo: "Papas naturales 5 kg", fam: "papa", color: "papa", tag: "Listas para usar", items: [
@@ -6152,8 +6165,12 @@ function kgEntregadoHTML(lista) {
   if (!lista.length) return "";
   return `<div class="carga-kg"><b>${fmtL(lt + kgp)} kg</b><small>${fmtL(lt)} L agua · ${fmtL(kgp)} kg papas</small></div>`;
 }
-const UMBRAL_KG_SEM = 6000;
-const pagoSemRep = kg => Math.max(0, Math.round((kg - UMBRAL_KG_SEM) * PAGO_KG_ENTREGA));
+/* Pago reparto extra semanal: cuenta desde los 6.000 kilos en total (agua + papas, 1 litro = 1 kilo).
+   Lo que pasa de 6.000 se reparte entre agua y papas según lo repartido, y se paga a $20 por litro de agua y $40 por kilo de papas. */
+const UMBRAL_KG_SEM = 6000, PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 40;
+const extraSemRep = (lt, kgp) => { const t = lt + kgp, x = Math.max(0, t - UMBRAL_KG_SEM); const xlt = t > 0 ? Math.round(x * lt / t * 10) / 10 : 0; return { x, xlt, xkg: Math.round((x - xlt) * 10) / 10 }; };
+const pagoSemRep = (lt, kgp) => { const e = extraSemRep(lt, kgp); return Math.round(e.xlt * PAGO_LT_AGUA + e.xkg * PAGO_KG_PAPA); };
+const extraDet = w => [w.xlt ? `${fmtL(w.xlt)} L agua extra` : "", w.xkg ? `${fmtL(w.xkg)} kg papas extra` : ""].filter(Boolean).join(" · ");
 const fEntRep = p => p.fechaEntrega || (p.entregado ? ymd(new Date(p.entregado)) : "");
 function semanaRep(u, lunes) {
   const fin = addDias(lunes, 6), dias = {};
@@ -6164,8 +6181,8 @@ function semanaRep(u, lunes) {
     const d = dias[f] || (dias[f] = { n: 0, lt: 0, kgp: 0 }); d.n++; n++;
     for (const i of items(p)) { const pr = PROD[i.id]; if (!pr) continue; const k = kgEntrega(i); if (pr.fam === "papa") { d.kgp += k; kgp += k; } else { d.lt += k; lt += k; } }
   }
-  const kg = lt + kgp;
-  return { lunes, fin, dias, n, lt, kgp, kg, extra: Math.max(0, kg - UMBRAL_KG_SEM), pago: pagoSemRep(kg) };
+  const kg = lt + kgp, { x: extra, xlt, xkg } = extraSemRep(lt, kgp);
+  return { lunes, fin, dias, n, lt, kgp, kg, xlt, xkg, extra, pagoLt: Math.round(xlt * PAGO_LT_AGUA), pagoKg: Math.round(xkg * PAGO_KG_PAPA), pago: pagoSemRep(lt, kgp) };
 }
 function adminPagosRepHTML() {
   const mm = new Map();
@@ -6183,7 +6200,7 @@ function misPagosHTML(me, nomRep, adm) {
   const sems = [];
   if (corto) sems.push(semanaRep(me, lunesDe(a)));
   else for (let l = lunesDe(a); l <= b; l = addDias(l, 7)) { const f = addDias(l, 6); if (f >= a && f <= b) { const w = semanaRep(me, l); if (w.n) sems.push(w); } }
-  const pago = sems.reduce((t, w) => t + w.pago, 0), kgSem = sems.reduce((t, w) => t + w.kg, 0), extra = sems.reduce((t, w) => t + w.extra, 0);
+  const pago = sems.reduce((t, w) => t + w.pago, 0), kgSem = sems.reduce((t, w) => t + w.kg, 0), extra = sems.reduce((t, w) => t + w.extra, 0), xltT = sems.reduce((t, w) => t + w.xlt, 0), xkgT = sems.reduce((t, w) => t + w.xkg, 0);
   // Kilos entregados dentro del rango exacto
   const dias = {}; let n = 0, lt = 0, kgp = 0;
   for (const p of S.pedidos) {
@@ -6199,20 +6216,24 @@ function misPagosHTML(me, nomRep, adm) {
     .filter(l => !sems.some(w => w.lunes === l)).map(l => semanaRep(me, l)).filter(x => x.pago > 0 && !estadoRepPago(me, x.lunes, x.pago).pagado).sort((x, y) => y.lunes.localeCompare(x.lunes));
   const w0 = sems[0];
   const hero = corto && w0 ? `<div class="pay-hero">
-      <span class="eyebrow-s">Pago kilos extras · ${per === "dia" ? "semana de este día" : "semana"}</span>
+      <span class="eyebrow-s">Pago reparto extra · ${per === "dia" ? "semana de este día" : "semana"}</span>
       <b class="pay-total">${clp(w0.pago)}</b>
-      <p class="muted">${per === "dia" ? `${esc(etiquetaPeriodo("semana", w0.lunes, w0.fin))}<br>` : ""}${fmtL(w0.kg)} kg repartidos en la semana · ${w0.extra ? `${fmtL(w0.extra)} kg sobre ${fmtN(UMBRAL_KG_SEM)} × ${clp(PAGO_KG_ENTREGA)}` : `faltan ${fmtL(UMBRAL_KG_SEM - w0.kg)} kg para llegar a ${fmtN(UMBRAL_KG_SEM)}`}</p>
+      <p class="muted">${per === "dia" ? `${esc(etiquetaPeriodo("semana", w0.lunes, w0.fin))}<br>` : ""}${fmtL(w0.kg)} kg repartidos en la semana (agua + papas) · ${w0.extra ? `${fmtL(w0.extra)} kg sobre ${fmtN(UMBRAL_KG_SEM)}` : `faltan ${fmtL(UMBRAL_KG_SEM - w0.kg)} kg para llegar a ${fmtN(UMBRAL_KG_SEM)}`}</p>
     </div>
-    <div class="track sem-track"><i style="width:${Math.min(100, Math.round(w0.kg / UMBRAL_KG_SEM * 100))}%"></i></div>`
+    <div class="track sem-track"><i style="width:${Math.min(100, Math.round(w0.kg / UMBRAL_KG_SEM * 100))}%"></i></div>
+    ${w0.extra ? [["Agua", "L", w0.lt, w0.xlt, PAGO_LT_AGUA, w0.pagoLt, "litro"], ["Papas", "kg", w0.kgp, w0.xkg, PAGO_KG_PAPA, w0.pagoKg, "kilo"]].filter(r => r[3] > 0).map(([t, u, v, x, pr, m, por]) => `<div class="pex-cat">
+      <div class="pex-h"><b>${t}</b><span>${clp(m)}</span></div>
+      <small class="muted">${fmtL(x)} ${u} extra × ${clp(pr)} por ${por} · ${fmtL(v)} ${u} repartidos en la semana</small>
+    </div>`).join("") : ""}`
     : `<div class="pay-hero">
-      <span class="eyebrow-s">Pago kilos extras · ${per === "mes" ? "mes" : per === "todo" ? "todos" : "año"}</span>
+      <span class="eyebrow-s">Pago reparto extra · ${per === "mes" ? "mes" : per === "todo" ? "todos" : "año"}</span>
       <b class="pay-total">${clp(pago)}</b>
-      <p class="muted">${sems.length} ${sems.length === 1 ? "semana con entregas" : "semanas con entregas"} · ${fmtL(kgSem)} kg repartidos · ${fmtL(extra)} kg extra</p>
+      <p class="muted">${sems.length} ${sems.length === 1 ? "semana con entregas" : "semanas con entregas"} · ${extra ? [xltT ? `${fmtL(xltT)} L agua extra` : "", xkgT ? `${fmtL(xkgT)} kg papas extra` : ""].filter(Boolean).join(" · ") : "sin litros ni kilos extra"}</p>
     </div>`;
   const estados = corto
     ? (w0 && w0.pago > 0 ? `<article class="ped rp-card"><div class="ped-h"><b class="t">Estado de pago de la semana</b><span class="saldo-p">${clp(w0.pago)}</span></div>${repPagoDiaHTML(me, nom, w0.lunes, w0.pago, !adm, !!adm)}</article>` : "")
     : (sems.length ? `<h3 class="sec">Semanas</h3>${sems.slice().reverse().map(w => `<article class="ped rp-card"><div class="ped-h"><b class="t">${esc(etiquetaPeriodo("semana", w.lunes, w.fin))}</b><span class="saldo-p">${clp(w.pago)}</span></div>
-        <p class="muted">${fmtL(w.kg)} kg repartidos · ${w.extra ? `${fmtL(w.extra)} kg extra` : "sin kilos extra"}</p>
+        <p class="muted">${fmtL(w.lt)} L agua · ${fmtL(w.kgp)} kg papas · ${w.extra ? extraDet(w) : "sin extra"}</p>
         ${w.pago > 0 ? repPagoDiaHTML(me, nom, w.lunes, w.pago, !adm, !!adm) : ""}</article>`).join("")}` : "");
   const lblFila = f => porMes ? cap(etiquetaPeriodo("mes", f + "-01", f + "-01")) : cap(fmtFecha(f));
   const totLbl = { dia: "Total día", semana: "Total semana", mes: "Total mes" }[per] || (per === "todo" ? "Total" : "Total año");
@@ -6238,7 +6259,7 @@ function misPagosHTML(me, nomRep, adm) {
         <tbody>${filas.map(([f, d]) => `<tr><td>${esc(lblFila(f))}<small class="con-pen">${fmtL(d.lt)} L agua · ${fmtL(d.kgp)} kg papas</small></td><td class="r">${fmtN(d.n)}</td><td class="r">${fmtL(d.lt + d.kgp)}</td></tr>`).join("")}</tbody>
         <tfoot><tr><td>${totLbl}</td><td class="r">${fmtN(n)}</td><td class="r">${fmtL(lt + kgp)}</td></tr></tfoot></table></div>`
       : vacio("Sin entregas en este período", "Cambia el período o la fecha. Cuando marques pedidos como entregados, aquí se irán sumando tus kilos.")}
-    <p class="muted nota-disp">El pago es semanal: se suman los kilos entregados de lunes a domingo (cada litro de agua cuenta como 1 kg). Si en la semana pasas de ${fmtN(UMBRAL_KG_SEM)} kg, se pagan ${clp(PAGO_KG_ENTREGA)} por cada kilo sobre ${fmtN(UMBRAL_KG_SEM)}. En la vista por día se muestra el pago de la semana a la que pertenece ese día; en mes y año se suman las semanas que terminan dentro del período.</p>`;
+    <p class="muted nota-disp">El pago extra es semanal (lunes a domingo): se suman los litros de agua y los kilos de papas entregados (1 litro = 1 kilo). Lo que pase de ${fmtN(UMBRAL_KG_SEM)} kg en total se paga a ${clp(PAGO_LT_AGUA)} por litro de agua y ${clp(PAGO_KG_PAPA)} por kilo de papas, repartiendo esos kilos extra entre agua y papas en la misma proporción en que se repartieron en la semana. En la vista por día se muestra el pago de la semana a la que pertenece ese día; en mes y año se suman las semanas que terminan dentro del período.</p>`;
 }
 function repTipoChipsHTML(lista) {
   const t = S.repTipo || "", nL = lista.filter(p => tipoCli(p) === "Local comercial").length;
@@ -6282,7 +6303,7 @@ function totalRepHTML(me) {
     const sems = [...new Set(pedidos.map(p => lunesDe(fEnt(p))))].sort().map(l => semanaRep(u, l));
     return { sems, monto: sems.reduce((a, s) => a + s.pago, 0) };
   };
-  const extraHTML = x => `<p class="rep-extra ${x.monto ? "on" : ""}">${x.sems.map(s => `${esc(etiquetaPeriodo("semana", s.lunes, s.fin))}: ${fmtL(s.kg)} kg${s.pago ? ` · <b>${clp(s.pago)}</b> (${fmtL(s.extra)} kg extra)` : ` · sin kilos extra`}`).join("<br>")}</p>`;
+  const extraHTML = x => `<p class="rep-extra ${x.monto ? "on" : ""}">${x.sems.map(s => `${esc(etiquetaPeriodo("semana", s.lunes, s.fin))}: ${fmtL(s.lt)} L agua · ${fmtL(s.kgp)} kg papas${s.pago ? ` · <b>${clp(s.pago)}</b> (${extraDet(s)})` : ` · sin extra`}`).join("<br>")}</p>`;
   const tabla = r => `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Producto</th><th class="r">Cantidad</th></tr></thead>
       <tbody>${r.filas.map(f => `<tr><td>${esc(f.nom)}</td><td class="r"><b>${cant(f)}</b> <small class="muted-s">${fmtN(f.cant)} ${f.papa ? (f.cant === 1 ? "bolsa" : "bolsas") : "unid."}</small></td></tr>`).join("")}</tbody>
       <tfoot><tr><td>Total</td><td class="r">${[r.lt ? `${fmtL(r.lt)} L agua` : "", r.kg ? `${fmtN(r.kg)} kg papas` : ""].filter(Boolean).join(" · ") || "0"}${r.lt && r.kg ? `<br><b>${fmtL(r.lt + r.kg)} kg en total</b>` : ""}</td></tr></tfoot></table></div>`;
@@ -12189,7 +12210,7 @@ const adCliente = () => AD.clientes.find(x => x.id === AD.clienteId) || null;
 const adLocalSel = () => adTipo() === "Local comercial";
 /* Sin montos en dinero: clientes local comercial y pedidos creados desde Repartidores. */
 const adSinPrecio = () => adLocalSel() || crearEnRep();
-const adPrecio = id => { const c = !AD.nuevo && AD.clienteId ? (AD.clientes || []).find(x => x.id === AD.clienteId) : null; return c ? precioCli(id, c.precios || {}, !!c.sinIva, c.tipo || "") : PROD[id].precio; };
+const adPrecio = id => { const c = !AD.nuevo && AD.clienteId ? (AD.clientes || []).find(x => x.id === AD.clienteId) : null; return c ? precioCli(id, c.precios || {}, !!c.sinIva, c.tipo || "") : precioCli(id, {}, false, AD.nuevo ? AD.tipoNuevo : "Particular"); };
 AD.ocultos = []; AD.editProds = false;
 function subAdOcultos() {
   if (AD.ocSub || !S.db) return; AD.ocSub = true;
@@ -12884,7 +12905,7 @@ function filasPagos(a, b) {
   for (const x of reps.values()) {
     const w = semanaRep(x.u, x.l); if (!(w.pago > 0)) continue;
     const e = estadoRepPago(x.u, x.l, w.pago);
-    F.push({ cat: "rep", quien: x.nombre, det: `${etiquetaPeriodo("semana", x.l, w.fin)} · ${fmtL(w.extra)} kg extra`, f: w.fin, ini: x.l, monto: w.pago, pagado: e.pagado, parcial: !e.pagado && (e.rOk || e.aOk) });
+    F.push({ cat: "rep", quien: x.nombre, det: `${etiquetaPeriodo("semana", x.l, w.fin)} · ${extraDet(w)}`, f: w.fin, ini: x.l, monto: w.pago, pagado: e.pagado, parcial: !e.pagado && (e.rOk || e.aOk) });
   }
   // proveedores (sin monto)
   for (const p of PV.lista || []) {
@@ -15240,22 +15261,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     return _iva(p, neto);
   }; } catch (er) { console.warn("iva", er); }
 
-  /* ---------- Pago reparto extra: agua a $20 por litro y papas a $40 por kilo ---------- */
-  const PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 40;
-  try { const _sem = semanaRep;
-  semanaRep = function (u, lunes) {
-    const w = _sem(u, lunes), kg = (w.lt || 0) + (w.kgp || 0), extra = Math.max(0, kg - UMBRAL_KG_SEM);
-    const valor = (w.lt || 0) * PAGO_LT_AGUA + (w.kgp || 0) * PAGO_KG_PAPA;
-    w.extra = extra; w.pago = kg > 0 && extra > 0 ? Math.round(extra * valor / kg) : 0;
-    return w;
-  }; } catch (er) { console.warn("semanaRep", er); }
-  try { const _mp = misPagosHTML;
-  misPagosHTML = function () {
-    let h = _mp.apply(this, arguments);
-    h = h.split(` × ${clp(PAGO_KG_ENTREGA)}`).join(` (agua ${clp(PAGO_LT_AGUA)}/L · papas ${clp(PAGO_KG_PAPA)}/kg)`);
-    h = h.replace(/<p class="muted nota-disp">El pago es semanal:[\s\S]*?<\/p>/, `<p class="muted nota-disp">El pago es semanal: se suman los litros de agua y los kilos de papas entregados de lunes a domingo. Si en la semana pasas de ${fmtN(UMBRAL_KG_SEM)} (litros + kilos), lo que pasa de ${fmtN(UMBRAL_KG_SEM)} se paga a ${clp(PAGO_LT_AGUA)} por litro de agua y ${clp(PAGO_KG_PAPA)} por kilo de papas, en la misma proporción de agua y papas que repartiste esa semana. En la vista por día se muestra el pago de la semana a la que pertenece ese día; en mes y año se suman las semanas que terminan dentro del período.</p>`);
-    return h;
-  }; } catch (er) { console.warn("misPagos", er); }
+
 
   /* ---------- Carrusel de fotos de Clientes: paso suave con aceleración, y las fotos de los lados se achican un poco. ---------- */
   const afiAnim = new WeakMap();
