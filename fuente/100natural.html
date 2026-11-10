@@ -649,7 +649,7 @@ body.banner-mini .banner-flot.banner-tap{pointer-events:auto}
 .usu-posloc{margin:4px 0 12px;flex-wrap:wrap}
 .local-switch > .ad-grp-h{grid-column:1/-1;margin:14px 0 0;font-size:.95rem;font-weight:800;letter-spacing:.02em;color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--line)}.local-switch > .ad-grp-h:first-of-type{margin-top:0}.ls-uno > .ad-grp-h{display:none!important}
 /* Administrador: con el menú abierto no queda ninguna sección seleccionada ni su contenido abajo. */
-.local-switch:not(.ls-uno):not(.pc-on) ~ *{display:none!important}
+
 .local-btn.l-oscuro[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:-2px}
 .afi-car{position:relative;margin:0 0 16px}
 .afi-track{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:18px;align-items:center;overscroll-behavior-x:contain}
@@ -1017,6 +1017,133 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .usu-bar-w{max-width:960px;margin:0 auto 10px}.usu-bar-w[hidden]{display:none}.usu-bar{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;box-shadow:0 8px 20px -16px var(--shadow)}.ub-av{flex:0 0 40px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--bg);font-weight:800;font-size:.95rem}.ub-t{display:grid;flex:1 1 auto;min-width:0;line-height:1.2}.ub-t small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}.ub-t b{font-size:1.08rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ub-p{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;padding:4px 10px;border-radius:999px;background:var(--surface-2);font-size:.8rem;font-weight:700;color:var(--muted)}.ub-p svg{width:16px;height:16px}
 .pc-tabs.pc-on{display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;overflow-x:auto!important;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding-left:calc((100% - 24px)/3.4 + 10px);scroll-behavior:smooth;-webkit-overflow-scrolling:touch;gap:8px!important;padding:2px 2px 10px!important;scrollbar-width:thin}.pc-tabs.pc-on>button{flex:0 0 calc((100% - 24px)/3.4)!important;width:auto!important;max-width:none!important;min-width:0!important;scroll-snap-align:start}@media(min-width:760px){.pc-tabs.pc-on>button{flex-basis:128px!important}.pc-tabs.pc-on{scroll-padding-left:140px}}.pc-tabs.pc-on>h3,.pc-tabs.pc-on>.ad-grp-h{display:none!important}.pc-tabs.pc-on>.pc-carr{position:sticky;left:0;z-index:2;order:-1;box-shadow:6px 0 12px -6px var(--shadow)}.pc-carr[aria-pressed="true"]{background:var(--surface)!important;color:#0e7490!important;border:2px solid #0e7490!important}.pc-carr[aria-pressed="true"] .rep-ti,.pc-carr[aria-pressed="true"] svg,.pc-carr[aria-pressed="true"] span{color:#0e7490!important}.pc-carr .rep-ti,.pc-carr svg{color:#db2777}:root[data-theme="dark"] .pc-carr[aria-pressed="true"],:root[data-theme="dark"] .pc-carr[aria-pressed="true"] span,:root[data-theme="dark"] .pc-carr[aria-pressed="true"] svg{color:#38bdf8!important;border-color:#38bdf8!important}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pc-carr[aria-pressed="true"],:root:not([data-theme="light"]) .pc-carr[aria-pressed="true"] span,:root:not([data-theme="light"]) .pc-carr[aria-pressed="true"] svg{color:#38bdf8!important;border-color:#38bdf8!important}}main .pc-sub.pc-on.pc-on{display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;overflow-x:auto!important;overflow-y:hidden;scroll-snap-type:x proximity;scroll-padding-left:0;scroll-behavior:smooth;gap:8px!important;padding:2px 2px 10px!important}main .pc-sub.pc-on.pc-on>button{flex:0 0 calc((100% - 24px)/3.4)!important;width:auto!important;max-width:none!important;min-width:0!important;scroll-snap-align:start}@media(min-width:760px){main .pc-sub.pc-on.pc-on>button{flex-basis:128px!important}}
 body.con-usu #banner{margin-bottom:6px}body.con-usu .usu-bar-w{margin-bottom:4px}body.con-usu .top-in{padding-block:2px}body.con-usu .top{border-bottom:0}body.con-usu main{padding-top:6px}
+.ad-barra{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:6px max(10px,calc((100% - 960px)/2)) calc(6px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 24px -18px var(--shadow)}
+.ad-barra>button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:76px;padding:8px 2px;margin:0;border:1.5px solid transparent;border-radius:14px;background:transparent;color:var(--ink);font:inherit;font-size:.86rem;font-weight:700;line-height:1.15;text-align:center;cursor:pointer}
+.ad-barra>button svg{width:29px;height:29px;flex:none}.ad-barra>button .rep-tt{display:block}.ad-barra>.tab-oscuro svg{color:#6366f1}.pv-barra>[data-act="pv-inicio"] svg{color:#0f8a6a}.pv-barra>[data-t="pedidos"] .rep-ti{color:#ea580c}.ad-barra>.pos-tab-salir,.ad-barra>.pos-tab-salir svg{color:#dc2626}.pa-barra>[data-t="pv"] svg,.ag-barra>[data-t="pv"] svg{color:#2563eb}.ad-barra>button[aria-selected="true"] svg{color:inherit!important}.rep-barra>button .cnt:empty{display:none}.ad-barra>button .rep-ti{display:grid;place-items:center}
+.ad-barra>button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.ad-barra>button.l-oscuro[aria-pressed="true"]{color:#6366f1}.ad-barra>button.l-reg svg{color:#0e7490}.ad-barra>button.l-agp svg{color:#7c3aed}.ad-barra>button.l-bus svg{color:#2563eb}.ad-barra>button.l-bus[aria-selected="true"] svg{color:inherit}.carr-ancla{display:none!important}.ad-barra>button.l-agp[aria-selected="true"] svg{color:inherit}.ad-barra>button.l-oscuro svg{color:#6366f1}.ad-barra>.l-salir,.ad-barra>.l-salir svg{color:#dc2626}
+.ad-barra>button.pc-carr[aria-pressed="true"]{border:1.5px solid #0e7490!important;background:transparent!important}
+body[data-portal="prov"] main,body[data-portal="agua"] main,body[data-portal="papas"] main,body[data-portal="repartidor"] main,body[data-portal="admin"] main{padding-bottom:calc(124px + env(safe-area-inset-bottom,0px))}
+.pa-main-tabs.pc-on,.ag-main-tabs.pc-on{scroll-padding-left:0!important}body:has(.ad-barra) .confirm-bar{bottom:calc(108px + env(safe-area-inset-bottom,0px))!important}body:has(.ad-barra) #toast{bottom:calc(118px + env(safe-area-inset-bottom,0px))!important}
+.ad-barra:has(>:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:420px){.ad-barra:has(>:nth-child(5))>button{font-size:.76rem}.ad-barra:has(>:nth-child(5))>button svg{width:26px;height:26px}}
+.pf-mini{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;border:2px solid currentColor}
+.ub-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.pf-card{display:grid;justify-items:center;gap:10px;text-align:center;padding:24px 16px}
+.pf-foto{width:136px;height:136px;border-radius:50%;overflow:hidden;background:var(--surface-2);display:grid;place-items:center;box-shadow:0 0 0 4px var(--surface),0 0 0 6px #c58a1c}
+.pf-foto img{width:100%;height:100%;object-fit:cover}.pf-ini{font-size:3rem;font-weight:800;color:var(--muted)}
+.pf-nom{margin:6px 0 0;font-size:1.5rem}.pf-rol{margin:0}
+.pf-acc{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px}.pf-subir{cursor:pointer}.pf-subir.disabled{opacity:.6;pointer-events:none}
+.pf-datos{width:100%;max-width:420px;margin:10px 0 0;display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left}
+.pf-datos>div{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-top:1px solid var(--line)}.pf-datos>div:first-child{border-top:0}
+.pf-datos dt{color:var(--muted);font-weight:600}.pf-datos dd{margin:0;font-weight:700;overflow-wrap:anywhere;text-align:right}
+.pa-main-tabs.pf-oculto.pf-oculto{display:none!important}.pf-top{display:flex;align-items:center;gap:12px;margin:0 0 12px}.pf-tit{margin:0;font-size:1.3rem}.pf-volver{min-height:44px}
+body[data-perfil="1"] .pv-main-tabs,body[data-perfil="1"] .pa-main-tabs,body[data-perfil="1"] .ag-main-tabs,body[data-perfil="1"] .rep-main-tabs,body[data-perfil="1"] .rep-top,body[data-perfil="1"] #rep-info,body[data-perfil="1"] #lista-rep,body[data-perfil="1"] .rep-avisos,body[data-perfil="1"] .local-switch,body[data-perfil="1"] .ad-top{display:none!important}
+.ad-barra>button.l-perfil svg,.ad-barra>.bar-perfil svg{color:#0e7490}.ad-barra>button[aria-selected="true"].bar-perfil svg{color:inherit}
+#ad-resumen li:not(.vacio):not(.kg-res){grid-template-columns:auto minmax(0,1fr) auto}#ad-resumen .ad-res-acc{grid-column:2/-1;justify-self:end;display:flex;gap:6px}#ad-resumen .ad-res-acc .btn{min-height:34px;padding:4px 12px}#ad-resumen .ad-res-x{color:#b91c1c}
+#barra-ad{position:fixed;left:0;right:0;bottom:calc(102px + env(safe-area-inset-bottom,0px));z-index:35;padding:8px 12px;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -10px 28px -18px var(--shadow)}
+#barra-ad[hidden]{display:none}
+#barra-ad .barra-in{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#barra-ad .tot{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:700;font-size:1.25rem;display:grid;line-height:1.1}#barra-ad .tot small{font-family:inherit;font-size:.78rem;font-weight:500;color:var(--muted);font-family:system-ui,sans-serif}
+#barra-ad .barra-acc{display:flex;gap:8px}#barra-ad .btn{min-height:48px;white-space:nowrap;font-weight:800}#barra-ad .barra-sacar{padding:0 12px}
+#barra-ad .sacar-pan{max-width:960px;margin:0 auto 8px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);max-height:40vh;overflow:auto}
+body.con-barra-ad main{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))!important}
+body.con-barra-ad #respaldo-btn{display:none!important}body.con-barra-ad #toast{bottom:calc(178px + env(safe-area-inset-bottom,0px))!important}
+body .tabs.rep-tabs.cat-nav3.cat-nav3>button{min-height:72px!important;height:auto!important;padding:8px 4px!important;gap:3px!important;font-size:.9rem!important;border-radius:14px!important}body .tabs.rep-tabs.cat-nav3.cat-nav3>button .rep-ti svg{width:24px!important;height:24px!important}body .tabs.rep-tabs.cat-nav3.cat-nav3{gap:8px!important}
+body[data-portal="cliente"] #banner{margin-bottom:10px!important}body[data-portal="cliente"] .usu-bar-w{margin-bottom:10px!important}body[data-portal="cliente"] main{padding-top:0!important}body[data-portal="cliente"] #catalogo > .cat-nav3.cat-nav3{margin-top:0!important;margin-bottom:10px!important}
+body.cli-part .tabs.rep-tabs.cli-tabs{left:max(12px,calc((100% - 960px) / 2))!important;right:max(12px,calc((100% - 960px) / 2))!important;max-width:none!important;width:auto!important;transform:none!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;border-radius:22px!important;border:1px solid var(--line)!important;box-shadow:0 14px 34px -12px rgba(0,0,0,.35),0 2px 8px -2px rgba(0,0,0,.12)!important;padding:4px 6px!important;max-width:560px;margin:0 auto!important}body.cli-part #barra{bottom:calc(112px + env(safe-area-inset-bottom,0px))!important;left:max(12px,calc((100% - 960px) / 2))!important;right:max(12px,calc((100% - 960px) / 2))!important;width:auto!important;transform:none!important;border:1px solid var(--line)!important;border-radius:18px!important;background:var(--surface)!important;box-shadow:0 14px 34px -12px rgba(0,0,0,.3)!important;padding:8px 12px!important}body.cli-part #barra .barra-in{max-width:none!important}
+/* Barras inferiores flotantes en todas las páginas. */
+.pzz-nav.pzz-nav{width:auto!important;transform:none!important}.ad-barra.ad-barra,.pzz-nav.pzz-nav{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:960px;margin:0 auto!important;padding:6px!important;border-radius:22px!important;border:1px solid var(--line)!important;box-shadow:0 14px 34px -12px rgba(0,0,0,.35),0 2px 8px -2px rgba(0,0,0,.12)!important}
+body[data-portal="pizzas"] main{padding-bottom:calc(124px + env(safe-area-inset-bottom,0px))!important}
+.pf-ver{all:unset;display:block;width:100%;height:100%;cursor:zoom-in}.pf-ver img{width:100%;height:100%;object-fit:cover;display:block}.pf-ver:focus-visible{outline:3px solid #0e7490;outline-offset:3px;border-radius:50%}
+.pf-lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:20px;opacity:0;transition:opacity .18s}.pf-lb.on{opacity:1}
+.pf-lb figure{margin:0;display:grid;gap:12px;justify-items:center;transform:scale(.94);transition:transform .18s}.pf-lb.on figure{transform:none}
+.pf-lb img{width:min(88vw,520px);height:auto;max-height:76vh;object-fit:contain;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.pf-lb figcaption{color:#fff;font-weight:700;font-size:1.1rem}
+.pf-lb-x{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:1.3rem;cursor:pointer}
+.pa-main-tabs>.pm-volver{display:none!important}
+.pa-main-tabs.pm-uno:not(.pc-on){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.pa-main-tabs.pm-uno:not(.pc-on)>button:not([aria-selected="true"]):not(.pm-volver){display:none!important}
+.pa-main-tabs.pm-uno:not(.pc-on)>.pm-volver{display:flex!important;background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.pa-main-tabs.pm-uno:not(.pc-on)>.pm-volver .rep-ti{color:var(--ink)}
+.tabs>.cv-volver{display:none!important}
+.tabs.cv-uno{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.tabs.cv-uno>button:not([aria-selected="true"]):not(.cv-volver){display:none!important}
+.tabs.cv-uno>.cv-volver{display:flex!important;background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.tabs.cv-uno>.cv-volver .rep-ti{color:var(--ink)}
+.tabs.cv-abierto ~ *:not(.ad-barra):not(#barra-ad),.pa-main-tabs.pm-abierto ~ *:not(.ad-barra):not(#barra-ad){display:none!important}
+.local-switch.ls-uno.ls-uno.ls-uno{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}.local-switch.ls-uno.ls-uno.ls-uno>.local-btn{min-height:90px}@media(min-width:760px){.local-switch.ls-uno.ls-uno.ls-uno{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.ad-barra:has(>button:nth-of-type(6)){grid-template-columns:repeat(6,minmax(0,1fr))!important}@media(max-width:420px){.ad-barra:has(>button:nth-of-type(6))>button{font-size:.7rem}.ad-barra:has(>button:nth-of-type(6))>button svg{width:24px;height:24px}}
+.ad-barra>.bar-inicio svg,.cli-tabs>.bar-inicio svg{color:#0f8a6a}.ad-barra>.bar-inicio[aria-selected="true"] svg{color:inherit}
+.tabs.ini ~ *:not(.ad-barra):not(#barra-ad){display:none!important}
+.tabs>.pm-volver,.tabs>.cv-volver{display:none!important}
+.tabs.cv-uno.cv-uno{grid-template-columns:repeat(var(--bi-n,3),minmax(0,1fr))!important}
+.local-switch.ls-uno.ls-uno.ls-uno{grid-template-columns:repeat(var(--bi-n,2),minmax(0,1fr))!important}.local-switch.ls-uno:not(:has(>.local-btn[aria-selected="true"])){display:none!important}
+.ini-tit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;margin:0 0 10px;border:0;border-radius:14px;background:var(--ink);color:var(--bg);font:inherit;font-size:1.02rem;font-weight:800;cursor:pointer;position:relative}
+.ini-tit .rep-ti{position:absolute;left:14px;display:grid;place-items:center}.ini-tit svg{width:26px;height:26px}
+body[data-perfil="1"] .ini-tit{display:none!important}
+.ini-tit[hidden]{display:none!important}.tabs.barsec-ocu,.local-switch.barsec-ocu{display:none!important}
+#cli-sec-tit .ini-tit{margin:0 0 10px}
+.cli-ini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.cli-ini-grid[hidden]{display:none}
+@media(min-width:760px){.cli-ini-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cli-ini-grid>.cli-ini-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:96px;padding:10px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:700;text-align:center;cursor:pointer;box-shadow:0 6px 16px -14px var(--shadow)}
+.cli-ini-grid>.cli-ini-tile svg{width:30px;height:30px}.cli-ini-grid>.cli-ini-tile .cnt{position:absolute;top:6px;right:8px}
+.cli-ini-grid>.cli-ini-tile .rep-ti{display:grid;place-items:center;background:none!important;padding:0!important}
+/* Clientes: en la barra inferior solo Inicio, Nuevo pedido, Mis pedidos, Perfil, Modo oscuro y Salir; el resto está en la página Inicio. */
+.cli-tabs>.cli-solo-ini{display:none!important}
+body.cli-part[data-portal] .tabs.rep-tabs.cli-tabs.cli-tabs.cli-tabs>button{flex:1 1 0!important;min-width:0!important;width:auto!important;padding-left:2px!important;padding-right:2px!important}
+body.cli-part .tabs.rep-tabs.cli-tabs{overflow-x:hidden!important}
+@media(max-width:420px){body.cli-part[data-portal] .tabs.rep-tabs.cli-tabs.cli-tabs.cli-tabs>button{font-size:.72rem!important}body.cli-part[data-portal] .tabs.rep-tabs.cli-tabs.cli-tabs.cli-tabs>button .rep-tt{white-space:normal;line-height:1.15}}
+.ini-row{display:flex;gap:8px;margin:0 0 10px;align-items:stretch}.ini-row[hidden]{display:none!important}.ini-row>.ini-tit{flex:1 1 auto;margin:0!important;min-width:0}
+body[data-perfil="1"] .ini-row{display:none!important}
+.nav-volver{display:flex;align-items:center;justify-content:center;gap:4px;flex:0 0 auto;min-width:104px;min-height:58px;padding:0 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--ink);font:inherit;font-weight:800;font-size:.95rem;cursor:pointer}
+.nav-volver[hidden]{display:none!important}.nav-volver .rep-ti{display:grid;place-items:center;color:#2563eb}.nav-volver svg{width:22px;height:22px}
+.tabs.cv-uno.cv-uno.cv-uno>.cv-volver{display:flex!important}
+.local-switch.ls-uno.ls-uno.ls-uno>.ls-volver{display:flex!important;min-width:0;gap:10px}
+#cli-sec-tit .ini-row{margin:0 0 10px}
+.local-switch.sub-abierto{display:none!important}
+.sec-switch.sw-oculto{display:none!important}
+.tabs.cv-uno>button[aria-selected="true"] .cv-ruta{order:-1;flex:0 0 100%;width:100%;text-align:center;font-weight:600;opacity:.8;font-size:.8rem;line-height:1.2;white-space:normal}
+.tabs.cv-uno.cv-uno>button[aria-selected="true"]:has(.cv-ruta){flex-wrap:wrap!important;row-gap:2px!important;align-content:center;padding-top:6px!important;padding-bottom:6px!important}.tabs.cv-uno.cv-uno>button[aria-selected="true"]:has(.cv-ruta) .rep-tt{width:auto!important}
+/* ===== Administrador › Registrados: listas más compactas ===== */
+@media(max-width:760px){
+.uc-tbl tbody tr.uc-tr{grid-template-columns:minmax(0,1fr) auto!important;gap:8px 10px!important;padding:12px 12px 10px 16px!important;margin:0 0 8px!important;border-radius:16px!important}
+.uc-tbl td.uc-who{grid-column:1!important;grid-row:1}
+.uc-tbl td.uc-tipo{grid-column:2!important;grid-row:1;align-self:center;justify-self:end}
+.uc-tbl td.uc-tel{grid-column:1!important}
+.uc-tbl td.uc-reg{grid-column:2!important;text-align:right}
+.uc-tbl td.uc-dir,.uc-tbl td.uc-cli,.uc-tbl td.uc-acc{grid-column:1/-1!important}
+.uc-tbl td[data-l]::before{font-size:.6rem!important;margin-bottom:1px!important}
+.uc-tbl .uc-reg small{display:none}
+.uc-tbl .uc-reg .uc-f{font-weight:600;font-size:.88rem}
+.uc-tbl td.uc-acc{padding-top:8px!important}
+.uc-btns .btn{min-height:36px!important;font-size:.8rem!important}
+.uc-av{flex-basis:36px!important;width:36px!important;height:36px!important;font-size:.82rem!important}
+.uc-n b{font-size:.98rem}
+.uc-rol{font-size:.72rem!important;padding:2px 8px 2px 5px!important}
+}
+.uc-tel .tel-wa{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Filtros: fila de chips deslizable */
+#usu-panel .usu-fam,#usu-panel .usu-tipo,#usu-panel .usu-pags:not([hidden]){display:flex!important;flex-wrap:nowrap!important;gap:6px!important;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px!important;margin:0 0 8px!important;background:none!important;border:0!important;grid-template-columns:none!important;box-shadow:none!important}
+#usu-panel .usu-fam::-webkit-scrollbar,#usu-panel .usu-tipo::-webkit-scrollbar,#usu-panel .usu-pags::-webkit-scrollbar{display:none}
+#usu-panel .usu-fam>button,#usu-panel .usu-tipo>button,#usu-panel .usu-pags>button{flex:0 0 auto!important;display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:0!important;min-height:40px!important;padding:6px 14px!important;border-radius:999px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink)!important;font-size:.88rem!important;font-weight:700!important;white-space:nowrap!important;box-shadow:none!important}
+#usu-panel .usu-fam>button[aria-pressed="true"],#usu-panel .usu-tipo>button[aria-pressed="true"],#usu-panel .usu-pags>button[aria-pressed="true"]{background:var(--ink)!important;color:var(--bg)!important;border-color:var(--ink)!important}
+#usu-panel .usu-tipo svg,#usu-panel .usu-pags svg{width:18px!important;height:18px!important}
+#usu-panel .usu-pags>button b,#usu-panel .usu-pags>button .cnt,#usu-panel .usu-fam>button b{font-size:.78rem;padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--ink);margin:0!important;position:static!important}
+#usu-panel .usu-pags>button[aria-pressed="true"] b,#usu-panel .usu-pags>button[aria-pressed="true"] .cnt,#usu-panel .usu-fam>button[aria-pressed="true"] b{background:rgb(255 255 255 / .2);color:inherit}
+#usu-panel .usu-pags>button>*{display:inline!important;margin:0!important}
+/* Captados */
+.adcap .cap-lista{display:grid;gap:8px;list-style:none;margin:0;padding:0}
+.adcap .cap-lista>li.capc{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 12px;align-items:start;padding:12px 12px 12px 14px!important;border:1px solid var(--line);border-radius:16px;background:var(--surface);box-shadow:inset 4px 0 0 var(--rc);font-size:.95rem}
+.capc-av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--rc);color:#fff;font-weight:800;font-size:.85rem}
+.capc-b{display:grid;gap:3px;min-width:0}
+.adcap .cap-lista li.capc{font-size:.95rem!important;gap:2px 12px!important}.adcap .cap-lista li.capc b.capc-n{font-size:1.04rem!important;line-height:1.2;overflow-wrap:anywhere}.adcap .cap-lista li.capc small.capc-f{font-size:.78rem!important}
+.capc-l{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:.9rem}.capc-l a{font-weight:700}
+.capc-nota{margin:0;font-size:.86rem;background:var(--surface-2);border-radius:8px;padding:4px 8px}
+.capc-f{color:var(--muted);font-size:.78rem}
+.capc-del{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-size:1rem;cursor:pointer;display:grid;place-items:center}
+.capc-conf{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.adcap .adcap-h{font-size:1.02rem;margin:14px 0 8px}.adcap .adcap-h small{display:block;font-size:.75rem;font-weight:500;color:var(--muted);margin-top:2px}
+@media(min-width:760px){.adcap .cap-lista{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -2458,10 +2585,13 @@ function renderUsuBar() {
   const w = document.getElementById("usu-bar-w"); if (!w) return;
   const u = S.ses && S.ses[S.portal];
   document.body.classList.toggle("con-usu", !!(u && !u.demo && u.nombre));
+  document.body.classList.toggle("cli-part", (S.portal === "cliente" || S.portal === "cfd") && !!u); /* Clientes particulares: barra inferior flotante. */
   if (!u || u.demo || !u.nombre) { w.hidden = true; return; }
   const tab = document.querySelector("#tab-" + S.portal), ico = tab && tab.querySelector(".pt-i svg"), nomP = S.portal === "cliente" ? (u.tipo || "Cliente") : ({ repartidor: "Repartidores", agua: "Local agua", papas: "Local papas", pizzas: "Local pizzas", prov: "Proveedores", pos: "Punto de venta", utfsm: "UTFSM", prueba: "Interfaces", cfd: "Interfaces", admin: "Administrador" }[S.portal] || (tab && tab.querySelector(".pt-t") || {}).textContent || "");
   const ini = String(u.nombre).trim().split(/\s+/).slice(0, 2).map(x => x[0] || "").join("").toUpperCase();
-  document.getElementById("usu-bar").innerHTML = `<span class="ub-av" aria-hidden="true">${esc(ini)}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}</b></span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
+  if (PERF_COL[S.portal]) subPerfil(S.portal);
+  const fotoU = PERF_COL[S.portal] ? fotoDe(S.portal) : "";
+  document.getElementById("usu-bar").innerHTML = `<span class="ub-av" aria-hidden="true">${fotoU ? `<img src="${fotoU}" alt="">` : esc(ini)}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}</b></span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
   w.hidden = false;
 }
 function renderHeader() {
@@ -3593,17 +3723,20 @@ const verPrecios = () => !esLocal();function vistaCliente() {
   const c = S.ses.cliente;
   if (!esLocal() && (S.cliTab === "con" || S.cliTab === "stk")) S.cliTab = "nuevo";
   return `<div class="tabs rep-tabs cli-tabs" role="tablist" aria-label="Secciones">
+    <button type="button" class="bar-inicio" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="rep-tt">Inicio</span></button>
     <button role="tab" data-act="cli-tab" data-t="nuevo" aria-selected="${S.cliTab === "nuevo"}"><span class="rep-ti" aria-hidden="true">${TI.carro}</span><span class="rep-tt">Nuevo pedido</span></button>
     <button role="tab" data-act="cli-tab" data-t="mis" aria-selected="${S.cliTab === "mis"}"><span class="rep-ti" aria-hidden="true">${TI.boleta}</span><span class="rep-tt">Mis pedidos</span><span class="cnt" id="cnt-mis"></span></button>
-    <button role="tab" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
-    <button role="tab" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
-    ${esLocal() ? `<button role="tab" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
-    <button role="tab" data-act="cli-tab" data-t="stk" aria-selected="${S.cliTab === "stk"}"><span class="rep-ti" aria-hidden="true">${TI.cajas}</span><span class="rep-tt">Stock disponible</span></button>` : ""}
-    <button role="tab" data-act="cli-tab" data-t="pag" aria-selected="${S.cliTab === "pag"}"><span class="rep-ti" aria-hidden="true">${TI.plata}</span><span class="rep-tt">${cliParticular() ? "Mis pagos" : "Pagos"}</span><span class="cnt" id="cnt-pag"></span></button>
-    <button role="tab" data-act="cli-tab" data-t="perf" aria-selected="${S.cliTab === "perf"}"><span class="rep-ti" aria-hidden="true">${CLI2_ICO.user}</span><span class="rep-tt">Perfil</span></button>
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
+    ${esLocal() ? `<button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="stk" aria-selected="${S.cliTab === "stk"}"><span class="rep-ti" aria-hidden="true">${TI.cajas}</span><span class="rep-tt">Stock disponible</span></button>` : ""}
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="pag" aria-selected="${S.cliTab === "pag"}"><span class="rep-ti" aria-hidden="true">${TI.plata}</span><span class="rep-tt">${cliParticular() ? "Mis pagos" : "Pagos"}</span><span class="cnt" id="cnt-pag"></span></button>
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="perf" aria-selected="${S.cliTab === "perf"}"><span class="rep-ti" aria-hidden="true">${CLI2_ICO.user}</span><span class="rep-tt">Perfil</span></button>
     <button type="button" class="cli-tab-salir" data-act="salir" data-k="cliente"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>
   </div>
   <div id="cli-cats-fija" class="cat-tools cat-fija" ${S.cliTab === "nuevo" ? "hidden" : ""}>${catChipsHTML()}</div>
+  <div id="cli-sec-tit"></div>
+  <div id="panel-ini" class="cli-ini-grid" ${S.cliTab !== "inicio" ? "hidden" : ""}></div>
   <div id="panel-nuevo" ${S.cliTab !== "nuevo" ? "hidden" : ""}>
     ${!S.editPedido && S.repCli ? `<div class="edit-pedido rep-cli-aviso"><span>🔁 Estás repitiendo el <b>pedido N° ${esc(S.repCli.num)}</b>. Ajusta las cantidades de cada producto con − y +, revisa la fecha de entrega y envía el pedido.</span><button class="btn suave chico" data-act="cancelar-repetir">Cancelar</button></div>` : ""}
     ${S.editPedido ? `<div class="edit-pedido"><span>Estás editando el <b>pedido N° ${esc(S.editPedido.num)}</b>. Cambia productos o datos de entrega y toca Guardar cambios.</span><button class="btn suave chico" data-act="cancelar-edicion">Cancelar edición</button></div>` : ""}
@@ -3840,7 +3973,8 @@ function afpCarruselHTML(key, items) {
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".afp-slide"); if (!b || e.target.closest(".afp-menos")) return;
-  setTimeout(() => { const p = PROD[b.dataset.id]; if (p) toast(`Agregado: ${etiqueta(p)} · ${S.carrito[p.id] || 0} en tu pedido`); }, 0);
+  const ad = b.dataset.act === "ad-mas";
+  setTimeout(() => { const p = PROD[b.dataset.id]; if (p) toast(`Agregado: ${etiqueta(p)} · ${(ad ? AD.carrito : S.carrito)[p.id] || 0} en ${ad ? "el" : "tu"} pedido`); }, 0);
   b.classList.remove("afp-pop"); void b.offsetWidth; b.classList.add("afp-pop");
 });
 /* Carruseles de fotos con vuelta continua: al pasar la última sigue la primera (y al revés). Se agregan copias de la primera y la última en los extremos. */
@@ -4481,7 +4615,8 @@ function cambiarCliTab(t) {
   centrarCliTab();
   const pn = $("#panel-nuevo"), pm = $("#panel-mis"), pg = $("#panel-pag");
   if (pn) pn.hidden = t !== "nuevo";
-  const cf = $("#cli-cats-fija"); if (cf) cf.hidden = t === "nuevo";
+  const cf = $("#cli-cats-fija"); if (cf) cf.hidden = t === "nuevo" || t === "inicio";
+  const pi = $("#panel-ini"); if (pi) pi.hidden = t !== "inicio";
   if (pm) pm.hidden = t !== "mis";
   if (pg) pg.hidden = t !== "pag";
   const pc = $("#panel-con"); if (pc) pc.hidden = t !== "con";
@@ -4494,8 +4629,30 @@ function cambiarCliTab(t) {
   if (t === "con") { asegurarConsumo(); renderConsumo(); }
   if (t === "stk") { asegurarConsumo(); renderStockCli(); }
   updateBarra();
+  cliIniPintar();
   window.scrollTo(0, 0);
 }
+/* Clientes: botón con el nombre de la sección arriba; «Inicio» muestra todos los íconos de la barra inferior. */
+function cliIniPintar() {
+  if (S.portal !== "cliente" && S.portal !== "cfd") return;
+  const bar = document.querySelector(".cli-tabs"), tit = $("#cli-sec-tit"), pi = $("#panel-ini"); if (!bar || !tit) return;
+  const ini = S.cliTab === "inicio";
+  const cur = ini ? bar.querySelector(".bar-inicio") : bar.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`);
+  const sv = cur && cur.querySelector("svg"), nom = ini ? "Inicio" : cur ? (cur.querySelector(".rep-tt") || cur).textContent.trim() : "";
+  const h = nom ? `<div class="ini-row"><button type="button" class="nav-volver" data-act="nav-volver" ${(NAVH[S.portal] || []).length > 1 ? "" : "hidden"}><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button><button type="button" class="ini-tit cli-sec-btn" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true">${sv ? sv.outerHTML : ""}</span><span class="rep-tt">${esc(nom)}</span></button></div>` : "";
+  if (tit.dataset.h !== h) { tit.dataset.h = h; tit.innerHTML = h; }
+  document.querySelectorAll(".cli-tabs .bar-inicio").forEach(b => { if (b.getAttribute("aria-selected") !== String(ini)) b.setAttribute("aria-selected", String(ini)); });
+  if (pi && ini) {
+    const src = [...bar.children].filter(b => b.tagName === "BUTTON" && !b.classList.contains("bar-inicio"));
+    const firma = src.map(b => (b.dataset.act || "") + (b.dataset.t || "") + b.textContent).join("|");
+    if (pi.dataset.f !== firma) {
+      pi.dataset.f = firma;
+      pi.innerHTML = src.map(b => { const c = b.cloneNode(true); c.removeAttribute("role"); c.removeAttribute("aria-selected"); c.removeAttribute("id"); c.querySelectorAll("[id]").forEach(x => x.removeAttribute("id")); c.classList.remove("cli-solo-ini"); c.classList.add("cli-ini-tile"); const ri = b.querySelector(".rep-ti"), ci = c.querySelector(".rep-ti"); if (ri && ci) { const col = getComputedStyle(ri).color; ci.style.color = b.getAttribute("aria-selected") === "true" ? (getComputedStyle(b).getPropertyValue("--ic").trim() || col) : col; } return c.outerHTML; }).join("");
+    }
+  }
+}
+new MutationObserver(() => { if (S.portal === "cliente" || S.portal === "cfd") cliIniPintar(); }).observe(document.body, { childList: true, subtree: true });
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".cli-ini-tile"); if (b) setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 30); });
 function itemsHTML(list, sinPrecio) {
   return `<ul class="items">${list.map(i => `<li><span class="q">${Number(i.cant) || 0}×</span><span class="n">${esc(itRen(i).nombre)}<small>${/alcalina|purificada/i.test(String(i.detalle || "")) && (!PROD[i.id] || PROD[i.id].fam !== "papa") ? `<b class="it-tipo">${esc(i.detalle)}</b>` : esc(i.detalle)}${PROD[i.id] && PROD[i.id].fam === "papa" ? ` · <b class="it-kg">${fmtL(kgDe(i))} kg</b>` : ""}</small></span>${sinPrecio ? "" : `<span class="s">${clp((Number(i.precio) || 0) * (Number(i.cant) || 0))}</span>`}</li>`).join("")}</ul>`;
 }
@@ -5263,8 +5420,10 @@ function subProvs() {
 }
 function vistaProv() {
   /* Proveedores: «Ingresar sacos» al inicio, igual que en Local papas (el proveedor es quien tiene la sesión). */
-  if (PV.adTab === "ingreso" || !["ing", "pedidos", "pagos"].includes(PV.adTab)) PV.adTab = "ing";
-  return `${conSalir(tabsProd("pv-adtab", [["ing", "Ingresar sacos"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab), "prov")}<div id="prov-panel"></div>`;
+  if (PV.adTab === "ingreso" || !["ing", "pedidos", "pagos", "perfil", "inicio"].includes(PV.adTab)) PV.adTab = "ing";
+  /* Barra inferior flotante: Inicio, Pedidos, Perfil, Modo oscuro y Salir (los botones de arriba se mantienen). */
+  const bar = `<nav class="ad-barra pv-barra" data-main=".pv-main-tabs" aria-label="Opciones"><button type="button" data-act="pv-inicio"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="rep-tt">Inicio</span></button><button role="tab" data-act="pv-adtab" data-t="pedidos" aria-selected="${PV.adTab === "pedidos"}"><span class="rep-ti" aria-hidden="true">${TI.boleta}</span><span class="rep-tt">Pedidos</span></button><button role="tab" data-act="pv-adtab" data-t="ing" aria-selected="${PV.adTab === "ing"}"><span class="rep-ti" aria-hidden="true">${TI[(TAB_ICO["pv-adtab"] || {}).ing] || TI.lista}</span><span class="rep-tt">Ingresar sacos</span></button>${salirTabBtn("prov")}</nav>`;
+  return `${conSalir(tabsProd("pv-adtab", [["ing", "Ingresar sacos"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab), "prov").replace('class="tabs rep-tabs ico-tabs"', 'class="tabs rep-tabs ico-tabs pv-main-tabs"')}${bar}<div id="prov-panel"></div>`;
 }
 function renderProvCrear() {
   const el = $("#prov-crear"); if (!el) return;
@@ -5276,6 +5435,9 @@ function renderProvPanel(desdeDatos) {
   renderTPG();
   const el = $("#prov-panel");
   if (!el) return;
+  if (S.portal === "prov") perfilMarcar();
+  if (S.portal === "prov" && PV.adTab === "perfil") { el.innerHTML = perfilHTML("prov"); window.scrollTo(0, 0); return; }
+  if (S.portal === "prov" && PV.adTab === "inicio") { el.innerHTML = ""; return; } /* Inicio: solo los botones de la página principal, sin abrir ninguna sección. */
   if (S.portal === "prov" && S.ses.prov && PV.adTab === "ing") {
     asegurarPapas(); PP.provId = S.ses.prov.id;
     if (desdeDatos && $("#bod-ult")) { $("#bod-ult").innerHTML = papasUltIngHTML(); return; }
@@ -5725,12 +5887,15 @@ const REP_ICO = {
   efe: REP_SVG('<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5h.01M18 14.5h.01"/>'),
   tdisp: REP_SVG('<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>'),
   km: REP_SVG('<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18h6a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7h6"/>'),
-ranking: REP_SVG('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>')
+ranking: REP_SVG('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'),
+  comb: REP_SVG('<path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M3 21h13M7 8h5"/><path d="M15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/>')
 };
 function repBodyHTML() {
   if (S.repTab === "agregar") S.repTab = "ultimos"; /* La pestaña Agregar pedidos fue eliminada. */
+  if (S.repTab === "perfil" && S.portal !== "repartidor") S.repTab = "ultimos";
   const tab = (t, txt) => `<button role="tab" data-act="rep-tab" data-t="${t}" aria-selected="${S.repTab === t}"><span class="rep-ti" aria-hidden="true">${REP_ICO[t] || ""}</span><span class="rep-tt">${txt}</span><span class="cnt" id="cnt-${t}"></span></button>`;
-  return `<div class="tabs rep-tabs" role="tablist" aria-label="Comandas">${tab("ultimos", "Últimos pedidos")}${S.portal === "repartidor" || (S.portal === "admin" && S.ses.admin) ? tab("tdisp", "Modo ruta") : ""}${tab("tomar", "Por tomar")}${tab("mios", "Pendientes")}${tab("ent", "Entregados")}${tab("total", "Total reparto")}${tab("pagos", "Pago reparto extra")}${tab("efe", "Pagos en efectivo")}${tab("vac", "Vacaciones")}${S.portal === "repartidor" && suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : ""}${tab("buscar", "Buscar pedidos")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") + tab("km", "Kilómetros recorridos") : ""}${S.portal === "repartidor" ? `<button type="button" class="pos-tab-salir" data-act="salir" data-k="repartidor"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>` : ""}</div>
+  const enRep = S.portal === "repartidor"; /* Repartidores: Modo carrusel, Buscar pedidos, Modo oscuro y Salir van en la barra de abajo. */
+  return `<div class="tabs rep-tabs${enRep ? " rep-main-tabs" : ""}" role="tablist" aria-label="Comandas">${enRep ? "" : tab("ultimos", "Últimos pedidos")}${!enRep && S.portal === "admin" && S.ses.admin ? tab("tdisp", "Modo ruta") : ""}${tab("tomar", "Por tomar")}${tab("mios", "Pendientes")}${tab("ent", "Entregados")}${tab("total", "Total reparto")}${tab("pagos", "Pago reparto extra")}${tab("efe", "Pagos en efectivo")}${tab("vac", "Vacaciones")}${S.portal === "repartidor" && suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : ""}${tab("buscar", "Buscar pedidos")}${tab("comb", "Combustible")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") + tab("km", "Kilómetros recorridos") : ""}</div>${enRep ? `<nav class="ad-barra rep-barra" data-main=".rep-main-tabs" aria-label="Opciones">${INI_BTN("ini-portal", INI.repartidor)}${tab("ultimos", "Últimos pedidos")}${tab("tdisp", "Modo ruta")}${`<button type="button" class="pos-tab-salir" data-act="salir" data-k="repartidor"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`}</nav><div id="rep-perfil">${S.repTab === "perfil" ? perfilHTML("repartidor") : ""}</div>` : ""}
   <div class="rep-top">
     <div id="tomar-seg" class="tomar-seg"></div>
     <div class="fecha-nav" role="group" aria-label="Fecha de entrega">
@@ -6865,8 +7030,9 @@ const OCULTAS_AGUA = { andres: ["lavado", "lavpago"] };
 const tabsAguaUsu = () => { const o = OCULTAS_AGUA[((S.ses.agua || {}).id || "").toLowerCase()] || []; return tabsSuel(TABS_AGUA.filter(([k]) => !o.includes(k)), (S.ses.agua || {}).nombre); };
 function vistaAgua() {
   const tabs = tabsAguaUsu();
-  if (!tabs.some(([k]) => k === AG.tab)) AG.tab = tabs[0][0];
-  return `${conSalir(tabsProd("agua-tab", tabs, AG.tab), "agua")}<div id="agua-panel"></div>`;
+  if (AG.tab !== "perfil" && !tabs.some(([k]) => k === AG.tab)) AG.tab = tabs[0][0];
+  const pv = tabs.find(([k]) => k === "pv"); /* Punto de venta, Modo carrusel, Modo oscuro y Salir van en la barra de abajo. */
+  return `${tabsProd("agua-tab", tabs.filter(([k]) => k !== "agregar" && k !== "pdped"), AG.tab).replace('class="tabs rep-tabs ico-tabs"', 'class="tabs rep-tabs ico-tabs ag-main-tabs"')}<nav class="ad-barra ag-barra" data-main=".ag-main-tabs" aria-label="Opciones">${INI_BTN("ini-portal", INI.agua)}${[["agregar", "Ingresar producción"], ["pdped", "Pedidos diarios"]].filter(([k]) => tabs.some(([t]) => t === k)).map(([k, l]) => `<button role="tab" data-act="agua-tab" data-t="${k}" aria-selected="${AG.tab === k}"><span class="rep-ti" aria-hidden="true">${TI[(TAB_ICO["agua-tab"] || {})[k]] || TI.lista}</span><span class="rep-tt">${l}</span></button>`).join("")}${salirTabBtn("agua")}</nav><div id="agua-panel"></div>`;
 }
 function asegurarAgua() {
   if (AG.subs || !S.db) return;
@@ -7373,6 +7539,9 @@ function renderAguaPanel() {
   const el = $("#agua-panel");
   if (!el) return;
   const t = AG.tab;
+  perfilMarcar();
+  if (t !== "perfil") AG.tabPrev = t;
+  if (t === "perfil") { el.innerHTML = perfilHTML("agua"); window.scrollTo(0, 0); return; }
   if (t === "sueldo") { const n = (S.ses.agua || {}).nombre || ""; el.innerHTML = `<div id="suel-perfil" data-nombre="${esc(n)}">${suelPerfilHTML(n)}</div>`; return; }
   /* Osmosis inversa: ahora está dentro de Administrador › Local agua. */
   if (t === "osm") { el.innerHTML = `<div id="osm-panel"></div>`; subOsm(); asegurarAdmin(); renderOsm(); return; }
@@ -8011,6 +8180,8 @@ function aguaSVaciosHTML() {
 const CORTES = [["gajo", "Gajo grande"], ["gajoc", "Gajo chico"], ["ancho", "Ancho grande"], ["anchop", "Ancho grande más pelado"], ["anchoc", "Ancho chico"], ["medio", "Medio grande"], ["medioc", "Medio chico"], ["entera", "Papa entera"]];
 const KG_SACO = 25;
 const PROVEEDORES = ["Sra Josefina", "Angelo"];
+/* Local papas: secciones que van en la barra inferior (no en la página de inicio). */
+const PA_BARRA = ["ped", "prod", "ing"];
 const TABS_PAPAS = [["pv", "Punto de venta"], ["ped", "Pedidos diarios"], ["prod", "Ingresar producción"], ["disp", "Inventario producción"], ["cped", "Consumo producción"], ["hist", "Producción diaria"], ["sacos", "Pago sacos extras"], ["ing", "Ingresar sacos"], ["stock", "Inventario sacos"], ["csac", "Consumo sacos"], ["lav", "Ingresar lavado cajas"], ["lavpago", "Pago lavado cajas"], ["piezas", "Ingresar insumos"], ["pinv", "Inventario insumos"], ["pcons", "Consumo de insumos"], ["vac", "Vacaciones"], ["sueldo", "Mi sueldo"]];
 const PP = { tab: "ped", pend: {}, fecha: hoy(), prov: "", bq: 0, bfecha: hoy(), prod: [], bodega: [], cargadoP: false, cargadoB: false, subs: false, gStock: "dia", gPrv: "dia", prvSel: PROVEEDORES[0], guardando: false, gHist: "dia", histUsr: "", confDel: null, pagos: {}, cargadoPag: false, pagosSem: {}, cargadoPS: false, semRef: lunesDe(hoy()) };
 CORTES.forEach(([k]) => { PP.pend[k] = 0; });
@@ -8068,7 +8239,7 @@ function vistaPapas() {
   const cli = PP.sec === "clientes";
   if (cli) AD.local = "papas";
   return `${PAPAS_CLIENTES ? `<div class="sec-switch pp-sec" role="tablist" aria-label="Sección">${[["clientes", "Clientes"], ["prod", "Producción"]].map(([k, l]) => `<button type="button" role="tab" data-act="pp-sec" data-s="${k}" aria-selected="${PP.sec === k}">${l}</button>`).join("")}</div>` : ""}
-    ${cli ? `${conSalir(tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? "Total pedidos papas" : l]), AD.tab), "papas")}<div id="admin-panel"></div>` : `${conSalir(papasCarr(tabsProd("papas-tab", tabsSuel(TABS_PAPAS, (S.ses.papas || {}).nombre), PP.tab === "prv" ? (PP.tab = "ped") : PP.tab)), "papas")}<div id="papas-panel"></div>`}`;
+    ${cli ? `${conSalir(tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? "Total pedidos papas" : l]), AD.tab), "papas")}<div id="admin-panel"></div>` : `${tabsProd("papas-tab", tabsSuel(TABS_PAPAS, (S.ses.papas || {}).nombre).filter(([k]) => !PA_BARRA.includes(k)), PP.tab === "prv" ? (PP.tab = "ped") : PP.tab).replace('class="tabs rep-tabs ico-tabs"', 'class="tabs rep-tabs ico-tabs pa-main-tabs"').replace(/<\/div>$/, `<button type="button" class="tab-oscuro" data-act="ad-oscuro" aria-pressed="${temaOscuro()}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${OSC_SVG}</svg></span><span class="rep-tt">Modo oscuro</span></button></div>`).replace(/^(<div[^>]*>)/, '$1<button type="button" class="pm-volver" data-act="pa-menu"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button>')}<nav class="ad-barra pa-barra" data-main=".pa-main-tabs" aria-label="Opciones">${INI_BTN("ini-portal", INI.papas)}${PA_BARRA.map(t => { const l = (TABS_PAPAS.find(([k]) => k === t) || [t, t])[1]; return `<button role="tab" data-act="papas-tab" data-t="${t}" aria-selected="${PP.tab === t}"><span class="rep-ti" aria-hidden="true">${TI[TAB_ICO["papas-tab"][t]] || TI.lista}</span><span class="rep-tt">${esc(l)}</span></button>`; }).join("")}${salirTabBtn("papas").replace("<button", "<button data-sin-oscuro")}</nav><div id="papas-panel"></div>`}`;
 }
 function renderPapasCli() { AD.local = "papas"; asegurarAdmin(); asegurarTipos(); renderAdminPanel(); }
 function asegurarPapas() {
@@ -8176,12 +8347,266 @@ function pcEstimadoHTML(f, t) {
       </section>`; }).join("")}</div>
     <p class="pc-total">Total estimado del día <b>${fmtL(tot)} kg</b> · ya pedido ${fmtL(ya)} kg</p>`;
 }
+/* Perfil de usuario (Local papas, Local agua, Repartidores y Administrador): datos y foto (se guarda en <colección>/<id>.foto, comprimida). */
+const PERF_COL = { papas: "usuarios_papas", agua: "usuarios_agua", repartidor: "repartidores", admin: "usuarios_admin", prov: "proveedores" };
+const PERF_ROL = { prov: "📦 Proveedor", papas: "🥔 Local papas", agua: "💧 Local agua", repartidor: "🚚 Repartidor", admin: "⚙️ Administrador" };
+const PERF = { doc: {}, sub: {}, ocupado: false };
+function subPerfil(k) {
+  const u = S.ses[k], col = PERF_COL[k]; if (!u || !col || !S.db || PERF.sub[k] === u.id) return; PERF.sub[k] = u.id;
+  S.db.doc(col + "/" + u.id).onSnapshot(d => { PERF.doc[k] = d.exists ? Object.assign({ id: d.id }, d.data()) : { id: u.id, nombre: u.nombre }; renderUsuBar(); pintarPerfilIco(); perfilRepintar(); }, e => console.warn("perfil " + k, e));
+}
+const iniDe = n => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
+const fotoDe = k => { const d = PERF.doc[k], u = S.ses[k]; return d && u && d.id === u.id ? d.foto || "" : ""; };
+function perfilIcoHTML(k) { const f = fotoDe(k || S.portal); return f ? `<img class="pf-mini" src="${f}" alt="">` : `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`; }
+function pintarPerfilIco() { document.querySelectorAll(".bar-perfil").forEach(b => { const e = b.querySelector(".rep-ti") || b.querySelector("svg, img.pf-mini"); const h = perfilIcoHTML(b.dataset.k || S.portal); if (e && e.classList.contains("rep-ti")) { if (e.innerHTML !== h) e.innerHTML = h; } else if (e) { const t = document.createElement("span"); t.innerHTML = h; e.replaceWith(t.firstChild); } }); }
+/* ¿Está abierto el perfil en la página actual? Oculta los botones de secciones de arriba (página aparte). */
+const perfilAbierto = () => (S.portal === "papas" && PP.tab === "perfil") || (S.portal === "agua" && AG.tab === "perfil") || (S.portal === "repartidor" && S.repTab === "perfil") || (S.portal === "admin" && AD.local === "perfil") || (S.portal === "prov" && PV.adTab === "perfil");
+function perfilMarcar() { const on = perfilAbierto() ? "1" : ""; if ((document.body.dataset.perfil || "") !== on) { if (on) document.body.dataset.perfil = on; else delete document.body.dataset.perfil; } }
+function perfilVolverAttrs(k) {
+  if (k === "papas") return `data-act="papas-tab" data-t="${esc(PP.tabPrev && PP.tabPrev !== "perfil" ? PP.tabPrev : "prod")}"`;
+  if (k === "agua") return `data-act="agua-tab" data-t="${esc(AG.tabPrev && AG.tabPrev !== "perfil" ? AG.tabPrev : "pdped")}"`;
+  if (k === "prov") return `data-act="pv-adtab" data-t="${esc(PV.tabPrev && PV.tabPrev !== "perfil" ? PV.tabPrev : "ing")}"`;
+  if (k === "repartidor") return `data-act="rep-tab" data-t="${esc(S.repTabPrev && S.repTabPrev !== "perfil" ? S.repTabPrev : "ultimos")}"`;
+  return `data-act="ad-local" data-l="${esc(AD.perfilPrev && AD.perfilPrev !== "perfil" ? AD.perfilPrev : "ult")}"`;
+}
+function perfilHTML(k) {
+  subPerfil(k);
+  const u = Object.assign({}, S.ses[k] || {}, PERF.doc[k] || {}), f = fotoDe(k);
+  return `<div class="pf-wrap" data-k="${k}"><div class="pf-top"><button type="button" class="btn suave pf-volver" ${perfilVolverAttrs(k)}>‹ Volver</button><h2 class="pf-tit">Mi perfil</h2></div><section class="card pf-card">
+    <div class="pf-foto">${f ? `<button type="button" class="pf-ver" data-k="${k}" aria-label="Ver foto de perfil en grande"><img src="${f}" alt="Foto de perfil de ${esc(u.nombre)}"></button>` : `<span class="pf-ini" aria-hidden="true">${esc(iniDe(u.nombre))}</span>`}</div>
+    <h2 class="pf-nom">${esc(u.nombre || "")}</h2>
+    <p class="pf-rol"><span class="ub-p">${PERF_ROL[k] || ""}</span></p>
+    <div class="pf-acc">
+      <label class="btn primario pf-subir ${PERF.ocupado ? "disabled" : ""}">${PERF.ocupado ? "Guardando foto…" : f ? "📷 Cambiar foto" : "📷 Subir foto"}<input type="file" accept="image/*" class="pf-foto-in" data-k="${k}" hidden ${PERF.ocupado ? "disabled" : ""}></label>
+      ${f && !PERF.ocupado ? `<button type="button" class="btn suave" data-act="pf-quitar" data-k="${k}">Quitar foto</button>` : ""}
+    </div>
+    <dl class="pf-datos">
+      <div><dt>Usuario</dt><dd>@${esc(u.usuario || u.id || "")}</dd></div>
+      <div><dt>Teléfono</dt><dd>${u.telefono ? esc(u.telefono) : `<span class="muted-s">Sin teléfono</span>`}</dd></div>
+      ${u.email ? `<div><dt>Email</dt><dd>${esc(u.email)}</dd></div>` : ""}
+      <div><dt>Registrado</dt><dd>${u.creado > 946684800000 ? esc(new Date(u.creado).toLocaleDateString("es-CL", { day: "numeric", month: "long", year: "numeric" })) : `<span class="muted-s">Sin fecha</span>`}</dd></div>
+    </dl>
+  </section></div>`;
+}
+function perfilRepintar() { document.querySelectorAll(".pf-wrap").forEach(w => { const t = document.createElement("div"); t.innerHTML = perfilHTML(w.dataset.k); w.replaceWith(t.firstElementChild); }); }
+const perfilPapasHTML = () => perfilHTML("papas");
+async function fotoPerfil(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("imagen")); i.src = url; });
+    const w = img.naturalWidth || 1, h = img.naturalHeight || 1, l = Math.min(w, h), c = document.createElement("canvas"); c.width = c.height = 640;
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 640, 640); ctx.drawImage(img, (w - l) / 2, (h - l) / 2, l, l, 0, 0, 640, 640);
+    return c.toDataURL("image/jpeg", 0.8);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function guardarFotoPerfil(k, foto) {
+  const u = S.ses[k], col = PERF_COL[k]; if (!u || !col || !S.db) return;
+  PERF.ocupado = true; perfilRepintar();
+  try { await conReintento(() => S.db.doc(col + "/" + u.id).update({ foto: foto || null, fotoEn: Date.now() })); PERF.doc[k] = Object.assign({ id: u.id }, PERF.doc[k] || {}, { foto: foto || null }); toast(foto ? "Foto de perfil guardada." : "Foto de perfil quitada."); }
+  catch (e) { toast(msgError(e)); }
+  PERF.ocupado = false; renderUsuBar(); pintarPerfilIco(); perfilRepintar();
+}
+document.addEventListener("change", async e => { const t = e.target; if (!t || !t.classList || !t.classList.contains("pf-foto-in") || !t.files || !t.files[0]) return; try { await guardarFotoPerfil(t.dataset.k, await fotoPerfil(t.files[0])); } catch (_) { toast("No se pudo leer la foto. Prueba con otra."); } });
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="pf-quitar"]'); if (b) guardarFotoPerfil(b.dataset.k, null); });
+/* Perfil: al tocar la foto se abre en grande; se cierra tocando fuera, con ✕ o con Escape. */
+function pfVerFoto(k) {
+  const f = fotoDe(k); if (!f) return;
+  const u = Object.assign({}, S.ses[k] || {}, PERF.doc[k] || {});
+  const d = document.createElement("div"); d.className = "pf-lb"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-label", "Foto de perfil");
+  d.innerHTML = `<button type="button" class="pf-lb-x" aria-label="Cerrar">✕</button><figure><img src="${f}" alt="Foto de perfil de ${esc(u.nombre || "")}"><figcaption>${esc(u.nombre || "")}</figcaption></figure>`;
+  const cerrar = () => { d.classList.remove("on"); setTimeout(() => d.remove(), 180); document.removeEventListener("keydown", tecla); };
+  const tecla = e => { if (e.key === "Escape") cerrar(); };
+  d.addEventListener("click", e => { if (e.target === d || e.target.closest(".pf-lb-x")) cerrar(); });
+  document.addEventListener("keydown", tecla);
+  document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("on")); d.querySelector(".pf-lb-x").focus();
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".pf-ver"); if (b) pfVerFoto(b.dataset.k); });
+new MutationObserver(() => { perfilMarcar(); }).observe(document.body, { childList: true, subtree: true });
+/* Botones de la barra inferior que abren una sección (Perfil, Punto de venta, Buscar pedidos): lleva la vista a esa sección. */
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('.ad-barra [data-act$="-tab"]'); if (!b) return; setTimeout(() => { const el = document.querySelector("#papas-panel, #agua-panel, #prov-panel, #lista-rep, .rep-top"); if (el) { const y = el.getBoundingClientRect().top + scrollY - (typeof bannerH === "function" ? bannerH() : 0) - 12; scrollTo({ top: Math.max(0, y), behavior: "smooth" }); } }, 60); });
+/* Local agua, Repartidores, Proveedores y Administrador (botones de cada sección): al elegir una sección quedan solo ese botón y «Volver»; «Volver» muestra todos otra vez. En modo carrusel no se esconden. */
+const COLAP = {}, COLAP_PORTALES = new Set(["agua", "papas", "repartidor", "prov", "admin"]);
+const COLAP_VOLVER = '<span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span>';
+const colapTabs = t => [...t.children].filter(x => x.tagName === "BUTTON" && /tab$/.test(x.dataset.act || "") && !x.classList.contains("cv-volver"));
+function colapGrids() {
+  if (!COLAP_PORTALES.has(S.portal)) return [];
+  return [...document.querySelectorAll("main .tabs.rep-tabs")].filter(t => !t.matches(".local-switch, .cat-nav3, .cli-tabs, .pc-sub") && colapTabs(t).length >= 3);
+}
+const colapClave = t => { const b = colapTabs(t)[0]; return S.portal + ":" + (b ? b.dataset.act + ":" + (b.dataset.t || b.dataset.l || b.dataset.v || b.dataset.k || "") : ""); };
+let ADSUB_INI = null; /* Administrador: al volver a una sección (p. ej. Local papas) se muestran sus botones sin abrir ninguno. */
+function colapAplicar() {
+  /* Al elegir una sección queda solo su botón (como título sobre la sección); «Inicio» de la barra muestra todos otra vez. */
+  const carr = carrOn();
+  if (S.portal === "admin") {
+    const ls = document.querySelector(".local-switch"), subs = colapGrids();
+    const subAb = subs.some(g => g.classList.contains("cv-uno") && g.offsetParent !== null);
+    if (ls && ls.classList.contains("sub-abierto") !== subAb) ls.classList.toggle("sub-abierto", subAb); /* un solo título: el de la sección más interna */
+    const g = subs[0], ini = !!(g && ADSUB_INI && ADSUB_INI === AD.local);
+    if (g && g.classList.contains("ini") !== ini) g.classList.toggle("ini", ini);
+    if (g && ini) g.querySelectorAll(':scope > button[aria-selected="true"]').forEach(x => x.setAttribute("aria-selected", "false"));
+    /* Local papas / Local agua: «Producción · Clientes» va debajo del botón de título cuando hay una sección abierta. */
+    const sw = g && g.parentElement && [...g.parentElement.children].find(x => x.classList.contains("sec-switch"));
+    if (sw) { if (sw.nextElementSibling !== g) g.before(sw); const oc = g.classList.contains("cv-uno"); if (sw.classList.contains("sw-oculto") !== oc) sw.classList.toggle("sw-oculto", oc); }
+    /* Ruta en el botón de título: «Local papas › Producción › Ingresar producción». */
+    subs.forEach(gr => {
+      const sel = gr.classList.contains("cv-uno") ? gr.querySelector(':scope > button[aria-selected="true"]') : null;
+      gr.querySelectorAll(":scope > button .cv-ruta").forEach(r => { if (!sel || r.parentElement !== sel) r.remove(); });
+      if (!sel) return;
+      const mb = document.querySelector(`.local-switch [data-act="ad-local"][data-l="${AD.local}"]`);
+      const loc = mb ? mb.textContent.replace(/\s+/g, " ").replace(/^[^\p{L}\d]+/u, "").trim() : "";
+      const swSel = gr === g && sw ? sw.querySelector('[aria-selected="true"]') : null;
+      const txt = ""; /* Solo el nombre de la sección actual (sin ruta). */ void loc; void swSel;
+      let r = sel.querySelector(".cv-ruta");
+      if (!txt) { if (r) r.remove(); return; }
+      if (!r) { r = document.createElement("span"); r.className = "cv-ruta"; const tt = sel.querySelector(".rep-tt"); (tt || sel).before(r); if (tt) tt.before(r); }
+      if (r.textContent !== txt) r.textContent = txt;
+    });
+  }
+  colapGrids().forEach(t => {
+    if (!t.querySelector(":scope > .cv-volver")) { const v = document.createElement("button"); v.type = "button"; v.className = "cv-volver nav-volver"; v.dataset.act = "nav-volver"; v.innerHTML = COLAP_VOLVER; t.prepend(v); }
+    const sel = colapTabs(t).some(x => x.getAttribute("aria-selected") === "true");
+    const st = COLAP[colapClave(t)], uno = !!st && !carr && sel && !t.classList.contains("pc-on"), ab = false;
+    if (t.classList.contains("cv-uno") !== uno) t.classList.toggle("cv-uno", uno);
+    if (t.classList.contains("cv-abierto") !== ab) t.classList.toggle("cv-abierto", ab); /* Tras «Volver»: solo los botones, sin contenido. */
+  });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button[data-act]"); if (!b) return;
+  if (b.closest(".ad-barra") && /tab$/.test(b.dataset.act || "")) { colapGrids().forEach(g => { delete COLAP[colapClave(g)]; }); setTimeout(colapAplicar, 0); return; }
+  const t = b.parentElement; if (!t || !colapGrids().includes(t)) return;
+  if (b.dataset.act === "colap-volver") { COLAP[colapClave(t)] = false; colapAplicar(); return; }
+  if (/tab$/.test(b.dataset.act)) { ADSUB_INI = null; COLAP[colapClave(t)] = true; setTimeout(colapAplicar, 0); }
+}, true);
+new MutationObserver(() => { if (COLAP_PORTALES.has(S.portal)) colapAplicar(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-selected"] });
+/* Botón «Inicio» de la barra inferior flotante (Administrador, Repartidores, Local agua, Local papas y Clientes): vuelve a la pantalla principal de la página, solo con los botones de secciones y sin el contenido de ninguna. */
+const INI = {}, INI_GRID = { agua: ".ag-main-tabs", papas: ".pa-main-tabs", repartidor: ".rep-main-tabs" };
+const INI_BTN = (act, sel) => `<button type="button" class="bar-inicio" data-act="${act}" aria-selected="${!!sel}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="rep-tt">Inicio</span></button>`;
+/* Botón «Inicio» sobre los botones de la página de inicio (se oculta cuando hay una sección elegida). */
+const INI_TIT = { papas: [".pa-main-tabs", 'data-act="ini-portal"'], agua: [".ag-main-tabs", 'data-act="ini-portal"'], repartidor: [".rep-main-tabs", 'data-act="ini-portal"'], prov: [".pv-main-tabs", 'data-act="pv-inicio"'], admin: [".local-switch", 'data-act="ad-local" data-l="inicio"'] };
+/* «Volver» junto al nombre de la sección: vuelve a la última sección elegida (historial por página). */
+const NAVH = {};
+const NAV_INICIO = { papas: ".ad-barra .bar-inicio", agua: ".ad-barra .bar-inicio", repartidor: ".ad-barra .bar-inicio", prov: '.pv-barra [data-act="pv-inicio"]', admin: '.ad-barra [data-l="inicio"]', cliente: ".cli-tabs .bar-inicio", cfd: ".cli-tabs .bar-inicio" };
+function navEntrada(b) {
+  const a = b.dataset.act, k = S.portal; if (!a) return null;
+  if (a === "ini-portal" || a === "pv-inicio" || a === "cli-inicio" || (a === "ad-local" && b.dataset.l === "inicio")) return { key: "inicio", sel: NAV_INICIO[k] };
+  if (a === "usu-bar") return ["admin", "papas", "cliente", "cfd"].includes(k) ? { key: "perfil", sel: "#usu-bar" } : null;
+  if (!(/tab$/.test(a) || a === "ad-local")) return null;
+  let key = `[data-act="${a}"]`; ["t", "l"].forEach(d => { if (b.dataset[d]) key += `[data-${d}="${b.dataset[d]}"]`; });
+  const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
+  return { key, sel: pre + key };
+}
+function navVolverPintar() { const n = (NAVH[S.portal] || []).length > 1; document.querySelectorAll(".nav-volver").forEach(v => { if (v.hidden === n) v.hidden = !n; }); }
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-act]"); if (!b) return;
+  if (b.dataset.act === "nav-volver") {
+    e.preventDefault(); e.stopPropagation();
+    const h = NAVH[S.portal] || []; if (h.length < 2) return;
+    h.pop(); const prev = h[h.length - 1];
+    Object.keys(COLAP).forEach(x => { if (x.startsWith(S.portal + ":")) delete COLAP[x]; });
+    const mL = /^\[data-act="ad-local"\]\[data-l="([^"]+)"\]$/.exec(prev.key); ADSUB_INI = mL ? mL[1] : null;
+    const el = document.querySelector(prev.sel) || document.querySelector(prev.key);
+    if (el) el.click(); colapAplicar(); navVolverPintar(); return;
+  }
+  if (!NAV_INICIO[S.portal]) return;
+  const en = navEntrada(b); if (!en || !en.sel) return;
+  const h = NAVH[S.portal] = NAVH[S.portal] || [];
+  if (!h.length || h[h.length - 1].key !== en.key) { h.push(en); if (h.length > 30) h.shift(); }
+  setTimeout(navVolverPintar, 0);
+}, true);
+new MutationObserver(() => { if (NAV_INICIO[S.portal]) navVolverPintar(); }).observe(document.body, { childList: true, subtree: true });
+/* Sección abierta desde la barra inferior (Buscar pedidos, Pedidos, Crear pedido, Buscar pedido): su nombre va arriba como botón y se esconden los botones de inicio. */
+const BARSEC = {};
+const INI_SVG_TIT = () => INI_BTN("", false).match(/<svg[\s\S]*<\/svg>/)[0];
+let INI_PORTAL_ANT = null;
+function iniTitAplicar() {
+  /* Al entrar a una página: ningún botón elegido (pantalla de inicio). */
+  if (S.portal !== INI_PORTAL_ANT) {
+    INI_PORTAL_ANT = S.portal; const k = S.portal; delete BARSEC[k];
+    NAVH[k] = NAV_INICIO[k] ? [(k === "cliente" || k === "cfd") ? { key: '[data-act="cli-tab"][data-t="nuevo"]', sel: '.cli-tabs [data-act="cli-tab"][data-t="nuevo"]' } : { key: "inicio", sel: NAV_INICIO[k] }] : [];
+    if (INI_GRID[k]) { INI[k] = true; Object.keys(COLAP).forEach(x => { if (x.startsWith(k + ":")) delete COLAP[x]; }); }
+    if (k === "prov" && PV.adTab !== "inicio") { PV.adTab = "inicio"; setTimeout(() => { document.querySelectorAll('[data-act="pv-adtab"]:not(.pf-volver)').forEach(x => x.setAttribute("aria-selected", "false")); renderProvPanel(); }, 0); }
+    if (k === "admin" && AD.local !== "inicio") { AD.local = "inicio"; AD.menuCerrado = false; setTimeout(() => renderView(), 0); }
+  }
+  const d = INI_TIT[S.portal]; if (!d) return;
+  const t = document.querySelector("main " + d[0]); if (!t) return;
+  let row = t.previousElementSibling;
+  if (!row || !row.classList.contains("ini-row")) { row = document.createElement("div"); row.className = "ini-row"; row.innerHTML = `<button type="button" class="nav-volver" data-act="nav-volver" hidden><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button><button type="button" class="ini-tit" ${d[1]}><span class="rep-ti" aria-hidden="true"></span><span class="rep-tt"></span></button>`; t.before(row); navVolverPintar(); }
+  const tit = row.querySelector(".ini-tit");
+  /* Modo carrusel: los botones no se esconden, pero el título muestra la sección abierta (la más interna). */
+  const cs = !BARSEC[S.portal] && t.classList.contains("pc-on") ? [...document.querySelectorAll('main .pc-on > button[aria-selected="true"]:not(.pc-carr)')].pop() : null;
+  const bs = BARSEC[S.portal] || (cs ? { t: ((cs.querySelector(".rep-tt") || cs).textContent || "").replace(/\s+/g, " ").replace(/^[^\p{L}\d]+/u, "").trim(), ico: (cs.querySelector("svg, img") || { outerHTML: "" }).outerHTML } : null);
+  const ico = bs ? bs.ico : INI_SVG_TIT(), txt = bs ? bs.t : "Inicio";
+  const ti = tit.querySelector(".rep-ti"), tt = tit.querySelector(".rep-tt");
+  if (tt.textContent !== txt) { tt.textContent = txt; ti.innerHTML = ico; }
+  const conSel = t.classList.contains("cv-uno") || (t.classList.contains("ls-uno") && !!t.querySelector(':scope > .local-btn[aria-selected="true"]'));
+  const ocultar = conSel || perfilAbierto();
+  if (row.hidden !== ocultar) row.hidden = ocultar;
+  const escGrid = !!BARSEC[S.portal];
+  if (t.classList.contains("barsec-ocu") !== escGrid) t.classList.toggle("barsec-ocu", escGrid);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button[data-act]"); if (!b) return;
+  const a = b.dataset.act, k = S.portal;
+  if (!INI_TIT[k]) return;
+  const enBarra = !!b.closest(".ad-barra");
+  if (a === "ini-portal" || a === "pv-inicio" || (a === "ad-local" && b.dataset.l === "inicio") || b.classList.contains("ini-tit")) { delete BARSEC[k]; return; }
+  if (enBarra && !b.classList.contains("bar-perfil") && (/tab$/.test(a) || a === "ad-local")) {
+    const sv = b.querySelector("svg, img"); BARSEC[k] = { t: (b.querySelector(".rep-tt") || b).textContent.replace(/\s+/g, " ").trim(), ico: sv ? sv.outerHTML : "" };
+    if (INI_GRID[k]) INI[k] = false;
+    return;
+  }
+  if (b.classList.contains("pf-volver")) { /* Volver del perfil a una sección de la barra: mostrar su nombre arriba. */
+    const bb = [...document.querySelectorAll(".ad-barra button[data-act]")].find(x => x.dataset.act === a && (x.dataset.t || x.dataset.l) === (b.dataset.t || b.dataset.l));
+    if (bb) { const sv = bb.querySelector("svg, img"); BARSEC[k] = { t: (bb.querySelector(".rep-tt") || bb).textContent.replace(/\s+/g, " ").trim(), ico: sv ? sv.outerHTML : "" }; return; }
+  }
+  if (!enBarra && (/tab$/.test(a) || a === "ad-local")) delete BARSEC[k];
+}, true);
+new MutationObserver(() => { if (INI_TIT[S.portal] || S.portal !== INI_PORTAL_ANT) iniTitAplicar(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-selected", "class"] });
+function iniAplicar() {
+  const sel = INI_GRID[S.portal]; if (!sel) return;
+  const t = document.querySelector(sel), on = !!INI[S.portal];
+  if (t) { if (t.classList.contains("ini") !== on) t.classList.toggle("ini", on); if (on) t.querySelectorAll(':scope > button[aria-selected="true"]').forEach(x => x.setAttribute("aria-selected", "false")); }
+  if (on) document.querySelectorAll('.ad-barra button[aria-selected="true"]:not(.bar-inicio)').forEach(x => x.setAttribute("aria-selected", "false"));
+  document.querySelectorAll(".bar-inicio").forEach(b => { if (b.getAttribute("aria-selected") !== String(on)) b.setAttribute("aria-selected", String(on)); });
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button[data-act]"); if (!b) return;
+  const a = b.dataset.act;
+  if (a === "ini-portal") {
+    e.preventDefault(); e.stopPropagation();
+    const k = S.portal; INI[k] = true; colapGrids().forEach(g => { delete COLAP[colapClave(g)]; });
+    if (k === "papas" && PP.tab === "perfil") { PP.tab = PP.tabPrev && PP.tabPrev !== "perfil" ? PP.tabPrev : "prod"; renderPapasPanel(); }
+    if (k === "agua" && AG.tab === "perfil") { AG.tab = AG.tabPrev && AG.tabPrev !== "perfil" ? AG.tabPrev : "pdped"; renderAguaPanel(); }
+    if (k === "repartidor" && S.repTab === "perfil") { S.repTab = S.repTabPrev && S.repTabPrev !== "perfil" ? S.repTabPrev : "ultimos"; const rp = $("#rep-perfil"); if (rp) rp.innerHTML = ""; renderListas(); }
+    document.querySelectorAll('.ad-barra button[aria-selected="true"]:not(.bar-inicio)').forEach(x => x.setAttribute("aria-selected", "false"));
+    perfilMarcar(); iniAplicar(); colapAplicar(); window.scrollTo({ top: 0, behavior: "smooth" }); return;
+  }
+  if (INI_GRID[S.portal] && /tab$/.test(a) && INI[S.portal]) { INI[S.portal] = false; setTimeout(iniAplicar, 0); }
+}, true);
+/* Administrador: el menú queda a la vista; al elegir una sección se baja hasta su contenido. */
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('.local-switch [data-act="ad-local"]'); if (!b || carrOn()) return;
+  setTimeout(() => { const ls = document.querySelector(".local-switch"); let n = ls && ls.nextElementSibling; while (n && !n.offsetHeight) n = n.nextElementSibling; if (n) { const y = n.getBoundingClientRect().top + scrollY - (typeof bannerH === "function" ? bannerH() : 0) - 10; scrollTo({ top: Math.max(0, y), behavior: "smooth" }); } }, 80);
+});
+new MutationObserver(() => { if (INI_GRID[S.portal]) iniAplicar(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-selected"] });
+function paMenuAplicar() {
+  const t = document.querySelector(".pa-main-tabs"); if (!t) return;
+  if (t.classList.contains("pm-uno") || t.classList.contains("pm-abierto")) t.classList.remove("pm-uno", "pm-abierto");
+  return;
+  const uno = !!PP.menuCerrado && !carrOn() && !!t.querySelector(`[data-act="papas-tab"][data-t="${PP.tab}"]`), ab = PP.menuCerrado === false && !carrOn();
+  if (t.classList.contains("pm-uno") !== uno) t.classList.toggle("pm-uno", uno);
+  if (t.classList.contains("pm-abierto") !== ab) t.classList.toggle("pm-abierto", ab);
+}
+new MutationObserver(() => { if (S.portal === "papas") paMenuAplicar(); }).observe(document.body, { childList: true, subtree: true });
 function renderPapasPanel() {
   if (PP.edF && document.querySelector(".ppe-in")) ppLeer();
   const el = $("#papas-panel");
   if (!el) return;
   const t = PP.tab;
   if (t === "pv") { if (!el.querySelector(".pos-emb-papas")) { el.innerHTML = posAguaHTML("papas"); } else POS.loc = "papas"; asegurarAdmin(); renderPos(); return; }
+  perfilMarcar();
+  if (t !== "perfil") PP.tabPrev = t;
+  if (t === "perfil") { el.innerHTML = perfilHTML("papas"); window.scrollTo(0, 0); return; }
   if (t === "sueldo") { const n = (S.ses.papas || {}).nombre || ""; el.innerHTML = `<div id="suel-perfil" data-nombre="${esc(n)}">${suelPerfilHTML(n)}</div>`; return; }
   if (t === "vac") { VAC_G = "papas"; subUsuarios(); subVac("papas"); const a = document.activeElement, keep = a && a.closest && a.closest("#vac-form") ? a.id : ""; el.innerHTML = `<div id="vac-panel" data-g="papas">${vacHTML()}</div>`; if (keep) { const n = document.getElementById(keep); if (n) n.focus(); } return; }
   el.innerHTML = t === "piezas" || t === "pinv" || t === "pcons" ? `<div id="pz-panel">${piezasHTML()}</div>` : t === "prod" ? papasProdHTML() : t === "hist" ? papasHistHTML() : t === "ped" ? papasPedidosHTML() : t === "sacos" ? papasSacosHTML() : t === "disp" ? papasDispHTML() : t === "cped" ? papasConsPedHTML() : t === "csac" ? papasConsSacHTML() : t === "ing" ? papasIngHTML() : t === "stock" ? papasStockHTML() : t === "lav" ? lavHTML("cajas") : t === "lavpago" ? lavPagoHTML("cajas") : papasPrvHTML();
@@ -9221,19 +9646,19 @@ function agpHTML() {
 }
 AD.ocultarPortales = true; /* Al entrar a Administrador la barra de páginas parte oculta. */
 /* En modo carrusel el menú de Administrador queda desplegado (sin Volver) y el contenido de la sección se muestra debajo. */
-const AD_CERR = () => !!AD.menuCerrado && !carrOn();
+const AD_CERR = () => !!AD.menuCerrado && !carrOn() && AD.local !== "inicio"; /* Al elegir una sección queda solo su botón; «Inicio» de la barra muestra el menú completo. */
+/* Botón del menú de Administrador (también se usa en la barra inferior de Administración). */
+const adBtn = ([k, l]) => k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button><span class="avisos-slot">${avisosBtnHTML()}</span></div>
     <div id="ad-aprobar"></div>
+    <nav class="ad-barra" aria-label="Administración"><button type="button" role="tab" class="local-btn bar-inicio" data-act="ad-local" data-l="inicio" aria-selected="${AD.local === "inicio"}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>${AD_BARRA.map(adBtn).join("")}<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button></nav>
     <div class="local-switch ${AD_CERR() ? "ls-uno" : ""}" role="tablist" aria-label="Local">
-      ${AD_CERR() ? `<button type="button" class="local-btn ls-volver" data-act="ad-menu">‹ Volver</button>` : ""}
-      ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(([k, l]) => `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD_CERR() || carrOn()) && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`).join("")).join("")}${AD_CERR() ? "" : `<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button>`}
+      ${AD_CERR() ? `<button type="button" class="local-btn ls-volver nav-volver" data-act="nav-volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Volver</button>` : ""}
+      ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
-    ${AD.local === "agp" ? agpHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div class="card bus-card ult-bus"><label class="campo"><span>Buscar pedidos</span><input type="search" id="ult-q" value="${esc(ULT.q || "")}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado.</p></div><div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `<div class="sec-switch" role="tablist" aria-label="Sección">
-      ${[["clientes", "Clientes"], ["prod", "Producción"]].map(([k, l]) => `<button type="button" role="tab" data-act="ad-sec" data-s="${k}" aria-selected="${AD.seccion === k}">${l}</button>`).join("")}
-    </div>
-    ${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
+    ${AD.local === "inicio" ? "" : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div class="card bus-card ult-bus"><label class="campo"><span>Buscar pedidos</span><input type="search" id="ult-q" value="${esc(ULT.q || "")}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado.</p></div><div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
@@ -9559,11 +9984,17 @@ function renderAdCapt() {
   const todos = CAPT.docs.slice().sort((x, y) => (y.en || 0) - (x.en || 0));
   const cnt = k => todos.filter(d => capGrupo(d) === k).length;
   const lista = todos.filter(d => (!ADCAP.org || capGrupo(d) === ADCAP.org) && (!q || [d.nombre, d.celular, d.porNombre, d.nota].some(x => String(x || "").toLowerCase().includes(q)) || (dq.length >= 3 && digitos(d.celular || "").includes(dq))));
-  const li = d => `<li data-capid="${esc(d.id)}">
-      <b>${esc(d.nombre || "Sin nombre")}</b>
-      ${d.celular ? `<span>📱 ${waA(d.celular)}</span>` : ""}${d.email ? `<span>✉️ <a href="mailto:${esc(d.email)}">${esc(d.email)}</a></span>` : ""}${d.direccion ? `<span>📍 ${esc(d.direccion)}</span>` : ""}${d.nota ? `<span class="cap-nota">📝 ${esc(d.nota)}</span>` : ""}
-      <small>${esc(pzFY(d.fecha))} · anotado por ${esc(d.porNombre || "—")}</small>
-      ${CAPT.del === d.id ? `<div class="acciones"><span class="estado-txt">¿Eliminar?</span><button type="button" class="btn chico peligro" data-act="cap-del-si" data-id="${esc(d.id)}">Sí, eliminar</button><button type="button" class="btn chico suave" data-act="cap-del-no">No</button></div>` : `<button type="button" class="link" data-act="cap-del" data-id="${esc(d.id)}">Eliminar</button>`}
+  /* Tarjeta compacta: iniciales con el color de la página, nombre, celular (WhatsApp), datos y fecha. */
+  const CAPC = { utfsm: "#7c3aed", agua: "#1f8ac0", papas: "#c58a1c" };
+  const li = d => `<li class="capc" data-capid="${esc(d.id)}" style="--rc:${CAPC[capGrupo(d)] || "#5b6b70"}">
+      <span class="capc-av" aria-hidden="true">${esc(String(d.nombre || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?")}</span>
+      <div class="capc-b"><b class="capc-n">${esc(d.nombre || "Sin nombre")}</b>
+        <div class="capc-l">${d.celular ? `<span>📱 ${waA(d.celular)}</span>` : ""}${d.email ? `<span>✉️ <a href="mailto:${esc(d.email)}">${esc(d.email)}</a></span>` : ""}${d.direccion ? `<span>📍 ${esc(d.direccion)}</span>` : ""}</div>
+        ${d.nota ? `<p class="capc-nota">📝 ${esc(d.nota)}</p>` : ""}
+        <small class="capc-f">${esc(pzFY(d.fecha))} · anotado por ${esc(d.porNombre || "—")}</small>
+        ${CAPT.del === d.id ? `<div class="acciones capc-conf"><span class="estado-txt">¿Eliminar?</span><button type="button" class="btn chico peligro" data-act="cap-del-si" data-id="${esc(d.id)}">Sí, eliminar</button><button type="button" class="btn chico suave" data-act="cap-del-no">No</button></div>` : ""}
+      </div>
+      ${CAPT.del === d.id ? "" : `<button type="button" class="capc-del" data-act="cap-del" data-id="${esc(d.id)}" aria-label="Eliminar a ${esc(d.nombre || "este cliente")}">🗑</button>`}
     </li>`;
   el.innerHTML = `<div class="card ad-card adcap">
     <h2 class="h2">Clientes captados <small class="muted">${fmtN(todos.length)} en total · ${fmtN(todos.filter(d => d.fecha === hoy()).length)} hoy</small></h2>
@@ -9612,11 +10043,13 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
   ["Locales", [["posad", "Punto de venta"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["prov", "Proveedores"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
-  ["Pedidos", [["agp", "Agregar pedido"], ["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["pron", "Pronóstico de la demanda"], ["bus", "Buscador de pedidos"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
+  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
   ["Delivery", [["rep", "Repartidores"], ["efead", "Pagos en efectivo"]]],
   ["Registrados", [["usu", "Lista usuarios"], ["capt", "Lista clientes"], ["captados", "Captados"]]],
-  ["Administración", [["reg", "Registro / sistema"], ["oscuro", "Modo oscuro"]]]
+  ["Administración", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"]]]
 ];
+/* Barra inferior de Administrador: Crear pedido, (Modo carrusel), Perfil, Modo oscuro y Salir. */
+const AD_BARRA = [["ult", "Últimos pedidos"], ["agp", "Crear pedido"], ["bus", "Buscar pedido"]];
 /* Modo oscuro (Administrador › Modo oscuro): se guarda en este teléfono y cambia toda la página. */
 const TEMA_LS = "pya.tema.v1";
 function temaOscuro() { const t = document.documentElement.dataset.theme; return t ? t === "dark" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches); }
@@ -9645,6 +10078,7 @@ document.addEventListener("click", e => {
 const OSC_SVG = '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
 function oscuroBotones(root) {
   (root || document).querySelectorAll('.cli-tab-salir, .pos-tab-salir, .pzz-nav [data-act="salir"]').forEach(sb => {
+    if (sb.hasAttribute("data-sin-oscuro")) return; /* Local papas: Modo oscuro va en la página de inicio, no junto a Salir. */
     const prev = sb.previousElementSibling; if (prev && prev.classList.contains("tab-oscuro")) { prev.setAttribute("aria-pressed", String(temaOscuro())); return; }
     const b = sb.cloneNode(true);
     b.classList.remove("cli-tab-salir", "pos-tab-salir"); b.classList.add("tab-oscuro");
@@ -9675,20 +10109,27 @@ function carrCentrar(t) {
   CARR_POS[k] = t.scrollLeft;
   requestAnimationFrame(() => { t.style.scrollBehavior = prev; });
 }
+/* Páginas sin botón Modo carrusel. */
+const CARR_NO = new Set(["cliente", "prov", "prueba", "cfd", "utfsm", "pizzas"]);
 function carrBotones() {
   const on = carrOn();
-  document.querySelectorAll('.tab-oscuro, .local-switch [data-act="ad-oscuro"]').forEach(ob => {
-    const p = ob.parentElement; if (!p) return;
-    let cb = ob.previousElementSibling;
+  document.querySelectorAll('.tab-oscuro, .ad-barra .carr-ancla, .local-switch .carr-ancla').forEach(ob => {
+    if (CARR_NO.has(S.portal)) { const pc = ob.previousElementSibling; if (pc && pc.classList.contains("pc-carr")) pc.remove(); const pp = ob.parentElement; if (pp) pp.classList.remove("pc-tabs", "pc-on"); return; }
+    const bar = ob.closest(".ad-barra"), p = bar ? document.querySelector(bar.dataset.main || ".local-switch") : ob.parentElement; if (!p) return;
+    const enMain = !!(bar && (bar.classList.contains("rep-barra") || bar.classList.contains("pa-barra") || bar.classList.contains("ag-barra"))); /* Repartidores: «Modo carrusel» va con los botones de la página de inicio, no en la barra. */
+    let cb = enMain ? p.querySelector(":scope > .pc-carr") : bar ? bar.querySelector(".pc-carr") : ob.previousElementSibling;
     if (!cb || !cb.classList.contains("pc-carr")) {
-      cb = ob.cloneNode(true);
-      cb.classList.remove("tab-oscuro", "l-oscuro"); cb.classList.add("pc-carr");
-      cb.dataset.act = "carr"; delete cb.dataset.l; cb.removeAttribute("aria-selected"); cb.removeAttribute("role"); cb.removeAttribute("id");
+      const ancla = ob.classList.contains("carr-ancla"), src = ancla ? (bar || ob.parentElement).querySelector("button:not(.pc-carr)") : ob; if (!src) return;
+      cb = src.cloneNode(true);
+      if (ancla) cb.className = (src.classList.contains("local-btn") ? "local-btn " : "") + "pc-carr"; else { cb.classList.remove("tab-oscuro", "l-oscuro"); cb.classList.add("pc-carr"); }
+      cb.dataset.act = "carr"; delete cb.dataset.l; delete cb.dataset.k; cb.removeAttribute("aria-selected"); cb.removeAttribute("role"); cb.removeAttribute("id");
       const sv = cb.querySelector("svg"); if (sv) { sv.innerHTML = CARR_SVG; sv.setAttribute("fill", "none"); sv.setAttribute("stroke", "currentColor"); sv.setAttribute("stroke-width", "2"); sv.setAttribute("viewBox", "0 0 24 24"); }
       const sp = [...cb.querySelectorAll("span")].filter(x => !x.querySelector("svg") && !x.children.length).pop();
-      if (sp) sp.textContent = "Modo carrusel"; else { [...cb.childNodes].filter(n => n.nodeType === 3).forEach(n => n.remove()); cb.append("Modo carrusel"); }
-      ob.before(cb);
+      if (ancla && cb.classList.contains("local-btn")) cb.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${CARR_SVG}</svg>Modo carrusel`;
+      else if (sp) sp.textContent = "Modo carrusel"; else { [...cb.childNodes].filter(n => n.nodeType === 3).forEach(n => n.remove()); cb.append("Modo carrusel"); }
+      if (enMain) { cb.className = "pc-carr"; p.append(cb); } else ob.before(cb);
     }
+    if (bar) { const pf = bar.querySelector(".bar-perfil"); if (pf && pf.nextElementSibling !== ob) ob.before(pf); }
     if (cb.getAttribute("aria-pressed") !== String(on)) cb.setAttribute("aria-pressed", String(on));
     if (!p.classList.contains("pc-tabs")) p.classList.add("pc-tabs");
     if (p.classList.contains("pc-on") !== on) p.classList.toggle("pc-on", on);
@@ -11766,13 +12207,23 @@ async function adToggleOculto(id, ocultar, btn) {
     else await conReintento(() => S.db.doc("config/admin_productos").set({ ocultos: lista, actualizado: Date.now(), por: (S.ses.admin || {}).nombre || "" }));
   } catch (e) { toast(msgError(e)); }
 }
+/* Administrador › Agregar pedido: las fotos (volantes) de cada producto se tocan para sumar 1, igual que en la página Clientes. */
+function adAfpHTML(key, ids) {
+  const vis = new Set(ids), lista = (AFP_CATS[key] || []).filter(id => PROD[id] && vis.has(id)), part = !adLocalSel();
+  if (!lista.length) return "";
+  return `<div class="afi-car afp-car ad-afp" aria-roledescription="carrusel" aria-label="Toca una foto para agregar 1 al pedido">
+    <div class="afi-track" tabindex="0">${lista.map((id, i) => { const p = PROD[id], q = AD.carrito[id] || 0, n = esc(etiqueta(p)); return `<button type="button" class="afi-slide afp-slide" data-act="ad-mas" data-id="${id}" aria-label="${n}. Toca para agregar 1 al pedido (${i + 1} de ${lista.length})"><div class="afp-img" style="background-image:var(--afp${part && AFP_PART.has(id) ? "P" : ""}-${id})"></div><span class="afp-add" aria-hidden="true">＋ Agregar</span><span class="afp-qw" data-adafqw="${id}" ${q ? "" : "hidden"}><span class="afp-menos" role="button" tabindex="0" data-act="ad-menos" data-id="${id}" aria-label="Quitar 1 ${n}">−</span><output class="afp-q" data-adafq="${id}">${q ? `${q} en el pedido` : ""}</output></span></button>`; }).join("")}</div>
+    ${lista.length < 2 ? "" : `<button type="button" class="afi-nav afi-prev" data-act="afi-nav" data-d="-1" aria-label="Producto anterior">‹</button><button type="button" class="afi-nav afi-next" data-act="afi-nav" data-d="1" aria-label="Producto siguiente">›</button>
+    <div class="afi-dots" role="group" aria-label="Elegir producto">${lista.map((id, i) => `<button type="button" data-act="afi-dot" data-i="${i}" aria-label="Ir a ${esc(etiqueta(PROD[id]))}" aria-current="${i === 0}"></button>`).join("")}</div>`}
+  </div>`;
+}
 function adCatsHTML() {
   subAdOcultos();
   const cliOc = adCliOc(), oc = new Set(cliOc ? cliOc.ocultos : AD.ocultos), ed = AD.editProds, fam = famLocal();
   const cats = CATALOGO.filter(c => c.fam === fam).map(c => ({ c, ids: c.items.map(([id]) => id).filter(id => ed || !oc.has(id) || AD.carrito[id]) })).filter(x => x.ids.length);
   const nOc = ORDEN.filter(id => PROD[id].fam === fam && oc.has(id)).length;
   const tools = `<div class="cat-tools ad-cat-tools"><span class="muted-s">${cliOc ? `Productos de <b>${esc(cliOc.nombre)}</b>${ed ? ": toca <b>Quitar</b> en los que no compra. Es la misma lista que el cliente edita en su cuenta." : nOc ? ` · ${nOc} ${nOc === 1 ? "oculto" : "ocultos"}` : ""}` : ed ? "Toca <b>Quitar</b> en los productos que no quieres ver en la lista. Puedes volver a mostrarlos cuando quieras." : nOc ? `${nOc} ${nOc === 1 ? "producto oculto" : "productos ocultos"}` : ""}</span><button type="button" class="btn ${ed ? "primario" : "suave"} chico" data-act="ad-edit-prods">${ed ? "Listo" : "Editar productos"}</button></div>`;
-  return tools + (cats.length ? cats.map(({ c, ids }) => `<section class="cat fam-${c.fam} col-${c.color}"><header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>${ed ? "" : aficheHTML(c.key, !adSinPrecio())}<div class="prods">${ids.map(id => ed ? `<div class="prod ad-ed-row ${oc.has(id) ? "oculto" : ""}"><span class="medida">${PROD[id].medida}</span><div class="prod-txt">${PROD[id].nombre}${oc.has(id) ? `<small class="muted-s">Oculto</small>` : ""}</div><button type="button" class="btn chico ${oc.has(id) ? "primario" : "suave"}" data-act="ad-ocultar" data-id="${id}" data-v="${oc.has(id) ? "0" : "1"}">${oc.has(id) ? "Mostrar" : "Quitar"}</button></div>` : adProdHTML(PROD[id])).join("")}</div></section>`).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos."));
+  return tools + (cats.length ? cats.map(({ c, ids }) => `<section class="cat fam-${c.fam} col-${c.color}"><header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>${ed ? "" : AFP_CATS[c.key] ? adAfpHTML(c.key, ids) : aficheHTML(c.key, !adSinPrecio())}<div class="prods" ${!ed && AFP_CATS[c.key] ? "hidden" : ""}>${ids.map(id => ed ? `<div class="prod ad-ed-row ${oc.has(id) ? "oculto" : ""}"><span class="medida">${PROD[id].medida}</span><div class="prod-txt">${PROD[id].nombre}${oc.has(id) ? `<small class="muted-s">Oculto</small>` : ""}</div><button type="button" class="btn chico ${oc.has(id) ? "primario" : "suave"}" data-act="ad-ocultar" data-id="${id}" data-v="${oc.has(id) ? "0" : "1"}">${oc.has(id) ? "Mostrar" : "Quitar"}</button></div>` : adProdHTML(PROD[id])).join("")}</div></section>`).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos."));
 }
 function adTipoCambio() {
   const pg = $("#ad-pago"); if (pg) pg.innerHTML = adPagoHTML();
@@ -11840,7 +12291,7 @@ function adCrearHTML() {
       <div id="ad-cli-datos">${adCliDatosHTML()}</div>
     </div>
     <div id="ad-cats">${adCatsHTML()}</div>
-    <div class="card ad-card">
+    <div class="card ad-card" id="ad-resumen-card">
       <h2 class="h2">Resumen y entrega</h2>
       <ul class="resumen" id="ad-resumen"></ul>
       <div class="total" id="ad-total-box" ${adSinPrecio() ? "hidden" : ""}><span>Total</span><b id="ad-total">$0</b></div>
@@ -11858,6 +12309,29 @@ function adCrearHTML() {
       <button class="btn primario grande" data-act="ad-crear">Crear pedido</button>
     </div>`;
 }
+/* Administrador › Crear pedido: barra flotante (como la de Clientes) con el total, «− Sacar» y «Revisar y crear». */
+const ADB = { sacar: false, resVis: false, io: null, card: null };
+function adBarraUI() {
+  let b = document.getElementById("barra-ad");
+  if (!b) { b = document.createElement("div"); b.id = "barra-ad"; b.hidden = true; document.body.appendChild(b); }
+  const card = document.getElementById("ad-resumen-card");
+  if (card !== ADB.card) { if (ADB.io) ADB.io.disconnect(); ADB.card = card; ADB.resVis = false; if (card && "IntersectionObserver" in window) { ADB.io = new IntersectionObserver(es => { ADB.resVis = es[0].isIntersecting; adBarraUI(); }, { threshold: 0.08 }); ADB.io.observe(card); } }
+  const enCrear = S.portal === "admin" && !!document.getElementById("ad-cats") && !!card;
+  const fam = enCrear ? famLocal() : "", lista = enCrear ? ORDEN.filter(id => PROD[id].fam === fam && (AD.carrito[id] || 0) > 0).map(id => ({ p: PROD[id], q: AD.carrito[id] })) : [];
+  const n = lista.reduce((a, x) => a + x.q, 0), ver = enCrear && n > 0 && !ADB.resVis;
+  if (!ver) ADB.sacar = false;
+  b.hidden = !ver; document.body.classList.toggle("con-barra-ad", ver);
+  if (!ver) { if (b.innerHTML) b.innerHTML = ""; return; }
+  const cuenta = `${n} ${n === 1 ? "producto" : "productos"}`, total = lista.reduce((a, x) => a + adPrecio(x.p.id) * x.q, 0);
+  const sacar = ADB.sacar ? `<div class="sacar-pan" role="region" aria-label="Sacar productos del pedido"><div class="sacar-h"><b>Sacar del pedido</b><button type="button" class="link" data-act="adb-sacar">Cerrar</button></div><ul class="sacar-l">${lista.map(x => `<li><span class="sacar-n">${esc(etiqueta(x.p))}<small>${esc(x.p.cat || detalle(x.p))} · ${fmtN(x.q)} en el pedido</small></span><button type="button" class="sacar-b" data-act="ad-menos" data-id="${x.p.id}" aria-label="Sacar 1 ${esc(etiqueta(x.p))}">− 1</button><button type="button" class="sacar-b sacar-x" data-act="ad-quitar" data-id="${x.p.id}" aria-label="Quitar ${esc(etiqueta(x.p))}">Quitar</button></li>`).join("")}</ul></div>` : "";
+  b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${adSinPrecio() ? `${cuenta}<small>en el pedido</small>` : `${clp(total)}<small>${cuenta}</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="adb-sacar" aria-expanded="${ADB.sacar}">${ADB.sacar ? "✕ Cerrar" : "− Sacar"}</button><button type="button" class="btn primario" data-act="adb-revisar">Revisar y crear</button></div></div>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act="adb-sacar"], [data-act="adb-revisar"]'); if (!b) return;
+  if (b.dataset.act === "adb-sacar") { ADB.sacar = !ADB.sacar; adBarraUI(); return; }
+  ADB.sacar = false; const c = document.getElementById("ad-resumen-card"); if (c) { const y = c.getBoundingClientRect().top + scrollY - (typeof bannerH === "function" ? bannerH() : 0) - 10; scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
+});
+new MutationObserver(() => { const b = document.getElementById("barra-ad"); if (b && !b.hidden && !document.getElementById("ad-cats")) adBarraUI(); }).observe(document.body, { childList: true, subtree: true });
 function adCarritoUI() {
   const fam = famLocal();
   adStockPintar();
@@ -11866,13 +12340,16 @@ function adCarritoUI() {
     const o = $("#ad-q-" + id), r = $("#ad-row-" + id), q = AD.carrito[id] || 0;
     if (o) o.textContent = q;
     if (r) r.classList.toggle("on", q > 0);
+    document.querySelectorAll(`[data-adafq="${id}"]`).forEach(e => { e.textContent = q > 0 ? `${q} en el pedido` : ""; });
+    document.querySelectorAll(`[data-adafqw="${id}"]`).forEach(e => { e.hidden = !q; });
     const k = $("#ad-kg-" + id); if (k) k.textContent = q ? `${q} ${q === 1 ? "bolsa" : "bolsas"} = ${fmtL(kgDe({ id, cant: q }))} kg` : "";
   }
   const res = $("#ad-resumen");
   if (res) res.innerHTML = lista.length
-    ? lista.map(x => `<li><span class="q">${x.q}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}${x.p.fam === "papa" ? ` · <b class="it-kg">${fmtL(kgDe({ id: x.p.id, cant: x.q }))} kg</b>` : ""}</small></span><span class="s">${adSinPrecio() ? "" : clp(adPrecio(x.p.id) * x.q)}</span></li>`).join("") + (fam === "papa" && lista.length ? `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtL(lista.reduce((a, x) => a + kgDe({ id: x.p.id, cant: x.q }), 0))} kg</small></span></li>` : "")
-    : `<li class="vacio">Aún no agregas productos. Usa el botón + de cada producto.</li>`;
+    ? lista.map(x => `<li><span class="q">${x.q}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}${x.p.fam === "papa" ? ` · <b class="it-kg">${fmtL(kgDe({ id: x.p.id, cant: x.q }))} kg</b>` : ""}</small></span><span class="s">${adSinPrecio() ? "" : clp(adPrecio(x.p.id) * x.q)}</span><span class="ad-res-acc"><button type="button" class="btn chico suave" data-act="ad-menos" data-id="${x.p.id}" aria-label="Quitar 1 ${esc(etiqueta(x.p))}">− 1</button><button type="button" class="btn chico suave ad-res-x" data-act="ad-quitar" data-id="${x.p.id}" aria-label="Sacar ${esc(etiqueta(x.p))} del pedido">✕ Quitar</button></span></li>`).join("") + (fam === "papa" && lista.length ? `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtL(lista.reduce((a, x) => a + kgDe({ id: x.p.id, cant: x.q }), 0))} kg</small></span></li>` : "")
+    : `<li class="vacio">Aún no agregas productos. Toca la foto de cada producto para agregarlo.</li>`;
   adPintarVacios();
+  adBarraUI();
   const cargo = adLoc() === "agua" ? adCargo() : 0;
   if (res && cargo && !adSinPrecio()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
   const netoA = lista.reduce((a, x) => a + adPrecio(x.p.id) * x.q, 0), cA = AD.nuevo ? { tipo: AD.tipoNuevo } : adCliente(), ivaA = ivaAplicaCli(cA) ? ivaIncDe(netoA) : 0;
@@ -11962,7 +12439,7 @@ async function crearPedidoAdmin(btn) {
       fechaEntrega: fecha, horario: `${desde}–${hasta}`, pago: cli.pagoFijo || pagoFijoDe(cli.id) || pago, nota, items: its, ...(adLoc() === "agua" ? { bidones: adBidonesDoc() } : {}),
       total: Math.max(0, itSub(its) + 0 + (adLoc() === "agua" ? adCargo() : 0)), ...(ivaAplicaCli(cli) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       estado: "pendiente", repartidorId: "", repartidorNombre: "", creado: Date.now(), tomado: 0, entregado: 0,
-      origen: esRep ? "repartidor" : "admin", local: adLoc(), creadoPor: adm.id
+      origen: esRep ? "repartidor" : "admin", local: adLoc(), creadoPor: adm.id, ...(AD.local === "agp" && (document.getElementById("ad-sinbol") || {}).checked ? { sinBoleta: true, conIva: false } : {})
     }));
     for (const x of lista) delete AD.carrito[x.p.id];
     AD.clienteId = ""; AD.nuevo = false; AD.dev = {}; AD.devTocado = {};
@@ -13280,6 +13757,9 @@ document.addEventListener("click", e => {
     const k = b.dataset.k; S.ses[k] = null; guardarSesion(); if (k === "pos") POS.noAuto = true; if (k === "prueba") PRB.noAuto = true; if (k === "pizzas") { PZZ.noAuto = true; PZZ.f = {}; PZZ.menuAbierto = false; }
     if (k === "cliente") { S.carrito = {}; S.confirmar = null; S.editando = false; S.editPedido = null; S.repCli = null; S.pagoAuth = null; S.pagoAuthTab = "entrar"; }
     renderView(); window.scrollTo(0, 0);
+  } else if (a === "cli-inicio") {
+    /* Clientes › Inicio: página con todos los íconos de la barra inferior. */
+    S.todosPos = null; cambiarCliTab("inicio"); window.scrollTo({ top: 0, behavior: "smooth" });
   } else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "fdc-carro") { cambiarCliTab("nuevo"); const e = $("#entrega"); if (e && carritoLista().length) e.scrollIntoView({ block: "start", behavior: "smooth" }); else { toast("Tu pedido está vacío: agrega productos con +."); const t = $("#cli2-todos"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } }
   else if (a === "cfd-v") { CFD.v = b.dataset.v; try { localStorage.setItem("pya.cfdv", CFD.v); } catch (_) {} renderView(); }
@@ -13312,10 +13792,13 @@ document.addEventListener("click", e => {
     const el = document.getElementById(b.dataset.to);
     if (el) el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   } else if (a === "agua-tab" || a === "papas-tab") {
-    if (a === "agua-tab") { if (S.portal === "agua" && !tabsAguaUsu().some(([k]) => k === b.dataset.t)) return; AG.tab = b.dataset.t; } else PP.tab = b.dataset.t;
-    document.querySelectorAll(`[data-act="${a}"]`).forEach(x => x.setAttribute("aria-selected", String(x === b)));
+    if (a === "agua-tab") { if (S.portal === "agua" && b.dataset.t !== "perfil" && !tabsAguaUsu().some(([k]) => k === b.dataset.t)) return; AG.tab = b.dataset.t; } else PP.tab = b.dataset.t;
+    document.querySelectorAll(`[data-act="${a}"]:not(.pf-volver)`).forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === b.dataset.t)));
+    if (a === "papas-tab") PP.menuCerrado = b.closest(".pa-main-tabs") ? true : undefined; /* Local papas: al elegir una sección queda solo ese botón y «Volver». */
     if (a === "agua-tab") renderAguaPanel(); else renderPapasPanel();
-  } else if (a === "agua-tipo") { AG.tipo = b.dataset.t; renderAguaPanel(); }
+    if (a === "papas-tab") paMenuAplicar();
+  } else if (a === "pa-menu") { PP.menuCerrado = false; paMenuAplicar(); }
+  else if (a === "agua-tipo") { AG.tipo = b.dataset.t; renderAguaPanel(); }
   else if (a === "cnt-mas" || a === "cnt-menos") {
     const pend = pendDe(b.dataset.ns);
     cambiarContador(b.dataset.ns, id, (pend[id] || 0) + (a === "cnt-mas" ? 1 : -1), true);
@@ -13386,7 +13869,8 @@ document.addEventListener("click", e => {
   else if (a === "pv-q") { const q = Number(b.dataset.q); PV.q = q === 0 ? 0 : Math.max(0, Math.min(9999, PV.q + q)); pintarPV(); }
   else if (a === "pv-enviar") enviarPedidoProv();
   else if (a === "pv-pagof") { PV.pagoF = b.dataset.g; renderProvPanel(); }
-  else if (a === "pv-adtab") { PV.adTab = b.dataset.t; document.querySelectorAll('[data-act="pv-adtab"]').forEach(x => x.setAttribute("aria-selected", String(x === b))); renderProvPanel(); }
+  else if (a === "pv-adtab") { if (PV.adTab !== "perfil") PV.tabPrev = PV.adTab; PV.adTab = b.dataset.t; document.querySelectorAll('[data-act="pv-adtab"]:not(.pf-volver)').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === PV.adTab))); renderProvPanel(); }
+  else if (a === "pv-inicio") { PV.adTab = "inicio"; colapGrids().forEach(g => { delete COLAP[colapClave(g)]; }); document.querySelectorAll('[data-act="pv-adtab"]:not(.pf-volver)').forEach(x => x.setAttribute("aria-selected", "false")); renderProvPanel(); colapAplicar(); window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "pv-filtro") { PV.filtro = b.dataset.p; renderProvPanel(); }
   else if (a === "pv-g") { PV.g = b.dataset.g; renderProvPanel(); }
   else if (a === "pv-mover") { PV.ref = moverPeriodo(PV.g, PV.ref, Number(b.dataset.d)); renderProvPanel(); }
@@ -13414,7 +13898,13 @@ document.addEventListener("click", e => {
   else if (a === "usu-del") { US.tab = b.dataset.c; US.del = id; US.edit = ""; renderUsuarios(); }
   else if (a === "usu-del-no") { US.del = ""; renderUsuarios(); }
   else if (a === "usu-del-si") { US.tab = b.dataset.c; eliminarUsuario(id, b); }
-  else if (a === "usu-bar") { window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else if (a === "usu-bar") {
+    /* Administrador: tocar el nombre del usuario abre su perfil. */
+    if (S.portal === "admin" && S.ses.admin) { if (AD.local !== "perfil") AD.perfilPrev = AD.local; AD.local = "perfil"; AD.menuCerrado = true; renderView(); }
+    if (S.portal === "cliente" && S.ses.cliente) cambiarCliTab("perf"); /* Clientes: tocar el nombre abre el perfil. */
+    if (S.portal === "papas" && S.ses.papas) { if (PP.tab !== "perfil") PP.tabPrev = PP.tab; PP.tab = "perfil"; INI.papas = false; delete BARSEC.papas; document.querySelectorAll('[data-act="papas-tab"]:not(.pf-volver)').forEach(x => x.setAttribute("aria-selected", "false")); renderPapasPanel(); }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   else if (a === "usu-pag") { US.pag = b.dataset.p; US.edit = ""; US.del = ""; renderUsuarios(); }
   else if (a === "usu-tipo") { US.tipo = b.dataset.v; renderUsuarios(); }
   else if (a === "usu-posloc") { US.posLoc = b.dataset.v || ""; renderUsuarios(); }
@@ -13784,7 +14274,7 @@ document.addEventListener("click", e => {
   else if (a === "ad-test") { AD.tEst = b.dataset.v; renderAdminPanel(); }
   else if (a === "ad-menu") { AD.menuCerrado = false; renderView(); window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "ad-portales") { S.verPortales = false; AD.ocultarPortales = !AD.ocultarPortales; renderHeader(); b.setAttribute("aria-pressed", String(!AD.ocultarPortales)); b.textContent = AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"; }
-  else if (a === "ad-local") { const L = b.dataset.l; AD.menuCerrado = true; AD.agpFicha = "";
+  else if (a === "ad-local") { const L = b.dataset.l; AD.menuCerrado = L !== "inicio"; AD.agpFicha = "";
     if (L === "usu") { US.pag = "todos"; US.edit = ""; US.del = ""; US.crear = false; }
     if (L === "agp") { AD.tab = "crear"; AD.clienteId = ""; AD.nuevo = false; AD.cliQ = ""; }
     if (L === "pper") { SUEL.ref = hoy(); SUEL.mesVisto = hoy().slice(0, 7); } if (L === "pag" || L === "pper") { TPG.per = "dia"; TPG.ref = hoy(); TPG.dper = "dia"; TPG.dref = hoy(); TPG.est = "pend"; TPG.forma = ""; }
@@ -13797,7 +14287,7 @@ document.addEventListener("click", e => {
     if (L === "utfsm") { AUT.q = ""; AUT.por = ""; }
     if (L === "ploc") { PLOC.per = "semana"; PLOC.ref = hoy(); PLOC.wa = ""; PLOC.tipo = "loc"; PLOC.q = ""; PLOC.sel = []; try { localStorage.setItem("pya.plocTipo", "loc"); } catch (_) {} }
     if (L === "posad") { POS.tab = "vender"; POS.cliSub = "capt"; POS.fLoc = ""; POS.per = "dia"; POS.ref = hoy(); }
-    if (L === "prov") { PV.adTab = "ingreso"; PV.crear = false; } AD.local = b.dataset.l; document.body.dataset.local = AD.local; renderView(); }
+    if (L === "prov") { PV.adTab = "ingreso"; PV.crear = false; } if (L === "perfil" && AD.local !== "perfil") AD.perfilPrev = AD.local; AD.local = b.dataset.l; document.body.dataset.local = AD.local; renderView(); }
   else if (a === "agp-nuevo") { AD.agpFicha = ""; AD.tab = "crear"; renderView(); window.scrollTo(0, 0); }
   else if (a === "agp-loc") { AD.agpFicha = ""; const v = b.dataset.v === "papas" ? "papas" : "agua"; if (v === (AD.agpLoc === "papas" ? "papas" : "agua")) return; AD.agpLoc = v; AD.carrito = {}; AD.dev = {}; AD.devTocado = {}; AD.tab = "crear"; renderView(); }
   else if (a === "ad-vtab") { const L = b.dataset.t; if (L === AD.local) return; if (L === "graf") { GV.ref = hoy(); } else if (L === "vloc") { VLOC.per = "dia"; VLOC.ref = hoy(); } else if (L === "ped") { TP.per = "dia"; TP.ref = hoy(); } else { TPG.per = "dia"; TPG.ref = hoy(); TPG.dper = "dia"; TPG.dref = hoy(); TPG.est = "pend"; TPG.forma = ""; } AD.local = L; document.body.dataset.local = AD.local; renderView(); }
@@ -13827,6 +14317,7 @@ document.addEventListener("click", e => {
     const q = Math.max(0, Math.min(999, (AD.carrito[id] || 0) + (a === "ad-mas" ? 1 : -1)));
     if (q) AD.carrito[id] = q; else delete AD.carrito[id];
     adCarritoUI();
+  } else if (a === "ad-quitar") { const p = PROD[id]; delete AD.carrito[id]; adCarritoUI(); if (p) toast(`Sacaste ${etiqueta(p)} del pedido.`);
   } else if (a === "ad-crear") crearPedidoAdmin(b);
   else if (a === "ad-cli-guardar") adGuardarCliente(b);
   else if (a === "ad-per") { AD.per = b.dataset.g; renderAdminPanel(); }
@@ -13869,8 +14360,12 @@ document.addEventListener("click", e => {
   else if (a === "cancelar-no") { S.confirmar = null; renderListas(); }
   else if (a === "cancelar-si") cancelarPedido(id, b);
   else if (a === "rep-tab") {
+    if (S.repTab !== "perfil") S.repTabPrev = S.repTab;
     S.repTab = b.dataset.t;
-    document.querySelectorAll('[data-act="rep-tab"]').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === S.repTab)));
+    document.querySelectorAll('[data-act="rep-tab"]:not(.pf-volver)').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === S.repTab)));
+    const rp = $("#rep-perfil"); if (rp) rp.innerHTML = S.repTab === "perfil" ? perfilHTML("repartidor") : "";
+    perfilMarcar();
+    if (S.repTab === "perfil") { window.scrollTo(0, 0); return; }
     renderListas();
   } else if (a === "dia") { S.repFecha = S.tomarTodos ? S.repFecha : moverPeriodo(S.tomarPer || "dia", S.repFecha, Number(b.dataset.d)); renderListas(); }
   else if (a === "tomar-per") { S.tomarPer = b.dataset.g; S.tomarTodos = false; renderListas(); }
@@ -14483,6 +14978,8 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   guardarSesion();
   if (cambio) renderView();
 })();
+/* Deja disponibles para el bloque «Cambios 10-11» (otro <script>) las variables y funciones de la app que usa. */
+[["$", () => $], ["AD", () => AD], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
 })();
 </script>
 
@@ -14496,7 +14993,7 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   const btn = document.createElement("button");
   btn.type = "button"; btn.id = "respaldo-btn"; btn.hidden = true;
   btn.textContent = "Descargar respaldo";
-  btn.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:9999;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface,#fff);color:var(--ink,#000);font:inherit;font-weight:700;box-shadow:0 8px 20px -12px rgb(0 0 0 / .5);cursor:pointer";
+  btn.style.cssText = "position:fixed;left:12px;bottom:calc(110px + env(safe-area-inset-bottom,0px));z-index:9999;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface,#fff);color:var(--ink,#000);font:inherit;font-weight:700;box-shadow:0 8px 20px -12px rgb(0 0 0 / .5);cursor:pointer";
   document.body.appendChild(btn);
   const ver = () => { btn.hidden = !(esAdmin() && location.hash.slice(1) === "admin") && !btn.dataset.ocupado; };
   ver(); setInterval(ver, 1500); addEventListener("hashchange", ver);
@@ -14547,6 +15044,353 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
     } catch (e) { alert("No se pudo generar el respaldo: " + ((e && (e.code || e.message)) || e)); }
     finally { delete btn.dataset.ocupado; btn.disabled = false; btn.textContent = "Descargar respaldo"; ver(); }
   });
+})();
+</script>
+<style id="v1110-css">
+/* Sin botones de título: la sección elegida queda como su propio botón junto a «Volver», ambos del mismo tamaño que los demás. */
+body:not([data-portal="cliente"]):not([data-portal="cfd"]) .ini-row{display:none!important}
+.tabs.cv-uno.cv-uno.cv-uno>.cv-volver.nav-volver{min-width:0}
+/* Clientes: «Volver» y la sección abierta como dos fichas iguales a las de la página Inicio. */
+#cli-sec-tit .ini-row.ini-row,#cli-sec-tit .ini-row.ini-row[hidden]{display:none!important}
+#cli-sec-tit .ini-row.ini-row[hidden]{display:none!important}
+#cli-sec-tit .ini-row>.nav-volver,#cli-sec-tit .ini-row>.ini-tit{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;width:auto;min-height:96px;margin:0!important;padding:10px 6px;border-radius:14px;font:inherit;font-size:.86rem;font-weight:700;text-align:center;line-height:1.15}
+#cli-sec-tit .ini-row>.nav-volver{border:1px solid var(--line);background:var(--surface-2);color:var(--ink)}
+#cli-sec-tit .ini-row>.ini-tit .rep-ti{position:static}
+#cli-sec-tit .ini-row>.nav-volver svg,#cli-sec-tit .ini-row>.ini-tit svg{width:30px;height:30px}
+/* Página de inicio: grupo «Barra inferior» con los mismos botones de la barra de abajo. */
+main #bi-grp.bi-grp.bi-grp:not([hidden]){display:block!important}
+main #bi-grp[hidden]{display:none!important}
+#bi-grp{margin:14px 0 6px}
+#bi-grp .bi-h{margin:0 0 8px;font-size:.95rem;font-weight:800;letter-spacing:.02em;color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--line)}
+#bi-grp.bi-uno .bi-h{display:none}
+#bi-grp .bi-tabs>.bi-volver{display:none!important}
+#bi-grp.bi-uno .bi-tabs>button:not(.bi-sel):not(.bi-volver){display:none!important}
+#bi-grp.bi-uno .bi-tabs>.bi-volver{display:flex!important;background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+#bi-grp.bi-uno .bi-tabs>.bi-volver .rep-ti{color:#2563eb}
+#bi-grp .bi-tabs>button.bi-sel{background:var(--ink);color:var(--bg)}
+#bi-grp .bi-tabs>button .rep-ti{display:grid;place-items:center}
+#bi-grp .bi-tabs>button .rep-ti svg{width:26px;height:26px}
+#bi-grp .bi-tabs>button.bi-salir,#bi-grp .bi-tabs>button.bi-salir .rep-ti{color:#dc2626}
+#bi-grp .bi-tabs>button.bi-osc .rep-ti{color:#6366f1}
+/* Venta sin boleta / factura */
+.sb-op{display:flex;gap:10px;align-items:flex-start;margin:10px 0 4px;padding:10px 12px;border-radius:12px;background:var(--surface-2,rgba(0,0,0,.04));cursor:pointer}
+.sb-op input{width:20px;height:20px;flex:none;margin:2px 0 0}
+.sb-op b{display:block}.sb-op small{display:block;color:var(--muted);font-size:.8rem}
+.sb-des{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.sb-tag{display:inline-block;padding:2px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:.78rem;font-weight:700}
+/* Carrusel de fotos de Clientes: una foto a la vez y paso suave. */
+.afi-track .afi-slide{scroll-snap-stop:always;transform-origin:center;will-change:transform,opacity}
+/* Combustible */
+.comb-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+.comb-form .campo{margin:0}
+.comb-form .acciones{grid-column:1/-1;margin:0}
+@media(max-width:520px){.comb-form{grid-template-columns:1fr 1fr}.comb-form .comb-f{grid-column:1/-1}}
+.comb-res{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+@media(min-width:760px){.comb-res{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.comb-res>div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface);display:grid;gap:2px}
+.comb-res small{color:var(--muted);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.comb-res b{font-size:1.25rem}
+.comb-res .comb-dest{border-color:#0e7490;background:color-mix(in srgb,#0e7490 7%,var(--surface))}
+.comb-tbl td small{display:block;color:var(--muted);font-size:.76rem}
+.comb-cur{display:inline-block;margin-top:2px;padding:1px 8px;border-radius:999px;background:#e0f2fe;color:#075985;font-size:.72rem;font-weight:700}
+.comb-del{color:#b91c1c}
+main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
+.tabs.bi-ini ~ *:not(.ad-barra):not(#barra-ad){display:none!important}
+</style>
+<script>
+/* ===== Cambios 10-11: barra inferior, «Barra inferior» en la página de inicio, sin títulos, combustible, etc. ===== */
+(() => {
+  const PORTALES_BI = { agua: ".ag-barra", papas: ".pa-barra", repartidor: ".rep-barra", prov: ".pv-barra", admin: "nav.ad-barra" };
+  const VOLVER_SVG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+  const esInicioBar = b => b.classList.contains("bar-inicio") || b.dataset.act === "pv-inicio" || b.dataset.act === "ini-portal" || (b.dataset.act === "ad-local" && b.dataset.l === "inicio");
+  const barBtns = bar => [...bar.children].filter(x => x.tagName === "BUTTON" && !esInicioBar(x) && !x.classList.contains("pc-carr"));
+  const txtDe = b => ((b.querySelector(".rep-tt") || b).textContent || "").replace(/\s+/g, " ").trim();
+  const icoDe = b => { const r = b.querySelector(".rep-ti"); if (r && r.innerHTML.trim()) return r.innerHTML; const s = b.querySelector("svg, img"); return s ? s.outerHTML : ""; };
+  const enInicio = k => {
+    if (typeof perfilAbierto === "function" && perfilAbierto()) return false;
+    if (k === "admin") return AD.local === "inicio";
+    if (k === "prov") return PV.adTab === "inicio";
+    return !!INI[k];
+  };
+  let ocupado = false;
+  function biAplicar() {
+    const k = S.portal, selBar = PORTALES_BI[k];
+    const viejo = document.getElementById("bi-grp");
+    const bar = selBar && document.querySelector("main " + selBar + ", " + selBar);
+    const d = INI_TIT[k], t = d && document.querySelector("main " + d[0]);
+    if (!bar || !t) { if (viejo) viejo.remove(); return; }
+    let g = viejo;
+    if (!g) { g = document.createElement("section"); g.id = "bi-grp"; g.className = "bi-grp"; g.innerHTML = `<h3 class="bi-h">Barra inferior</h3><div class="tabs rep-tabs ico-tabs bi-tabs" role="group" aria-label="Barra inferior"></div>`; }
+    if (g.previousElementSibling !== t) t.after(g);
+    const grid = g.querySelector(".bi-tabs"), bs = barBtns(bar);
+    const firma = bs.map(b => txtDe(b)).join("|");
+    if (grid.dataset.firma !== firma) {
+      grid.dataset.firma = firma;
+      grid.innerHTML = `<button type="button" class="bi-volver" data-bi="volver"><span class="rep-ti" aria-hidden="true">${VOLVER_SVG}</span><span class="rep-tt">Volver</span></button>` +
+        bs.map((b, i) => { const sal = b.dataset.act === "salir", osc = b.dataset.act === "ad-oscuro"; return `<button type="button" class="bi-b${sal ? " bi-salir" : ""}${osc ? " bi-osc" : ""}" data-bi="${i}"><span class="rep-ti" aria-hidden="true">${icoDe(b)}</span><span class="rep-tt">${esc(txtDe(b))}</span></button>`; }).join("");
+    }
+    /* Estado: elegido / modo oscuro como en la barra. */
+    const clones = [...grid.querySelectorAll("button[data-bi]:not(.bi-volver)")];
+    let selI = -1;
+    clones.forEach(c => { const o = bs[Number(c.dataset.bi)]; if (!o) return; const sel = o.getAttribute("aria-selected") === "true"; if (sel && selI < 0) selI = Number(c.dataset.bi); const pr = o.getAttribute("aria-pressed"); if (pr !== null && c.getAttribute("aria-pressed") !== pr) c.setAttribute("aria-pressed", pr); });
+    const enBarSec = !!BARSEC[k] && selI >= 0;
+    clones.forEach(c => { const on = enBarSec && Number(c.dataset.bi) === selI; if (c.classList.contains("bi-sel") !== on) c.classList.toggle("bi-sel", on); });
+    const ver = enBarSec || enInicio(k);
+    if (g.hidden === ver) g.hidden = !ver;
+    if (g.classList.contains("bi-uno") !== enBarSec) g.classList.toggle("bi-uno", enBarSec);
+  }
+  /* Columnas de cada grilla de secciones: al quedar solo la sección elegida y «Volver», se mantienen del mismo tamaño que en la página de inicio. */
+  const COLS = {};
+  const colsClave = el => S.portal + ":" + (el.classList.contains("local-switch") ? "menu" : ((el.querySelector("button[data-act]") || {}).dataset || {}).act || "x");
+  function colsAplicar() {
+    document.querySelectorAll("main .tabs.rep-tabs, main .local-switch").forEach(el => {
+      if (el.id === "bi-grp" || el.classList.contains("bi-tabs") || el.classList.contains("pc-on")) return;
+      const uno = el.classList.contains("cv-uno") || el.classList.contains("ls-uno"), key = colsClave(el);
+      if (!uno && el.offsetParent !== null) { const cs = getComputedStyle(el); if (cs.display === "grid") { const n = cs.gridTemplateColumns.split(" ").filter(Boolean).length; if (n > 1) COLS[key] = n; } }
+      if (uno && !COLS[key] && el.offsetParent !== null) {
+        const cl = el.classList.contains("cv-uno") ? "cv-uno" : "ls-uno";
+        el.classList.remove(cl); const cs = getComputedStyle(el); const n = cs.display === "grid" ? cs.gridTemplateColumns.split(" ").filter(Boolean).length : 0; el.classList.add(cl);
+        if (n > 1) COLS[key] = n;
+      }
+      const n = COLS[key] || (el.classList.contains("local-switch") ? 2 : 3);
+      if (el.style.getPropertyValue("--bi-n") !== String(n)) el.style.setProperty("--bi-n", String(n));
+    });
+  }
+  /* «Barra inferior» de la página de inicio: cada botón hace lo mismo que el de la barra. «Volver» lleva a la página de inicio. */
+  const irInicio = () => { const s = NAV_INICIO[S.portal]; const b = s && document.querySelector(s); if (b) b.click(); };
+  window.addEventListener("click", e => {
+    const c = e.target.closest && e.target.closest("#bi-grp button[data-bi]");
+    if (c) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      if (c.dataset.bi === "volver") { irInicio(); return; }
+      const bar = document.querySelector(PORTALES_BI[S.portal]); const o = bar && barBtns(bar)[Number(c.dataset.bi)];
+      if (o) o.click();
+      return;
+    }
+    /* «Volver» sin historial: vuelve a la página de inicio. */
+    const v = e.target.closest && e.target.closest(".nav-volver");
+    if (v && NAV_INICIO[S.portal] && (NAVH[S.portal] || []).length < 2) { e.preventDefault(); e.stopImmediatePropagation(); irInicio(); return; }
+    /* Tocar el nombre del usuario abre su perfil (Local agua, Repartidores y Proveedores). */
+    const u = e.target.closest && e.target.closest("#usu-bar");
+    if (u) {
+      const k = S.portal, act = { agua: "agua-tab", repartidor: "rep-tab", prov: "pv-adtab" }[k];
+      if (act && S.ses[k]) { const b = document.createElement("button"); b.type = "button"; b.hidden = true; b.setAttribute("role", "tab"); b.dataset.act = act; b.dataset.t = "perfil"; (document.querySelector("main") || document.body).appendChild(b); try { b.click(); } finally { b.remove(); } }
+    }
+    /* Administrador: al entrar a una sección del menú se muestran sus botones sin ninguno elegido. */
+    const m = e.target.closest && e.target.closest('.local-switch [data-act="ad-local"]');
+    if (m && m.dataset.l && !["inicio", "perfil"].includes(m.dataset.l)) ADSUB_INI = m.dataset.l;
+  }, true);
+  /* Secciones dentro de secciones (p. ej. Local papas › Punto de venta › Captación clientes): una sola fila con «Volver» y el botón de la sección actual. */
+  const SUBINI = {};
+  const visCol = g => g.offsetParent !== null || g.classList.contains("bi-sub-ocu");
+  function subAplicar() {
+    const k = S.portal;
+    const gs = typeof colapGrids === "function" ? colapGrids() : [];
+    const unos = gs.filter(g => g.classList.contains("cv-uno") && visCol(g));
+    const outer = unos.length > 1 ? unos[0] : null, inner = outer ? unos[unos.length - 1] : null;
+    gs.forEach(g => { const oc = !!outer && g !== outer && unos.includes(g); if (g.classList.contains("bi-sub-ocu") !== oc) g.classList.toggle("bi-sub-ocu", oc); if (oc) { if (g.style.getPropertyValue("display") !== "none") g.style.setProperty("display", "none", "important"); } else if (g.style.getPropertyValue("display") === "none") g.style.removeProperty("display"); });
+    const oSel = outer && outer.querySelector(':scope > button[aria-selected="true"]:not(.cv-volver)');
+    const iSel = inner && inner.querySelector(':scope > button[aria-selected="true"]:not(.cv-volver)');
+    document.querySelectorAll("button[data-bi-orig]").forEach(b => { if (b !== oSel || !iSel) { b.innerHTML = b.dataset.biOrig; delete b.dataset.biOrig; delete b.dataset.biSub; } });
+    if (oSel && iSel) {
+      const ti = (iSel.querySelector(".rep-ti") || {}).innerHTML || "", tt = ((iSel.querySelector(".rep-tt") || iSel).textContent || "").replace(/\s+/g, " ").trim();
+      const h = `<span class="rep-ti" aria-hidden="true">${ti}</span><span class="rep-tt">${esc(tt)}</span>`;
+      if (oSel.dataset.biOrig === undefined) oSel.dataset.biOrig = oSel.innerHTML;
+      if (oSel.dataset.biSub !== tt) { oSel.innerHTML = h; oSel.dataset.biSub = tt; }
+    }
+    /* Tras «Volver» desde una sub sección: sus botones sin ninguno elegido. */
+    let tras = false;
+    gs.forEach(g => {
+      if (g.classList.contains("cv-uno") && visCol(g)) { tras = true; if (g.classList.contains("bi-ini")) g.classList.remove("bi-ini"); return; }
+      const on = !!SUBINI[k] && tras && g.offsetParent !== null;
+      if (g.classList.contains("bi-ini") !== on) g.classList.toggle("bi-ini", on);
+      if (on) g.querySelectorAll(':scope > button[aria-selected="true"]').forEach(x => x.setAttribute("aria-selected", "false"));
+    });
+  }
+  window.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("button"); if (!b) return;
+    if (b.classList.contains("nav-volver") && document.querySelector(".bi-sub-ocu")) SUBINI[S.portal] = true;
+    else if (b.closest(".tabs.bi-ini") || (b.closest(".ad-barra") || b.dataset.act === "ini-portal")) delete SUBINI[S.portal];
+  }, true);
+  let pend = false;
+  function todo() {
+    pend = false; if (ocupado) return; ocupado = true;
+    try { biAplicar(); subAplicar(); colsAplicar(); sbAplicar(); } catch (err) { console.warn("v1110", err); }
+    finally { ocupado = false; }
+  }
+  const pedir = () => { if (!pend) { pend = true; requestAnimationFrame(todo); } };
+  new MutationObserver(m => { if (!ocupado) pedir(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-selected", "aria-pressed", "class"] });
+  addEventListener("resize", () => { Object.keys(COLS).forEach(k => delete COLS[k]); pedir(); });
+
+  /* ---------- Agregar pedido: venta sin boleta / factura ---------- */
+  window.SB_AGP = false; let sbFicha = AD.agpFicha;
+  function sbAplicar() {
+    if (AD.agpFicha && AD.agpFicha !== sbFicha) { sbFicha = AD.agpFicha; window.SB_AGP = false; }
+    const pago = document.querySelector('#admin-panel input[name="ad-pago"]');
+    const ya = document.getElementById("ad-sinbol");
+    if (!(S.portal === "admin" && AD.local === "agp") || !pago) { if (ya) ya.closest(".sb-op").remove(); return; }
+    if (ya) { if (ya.checked !== !!window.SB_AGP) ya.checked = !!window.SB_AGP; return; }
+    const fs = pago.closest("fieldset") || pago.closest(".campo"); if (!fs) return;
+    fs.insertAdjacentHTML("afterend", `<label class="sb-op"><input type="checkbox" id="ad-sinbol" ${window.SB_AGP ? "checked" : ""}><span><b>Venta sin boleta / factura</b><small>En el detalle del pedido aparece solo el precio final, sin IVA.</small></span></label>`);
+  }
+  document.addEventListener("change", e => { if (e.target && e.target.id === "ad-sinbol") window.SB_AGP = e.target.checked; });
+  try { const _iva = ivaLineHTML;
+  ivaLineHTML = function (p, neto) {
+    if (p && p.sinBoleta) { const n = Math.round(Number(neto) || 0); return `<p class="iva-des sb-des"><span class="sb-tag">Venta sin boleta / factura</span>${n ? `<span class="iva-t">Precio final <b>${clp(n)}</b></span>` : ""}</p>`; }
+    return _iva(p, neto);
+  }; } catch (er) { console.warn("iva", er); }
+
+  /* ---------- Pago reparto extra: agua a $20 por litro y papas a $40 por kilo ---------- */
+  const PAGO_LT_AGUA = 20, PAGO_KG_PAPA = 40;
+  try { const _sem = semanaRep;
+  semanaRep = function (u, lunes) {
+    const w = _sem(u, lunes), kg = (w.lt || 0) + (w.kgp || 0), extra = Math.max(0, kg - UMBRAL_KG_SEM);
+    const valor = (w.lt || 0) * PAGO_LT_AGUA + (w.kgp || 0) * PAGO_KG_PAPA;
+    w.extra = extra; w.pago = kg > 0 && extra > 0 ? Math.round(extra * valor / kg) : 0;
+    return w;
+  }; } catch (er) { console.warn("semanaRep", er); }
+  try { const _mp = misPagosHTML;
+  misPagosHTML = function () {
+    let h = _mp.apply(this, arguments);
+    h = h.split(` × ${clp(PAGO_KG_ENTREGA)}`).join(` (agua ${clp(PAGO_LT_AGUA)}/L · papas ${clp(PAGO_KG_PAPA)}/kg)`);
+    h = h.replace(/<p class="muted nota-disp">El pago es semanal:[\s\S]*?<\/p>/, `<p class="muted nota-disp">El pago es semanal: se suman los litros de agua y los kilos de papas entregados de lunes a domingo. Si en la semana pasas de ${fmtN(UMBRAL_KG_SEM)} (litros + kilos), lo que pasa de ${fmtN(UMBRAL_KG_SEM)} se paga a ${clp(PAGO_LT_AGUA)} por litro de agua y ${clp(PAGO_KG_PAPA)} por kilo de papas, en la misma proporción de agua y papas que repartiste esa semana. En la vista por día se muestra el pago de la semana a la que pertenece ese día; en mes y año se suman las semanas que terminan dentro del período.</p>`);
+    return h;
+  }; } catch (er) { console.warn("misPagos", er); }
+
+  /* ---------- Carrusel de fotos de Clientes: paso suave con aceleración, y las fotos de los lados se achican un poco. ---------- */
+  const afiAnim = new WeakMap();
+  const easeIO = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  function afiMover(t, dest) {
+    const prev = afiAnim.get(t); if (prev) cancelAnimationFrame(prev.id);
+    const ini = t.scrollLeft, dist = dest - ini; if (Math.abs(dist) < 1) return;
+    const dur = Math.min(650, 380 + Math.abs(dist) / Math.max(1, t.clientWidth) * 120), t0 = performance.now();
+    t.style.scrollSnapType = "none";
+    const paso = now => {
+      const x = Math.min(1, (now - t0) / dur); t.scrollLeft = ini + dist * easeIO(x);
+      if (x < 1) afiAnim.set(t, { id: requestAnimationFrame(paso) });
+      else { afiAnim.delete(t); t.style.scrollSnapType = ""; if (typeof afiAjustar === "function") setTimeout(() => afiAjustar(t), 30); }
+    };
+    afiAnim.set(t, { id: requestAnimationFrame(paso) });
+  }
+  try { if (typeof afiIr === "function") afiIr = function (car, i, rel) {
+    const t = car && car.querySelector(".afi-track"); if (!t || !t.children.length) return;
+    const off = t.dataset.loop ? 1 : 0, n = afiN(t);
+    let k = rel ? afiRaw(t) + i : i + off;
+    if (!off) k = ((k % n) + n) % n; else k = Math.max(0, Math.min(n + 1, k));
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { t.scrollTo({ left: t.children[k].offsetLeft - t.children[0].offsetLeft }); return; }
+    afiMover(t, t.children[k].offsetLeft - t.children[0].offsetLeft);
+  }; } catch (er) { console.warn("afiIr", er); }
+  const afiPint = new WeakMap();
+  function afiEfecto(t) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const w = Math.max(1, t.clientWidth), c = t.scrollLeft + w / 2;
+    for (const s of t.children) {
+      const m = s.offsetLeft - t.children[0].offsetLeft + s.offsetWidth / 2, d = Math.min(1, Math.abs(m - c) / w);
+      const tr = d < .005 ? "" : `scale(${(1 - .07 * d).toFixed(3)})`, op = d < .005 ? "" : (1 - .35 * d).toFixed(3);
+      if (s.style.transform !== tr) s.style.transform = tr;
+      if (s.style.opacity !== op) s.style.opacity = op;
+    }
+  }
+  document.addEventListener("scroll", e => { const t = e.target; if (!(t && t.classList && t.classList.contains("afi-track"))) return; if (afiPint.get(t)) return; afiPint.set(t, true); requestAnimationFrame(() => { afiPint.delete(t); afiEfecto(t); }); }, true);
+
+  /* ---------- Repartidores › Combustible ---------- */
+  const CB = { docs: [], sub: false, cargado: false, del: "", msg: "" };
+  function subComb() {
+    if (CB.sub || !S.db) return; CB.sub = true;
+    S.db.collection("combustible").limit(3000).onSnapshot(s => { CB.docs = s.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CB.cargado = true; if (S.repTab === "comb") combPintar(); }, e => { CB.cargado = true; console.warn("combustible", e); if (S.repTab === "comb") combPintar(); });
+  }
+  const combAdmin = () => S.portal === "admin" && !!S.ses.admin;
+  const combYo = () => { const r = typeof repUsuario === "function" ? repUsuario() : null; return r || S.ses.repartidor || null; };
+  function kmPorDia(rid) {
+    const m = new Map(); let lista = [];
+    try { if (typeof subKmGps === "function") subKmGps(); lista = typeof kmDiasMix === "function" ? kmDiasMix() : kmDias(); } catch (_) { lista = []; }
+    for (const x of lista) { if (rid && x.rid !== rid && x.rid !== "furgon") continue; m.set(x.f, (m.get(x.f) || 0) + (Number(x.km) || 0)); }
+    return m;
+  }
+  function combCalc(cargas, rid) {
+    const km = kmPorDia(rid), h = hoy();
+    const ord = cargas.slice().sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)) || (Number(a.creado) || 0) - (Number(b.creado) || 0));
+    return ord.map((c, i) => {
+      const sig = ord.slice(i + 1).find(x => x.fecha > c.fecha), hasta = sig ? sig.fecha : null;
+      let k = 0; for (const [f, v] of km) if (f >= c.fecha && (hasta ? f < hasta : f <= h)) k += v;
+      const lt = Number(c.litros) || 0;
+      return Object.assign({}, c, { km: k, cerrada: !!hasta, hasta, rend: lt > 0 && k > 0 ? k / lt : 0, ppl: lt > 0 ? (Number(c.monto) || 0) / lt : 0 });
+    });
+  }
+  const f1 = n => (Math.round(n * 10) / 10).toLocaleString("es-CL", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  function combHTML(soloDatos) {
+    subComb();
+    const adm = combAdmin(), yo = combYo();
+    if (!adm && !yo) return vacio("Inicia sesión como repartidor", "Para ingresar cargas de combustible.");
+    const base = CB.docs.filter(d => adm || d.repartidorId === yo.id);
+    const grupos = new Map();
+    for (const d of base) { const k = d.repartidorId || "?"; if (!grupos.has(k)) grupos.set(k, { nom: d.repartidorNombre || "Repartidor", l: [] }); grupos.get(k).l.push(d); }
+    const filas = [...grupos.entries()].flatMap(([rid, g]) => combCalc(g.l, rid)).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)) || (Number(b.creado) || 0) - (Number(a.creado) || 0));
+    const cerr = filas.filter(x => x.cerrada && x.km > 0), kmC = cerr.reduce((t, x) => t + x.km, 0), ltC = cerr.reduce((t, x) => t + (Number(x.litros) || 0), 0), mC = cerr.reduce((t, x) => t + (Number(x.monto) || 0), 0);
+    const gasto = filas.reduce((t, x) => t + (Number(x.monto) || 0), 0), litros = filas.reduce((t, x) => t + (Number(x.litros) || 0), 0);
+    const form = adm ? "" : `<section class="card comb-card"><h3 class="sec" style="margin-top:0">Ingresar carga de combustible</h3>
+      <div class="comb-form">
+        <label class="campo comb-f"><span>Día de carga</span><input type="date" id="cb-fecha" value="${hoy()}" max="${hoy()}"></label>
+        <label class="campo"><span>Monto ($)</span><input type="number" id="cb-monto" inputmode="numeric" min="0" step="1" placeholder="Ej.: 40000"></label>
+        <label class="campo"><span>Litros</span><input type="number" id="cb-litros" inputmode="decimal" min="0" step="0.01" placeholder="Ej.: 32,5"></label>
+        <p class="err" id="cb-err" role="alert" style="grid-column:1/-1;margin:0">${esc(CB.msg)}</p>
+        <div class="acciones"><button type="button" class="btn primario" data-act="cb-guardar">Guardar carga</button></div>
+      </div></section>`;
+    const res = `<div class="comb-res">
+      <div class="comb-dest"><small>Rendimiento</small><b>${ltC > 0 ? f1(kmC / ltC) + " km/L" : "—"}</b><span class="muted-s">${cerr.length ? `${cerr.length} ${cerr.length === 1 ? "carga cerrada" : "cargas cerradas"}` : "Se calcula al ingresar la carga siguiente"}</span></div>
+      <div><small>Costo por km</small><b>${kmC > 0 ? clp(Math.round(mC / kmC)) : "—"}</b></div>
+      <div><small>Litros cargados</small><b>${f1(litros)} L</b></div>
+      <div><small>Gastado</small><b>${clp(gasto)}</b></div>
+    </div>`;
+    const tabla = !CB.cargado ? vacio("Cargando cargas de combustible…", "Un momento.") : !filas.length ? vacio("Aún no hay cargas de combustible", adm ? "Cuando un repartidor ingrese una carga aparecerá aquí." : "Ingresa el día, el monto y los litros de cada carga.")
+      : `<h3 class="sec">Cargas de combustible</h3><div class="tbl-wrap"><table class="tbl comb-tbl"><thead><tr><th>Día</th>${adm ? "<th>Repartidor</th>" : ""}<th class="r">Monto</th><th class="r">Litros</th><th class="r">Km recorridos</th><th class="r">Rendimiento</th><th></th></tr></thead><tbody>
+        ${filas.map(x => `<tr><td>${esc(fmtFecha(x.fecha))}<small>${x.cerrada ? `hasta ${esc(fmtFecha(addDias(x.hasta, -1)))}` : `<span class="comb-cur">en curso</span>`}</small></td>${adm ? `<td>${esc(x.repartidorNombre || "")}</td>` : ""}<td class="r">${clp(Number(x.monto) || 0)}<small>${x.ppl ? clp(Math.round(x.ppl)) + "/L" : ""}</small></td><td class="r">${f1(Number(x.litros) || 0)}</td><td class="r">${x.km ? f1(x.km) : "—"}</td><td class="r"><b>${x.rend ? f1(x.rend) + " km/L" : "—"}</b>${!x.cerrada && x.rend ? "<small>parcial</small>" : ""}</td>
+          <td class="r">${CB.del === x.id ? `<button type="button" class="btn chico peligro" data-act="cb-del-si" data-id="${esc(x.id)}">Eliminar</button> <button type="button" class="btn chico suave" data-act="cb-del-no">No</button>` : `<button type="button" class="btn chico suave comb-del" data-act="cb-del" data-id="${esc(x.id)}" aria-label="Eliminar carga">✕</button>`}</td></tr>`).join("")}
+      </tbody></table></div>`;
+    if (soloDatos) return res + tabla;
+    return `<p class="lead-sm">Ingresa cada carga de combustible. El rendimiento por litro se calcula con los kilómetros del recorrido de <b>Modo ruta</b> (o del GPS, si se subió el informe) entre una carga y la siguiente.</p>${form}<div id="comb-datos">${res}${tabla}</div>`;
+  }
+  function combPintar() {
+    if (S.repTab !== "comb") return;
+    const lr = document.getElementById("lista-rep"); if (!lr) return;
+    const ri = document.getElementById("rep-info"); if (ri) ri.innerHTML = "";
+    const rt = document.querySelector(".rep-top"); if (rt) rt.hidden = true;
+    const ae = document.activeElement, dat = document.getElementById("comb-datos");
+    if (dat && ae && ae.closest && ae.closest(".comb-form")) { dat.innerHTML = combHTML(true); return; }
+    const vals = ["cb-fecha", "cb-monto", "cb-litros"].map(id => { const el = document.getElementById(id); return el ? [id, el.value] : null; }).filter(Boolean);
+    lr.innerHTML = `<div id="comb-panel">${combHTML()}</div>`;
+    for (const [id, v] of vals) { const el = document.getElementById(id); if (el) el.value = v; }
+    const er = document.getElementById("cb-err"); if (er && CB.msg) { er.textContent = CB.msg; }
+  }
+  try { const _rl = renderListas;
+  renderListas = function () { const r = _rl.apply(this, arguments); try { combPintar(); } catch (err) { console.warn("combustible", err); } return r; }; } catch (er) { console.warn("renderListas", er); }
+  document.addEventListener("click", async e => {
+    const b = e.target.closest && e.target.closest('[data-act^="cb-"]'); if (!b) return;
+    const a = b.dataset.act;
+    if (a === "cb-del") { CB.del = b.dataset.id; combPintar(); return; }
+    if (a === "cb-del-no") { CB.del = ""; combPintar(); return; }
+    if (a === "cb-del-si") { const id = b.dataset.id; CB.del = ""; try { await conReintento(() => S.db.doc("combustible/" + id).delete()); CB.docs = CB.docs.filter(d => d.id !== id); toast("Carga eliminada."); } catch (err) { toast(msgError(err)); } combPintar(); return; }
+    if (a === "cb-guardar") {
+      const yo = combYo(), v = id => (document.getElementById(id) || {}).value || "";
+      const fecha = v("cb-fecha"), monto = Math.round(Number(v("cb-monto").replace(/[^\d]/g, ""))), litros = Number(String(v("cb-litros")).replace(",", "."));
+      const err = document.getElementById("cb-err");
+      const mal = !yo ? "Inicia sesión como repartidor." : !/^\d{4}-\d{2}-\d{2}$/.test(fecha) ? "Elige el día de la carga." : fecha > hoy() ? "El día de carga no puede ser futuro." : !(monto > 0) ? "Ingresa el monto de la carga." : !(litros > 0) ? "Ingresa los litros cargados." : litros > 400 ? "Revisa los litros: parecen demasiados." : "";
+      if (mal) { if (err) err.textContent = mal; return; }
+      const id = "cb" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const x = { fecha, monto, litros: Math.round(litros * 100) / 100, repartidorId: yo.id, repartidorNombre: yo.nombre || "", creado: Date.now() };
+      ocupar(b, true, "Guardando…");
+      try {
+        await conReintento(() => S.db.doc("combustible/" + id).set(x));
+        if (!CB.docs.some(d => d.id === id)) CB.docs.push(Object.assign({ id }, x));
+        ["cb-monto", "cb-litros"].forEach(i => { const el = document.getElementById(i); if (el) el.value = ""; });
+        toast(`Carga guardada: ${clp(monto)} · ${f1(x.litros)} L`);
+      } catch (er) { if (err) err.textContent = msgError(er); }
+      if (b.isConnected) ocupar(b, false);
+      combPintar();
+    }
+  });
+  pedir();
+  if (S.repTab === "comb") setTimeout(() => { try { renderListas(); } catch (_) {} }, 0);
 })();
 </script>
 
