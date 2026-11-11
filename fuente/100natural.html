@@ -1174,6 +1174,19 @@ body.barra-oculta #barra,body.barra-oculta #barra-ad,body.barra-oculta .pzz-cart
 #portales #tab-pizzas:not([aria-selected="true"]),#portales #tab-utfsm:not([aria-selected="true"]),#portales #tab-prueba:not([aria-selected="true"]){display:none!important}
 .ad-prb .prb > .eyebrow,.ad-prb .prb > .h1,.ad-prb .prb > .lead{display:none}.ad-prb .prb-tabs > button:not([data-act^="prb"]):not([data-act="portal"]),.ad-prb .prb-tabs > .carr-ancla{display:none!important}
 .afi-slide.afi-prox{cursor:default;display:block}
+@media(max-width:760px){
+#comb-panel .tbl-wrap{overflow:visible;border:0;background:none}
+.comb-tbl,.comb-tbl tbody{display:block;width:100%;min-width:0!important}
+.comb-tbl thead{display:none}
+.comb-tbl tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;position:relative;padding:12px 14px;margin:0 0 10px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.comb-tbl td{display:block;padding:0!important;border:0!important;text-align:left!important;min-width:0;white-space:normal}
+.comb-tbl td[data-l]::before{content:attr(data-l);display:block;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:1px}
+.comb-tbl td.cb-dia{grid-column:1/-1;font-weight:700;padding-right:44px!important}
+.comb-tbl td.cb-dia::before{display:none}
+.comb-tbl td.cb-rep{grid-column:1/-1}
+.comb-tbl td.cb-acc{position:absolute;top:10px;right:10px}
+.comb-tbl td.cb-acc:has(.peligro){position:static;grid-column:1/-1;display:flex;gap:6px}
+}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -15486,8 +15499,8 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     </div>`;
     const tabla = !CB.cargado ? vacio("Cargando cargas de combustible…", "Un momento.") : !filas.length ? vacio("Aún no hay cargas de combustible", adm ? "Cuando un repartidor ingrese una carga aparecerá aquí." : "Ingresa el día, el monto y los litros de cada carga.")
       : `<h3 class="sec">Cargas de combustible</h3><div class="tbl-wrap"><table class="tbl comb-tbl"><thead><tr><th>Día</th>${adm ? "<th>Repartidor</th>" : ""}<th class="r">Monto</th><th class="r">Litros</th><th class="r">Km recorridos</th><th class="r">Rendimiento</th><th></th></tr></thead><tbody>
-        ${filas.map(x => `<tr><td>${esc(fmtFecha(x.fecha))}<small>${x.cerrada ? `hasta ${esc(fmtFecha(addDias(x.hasta, -1)))}` : `<span class="comb-cur">en curso</span>`}</small></td>${adm ? `<td>${esc(x.repartidorNombre || "")}</td>` : ""}<td class="r">${clp(Number(x.monto) || 0)}<small>${x.ppl ? clp(Math.round(x.ppl)) + "/L" : ""}</small></td><td class="r">${f1(Number(x.litros) || 0)}</td><td class="r">${x.km ? f1(x.km) : "—"}</td><td class="r"><b>${x.rend ? f1(x.rend) + " km/L" : "—"}</b>${!x.cerrada && x.rend ? "<small>parcial</small>" : ""}</td>
-          <td class="r">${CB.del === x.id ? `<button type="button" class="btn chico peligro" data-act="cb-del-si" data-id="${esc(x.id)}">Eliminar</button> <button type="button" class="btn chico suave" data-act="cb-del-no">No</button>` : `<button type="button" class="btn chico suave comb-del" data-act="cb-del" data-id="${esc(x.id)}" aria-label="Eliminar carga">✕</button>`}</td></tr>`).join("")}
+        ${filas.map(x => `<tr><td class="cb-dia" data-l="Día">${esc(fmtFecha(x.fecha))}<small>${x.cerrada ? `hasta ${esc(fmtFecha(addDias(x.hasta, -1)))}` : `<span class="comb-cur">en curso</span>`}</small></td>${adm ? `<td class="cb-rep" data-l="Repartidor">${esc(x.repartidorNombre || "")}</td>` : ""}<td class="r" data-l="Monto">${clp(Number(x.monto) || 0)}<small>${x.ppl ? clp(Math.round(x.ppl)) + "/L" : ""}</small></td><td class="r" data-l="Litros">${f1(Number(x.litros) || 0)}</td><td class="r" data-l="Km">${x.km ? f1(x.km) : "—"}</td><td class="r" data-l="Rendimiento"><b>${x.rend ? f1(x.rend) + " km/L" : "—"}</b>${!x.cerrada && x.rend ? "<small>parcial</small>" : ""}</td>
+          <td class="r cb-acc">${CB.del === x.id ? `<button type="button" class="btn chico peligro" data-act="cb-del-si" data-id="${esc(x.id)}">Eliminar</button> <button type="button" class="btn chico suave" data-act="cb-del-no">No</button>` : `<button type="button" class="btn chico suave comb-del" data-act="cb-del" data-id="${esc(x.id)}" aria-label="Eliminar carga">✕</button>`}</td></tr>`).join("")}
       </tbody></table></div>`;
     if (soloDatos) return res + tabla;
     return `<p class="lead-sm">Ingresa cada carga de combustible. El rendimiento por litro se calcula con los kilómetros del recorrido de <b>Modo ruta</b> (o del GPS, si se subió el informe) entre una carga y la siguiente.</p>${form}<div id="comb-datos">${res}${tabla}</div>`;
