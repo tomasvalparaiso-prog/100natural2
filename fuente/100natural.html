@@ -1168,6 +1168,7 @@ body.barra-oculta #barra,body.barra-oculta #barra-ad,body.barra-oculta .pzz-cart
 @keyframes afiProg{from{background-size:0% 100%}to{background-size:100% 100%}}
 .afi-car.afi-play .afi-dots button[aria-current="true"]{background:linear-gradient(var(--ink),var(--ink)) left/0% 100% no-repeat,var(--line);animation:afiProg 4.5s linear forwards}
 @media (prefers-reduced-motion: reduce){.afi-car.afi-play .afi-dots button[aria-current="true"]{animation:none;background:var(--ink)}}
+.prox-vol[style*="--vol-helados"]{aspect-ratio:680/963}.prox-nota{margin:0 auto 6px;max-width:440px;text-align:center;font-weight:700;font-size:.9rem;color:var(--muted);background:var(--surface-2);border-radius:12px;padding:8px 10px}body[data-portal="cliente"] #catalogo .cat-prox .afiche{border-radius:18px!important;margin-bottom:8px}#catalogo .cat-todos.cat-prox > .cat-h{display:flex!important}
 .tbl-todos td.nw{white-space:nowrap}.usu-rol{display:inline-block;margin-top:3px;padding:1px 8px;border-radius:999px;background:var(--surface-2,rgba(0,0,0,.05));font-size:.72rem;font-weight:600;color:var(--muted,#5b6b70)}
 #e-datos-tr[hidden],#ad-datos-tr[hidden]{display:none!important}
 .datos-tr{margin:10px 0;padding:12px 14px;border:1px solid var(--line,#d9e2e5);border-radius:12px;background:var(--surface-2,rgba(0,0,0,.03))}
@@ -2229,6 +2230,10 @@ const CATALOGO = [
     ["jahie", "Agregado: hielo", "agregado", 500], ["jalec", "Agregado: leche", "agregado", 500], ["jachi", "Agregado: chía", "agregado", 500], ["jaest", "Agregado: estevia", "agregado", 500], ["jaalm", "Agregado: almendras", "agregado", 500], ["jamie", "Agregado: miel", "agregado", 500] ] }
 ];
 const PROD = {};
+/* Productos «Próximamente»: solo se muestra su volante; no se pueden agregar al carrito. */
+const PROXIMO = new Set(["helados", "perritos", "camas", "completos", "jugos"]);
+const PROX_IDS = new Set(CATALOGO.filter(c => PROXIMO.has(c.key)).flatMap(c => c.items.map(([id]) => id)));
+const proxVolHTML = c => `<div class="afiche vol-nuevo prox-vol" role="img" aria-label="Volante ${c.titulo}. Próximamente." style="background-image:var(--vol-${c.key})"></div><p class="prox-nota">🕒 Próximamente · todavía no se puede pedir</p>`;
 const ORDEN = [];
 for (const c of CATALOGO) for (const [id, nombre, medida, precio] of c.items) {
   PROD[id] = { id, nombre, medida, precio, fam: c.fam, cat: c.titulo };
@@ -4029,7 +4034,7 @@ function afpCarruselHTML(key, items) {
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".afp-slide"); if (!b || e.target.closest(".afp-menos")) return;
-  const ad = b.dataset.act === "ad-mas";
+  const ad = b.dataset.act === "ad-mas"; if (PROX_IDS.has(b.dataset.id)) return;
   setTimeout(() => { const p = PROD[b.dataset.id]; if (p) toast(`Agregado: ${etiqueta(p)} · ${(ad ? AD.carrito : S.carrito)[p.id] || 0} en ${ad ? "el" : "tu"} pedido`); }, 0);
   b.classList.remove("afp-pop"); void b.offsetWidth; b.classList.add("afp-pop");
 });
@@ -4109,13 +4114,17 @@ function cliCatNavHTML(key) {
     $("#catalogo").appendChild(b); b.click(); b.remove();
   }, { passive: true });
 })();
+/* Completos y Jugos: su volante va siempre arriba de su lista de productos (también en «Todos»), para elegir con + debajo de la foto. */
+const VOL_FILAS = new Set(["completos", "jugos"]);
 function seccion(c, items, oc, sinAfiche) {
+  if (PROXIMO.has(c.key)) return `<section class="cat fam-${c.fam} col-${c.color} cat-prox${!S.cliCat ? " cat-todos" : ""}" id="cat-${c.key}">
+    <header class="cat-h">${ICO[c.fam] || ""}<h2>${c.titulo}</h2><span class="tag">Próximamente</span></header>${proxVolHTML(c)}</section>`;
   /* Con carrusel de fotos (Agua purificada, Agua alcalina, Dispensadores) no se muestra el selector manual de unidades: se agrega tocando la foto. */
   /* También en «Todos»: cada categoría con su carrusel de fotos (con título) y sin el selector manual de cantidades. */
   const conCarrusel = !!AFP_CATS[c.key] && (!S.cliCat || S.cliCat === c.key) && !S.editando && esCliP() && !!S.ses.cliente;
   return `<section class="cat fam-${c.fam} col-${c.color}${!S.cliCat ? " cat-todos" : ""}" id="cat-${c.key}">
     <header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>
-    ${conCarrusel ? afpCarruselHTML(c.key, items) : sinAfiche ? "" : aficheHTML(c.key, cliParticular())}
+    ${conCarrusel ? afpCarruselHTML(c.key, items) : sinAfiche && !VOL_FILAS.has(c.key) ? "" : aficheHTML(c.key, cliParticular())}
     ${conCarrusel ? "" : `<div class="prods">${items.map(p => prodHTML(p, oc.has(p.id))).join("")}</div>`}
   </section>`;
 }
@@ -12362,7 +12371,7 @@ function adCatsHTML() {
   const cats = CATALOGO.filter(c => c.fam === fam).map(c => ({ c, ids: c.items.map(([id]) => id).filter(id => ed || !oc.has(id) || AD.carrito[id]) })).filter(x => x.ids.length);
   const nOc = ORDEN.filter(id => PROD[id].fam === fam && oc.has(id)).length;
   const tools = `<div class="cat-tools ad-cat-tools"><span class="muted-s">${cliOc ? `Productos de <b>${esc(cliOc.nombre)}</b>${ed ? ": toca <b>Quitar</b> en los que no compra. Es la misma lista que el cliente edita en su cuenta." : nOc ? ` · ${nOc} ${nOc === 1 ? "oculto" : "ocultos"}` : ""}` : ed ? "Toca <b>Quitar</b> en los productos que no quieres ver en la lista. Puedes volver a mostrarlos cuando quieras." : nOc ? `${nOc} ${nOc === 1 ? "producto oculto" : "productos ocultos"}` : ""}</span><button type="button" class="btn ${ed ? "primario" : "suave"} chico" data-act="ad-edit-prods">${ed ? "Listo" : "Editar productos"}</button></div>`;
-  return tools + (cats.length ? cats.map(({ c, ids }) => `<section class="cat fam-${c.fam} col-${c.color}"><header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>${ed ? "" : AFP_CATS[c.key] ? adAfpHTML(c.key, ids) : aficheHTML(c.key, !adSinPrecio())}<div class="prods" ${!ed && AFP_CATS[c.key] ? "hidden" : ""}>${ids.map(id => ed ? `<div class="prod ad-ed-row ${oc.has(id) ? "oculto" : ""}"><span class="medida">${PROD[id].medida}</span><div class="prod-txt">${PROD[id].nombre}${oc.has(id) ? `<small class="muted-s">Oculto</small>` : ""}</div><button type="button" class="btn chico ${oc.has(id) ? "primario" : "suave"}" data-act="ad-ocultar" data-id="${id}" data-v="${oc.has(id) ? "0" : "1"}">${oc.has(id) ? "Mostrar" : "Quitar"}</button></div>` : adProdHTML(PROD[id])).join("")}</div></section>`).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos."));
+  return tools + (cats.length ? cats.map(({ c, ids }) => PROXIMO.has(c.key) ? `<section class="cat fam-${c.fam} col-${c.color} cat-prox"><header class="cat-h">${ICO[c.fam] || ""}<h2>${c.titulo}</h2><span class="tag">Próximamente</span></header>${proxVolHTML(c)}</section>` : `<section class="cat fam-${c.fam} col-${c.color}"><header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>${ed ? "" : AFP_CATS[c.key] ? adAfpHTML(c.key, ids) : aficheHTML(c.key, !adSinPrecio())}<div class="prods" ${!ed && AFP_CATS[c.key] ? "hidden" : ""}>${ids.map(id => ed ? `<div class="prod ad-ed-row ${oc.has(id) ? "oculto" : ""}"><span class="medida">${PROD[id].medida}</span><div class="prod-txt">${PROD[id].nombre}${oc.has(id) ? `<small class="muted-s">Oculto</small>` : ""}</div><button type="button" class="btn chico ${oc.has(id) ? "primario" : "suave"}" data-act="ad-ocultar" data-id="${id}" data-v="${oc.has(id) ? "0" : "1"}">${oc.has(id) ? "Mostrar" : "Quitar"}</button></div>` : adProdHTML(PROD[id])).join("")}</div></section>`).join("") : vacio("Ocultaste todos los productos", "Toca Editar productos para volver a mostrarlos."));
 }
 function adTipoCambio() {
   const pg = $("#ad-pago"); if (pg) pg.innerHTML = adPagoHTML();
@@ -13906,6 +13915,7 @@ document.addEventListener("click", e => {
   else if (a === "cli2-dir") { cambiarCliTab("nuevo"); const e = document.getElementById("e-dir"); if (e) { e.scrollIntoView({ block: "center", behavior: "smooth" }); setTimeout(() => e.focus(), 400); } }
   else if (a === "barra-sacar") { S.sacarAbierto = !S.sacarAbierto; updateBarra(); }
   else if (a === "sacar-todo") { delete S.carrito[id]; updateCarritoUI(); }
+  else if (a === "mas" && PROX_IDS.has(id)) toast("Este producto estará disponible próximamente.");
   else if (a === "mas" || a === "menos") {
     const q = Math.max(0, Math.min(99, (S.carrito[id] || 0) + (a === "mas" ? 1 : -1)));
     if (q) S.carrito[id] = q; else delete S.carrito[id];
@@ -14455,6 +14465,7 @@ document.addEventListener("click", e => {
     AD.tab = b.dataset.t;
     document.querySelectorAll('[data-act="ad-tab"]').forEach(x => x.setAttribute("aria-selected", String(x === b)));
     renderAdminPanel();
+  } else if (a === "ad-mas" && PROX_IDS.has(id)) { toast("Este producto estará disponible próximamente.");
   } else if (a === "ad-mas" || a === "ad-menos") {
     const q = Math.max(0, Math.min(999, (AD.carrito[id] || 0) + (a === "ad-mas" ? 1 : -1)));
     if (q) AD.carrito[id] = q; else delete AD.carrito[id];
