@@ -2208,6 +2208,63 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 <div id="toast" role="status" aria-live="polite"></div>
 <datalist id="comunas"></datalist>
 
+<style>
+/* ===== Crear pedido en pasos (carrusel): Clientes y Administrador ===== */
+.wz-head{display:flex;align-items:center;gap:10px;margin:2px 0 14px}
+.wz-atras{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+.wz-atras[hidden]{display:none}
+.wz-tit{flex:1;min-width:0;display:grid;line-height:1.15}
+.wz-tit small{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.wz-tit b{font-family:var(--f-display);font-size:1.25rem;font-weight:800}
+.wz-dots{display:flex;gap:5px;list-style:none;margin:0;padding:0;flex:none}
+.wz-dots li{width:8px;height:8px;border-radius:99px;background:var(--line);transition:width .25s,background .25s}
+.wz-dots li.ok{background:var(--accent)}
+.wz-dots li.act{width:22px;background:var(--accent)}
+.wz-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wz-tile{position:relative;display:grid;justify-items:center;align-content:center;gap:6px;min-height:170px;padding:18px 12px;border-radius:20px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;text-align:center;box-shadow:0 10px 24px -18px var(--shadow)}
+.wz-tile:active{transform:scale(.98)}
+.wz-tile .wz-e{font-size:3rem;line-height:1}
+.wz-tile b{font-family:var(--f-display);font-size:1.3rem}
+.wz-tile small{color:var(--muted);font-size:.84rem;line-height:1.25}
+.wz-tile .wz-cnt{position:absolute;top:10px;right:10px;background:var(--ok);color:var(--on-ok);border-radius:99px;padding:2px 9px;font-size:.78rem;font-weight:800}
+.wz-tile.col-pur{border-color:var(--agua)}.wz-tile.col-papa{border-color:var(--papa)}
+.wz-cont{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px;background:var(--surface-2)}
+.wz-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:18px 0 6px}
+.wz-nav .btn{min-height:52px;font-weight:800}
+.wz-nav .wz-sig{flex:1 1 180px}
+.wz-fin{text-align:center;display:grid;justify-items:center;gap:8px;padding:28px 18px}
+.wz-fin .wz-fin-ic{font-size:3.2rem;line-height:1}
+.wz-fin h2{margin:4px 0 0;font-family:var(--f-display);font-size:1.45rem}
+.wz-fin p{margin:0;color:var(--muted);max-width:34ch}
+.wz-fin-acc{display:grid;gap:10px;width:100%;max-width:360px;margin-top:12px}
+.wz-fin-acc .btn{min-height:54px;font-weight:800}
+.cpw[data-wzp="1"] [data-wz]:not([data-wz~="1"]),.cpw[data-wzp="2"] [data-wz]:not([data-wz~="2"]),.cpw[data-wzp="3"] [data-wz]:not([data-wz~="3"]),.cpw[data-wzp="4"] [data-wz]:not([data-wz~="4"]),.cpw[data-wzp="5"] [data-wz]:not([data-wz~="5"]),
+.adw[data-wzp="2"] [data-wz]:not([data-wz~="2"]),.adw[data-wzp="3"] [data-wz]:not([data-wz~="3"]),.adw[data-wzp="4"] [data-wz]:not([data-wz~="4"]),.adw[data-wzp="5"] [data-wz]:not([data-wz~="5"]){display:none!important}
+.cpw .entrega .wz-h-ent{display:none}
+.cpw .entrega-grid{grid-template-columns:1fr!important;gap:22px}
+@keyframes wzFwd{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes wzBack{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+.wz-fwd>[data-wz],.wz-fwd>#adw-cuerpo>[data-wz]{animation:wzFwd .32s cubic-bezier(.2,.7,.2,1)}
+.wz-back>[data-wz],.wz-back>#adw-cuerpo>[data-wz]{animation:wzBack .32s cubic-bezier(.2,.7,.2,1)}
+@media (prefers-reduced-motion:reduce){.wz-fwd>[data-wz],.wz-back>[data-wz],.wz-fwd>#adw-cuerpo>[data-wz],.wz-back>#adw-cuerpo>[data-wz]{animation:none}}
+.adw-agp .agp-tiles button{min-height:150px}
+/* Borrador de pedidos */
+.borr-intro{margin:4px 0 14px}
+.borr-lista{display:grid;gap:12px}
+.borr-card{display:grid;gap:8px}
+.borr-card.borr-act{outline:2px solid var(--accent);outline-offset:-2px}
+.borr-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.borr-h b{font-size:1.08rem}
+.borr-loc{font-weight:800;font-size:.8rem;border-radius:99px;padding:3px 10px;background:var(--fam-soft);color:var(--fam)}
+.borr-meta{margin:0}
+.borr-it{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.borr-it li{display:flex;gap:8px;align-items:baseline}
+.borr-it .q{font-family:var(--f-mono);font-weight:700;color:var(--accent-ink);min-width:2.4em}
+.borr-it .n{display:grid}.borr-it small{color:var(--muted)}
+.borr-tot{margin:0}
+.borr-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.borr-acc .btn{min-height:46px;font-weight:800}
+</style>
 <script>
 (() => {
 "use strict";
@@ -3793,7 +3850,73 @@ document.addEventListener("click", e => {
 
 /* ---------- Cliente ---------- */
 const esLocal = () => !!(S.ses.cliente && S.ses.cliente.tipo === "Local comercial");
-const verPrecios = () => !esLocal();function vistaCliente() {
+const verPrecios = () => !esLocal();
+/* ---------- Clientes › Nuevo pedido en pasos (carrusel): 1 Agua o papas · 2 Productos · 3 Entrega · 4 Revisar y enviar · 5 Listo ---------- */
+const CPW = { paso: 1, grupo: "", fin: null };
+const CPW_GR = [["agua", "💧", "Agua", "Purificada, alcalina y dispensadores", "col-pur"], ["papa", "🥔", "Papas", "Bolsas de 1 kg y 5 kg", "col-papa"]];
+const CPW_TIT = { 1: "¿Qué quieres pedir?", 2: "Elige tus productos", 3: "Datos de entrega", 4: "Revisa y envía", 5: "Pedido enviado" };
+const cpwOn = () => S.portal === "cliente" && !S.editando;
+function cpwGrupos() { const cs = catsCliente().filter(x => !PROXIMO.has(x.c.key)); return CPW_GR.filter(g => cs.some(x => x.c.fam === g[0])); }
+function cpwHeadHTML() {
+  const p = CPW.paso, g = CPW_GR.find(x => x[0] === CPW.grupo);
+  if (p === 5) return "";
+  const tit = p === 2 && g ? `${g[2]}: elige tus productos` : CPW_TIT[p];
+  return `<div class="wz-head"><button type="button" class="wz-atras" data-act="cpw-atras" ${p === 1 ? "hidden" : ""} aria-label="Paso anterior">‹ Atrás</button>
+    <div class="wz-tit"><small>Paso ${p} de 4</small><b>${esc(tit)}</b></div>
+    <ol class="wz-dots" aria-hidden="true">${[1, 2, 3, 4].map(i => `<li class="${i === p ? "act" : i < p ? "ok" : ""}"></li>`).join("")}</ol></div>`;
+}
+function cpwPaso1HTML() {
+  const lista = carritoLista(), gs = cpwGrupos();
+  const tiles = gs.map(([k, e, l, sub, col]) => { const xs = lista.filter(x => x.p.fam === k), n = xs.length ? cuentaTxt(xs) : ""; return `<button type="button" class="wz-tile ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub}</small>${n ? `<span class="wz-cnt">${esc(n)}</span>` : ""}</button>`; }).join("");
+  return `<div class="wz-tiles" role="group" aria-label="Tipo de producto">${tiles}</div>
+    ${lista.length ? `<div class="wz-cont"><span>Tu pedido: <b>${esc(cuentaTxt(lista))}</b></span><button type="button" class="btn primario" data-act="cpw-ir" data-p="3">Continuar con mi pedido ›</button></div>` : ""}`;
+}
+function cpwNav2HTML() {
+  const otro = cpwGrupos().find(g => g[0] !== CPW.grupo);
+  return `<div class="wz-nav">${otro ? `<button type="button" class="btn suave" data-act="cpw-grupo" data-g="${otro[0]}">＋ Agregar ${otro[2].toLowerCase()}</button>` : "<span></span>"}<button type="button" class="btn primario wz-sig" data-act="cpw-ir" data-p="3">Siguiente ›</button></div>`;
+}
+function cpwFinHTML() {
+  const f = CPW.fin || {};
+  return `<section class="card wz-fin" aria-live="polite"><div class="wz-fin-ic" aria-hidden="true">✅</div>
+    <h2>¡Pedido${f.num ? ` N° ${esc(String(f.num))}` : ""} enviado!</h2>
+    <p>${f.fecha ? `Entrega el ${esc(fmtFecha(f.fecha, true))}${f.horario ? `, entre ${esc(f.horario)} hrs` : ""}. ` : ""}Lo ves en Mis pedidos › Pendientes.${f.aviso ? esc(f.aviso) : ""}</p>
+    <div class="wz-fin-acc"><button type="button" class="btn primario grande" data-act="cpw-otro">＋ Crear otro pedido</button><button type="button" class="btn suave grande" data-act="cli-inicio">Ir a inicio</button></div></section>`;
+}
+/* Revisa los datos de entrega antes de pasar al último paso (mismas reglas que al enviar). */
+function cpwValEntrega() {
+  const v = id => (($("#" + id) || {}).value || "").trim();
+  const desde = v("e-desde").slice(0, 5), hasta = v("e-hasta").slice(0, 5), fecha0 = v("e-fecha"), fecha = S.editPedido ? fecha0 : ajustarFecha(fecha0);
+  if (esLocal() && v("e-quien").length < 2) return "Escribe tu nombre, el de quien hace el pedido.";
+  if (!v("e-dir")) return "Escribe la dirección de entrega.";
+  if (!v("e-comuna")) return "Escribe la comuna.";
+  if (digitos(v("e-tel")) < 8) return "Escribe un teléfono de contacto válido.";
+  if (!fecha || fecha < hoy()) return "Elige una fecha de entrega de hoy en adelante.";
+  if (!/^\d{2}:\d{2}$/.test(desde) || !/^\d{2}:\d{2}$/.test(hasta)) return "Elige el rango horario de entrega: desde y hasta.";
+  if (desde < "10:00" || hasta > "18:00") return "El horario de entrega es de 10:00 a 18:00 hrs. Elige un rango dentro de ese horario.";
+  if (hasta <= desde) return "La hora final del rango debe ser posterior a la hora de inicio.";
+  if (fecha === hoy() && hasta <= ahoraHM()) return "Ese rango horario ya pasó. Elige uno más tarde.";
+  return "";
+}
+/* Pasa a otro paso: muestra solo esa ventana, con una entrada deslizada. */
+function cpwIr(p, quieto) {
+  const antes = CPW.paso;
+  if (p === 3 && antes === 2 && !carritoLista().length) { toast("Agrega al menos un producto tocando su foto."); return; }
+  if (p === 3 && !quieto && !carritoLista().length) { toast("Agrega al menos un producto tocando su foto."); return; }
+  if (p === 4) { const m = cpwValEntrega(), er = $("#err-entrega"); if (er) er.textContent = m; if (m) return; }
+  CPW.paso = p; if (p !== 5) CPW.fin = null;
+  const el = $("#panel-nuevo"); if (!el) return;
+  if (p === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); }
+  el.dataset.wzp = p;
+  const h = $("#cpw-head"); if (h) h.innerHTML = cpwHeadHTML();
+  const t = $("#cpw-p1"); if (t) t.innerHTML = cpwPaso1HTML();
+  const n2 = $("#cpw-nav2"); if (n2) n2.innerHTML = cpwNav2HTML();
+  const fi = $("#cpw-fin"); if (fi) fi.innerHTML = p === 5 ? cpwFinHTML() : "";
+  updateCarritoUI();
+  if (quieto) return;
+  el.classList.remove("wz-fwd", "wz-back"); void el.offsetWidth; el.classList.add(p >= antes ? "wz-fwd" : "wz-back");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function vistaCliente() {
   const c = S.ses.cliente;
   if (!esLocal() && (S.cliTab === "con" || S.cliTab === "stk")) S.cliTab = "nuevo";
   return `<div class="tabs rep-tabs cli-tabs" role="tablist" aria-label="Secciones">
@@ -3811,11 +3934,14 @@ const verPrecios = () => !esLocal();function vistaCliente() {
   <div id="cli-cats-fija" class="cat-tools cat-fija" ${S.cliTab === "nuevo" ? "hidden" : ""}>${catChipsHTML()}</div>
   <div id="cli-sec-tit"></div>
   <div id="panel-ini" class="cli-ini-grid" ${S.cliTab !== "inicio" ? "hidden" : ""}></div>
-  <div id="panel-nuevo" ${S.cliTab !== "nuevo" ? "hidden" : ""}>
+  <div id="panel-nuevo" ${cpwOn() ? `class="cpw" data-wzp="${CPW.paso}"` : ""} ${S.cliTab !== "nuevo" ? "hidden" : ""}>
     ${!S.editPedido && S.repCli ? `<div class="edit-pedido rep-cli-aviso"><span>🔁 Estás repitiendo el <b>pedido N° ${esc(S.repCli.num)}</b>. Ajusta las cantidades de cada producto con − y +, revisa la fecha de entrega y envía el pedido.</span><button class="btn suave chico" data-act="cancelar-repetir">Cancelar</button></div>` : ""}
     ${S.editPedido ? `<div class="edit-pedido"><span>Estás editando el <b>pedido N° ${esc(S.editPedido.num)}</b>. Cambia productos o datos de entrega y toca Guardar cambios.</span><button class="btn suave chico" data-act="cancelar-edicion">Cancelar edición</button></div>` : ""}
-    <div id="catalogo">${catalogoHTML()}</div>
+    ${cpwOn() ? `<div id="cpw-head">${cpwHeadHTML()}</div><div id="cpw-p1" data-wz="1">${cpwPaso1HTML()}</div>` : ""}
+    <div id="catalogo" data-wz="2">${catalogoHTML()}</div>
+    ${cpwOn() ? `<div id="cpw-nav2" data-wz="2">${cpwNav2HTML()}</div>` : ""}
     ${entregaHTML(c)}
+    ${cpwOn() ? `<div id="cpw-fin" data-wz="5">${CPW.paso === 5 ? cpwFinHTML() : ""}</div>` : ""}
   </div>
   <div id="panel-mis" ${S.cliTab !== "mis" ? "hidden" : ""}><div id="lista-mis" class="lista"></div></div>
   <div id="panel-canc" ${S.cliTab !== "canc" ? "hidden" : ""}><div id="lista-canc" class="lista"></div></div>
@@ -3976,6 +4102,11 @@ function catChipsHTML(cats) {
 }
 const ocultos = () => (S.ses.cliente && Array.isArray(S.ses.cliente.ocultos) ? S.ses.cliente.ocultos : []);
 function catalogoHTML() {
+  if (cpwOn()) {
+    S.cliCat = "";
+    const oc = new Set(ocultos()), cs = catsCliente().filter(x => !PROXIMO.has(x.c.key) && x.c.fam === CPW.grupo);
+    return cs.length ? cs.map(x => seccion(x.c, x.items, oc, true)).join("") + `<div class="cat-tools cat-tools-fin"><button class="btn suave chico" data-act="editar-prods">Editar productos</button></div>` : vacio("No hay productos para mostrar", "Vuelve atrás y elige otro tipo de producto.");
+  }
   const oc = new Set(ocultos()), ed = S.editando;
   const cats = CATALOGO.map(c => ({ c, items: c.items.map(([id]) => PROD[id]).filter(p => ed || !oc.has(p.id) || S.carrito[p.id]) })).filter(x => x.items.length);
   const n = oc.size;
@@ -4043,10 +4174,26 @@ function afichesCarruselHTML(lista) {
 /* Fotos solo para clientes Particular (sus precios son distintos a los de Local comercial). */
 const AFP_PART = new Set(["ap20", "ap10", "ap5", "ap3", "ap1v", "ap05", "aa20", "aa10", "aa5", "aa3", "aa1v", "aa05", "hcha", "dperro", "cama", "dusb", "dsob", "p1g", "p1b12", "p5g", "p5gc", "p5b12", "p5b12p", "p5b12c", "p5b10", "p5b10c", "p5e"]), VOL_PART = new Set(["purificada", "alcalina", "dispensadores", "papas1", "papas5", "helados", "perritos", "camas", "completos", "jugos"]);
 const AFP_CATS = { purificada: ["ap20", "ap10", "ap5", "ap3", "ap1v", "ap05"], alcalina: ["aa20", "aa10", "aa5", "aa3", "aa1v", "aa05"], dispensadores: ["dusb", "dsob"], papas1: ["p1g", "p1b12"], helados: ["hcha"], perritos: ["dperro"], camas: ["cama"], papas5: ["p5g", "p5gc", "p5b12", "p5b12p", "p5b12c", "p5b10", "p5b10c", "p5e"] };
+/* Cantidad que se muestra sobre la foto: papas en bolsas y kilos; lo demás en unidades. */
+function qFotoTxt(id, q, suf) {
+  if (!q) return "";
+  const p = PROD[id];
+  if (p && p.fam === "papa") return `${fmtN(q)} ${q === 1 ? "bolsa" : "bolsas"} · ${fmtL(kgDe({ id, cant: q }))} kg`;
+  return `${fmtN(q)} ${suf}`;
+}
+/* Texto de cantidades de la barra de abajo: papas en bolsas y kilos, lo demás en productos. */
+function cuentaTxt(lista) {
+  let bol = 0, kg = 0, otros = 0;
+  for (const x of lista) { if (x.p.fam === "papa") { bol += x.q; kg += kgDe({ id: x.p.id, cant: x.q }); } else otros += x.q; }
+  const t = [];
+  if (bol) t.push(`${fmtN(bol)} ${bol === 1 ? "bolsa" : "bolsas"} · ${fmtL(kg)} kg`);
+  if (otros) t.push(`${fmtN(otros)} ${otros === 1 ? "producto" : "productos"}`);
+  return t.join(" + ") || "0 productos";
+}
 function afpCarruselHTML(key, items) {
   const vis = items ? new Set(items.map(p => p.id)) : null, ids = (AFP_CATS[key] || []).filter(id => PROD[id] && (!vis || vis.has(id)));
   return `<div class="afi-car afp-car" aria-roledescription="carrusel" aria-label="${key === "helados" ? "Helados" : key === "perritos" ? "Comida para perritos" : key === "camas" ? "Cama para perritos" : key === "papas5" ? "Papas naturales 5 kg" : key === "papas1" ? "Papas naturales 1 kg" : key === "dispensadores" ? "Dispensadores de agua" : `Productos de agua ${key === "alcalina" ? "alcalina" : "purificada"}`}: toca una foto para agregarla a tu pedido">
-    <div class="afi-track" tabindex="0">${ids.map((id, i) => { const p = PROD[id], q = S.carrito[id] || 0, n = esc(etiqueta(p)); return `<button type="button" class="afi-slide afp-slide" data-act="mas" data-id="${id}" aria-label="${n}, ${clp(precioMio(id))}. Toca para agregar 1 a tu pedido (${i + 1} de ${ids.length})"><div class="afp-img" style="background-image:var(--afp${cliParticular() && AFP_PART.has(id) ? "P" : ""}-${id})"></div><span class="afp-add" aria-hidden="true">＋ Agregar</span><span class="afp-qw" data-afqw="${id}" ${q ? "" : "hidden"}><span class="afp-menos" role="button" tabindex="0" data-act="menos" data-id="${id}" aria-label="Quitar 1 ${n}">−</span><output class="afp-q" data-afq="${id}">${q ? `${q} en tu pedido` : ""}</output></span></button>`; }).join("")}</div>
+    <div class="afi-track" tabindex="0">${ids.map((id, i) => { const p = PROD[id], q = S.carrito[id] || 0, n = esc(etiqueta(p)); return `<button type="button" class="afi-slide afp-slide" data-act="mas" data-id="${id}" aria-label="${n}, ${clp(precioMio(id))}. Toca para agregar 1 a tu pedido (${i + 1} de ${ids.length})"><div class="afp-img" style="background-image:var(--afp${cliParticular() && AFP_PART.has(id) ? "P" : ""}-${id})"></div><span class="afp-add" aria-hidden="true">＋ Agregar</span><span class="afp-qw" data-afqw="${id}" ${q ? "" : "hidden"}><span class="afp-menos" role="button" tabindex="0" data-act="menos" data-id="${id}" aria-label="Quitar 1 ${n}">−</span><output class="afp-q" data-afq="${id}">${qFotoTxt(id, q, "en tu pedido")}</output></span></button>`; }).join("")}</div>
     ${ids.length < 2 ? "" : `<button type="button" class="afi-nav afi-prev" data-act="afi-nav" data-d="-1" aria-label="Producto anterior">‹</button><button type="button" class="afi-nav afi-next" data-act="afi-nav" data-d="1" aria-label="Producto siguiente">›</button>
     <div class="afi-dots" role="group" aria-label="Elegir producto">${ids.map((id, i) => `<button type="button" data-act="afi-dot" data-i="${i}" aria-label="Ir a ${esc(etiqueta(PROD[id]))}" aria-current="${i === 0}"></button>`).join("")}</div>`}
   </div>`;
@@ -4054,7 +4201,7 @@ function afpCarruselHTML(key, items) {
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest(".afp-slide"); if (!b || e.target.closest(".afp-menos")) return;
   const ad = b.dataset.act === "ad-mas"; if (PROX_IDS.has(b.dataset.id)) return;
-  setTimeout(() => { const p = PROD[b.dataset.id]; if (p) toast(`Agregado: ${etiqueta(p)} · ${(ad ? AD.carrito : S.carrito)[p.id] || 0} en ${ad ? "el" : "tu"} pedido`); }, 0);
+  /* Sin aviso «Agregado»: la cantidad se ve en la foto y en la barra de abajo. */
   b.classList.remove("afp-pop"); void b.offsetWidth; b.classList.add("afp-pop");
 });
 /* Carruseles de fotos con vuelta continua: al pasar la última sigue la primera (y al revés). Se agregan copias de la primera y la última en los extremos. */
@@ -4167,16 +4314,16 @@ function prodHTML(p, oculto) {
 }
 function entregaHTML(c) {
   const fs = fechaSugerida();
-  return `<section class="card entrega" id="entrega">
+  return `<section class="card entrega" id="entrega" data-wz="3 4">
     <div class="entrega-grid">
-      <div>
+      <div data-wz="4">
         <h2 class="h2">Tu pedido</h2>
         <ul class="resumen" id="resumen"></ul>
         ${verPrecios() ? `<div class="total"><span>Total</span><b id="total">$0</b></div>` : ""}
       </div>
-      <div>
-        <h2 class="h2">Datos de entrega</h2>
-        <div class="campos">
+      <div data-wz="3 4">
+        <h2 class="h2 wz-h-ent">Datos de entrega</h2>
+        <div class="campos" data-wz="3">
           ${esLocal() ? `<label class="campo full"><span>Tu nombre <em>quien hace el pedido</em></span><input id="e-quien" autocomplete="off" value="" placeholder="Ej.: Juan Pérez"></label>` : ""}
           <label class="campo full"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label>
 ${esLocal() ? "" : `<label class="campo full"><span>Casa / Depto <em>opcional</em></span><input id="e-depto" autocomplete="address-line2" value="${esc(c.depto || "")}" placeholder="Ej.: Casa 12 o Depto 304, Torre B"></label>`}
@@ -4190,6 +4337,9 @@ ${esLocal() ? "" : `<label class="campo full"><span>Casa / Depto <em>opcional</e
               <input id="e-hasta" type="time" step="900" min="10:00" max="18:00" value="18:00" aria-label="Hasta">
             </div>
           </fieldset>
+        </div>
+        ${cpwOn() ? `<p class="err" id="err-entrega" role="alert" data-wz="3" style="margin-top:14px"></p><div class="wz-nav" data-wz="3"><span></span><button type="button" class="btn primario wz-sig" data-act="cpw-ir" data-p="4">Siguiente ›</button></div>` : ""}
+        <div class="campos" data-wz="4">
           ${esLocal() ? `<fieldset class="campo full pago-local" ${S.editPedido ? "" : "hidden"}><legend>Forma de pago</legend>
             <div class="seg">
               <label><input type="radio" name="pago" id="e-pago-tr" value="Transferencia" checked><span>Transferencia</span></label>
@@ -4206,8 +4356,8 @@ ${esLocal() ? "" : `<label class="campo full"><span>Casa / Depto <em>opcional</e
           <fieldset class="campo full bid-box" id="e-vacios" hidden></fieldset>
           <label class="campo full"><span>Nota para el repartidor <em>opcional</em></span><textarea id="e-nota" rows="2" placeholder="Ej.: llamar al llegar, el timbre no funciona"></textarea></label>
         </div>
-        <p class="err" id="err-pedido" role="alert" style="margin-top:14px"></p>
-        <button class="btn primario grande" data-act="enviar" id="btn-enviar" style="margin-top:14px">${S.editPedido ? "Guardar cambios" : "Enviar pedido"}</button>
+        <p class="err" id="err-pedido" role="alert" data-wz="4" style="margin-top:14px"></p>
+        <button class="btn primario grande" data-act="enviar" id="btn-enviar" data-wz="4" style="margin-top:14px">${S.editPedido ? "Guardar cambios" : "Enviar pedido"}</button>
       </div>
     </div>
   </section>`;
@@ -4223,7 +4373,7 @@ function updateCarritoUI() {
     if (o) o.textContent = q;
     if (r) r.classList.toggle("on", q > 0);
     document.querySelectorAll(`[data-pq="${id}"]`).forEach(e => { e.textContent = q > 0 ? `${q} en tu pedido` : ""; });
-    document.querySelectorAll(`[data-afq="${id}"]`).forEach(e => { e.textContent = q > 0 ? `${q} en tu pedido` : ""; });
+    document.querySelectorAll(`[data-afq="${id}"]`).forEach(e => { e.textContent = qFotoTxt(id, q, "en tu pedido"); });
     document.querySelectorAll(`[data-afqw="${id}"]`).forEach(e => { e.hidden = !q; });
     const k = $("#kg-" + id); if (k) k.textContent = q > 0 ? `${q} ${q === 1 ? "bolsa" : "bolsas"} = ${fmtN(kgDe({ id, cant: q }))} kg` : "";
   }
@@ -4250,13 +4400,13 @@ function updateBarra(lista, total) {
   const n = lista.reduce((a, x) => a + x.q, 0);
   { const fc = $("#fdc-cnt"); if (fc) { fc.textContent = n || ""; fc.hidden = !n; } }
   const b = $("#barra");
-  const ver = esCliP() && S.ses.cliente && S.cliTab === "nuevo" && n > 0 && !S.entregaVisible;
+  const ver = esCliP() && S.ses.cliente && S.cliTab === "nuevo" && n > 0 && !S.entregaVisible && (!cpwOn() || CPW.paso === 2);
   b.hidden = !ver;
-  const cuenta = `${n} ${n === 1 ? "producto" : "productos"}`;
+  const cuenta = cuentaTxt(lista);
   if (!ver) S.sacarAbierto = false;
   /* «Sacar»: abre una lista con los productos del pedido para quitar unidades. */
   const sacar = ver && S.sacarAbierto ? `<div class="sacar-pan" role="region" aria-label="Sacar productos del pedido"><div class="sacar-h"><b>Sacar del pedido</b><button type="button" class="link" data-act="barra-sacar">Cerrar</button></div><ul class="sacar-l">${lista.map(x => `<li><span class="sacar-n">${esc(etiqueta(x.p))}<small>${esc(x.p.cat)} · ${fmtN(x.q)} en tu pedido</small></span><button type="button" class="sacar-b" data-act="menos" data-id="${x.p.id}" aria-label="Sacar 1 ${esc(etiqueta(x.p))}">− 1</button><button type="button" class="sacar-b sacar-x" data-act="sacar-todo" data-id="${x.p.id}" aria-label="Sacar todo ${esc(etiqueta(x.p))}">Quitar</button></li>`).join("")}</ul></div>` : "";
-  if (ver) b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${verPrecios() ? `${clp(total)}<small>${cuenta}</small>` : `${cuenta}<small>en tu pedido</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="barra-sacar" aria-expanded="${!!S.sacarAbierto}">${S.sacarAbierto ? "✕ Cerrar" : "− Sacar"}</button><button class="btn primario" data-act="ir" data-to="entrega">${S.editPedido ? "Revisar y guardar" : "Revisar y enviar"}</button></div></div>`;
+  if (ver) b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${verPrecios() ? `${clp(total)}<small>${cuenta}</small>` : `${cuenta}<small>en tu pedido</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="barra-sacar" aria-expanded="${!!S.sacarAbierto}">${S.sacarAbierto ? "✕ Cerrar" : "− Sacar"}</button>${cpwOn() ? `<button class="btn primario" data-act="cpw-ir" data-p="3">Siguiente ›</button>` : `<button class="btn primario" data-act="ir" data-to="entrega">${S.editPedido ? "Revisar y guardar" : "Revisar y enviar"}</button>`}</div></div>`;
 }
 let io = null;
 function observarEntrega() {
@@ -4306,7 +4456,7 @@ async function enviarPedido(btn) {
         historial, solicitante: quien, telefono: tel, direccion: dir, depto, comuna, fechaEntrega: fecha, horario, pago, nota,
         items: its, bidones: bidonesDoc(), total: Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + cargoCarrito()), ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), editado: Date.now()
       }));
-      S.editPedido = null; S.carrito = {}; S.dev = {}; S.devTocado = {}; S.cliTab = "mis"; S.misSub = "pend";
+      S.editPedido = null; S.carrito = {}; S.dev = {}; S.devTocado = {}; S.cliTab = "mis"; S.misSub = "pend"; CPW.paso = 1; CPW.grupo = ""; CPW.fin = null;
       renderView(); window.scrollTo(0, 0);
       toast(`Pedido N° ${ed.num} actualizado.`);
       return;
@@ -4333,6 +4483,7 @@ async function enviarPedido(btn) {
     S.misSub = "pend";
     { const [ra, rb] = rangoPeriodo(S.pendG, S.misRef); if (fecha < ra || fecha > rb) S.misRef = fecha; }
     if (!S.pedidos.some(x => x.id === id)) S.pedidos.unshift(Object.assign({ id }, doc));
+    if (cpwOn()) { CPW.fin = { num, fecha, horario, aviso: avisoCorte(fecha0, fecha) }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
     cambiarCliTab("mis"); renderListas(); window.scrollTo({ top: 0, behavior: "smooth" });
     toast(`Pedido N° ${num} enviado. Lo ves en Mis pedidos > Pendientes.${avisoCorte(fecha0, fecha)}`);
   } catch (e) { err.textContent = msgError(e); }
@@ -4693,6 +4844,7 @@ function centrarCliTab() {
   try { bar.scrollTo({ left: x, behavior: "smooth" }); } catch (_) { bar.scrollLeft = x; }
 }
 function cambiarCliTab(t) {
+  if (CPW.paso === 5) cpwIr(1, true);
   if (t === "pag" && S.cliTab !== "pag") { S.pagoPer = "dia"; S.pagoRef = hoy(); const pc = $("#pagos-cli"); if (pc && pagoOk()) pc.innerHTML = clientePagosHTML(); }
   S.cliTab = t;
   document.querySelectorAll('[data-act="cli-tab"]').forEach(b => b.setAttribute("aria-selected", String(b.dataset.t === t)));
@@ -5013,7 +5165,7 @@ function repetirPedidoCli(id) {
   for (const i of items(p)) if (PROD[i.id] && Number(i.cant) > 0) S.carrito[i.id] = Math.min(99, (S.carrito[i.id] || 0) + Number(i.cant));
   if (!Object.keys(S.carrito).length) { toast("Los productos de este pedido ya no están disponibles."); return; }
   S.editPedido = null; S.repCli = { id: p.id, num: Number(p.numCliente) || "" };
-  S.dev = {}; S.devTocado = {}; S.editando = false; S.confirmar = null; S.cliTab = "nuevo";
+  S.dev = {}; S.devTocado = {}; S.editando = false; S.confirmar = null; S.cliTab = "nuevo"; CPW.paso = 1; CPW.grupo = ""; CPW.fin = null;
   renderView();
   const set = (k, v) => { const el = $("#" + k); if (el && v) el.value = v; };
   if (esLocal()) set("e-quien", p.solicitante);
@@ -5034,7 +5186,7 @@ function editarPedido(id) {
   for (const i of items(p)) if (PROD[i.id] && Number(i.cant) > 0) S.carrito[i.id] = Math.min(99, Number(i.cant));
   S.editPedido = { id: p.id, num: Number(p.numCliente) || "" };
   S.dev = {}; S.devTocado = {}; if (p.bidones) for (const t of TAM_BIDON) if (p.bidones[t]) { S.dev[t] = Number(p.bidones[t].devueltos) || 0; S.devTocado[t] = true; }
-  S.editando = false; S.confirmar = null; S.cliTab = "nuevo";
+  S.editando = false; S.confirmar = null; S.cliTab = "nuevo"; CPW.paso = 1; CPW.grupo = ""; CPW.fin = null;
   renderView();
   const set = (k, v) => { const el = $("#" + k); if (el) el.value = v || ""; };
   set("e-quien", p.solicitante); set("e-dir", p.direccion); set("e-depto", p.depto); set("e-comuna", p.comuna); set("e-tel", p.telefono); set("e-nota", p.nota);
@@ -7100,7 +7252,7 @@ const pendDe = ns => ns === "pzi" ? PZ.pend : ns === "agua" ? AG.pend : ns === "
 function cambiarContador(ns, id, n, escribir) {
   const pend = pendDe(ns);
   if (!(id in pend)) return;
-  pend[id] = Math.max(0, Math.min(9999, n));
+  pend[id] = Math.max(0, Math.min(ns === "ins" && INS_PASO[id] ? 99999 : 9999, n));
   const card = document.getElementById(`${ns}-card-${id}`);
   if (card) {
     card.classList.toggle("has", pend[id] > 0);
@@ -7193,6 +7345,8 @@ const INS_NOM = Object.assign(Object.fromEntries(INSUMOS), { be20: "Bidones elim
 const INS_CAJA = { tapas: 1000 };
 /* Insumos que se cuentan con su propia unidad (la sal va por sacos). */
 const INS_UNI = { sal: ["saco", "sacos"] };
+/* Ingresar insumos: los sellos se suman y restan de 500 en 500 unidades (el stock se guarda en sellos). */
+const INS_PASO = { sellos: 500 };
 const insTxt = (k, v) => { const f = INS_CAJA[k]; v = Number(v) || 0; if (INS_UNI[k]) return `${fmtN(v)} ${Math.abs(v) === 1 ? INS_UNI[k][0] : INS_UNI[k][1]}`; if (!f) return fmtN(v); const cj = v / f; return `${Number.isInteger(cj) ? fmtN(cj) : fmtL(cj)} ${Math.abs(cj) === 1 ? "caja" : "cajas"} · ${fmtN(v)} tapas`; };
 const INS = { pend: Object.fromEntries(INSUMOS.map(([k]) => [k, 0])), modo: "ing", doc: {}, sub: {}, guardando: false };
 const insLocal = () => S.portal === "papas" || (S.portal === "admin" && AD.local === "papas") ? "papas" : "agua";
@@ -7351,7 +7505,7 @@ function insumosHTML() {
     ${hist}`;
   }
   return `<p class="lead-sm">${enAd ? `Ingresa los insumos que llegan. Se suman al stock de insumos de Local agua y quedan en <b>Inventario general</b> de Administrador y en Local agua › <b>Inventario insumos</b>.` : `Registra los insumos que llegan a ${loc === "papas" ? "Local papas" : "Local agua"}. Cada ingreso queda guardado en <b>Inventario insumos</b>.`}</p>
-    ${INS_GRUPOS.map(([g, ks]) => `<h3 class="sec ins-g">${esc(g)}</h3><div class="pgrid ${loc === "papas" ? "col-papa" : "col-pur"} ins-grid">${ks.map(k => { const l = INS_NOM[k]; return contadorHTML("ins", k, INS_CAJA[k] ? `${l} (por caja de ${fmtN(INS_CAJA[k])})` : INS_UNI[k] ? `${l} (por ${INS_UNI[k][0]})` : l, `En stock: <b>${insTxt(k, c[k])}</b>`, INS.pend[k]); }).join("")}</div>`).join("")}
+    ${INS_GRUPOS.map(([g, ks]) => `<h3 class="sec ins-g">${esc(g)}</h3><div class="pgrid ${loc === "papas" ? "col-papa" : "col-pur"} ins-grid">${ks.map(k => { const l = INS_NOM[k]; return contadorHTML("ins", k, INS_CAJA[k] ? `${l} (por caja de ${fmtN(INS_CAJA[k])})` : INS_PASO[k] ? `${l} (de ${fmtN(INS_PASO[k])} en ${fmtN(INS_PASO[k])})` : INS_UNI[k] ? `${l} (por ${INS_UNI[k][0]})` : l, `En stock: <b>${insTxt(k, c[k])}</b>`, INS.pend[k]); }).join("")}</div>`).join("")}
     <label class="campo full ag-nota"><span>Nota <em>opcional</em></span><textarea id="ins-nota" rows="2" maxlength="200" placeholder="Ej.: llegó el pedido del proveedor">${esc(INSM.nota)}</textarea></label>
     <p class="err" id="ins-err" role="alert"></p>
     <div class="confirm-bar" id="ins-bar"></div>`;
@@ -9800,13 +9954,157 @@ function introAdmin() {
 /* Agregar pedido: al crearlo se abre su ficha (con pago, prioridad, repetir, factura, etc.). */
 function agpFichaHTML() {
   const p = (S.pedidos || []).find(x => x.id === AD.agpFicha);
-  const pie = `<div class="acciones agp-ficha-acc"><button type="button" class="btn primario" data-act="agp-nuevo">＋ Crear otro pedido</button><button type="button" class="btn suave" data-act="ad-local" data-l="rep">Ver en Repartidores</button></div>`;
+  const pie = `<div class="acciones agp-ficha-acc"><button type="button" class="btn primario" data-act="agp-nuevo">＋ Crear otro pedido</button><button type="button" class="btn suave" data-act="ad-local" data-l="inicio">Ir a inicio</button><button type="button" class="btn suave" data-act="ad-local" data-l="rep">Ver en Repartidores</button></div>`;
   if (!p) return `<div id="agp-ficha">${vacio("Abriendo la ficha del pedido…", "Un momento.")}${pie}</div>`;
   return `<div id="agp-ficha"><p class="agp-ficha-ok">✅ Pedido${p.numCliente ? ` N° ${fmtN(p.numCliente)}` : ""} creado · #${esc(codigo(p.id))}</p>
     <div class="lista">${pedAdmCardHTML(p, { rep: true })}</div>${pie}</div>`;
 }
+/* ---------- Administrador › Crear pedido en pasos (carrusel): 1 Agua o papas · 2 Cliente · 3 Productos · 4 Entrega · Listo ---------- */
+const ADW = { paso: 1, fin: null };
+const ADW_TIT = { 1: "¿Qué pedido quieres crear?", 2: "Elige el cliente", 3: "Elige los productos", 4: "Entrega y confirmación" };
+const adwOn = () => S.portal === "admin" && !crearEnRep();
+const adwPasos = () => AD.local === "agp" ? [1, 2, 3, 4] : [2, 3, 4];
+function adwHeadHTML(p) {
+  const ps = adwPasos(), i = ps.indexOf(p);
+  const tit = p === 3 ? `Productos de ${nomLocal()}` : p === 2 && AD.local === "agp" ? `Pedido de ${nomLocal()}: elige el cliente` : ADW_TIT[p];
+  return `<div class="wz-head"><button type="button" class="wz-atras" data-act="adw-atras" ${i <= 0 ? "hidden" : ""} aria-label="Paso anterior">‹ Atrás</button>
+    <div class="wz-tit"><small>Paso ${i + 1} de ${ps.length}</small><b>${esc(tit)}</b></div>
+    <ol class="wz-dots" aria-hidden="true">${ps.map((x, k) => `<li class="${k === i ? "act" : k < i ? "ok" : ""}"></li>`).join("")}</ol></div>`;
+}
+/* Revisa el cliente antes de pasar a los productos. */
+function adwValCli() {
+  if (AD.nuevo) {
+    const val = id => (($("#" + id) || {}).value || "").trim();
+    if (val("ad-n-nombre").length < 2) return "Escribe el nombre del cliente nuevo.";
+    if (digitos(val("ad-n-tel")) < 8) return "Escribe un teléfono válido para el cliente nuevo.";
+    if (!val("ad-n-dir")) return "Escribe la dirección del cliente nuevo.";
+    if (!val("ad-n-comuna")) return "Escribe la comuna del cliente nuevo.";
+    return adUsuClave()[0] || "";
+  }
+  return adCliente() ? "" : "Elige un cliente o crea uno nuevo.";
+}
+function adwIr(p, quieto) {
+  const antes = ADW.paso;
+  if (p === 3 && antes === 2) { const m = adwValCli(), er = $("#adw-err2"); if (er) er.textContent = m; if (m) return; }
+  if (p === 4 && !ORDEN.some(id => PROD[id].fam === famLocal() && (AD.carrito[id] || 0) > 0)) { toast("Agrega al menos un producto tocando su foto."); return; }
+  ADW.paso = p; if (p !== 5) ADW.fin = null;
+  if (AD.local === "agp" && (p === 1 || antes === 1)) { renderView(); }
+  else {
+    const w = $("#adw"); if (!w) { renderAdminPanel(); }
+    else { w.dataset.wzp = p; const h = $("#adw-head"); if (h) h.innerHTML = p === 5 ? "" : adwHeadHTML(p); const f = $("#adw-fin"); if (f) f.innerHTML = p === 5 ? adwFinHTML() : ""; adCarritoUI(); }
+  }
+  const c = AD.local === "agp" && p === 1 ? document.querySelector(".adw-agp") : $("#adw-cuerpo");
+  if (!quieto && c) { c.classList.remove("wz-fwd", "wz-back"); void c.offsetWidth; c.classList.add(p >= antes ? "wz-fwd" : "wz-back"); }
+  if (!quieto) window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function adwFinHTML() {
+  const f = ADW.fin || {};
+  return `<section class="card wz-fin" aria-live="polite"><div class="wz-fin-ic" aria-hidden="true">✅</div>
+    <h2>¡Pedido${f.num ? ` N° ${esc(String(f.num))}` : ""} creado!</h2>
+    <p>${f.nombre ? `Pedido de ${esc(nomLocal())} para ${esc(f.nombre)}. ` : ""}${f.aviso ? esc(f.aviso) : ""}</p>
+    <div class="wz-fin-acc"><button type="button" class="btn primario grande" data-act="adw-otro">＋ Crear otro pedido</button><button type="button" class="btn suave grande" data-act="ad-local" data-l="inicio">Ir a inicio</button><button type="button" class="btn suave" data-act="adw-total">Ver en Total pedidos</button></div></section>`;
+}
+/* ---------- Administrador › Borrador de pedidos: pedidos con productos elegidos que no se alcanzaron a crear ---------- */
+/* Mientras se arma un pedido en Crear pedido, se guarda solo (cada vez que cambia) en «borradores»; al crear el pedido se borra. */
+const BORR = { docs: [], cargado: false, sub: false, del: "", t: null, ult: "", p: Promise.resolve() };
+AD.borrId = "";
+function subBorr() {
+  if (BORR.sub || !S.db) return; BORR.sub = true;
+  S.db.collection("borradores").onSnapshot(s => {
+    BORR.docs = s.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.actualizado || 0) - (a.actualizado || 0));
+    BORR.cargado = true; renderBorr();
+  }, e => { console.warn("borradores", e); BORR.cargado = true; renderBorr(); });
+}
+function borrDatos() {
+  const fam = famLocal(), items = {}, val = id => (($("#" + id) || {}).value || "").trim(), c = adCliente();
+  for (const id of ORDEN) if (PROD[id].fam === fam && (AD.carrito[id] || 0) > 0) items[id] = AD.carrito[id];
+  const d = { local: adLoc(), items, clienteId: AD.nuevo ? "" : AD.clienteId || "", clienteNombre: AD.nuevo ? val("ad-n-nombre") : (c ? c.nombre : ""), clienteTipo: AD.nuevo ? AD.tipoNuevo : (c ? c.tipo || "" : ""),
+    fecha: val("ad-fecha-e"), desde: val("ad-desde"), hasta: val("ad-hasta"), nota: val("ad-nota"), quien: val("ad-quien"), pago: (document.querySelector('input[name="ad-pago"]:checked') || {}).value || "" };
+  if (AD.nuevo) d.nuevo = { nombre: val("ad-n-nombre"), telefono: val("ad-n-tel"), comuna: val("ad-n-comuna"), direccion: val("ad-n-dir"), depto: val("ad-n-depto"), tipo: AD.tipoNuevo };
+  return d;
+}
+function borrProgramar() { if (!adwOn() || !S.db || !document.getElementById("adw") || ADW.paso === 5) return; clearTimeout(BORR.t); BORR.t = setTimeout(() => { BORR.t = null; borrGuardar(); }, 1000); }
+function borrGuardar() {
+  if (!adwOn() || !S.db || !document.getElementById("adw") || ADW.paso === 5) return BORR.p;
+  const d = borrDatos(), key = (AD.borrId || "") + JSON.stringify(d);
+  if (key === BORR.ult) return BORR.p;
+  if (!Object.keys(d.items).length) {
+    if (!AD.borrId) return BORR.p;
+    const id = AD.borrId; AD.borrId = ""; BORR.ult = "";
+    return BORR.p = BORR.p.then(() => S.db.doc("borradores/" + id).delete()).catch(() => {});
+  }
+  if (!AD.borrId) AD.borrId = "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const id = AD.borrId, prev = BORR.docs.find(x => x.id === id), adm = quienAdm() || {};
+  BORR.ult = id + JSON.stringify(d);
+  Object.assign(d, { creado: (prev && prev.creado) || Date.now(), actualizado: Date.now(), por: adm.nombre || "" });
+  return BORR.p = BORR.p.then(() => S.db.doc("borradores/" + id).set(d)).catch(e => { console.warn("borrador", e); BORR.ult = ""; });
+}
+/* Al crear el pedido: se borra su borrador (después de cualquier guardado pendiente). */
+async function borrQuitarActual() {
+  clearTimeout(BORR.t); BORR.t = null;
+  const id = AD.borrId; AD.borrId = ""; BORR.ult = "";
+  if (!id) return;
+  BORR.docs = BORR.docs.filter(x => x.id !== id);
+  try { await BORR.p; await S.db.doc("borradores/" + id).delete(); } catch (_) {}
+}
+/* Cambios en los datos del pedido (cliente, fecha, nota…) también se guardan en el borrador. */
+document.addEventListener("input", e => { if (e.target && e.target.closest && e.target.closest("#adw")) borrProgramar(); });
+document.addEventListener("change", e => { if (e.target && e.target.closest && e.target.closest("#adw")) borrProgramar(); });
+/* Antes de salir de Crear pedido (cualquier botón), el guardado pendiente se hace al tiro. */
+document.addEventListener("click", e => {
+  if (!BORR.t || !document.getElementById("adw")) return;
+  if (e.target.closest && e.target.closest('[data-act="ad-crear"]')) return;
+  clearTimeout(BORR.t); BORR.t = null; borrGuardar();
+}, true);
+addEventListener("pagehide", () => { if (BORR.t) { clearTimeout(BORR.t); BORR.t = null; borrGuardar(); } });
+function borrHTML() { subBorr(); return `<div id="borr-panel">${borrListaHTML()}</div>`; }
+function renderBorr() { const el = $("#borr-panel"); if (el) el.innerHTML = borrListaHTML(); }
+function borrCuando(t) { if (!t) return ""; const m = Math.round((Date.now() - t) / 60000); if (m < 1) return "recién"; if (m < 60) return `hace ${m} min`; const d = new Date(t); return d.toLocaleString("es-CL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+function borrListaHTML() {
+  const intro = `<p class="muted borr-intro">Pedidos con productos elegidos que no se alcanzaron a crear. Se guardan solos mientras armas un pedido en <b>Crear pedido</b> y se borran al crearlo.</p>`;
+  if (!BORR.cargado) return intro + vacio("Cargando borradores…", "Un momento.");
+  const xs = BORR.docs.filter(d => d.items && Object.keys(d.items).some(id => PROD[id] && d.items[id] > 0));
+  if (!xs.length) return intro + vacio("No hay borradores", "Cuando elijas productos en Crear pedido y no alcances a crearlo, el pedido queda guardado aquí.");
+  return intro + `<div class="lista borr-lista">${xs.map(d => {
+    const lista = ORDEN.filter(id => PROD[id] && (d.items[id] || 0) > 0).map(id => ({ p: PROD[id], q: d.items[id] })), papas = d.local === "papas";
+    const cli = d.clienteNombre || "Sin cliente elegido";
+    const ent = d.fecha ? `Entrega ${esc(fmtFecha(d.fecha, true))}${d.desde && d.hasta ? ` · ${esc(d.desde)}–${esc(d.hasta)}` : ""}` : "";
+    return `<article class="card borr-card${AD.borrId === d.id ? " borr-act" : ""}">
+      <div class="borr-h"><span class="borr-loc ${papas ? "col-papa" : "col-pur"}">${papas ? "🥔 Papas" : "💧 Agua"}</span><b>${esc(cli)}</b>${d.nuevo ? `<span class="chip-t">Cliente nuevo</span>` : d.clienteTipo ? `<span class="chip-t">${esc(tipoTxt(d.clienteTipo))}</span>` : ""}</div>
+      <p class="muted-s borr-meta">Guardado ${esc(borrCuando(d.actualizado))}${d.por ? ` · ${esc(d.por)}` : ""}</p>
+      <ul class="borr-it">${lista.map(x => `<li><span class="q">${fmtN(x.q)}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}${x.p.fam === "papa" ? ` · ${fmtL(kgDe({ id: x.p.id, cant: x.q }))} kg` : ""}</small></span></li>`).join("")}</ul>
+      <p class="borr-tot"><b>${esc(cuentaTxt(lista))}</b>${ent ? ` · ${ent}` : ""}</p>
+      ${d.nota ? `<p class="muted-s">📝 ${esc(d.nota)}</p>` : ""}
+      ${BORR.del === d.id ? `<div class="acciones borr-acc"><span>¿Eliminar este borrador?</span><button type="button" class="btn suave" data-act="borr-no">No</button><button type="button" class="btn primario" data-act="borr-si" data-id="${esc(d.id)}">Sí, eliminar</button></div>`
+        : `<div class="acciones borr-acc"><button type="button" class="btn primario" data-act="borr-abrir" data-id="${esc(d.id)}">Continuar pedido ›</button><button type="button" class="btn suave" data-act="borr-del" data-id="${esc(d.id)}">Eliminar</button></div>`}
+    </article>`; }).join("")}</div>`;
+}
+/* «Continuar pedido»: abre Crear pedido con los productos, el cliente y los datos del borrador. */
+function borrAbrir(id) {
+  const d = BORR.docs.find(x => x.id === id); if (!d) return;
+  AD.local = "agp"; document.body.dataset.local = "agp"; AD.menuCerrado = true; AD.agpFicha = ""; AD.tab = "crear";
+  AD.agpLoc = d.local === "papas" ? "papas" : "agua";
+  AD.carrito = {}; for (const [k, q] of Object.entries(d.items || {})) if (PROD[k] && q > 0) AD.carrito[k] = q;
+  AD.dev = {}; AD.devTocado = {}; AD.cliQ = "";
+  AD.nuevo = !!d.nuevo; AD.clienteId = d.nuevo ? "" : (d.clienteId || ""); if (d.nuevo) AD.tipoNuevo = d.nuevo.tipo || "Particular";
+  AD.borrId = id; BORR.ult = "";
+  ADW.paso = AD.nuevo || AD.clienteId ? 3 : 2; ADW.fin = null;
+  renderView();
+  const set = (k, v) => { const e = $("#" + k); if (e && v) e.value = v; };
+  if (d.nuevo) { set("ad-n-nombre", d.nuevo.nombre); set("ad-n-tel", d.nuevo.telefono); set("ad-n-comuna", d.nuevo.comuna); set("ad-n-dir", d.nuevo.direccion); set("ad-n-depto", d.nuevo.depto); }
+  if (d.fecha && d.fecha >= hoy()) set("ad-fecha-e", d.fecha);
+  set("ad-desde", d.desde); set("ad-hasta", d.hasta); set("ad-nota", d.nota); set("ad-quien", d.quien);
+  if (d.pago) { const r = document.querySelector(`input[name="ad-pago"][value="${d.pago}"]`); if (r) r.checked = true; }
+  adCarritoUI(); BORR.ult = id + JSON.stringify(borrDatos());
+  window.scrollTo(0, 0); toast("Borrador abierto: revisa los datos y crea el pedido.");
+}
 function agpHTML() {
   const L = AD.agpLoc === "papas" ? "papas" : "agua";
+  if (adwOn()) {
+    const p1 = !AD.agpFicha && ADW.paso === 1;
+    return `<div class="adw-agp">${p1 ? adwHeadHTML(1) : ""}<div class="wz-tiles" role="group" aria-label="Tipo de pedido" data-wz="1" ${p1 ? "" : "hidden"}>${[["agua", "💧", "Agua", "Purificada, alcalina y dispensadores", "col-pur"], ["papas", "🥔", "Papas", "Bolsas de 1 kg y 5 kg", "col-papa"]].map(([k, e, l, sub, col]) => `<button type="button" class="wz-tile ${col}" data-act="agp-loc" data-v="${k}"><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub}</small></button>`).join("")}</div></div>
+    <div id="admin-panel" ${p1 ? "hidden" : ""}></div>`;
+  }
   return `<div class="pc-tiles agp-tiles" role="group" aria-label="Tipo de pedido">${[["agua", "💧", "Agua"], ["papas", "🥔", "Papas"]].map(([k, e, l]) => `<button type="button" data-act="agp-loc" data-v="${k}" aria-pressed="${L === k}"><span class="agp-e" aria-hidden="true">${e}</span><span>${l}</span></button>`).join("")}</div>
     <div id="admin-panel"></div>`;
 }
@@ -9831,7 +10129,7 @@ function adPrbHTML() {
   if (!S.ses.prueba && S.ses.admin) { S.ses.prueba = Object.assign({}, S.ses.admin, { src: "usuarios_admin" }); guardarSesion(); }
   return `<div class="ad-prb">${vistaPrueba()}</div>`;
 }
-const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
+const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button><span class="avisos-slot">${avisosBtnHTML()}</span></div>
@@ -9841,7 +10139,7 @@ function vistaAdmin() {
       ${AD_CERR() ? `<button type="button" class="local-btn ls-volver nav-volver" data-act="nav-volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Volver</button>` : ""}
       ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
-    ${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
+    ${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
@@ -10226,7 +10524,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
   ["Locales", [["posad", "Punto de venta"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["prov", "Proveedores"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
-  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
+  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
   ["Delivery", [["rep", "Repartidores"], ["efead", "Pagos en efectivo"]]],
   ["Registrados", [["usu", "Usuarios"], ["capt", "Clientes"], ["captados", "Captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
@@ -12006,7 +12304,7 @@ function envolverDb(db) {
   const log = (accion, path, data, prev) => {
     try {
       const [col, ...r] = String(path).split("/"), id = r.join("/");
-      if (col === REG_COL) return;
+      if (col === REG_COL || col === "borradores") return;
       const q = regQuien(), e = { en: Date.now(), accion, coleccion: col, que: REG_NOM[col] || col, docId: id, resumen: regResumen(col, id, data, prev), quien: q.quien, portal: q.portal };
       if (accion === "Modificación") e.campos = regCambios(data);
       db.doc(REG_COL + "/r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)).set(e).catch(() => {});
@@ -12273,6 +12571,7 @@ function activarAdmin() {
   if (AD.local === "posad") { if (!POS_TABS_LOC.some(([k]) => k === posTabNorm())) POS.tab = "pcli"; POS.loc = posAdLoc(); asegurarAdmin(); renderPos(); return; }
   if (AD.local === "prov") { subPV(); subProvs(); renderProvCrear(); renderProvPanel(); return; }
   if (AD.local === "agp") { asegurarAdmin(); AD.tab = "crear"; renderAdminPanel(); return; }
+  if (AD.local === "borr") { asegurarAdmin(); subBorr(); renderBorr(); return; }
   if (AD.local === "usu") { subUsuarios(); asegurarAdmin(); renderUsuarios(); return; }
   if (AD.local === "ped") { asegurarAdmin(); asegurarTipos(); renderTP(); return; }
   if (AD.local === "graf") { renderGraf(); return; }
@@ -12398,7 +12697,7 @@ function adAfpHTML(key, ids) {
   const vis = new Set(ids), lista = (AFP_CATS[key] || []).filter(id => PROD[id] && vis.has(id)), part = !adLocalSel();
   if (!lista.length) return "";
   return `<div class="afi-car afp-car ad-afp" aria-roledescription="carrusel" aria-label="Toca una foto para agregar 1 al pedido">
-    <div class="afi-track" tabindex="0">${lista.map((id, i) => { const p = PROD[id], q = AD.carrito[id] || 0, n = esc(etiqueta(p)); return `<button type="button" class="afi-slide afp-slide" data-act="ad-mas" data-id="${id}" aria-label="${n}. Toca para agregar 1 al pedido (${i + 1} de ${lista.length})"><div class="afp-img" style="background-image:var(--afp${part && AFP_PART.has(id) ? "P" : ""}-${id})"></div><span class="afp-add" aria-hidden="true">＋ Agregar</span><span class="afp-qw" data-adafqw="${id}" ${q ? "" : "hidden"}><span class="afp-menos" role="button" tabindex="0" data-act="ad-menos" data-id="${id}" aria-label="Quitar 1 ${n}">−</span><output class="afp-q" data-adafq="${id}">${q ? `${q} en el pedido` : ""}</output></span></button>`; }).join("")}</div>
+    <div class="afi-track" tabindex="0">${lista.map((id, i) => { const p = PROD[id], q = AD.carrito[id] || 0, n = esc(etiqueta(p)); return `<button type="button" class="afi-slide afp-slide" data-act="ad-mas" data-id="${id}" aria-label="${n}. Toca para agregar 1 al pedido (${i + 1} de ${lista.length})"><div class="afp-img" style="background-image:var(--afp${part && AFP_PART.has(id) ? "P" : ""}-${id})"></div><span class="afp-add" aria-hidden="true">＋ Agregar</span><span class="afp-qw" data-adafqw="${id}" ${q ? "" : "hidden"}><span class="afp-menos" role="button" tabindex="0" data-act="ad-menos" data-id="${id}" aria-label="Quitar 1 ${n}">−</span><output class="afp-q" data-adafq="${id}">${qFotoTxt(id, q, "en el pedido")}</output></span></button>`; }).join("")}</div>
     ${lista.length < 2 ? "" : `<button type="button" class="afi-nav afi-prev" data-act="afi-nav" data-d="-1" aria-label="Producto anterior">‹</button><button type="button" class="afi-nav afi-next" data-act="afi-nav" data-d="1" aria-label="Producto siguiente">›</button>
     <div class="afi-dots" role="group" aria-label="Elegir producto">${lista.map((id, i) => `<button type="button" data-act="afi-dot" data-i="${i}" aria-label="Ir a ${esc(etiqueta(PROD[id]))}" aria-current="${i === 0}"></button>`).join("")}</div>`}
   </div>`;
@@ -12469,15 +12768,24 @@ function adProdHTML(p) {
   </div>`;
 }
 function adCrearHTML() {
-  return `<div class="card ad-card">
+  if (!adwOn()) return adCrearBaseHTML();
+  if (AD.local !== "agp" && ADW.paso < 2) ADW.paso = 2;
+  const p = ADW.paso;
+  return `<div class="adw" id="adw" data-wzp="${p}"><div id="adw-head">${p === 5 ? "" : adwHeadHTML(p)}</div><div id="adw-cuerpo">${adCrearBaseHTML()}
+    <div class="wz-nav" data-wz="2"><p class="err" id="adw-err2" role="alert" style="flex-basis:100%;margin:0"></p><span></span><button type="button" class="btn primario wz-sig" data-act="adw-ir" data-p="3">Siguiente ›</button></div>
+    <div class="wz-nav" data-wz="3"><span></span><button type="button" class="btn primario wz-sig" data-act="adw-ir" data-p="4">Siguiente ›</button></div>
+    <div id="adw-fin" data-wz="5">${p === 5 ? adwFinHTML() : ""}</div></div></div>`;
+}
+function adCrearBaseHTML() {
+  return `<div class="card ad-card" data-wz="2">
       <h2 class="h2">Nuevo pedido de ${nomLocal()}</h2>
       ${crearEnRep() ? "" : `<button type="button" class="btn suave ad-agregar-cli" data-act="ad-agregar-cli" ${AD.nuevo ? "hidden" : ""}>➕ Agregar cliente</button>`}
       <label class="campo ad-cli-q"><span>🔎 Buscar cliente</span><input type="search" id="ad-cli-q" value="${esc(AD.cliQ || "")}" placeholder="Nombre, teléfono, dirección o comuna" autocomplete="off" autocapitalize="none" spellcheck="false"><small class="muted-s" id="ad-cli-n">${adCliNTxt()}</small></label>
       <label class="campo"><span>Cliente</span><select id="ad-cli">${adOpcionesCli()}</select></label>
       <div id="ad-cli-datos">${adCliDatosHTML()}</div>
     </div>
-    <div id="ad-cats">${adCatsHTML()}</div>
-    <div class="card ad-card" id="ad-resumen-card">
+    <div id="ad-cats" data-wz="3">${adCatsHTML()}</div>
+    <div class="card ad-card" id="ad-resumen-card" data-wz="4">
       <h2 class="h2">Resumen y entrega</h2>
       <ul class="resumen" id="ad-resumen"></ul>
       <div class="total" id="ad-total-box" ${adSinPrecio() ? "hidden" : ""}><span>Total</span><b id="ad-total">$0</b></div>
@@ -12502,15 +12810,15 @@ function adBarraUI() {
   if (!b) { b = document.createElement("div"); b.id = "barra-ad"; b.hidden = true; document.body.appendChild(b); }
   const card = document.getElementById("ad-resumen-card");
   if (card !== ADB.card) { if (ADB.io) ADB.io.disconnect(); ADB.card = card; ADB.resVis = false; if (card && "IntersectionObserver" in window) { ADB.io = new IntersectionObserver(es => { ADB.resVis = es[0].isIntersecting; adBarraUI(); }, { threshold: 0.08 }); ADB.io.observe(card); } }
-  const enCrear = S.portal === "admin" && !!document.getElementById("ad-cats") && !!card;
+  const enCrear = S.portal === "admin" && !!document.getElementById("ad-cats") && !!card && (!adwOn() || ADW.paso === 3);
   const fam = enCrear ? famLocal() : "", lista = enCrear ? ORDEN.filter(id => PROD[id].fam === fam && (AD.carrito[id] || 0) > 0).map(id => ({ p: PROD[id], q: AD.carrito[id] })) : [];
   const n = lista.reduce((a, x) => a + x.q, 0), ver = enCrear && n > 0 && !ADB.resVis;
   if (!ver) ADB.sacar = false;
   b.hidden = !ver; document.body.classList.toggle("con-barra-ad", ver);
   if (!ver) { if (b.innerHTML) b.innerHTML = ""; return; }
-  const cuenta = `${n} ${n === 1 ? "producto" : "productos"}`, total = lista.reduce((a, x) => a + adPrecio(x.p.id) * x.q, 0);
+  const cuenta = cuentaTxt(lista), total = lista.reduce((a, x) => a + adPrecio(x.p.id) * x.q, 0);
   const sacar = ADB.sacar ? `<div class="sacar-pan" role="region" aria-label="Sacar productos del pedido"><div class="sacar-h"><b>Sacar del pedido</b><button type="button" class="link" data-act="adb-sacar">Cerrar</button></div><ul class="sacar-l">${lista.map(x => `<li><span class="sacar-n">${esc(etiqueta(x.p))}<small>${esc(x.p.cat || detalle(x.p))} · ${fmtN(x.q)} en el pedido</small></span><button type="button" class="sacar-b" data-act="ad-menos" data-id="${x.p.id}" aria-label="Sacar 1 ${esc(etiqueta(x.p))}">− 1</button><button type="button" class="sacar-b sacar-x" data-act="ad-quitar" data-id="${x.p.id}" aria-label="Quitar ${esc(etiqueta(x.p))}">Quitar</button></li>`).join("")}</ul></div>` : "";
-  b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${adSinPrecio() ? `${cuenta}<small>en el pedido</small>` : `${clp(total)}<small>${cuenta}</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="adb-sacar" aria-expanded="${ADB.sacar}">${ADB.sacar ? "✕ Cerrar" : "− Sacar"}</button><button type="button" class="btn primario" data-act="adb-revisar">Revisar y crear</button></div></div>`;
+  b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${adSinPrecio() ? `${cuenta}<small>en el pedido</small>` : `${clp(total)}<small>${cuenta}</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="adb-sacar" aria-expanded="${ADB.sacar}">${ADB.sacar ? "✕ Cerrar" : "− Sacar"}</button>${adwOn() ? `<button type="button" class="btn primario" data-act="adw-ir" data-p="4">Siguiente ›</button>` : `<button type="button" class="btn primario" data-act="adb-revisar">Revisar y crear</button>`}</div></div>`;
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest('[data-act="adb-sacar"], [data-act="adb-revisar"]'); if (!b) return;
@@ -12526,7 +12834,7 @@ function adCarritoUI() {
     const o = $("#ad-q-" + id), r = $("#ad-row-" + id), q = AD.carrito[id] || 0;
     if (o) o.textContent = q;
     if (r) r.classList.toggle("on", q > 0);
-    document.querySelectorAll(`[data-adafq="${id}"]`).forEach(e => { e.textContent = q > 0 ? `${q} en el pedido` : ""; });
+    document.querySelectorAll(`[data-adafq="${id}"]`).forEach(e => { e.textContent = qFotoTxt(id, q, "en el pedido"); });
     document.querySelectorAll(`[data-adafqw="${id}"]`).forEach(e => { e.hidden = !q; });
     const k = $("#ad-kg-" + id); if (k) k.textContent = q ? `${q} ${q === 1 ? "bolsa" : "bolsas"} = ${fmtL(kgDe({ id, cant: q }))} kg` : "";
   }
@@ -12543,6 +12851,7 @@ function adCarritoUI() {
   const t = $("#ad-total");
   if (t) t.textContent = clp(Math.max(0, netoA + cargo));
   for (const id of ORDEN) { const e = $("#ad-pr-" + id); if (e) e.textContent = clp(adPrecio(id)); }
+  borrProgramar();
   return lista;
 }
 /* Valida usuario/clave del cliente nuevo; devuelve [error, usuario, clave]. */
@@ -12581,6 +12890,7 @@ async function adGuardarCliente(btn) {
     const sel = $("#ad-cli"); if (sel) { sel.innerHTML = adOpcionesCli(); sel.value = cid; }
     const d = $("#ad-cli-datos"); if (d) d.innerHTML = adCliDatosHTML();
     AD.devTocado = {}; adTipoCambio();
+    if (adwOn() && ADW.paso === 2) adwIr(3);
     toast(`Cliente «${n.nombre}» agregado${usuario ? ` con el usuario «${cid}»` : ""}. Ya puedes armar su pedido.`);
   } catch (x) { if (err) err.textContent = msgError(x); if (btn.isConnected) ocupar(btn, false); }
 }
@@ -12627,10 +12937,12 @@ async function crearPedidoAdmin(btn) {
       estado: "pendiente", repartidorId: "", repartidorNombre: "", creado: Date.now(), tomado: 0, entregado: 0,
       origen: esRep ? "repartidor" : "admin", local: adLoc(), creadoPor: adm.id, ...(AD.local === "agp" && (document.getElementById("ad-sinbol") || {}).checked ? { sinBoleta: true, conIva: false } : {})
     }));
+    if (adwOn()) borrQuitarActual();
     for (const x of lista) delete AD.carrito[x.p.id];
     AD.clienteId = ""; AD.nuevo = false; AD.dev = {}; AD.devTocado = {};
     if (AD.ultimoDoc && !(S.pedidos || []).some(x => x.id === id)) S.pedidos.unshift(Object.assign({ id }, AD.ultimoDoc));
     if (AD.local === "agp" && !crearEnRep()) { AD.agpFicha = id; renderAdminPanel(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+    else if (!crearEnRep() && AD.local !== "agp" && adwOn()) { ADW.paso = 5; ADW.fin = { num, nombre: cli.nombre, aviso: avisoCorte(fecha0, fecha), id, fecha }; renderAdminPanel(); window.scrollTo({ top: 0, behavior: "smooth" }); }
     else if (!crearEnRep() && AD.local !== "agp") {
       AD.tab = "total"; AD.per = "dia"; AD.ref = fecha; AD.fTipo = ""; AD.fCli = ""; AD.tEst = "pend"; AD.irA = id; AD.irAEn = Date.now();
       document.querySelectorAll('[data-act="ad-tab"]').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === "total")));
@@ -13940,7 +14252,11 @@ document.addEventListener("click", e => {
   } else if (a === "cli-inicio") {
     /* Clientes › Inicio: página con todos los íconos de la barra inferior. */
     S.todosPos = null; cambiarCliTab("inicio"); window.scrollTo({ top: 0, behavior: "smooth" });
-  } else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
+  } else if (a === "cpw-grupo") { CPW.grupo = b.dataset.g; cpwIr(2); if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); } }
+  else if (a === "cpw-ir") cpwIr(Number(b.dataset.p));
+  else if (a === "cpw-atras") cpwIr(CPW.paso === 3 && !CPW.grupo ? 1 : CPW.paso - 1);
+  else if (a === "cpw-otro") { CPW.grupo = ""; CPW.fin = null; cpwIr(1); }
+  else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "fdc-carro") { cambiarCliTab("nuevo"); const e = $("#entrega"); if (e && carritoLista().length) e.scrollIntoView({ block: "start", behavior: "smooth" }); else { toast("Tu pedido está vacío: agrega productos con +."); const t = $("#cli2-todos"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } }
   else if (a === "cfd-v") { CFD.v = b.dataset.v; try { localStorage.setItem("pya.cfdv", CFD.v); } catch (_) {} renderView(); }
   else if (a === "fdc-ayuda") toast("¿Dudas con tu pedido? Escríbenos por WhatsApp o llama a 100% Natural.");
@@ -13952,6 +14268,10 @@ document.addEventListener("click", e => {
     const q = Math.max(0, Math.min(99, (S.carrito[id] || 0) + (a === "mas" ? 1 : -1)));
     if (q) S.carrito[id] = q; else delete S.carrito[id];
     updateCarritoUI();
+  } else if (a === "cli-cat" && cpwOn()) {
+    /* En pasos: el ícono de una categoría abre «Elige tus productos» de su tipo (agua o papas). */
+    const c = CATALOGO.find(x => x.key === b.dataset.k); cambiarCliTab("nuevo");
+    if (c && (c.fam === "agua" || c.fam === "papa") && !PROXIMO.has(c.key)) { CPW.grupo = c.fam; cpwIr(2); } else cpwIr(1);
   } else if (a === "cli-cat") {
     /* Categorías de Clientes: cada botón abre su propia página (solo esa categoría); "Todos" muestra todos los productos. */
     /* Al salir de «Todos» se recuerda dónde estaba; al tocar «Todos» se vuelve a ese mismo punto y al volante de la última categoría vista. */
@@ -13982,7 +14302,8 @@ document.addEventListener("click", e => {
   else if (a === "agua-tipo") { AG.tipo = b.dataset.t; renderAguaPanel(); }
   else if (a === "cnt-mas" || a === "cnt-menos") {
     const pend = pendDe(b.dataset.ns);
-    cambiarContador(b.dataset.ns, id, (pend[id] || 0) + (a === "cnt-mas" ? 1 : -1), true);
+    const paso = (b.dataset.ns === "ins" && INS_PASO[id]) || 1;
+    cambiarContador(b.dataset.ns, id, (pend[id] || 0) + (a === "cnt-mas" ? paso : -paso), true);
   } else if (a === "agua-limpiar") { AGUA_PRODS.forEach(p => cambiarContador("agua", p.id, 0, true)); }
   else if (a === "vac-limpiar") { VACIOS.forEach(v => cambiarContador("vac", v, 0, true)); }
   else if (a === "pp-limpiar") { CORTES.forEach(([k]) => cambiarContador("pp", k, 0, true)); }
@@ -14458,7 +14779,15 @@ document.addEventListener("click", e => {
   else if (a === "ad-test") { AD.tEst = b.dataset.v; renderAdminPanel(); }
   else if (a === "ad-menu") { AD.menuCerrado = false; renderView(); window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "ad-portales") { S.verPortales = false; AD.ocultarPortales = !AD.ocultarPortales; renderHeader(); b.setAttribute("aria-pressed", String(!AD.ocultarPortales)); b.textContent = AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"; }
-  else if (a === "ad-local") { const L = b.dataset.l; AD.menuCerrado = L !== "inicio"; AD.agpFicha = "";
+  else if (a === "adw-ir") adwIr(Number(b.dataset.p));
+  else if (a === "adw-atras") { const ps = adwPasos(), i = ps.indexOf(ADW.paso); if (i > 0) adwIr(ps[i - 1]); }
+  else if (a === "adw-otro") { ADW.fin = null; AD.borrId = ""; BORR.ult = ""; adwIr(AD.local === "agp" ? 1 : 2); }
+  else if (a === "borr-abrir") borrAbrir(b.dataset.id);
+  else if (a === "borr-del") { BORR.del = b.dataset.id; renderBorr(); }
+  else if (a === "borr-no") { BORR.del = ""; renderBorr(); }
+  else if (a === "borr-si") { const id = b.dataset.id; BORR.del = ""; if (AD.borrId === id) { AD.borrId = ""; BORR.ult = ""; AD.carrito = {}; AD.clienteId = ""; AD.nuevo = false; } BORR.docs = BORR.docs.filter(x => x.id !== id); renderBorr(); S.db.doc("borradores/" + id).delete().then(() => toast("Borrador eliminado."), e => toast(msgError(e))); }
+  else if (a === "adw-total") { const f = ADW.fin || {}; ADW.paso = 2; ADW.fin = null; AD.tab = "total"; AD.per = "dia"; AD.ref = f.fecha || hoy(); AD.fTipo = ""; AD.fCli = ""; AD.tEst = "pend"; AD.irA = f.id; AD.irAEn = Date.now(); document.querySelectorAll('[data-act="ad-tab"]').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === "total"))); renderAdminPanel(); }
+  else if (a === "ad-local") { const L = b.dataset.l; AD.menuCerrado = L !== "inicio"; AD.agpFicha = ""; ADW.paso = L === "agp" ? 1 : 2; ADW.fin = null;
     if (L === "usu") { US.pag = "todos"; US.edit = ""; US.del = ""; US.crear = false; }
     if (L === "agp") { AD.tab = "crear"; AD.clienteId = ""; AD.nuevo = false; AD.cliQ = ""; }
     if (L === "pper") { SUEL.ref = hoy(); SUEL.mesVisto = hoy().slice(0, 7); } if (L === "pag" || L === "pper") { TPG.per = "dia"; TPG.ref = hoy(); TPG.dper = "dia"; TPG.dref = hoy(); TPG.est = "pend"; TPG.forma = ""; }
@@ -14472,8 +14801,8 @@ document.addEventListener("click", e => {
     if (L === "ploc") { PLOC.per = "semana"; PLOC.ref = hoy(); PLOC.wa = ""; PLOC.tipo = "loc"; PLOC.q = ""; PLOC.sel = []; try { localStorage.setItem("pya.plocTipo", "loc"); } catch (_) {} }
     if (L === "posad") { POS.tab = "vender"; POS.cliSub = "capt"; POS.fLoc = ""; POS.per = "dia"; POS.ref = hoy(); }
     if (L === "prov") { PV.adTab = "ingreso"; PV.crear = false; } if (L === "perfil" && AD.local !== "perfil") AD.perfilPrev = AD.local; AD.local = b.dataset.l; document.body.dataset.local = AD.local; renderView(); }
-  else if (a === "agp-nuevo") { AD.agpFicha = ""; AD.tab = "crear"; renderView(); window.scrollTo(0, 0); }
-  else if (a === "agp-loc") { AD.agpFicha = ""; const v = b.dataset.v === "papas" ? "papas" : "agua"; if (v === (AD.agpLoc === "papas" ? "papas" : "agua")) return; AD.agpLoc = v; AD.carrito = {}; AD.dev = {}; AD.devTocado = {}; AD.tab = "crear"; renderView(); }
+  else if (a === "agp-nuevo") { AD.agpFicha = ""; AD.tab = "crear"; ADW.paso = 1; ADW.fin = null; AD.borrId = ""; BORR.ult = ""; renderView(); window.scrollTo(0, 0); }
+  else if (a === "agp-loc") { AD.agpFicha = ""; const v = b.dataset.v === "papas" ? "papas" : "agua"; if (adwOn()) ADW.paso = 2; if (v === (AD.agpLoc === "papas" ? "papas" : "agua")) { if (adwOn()) { renderView(); window.scrollTo({ top: 0, behavior: "smooth" }); } return; } AD.agpLoc = v; AD.carrito = {}; AD.dev = {}; AD.devTocado = {}; AD.borrId = ""; BORR.ult = ""; AD.tab = "crear"; renderView(); }
   else if (a === "ad-vtab") { const L = b.dataset.t; if (L === AD.local) { /* «Ventas totales» tiene la misma clave que la sección: solo se marca y se ocultan los demás botones. */ ADSUB_INI = null; renderView(); return; } if (L === "graf") { GV.ref = hoy(); } else if (L === "vloc") { VLOC.per = "dia"; VLOC.ref = hoy(); } else if (L === "ped") { TP.per = "dia"; TP.ref = hoy(); } else { TPG.per = "dia"; TPG.ref = hoy(); TPG.dper = "dia"; TPG.dref = hoy(); TPG.est = "pend"; TPG.forma = ""; } AD.local = L; document.body.dataset.local = AD.local; renderView(); }
   else if (a === "pp-sec") { PP.sec = b.dataset.s; if (PP.sec === "clientes") { AD.local = "papas"; AD.tab = "crear"; } renderView(); }
   else if (a === "ad-sec") { AD.seccion = b.dataset.s; if (AD.seccion === "clientes") AD.tab = "crear"; else if (AD.local === "agua") { AG.tab = "pdped"; AG.pdpFecha = hoy(); } else PP.tab = "ped"; renderView(); }
@@ -14487,13 +14816,14 @@ document.addEventListener("click", e => {
   }
   else if (a === "ad-agregar-cli") {
     /* Abre el formulario de cliente nuevo de Crear pedido (se puede guardar sin crear el pedido). */
-    AD.cliVolver = { tab: AD.tab, cli: AD.clienteId, y: window.scrollY }; AD.tab = "crear"; AD.nuevo = true; AD.clienteId = ""; AD.cliQ = "";
+    AD.cliVolver = { tab: AD.tab, cli: AD.clienteId, y: window.scrollY }; AD.tab = "crear"; AD.nuevo = true; AD.clienteId = ""; AD.cliQ = ""; if (ADW.paso !== 2) { ADW.paso = 2; ADW.fin = null; }
     document.querySelectorAll('[data-act="ad-tab"]').forEach(x => x.setAttribute("aria-selected", String(x.dataset.t === "crear")));
     renderAdminPanel(); adTipoCambio();
     const d = $("#ad-cli-datos"); if (d) { d.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => { const i = $("#ad-n-nombre"); if (i) i.focus(); }, 300); }
   }
   else if (a === "ad-tab") {
     if (b.dataset.t === "total" && AD.tab !== "total") { AD.per = "dia"; AD.ref = hoy(); }
+    if (b.dataset.t === "crear") { ADW.paso = 2; ADW.fin = null; }
     AD.tab = b.dataset.t;
     document.querySelectorAll('[data-act="ad-tab"]').forEach(x => x.setAttribute("aria-selected", String(x === b)));
     renderAdminPanel();
@@ -14533,14 +14863,14 @@ document.addEventListener("click", e => {
   } else if (a === "editar-prods") {
     if (S.editando) guardarOcultos(true);
     S.editando = !S.editando;
-    renderCatalogo();
+    if (S.portal === "cliente") renderView(); else renderCatalogo();
     const el = $("#catalogo"); if (el) el.scrollIntoView({ block: "start" });
   } else if (a === "quitar-prod" || a === "mostrar-prod") cambiarOculto(id, a === "quitar-prod");
   else if (a === "enviar") enviarPedido(b);
   else if (a === "editar-pedido") { S.repCli = null; editarPedido(id); }
   else if (a === "repetir-pedido-cli") repetirPedidoCli(id);
   else if (a === "cancelar-repetir") { S.repCli = null; S.carrito = {}; S.dev = {}; S.devTocado = {}; S.cliTab = "mis"; renderView(); window.scrollTo(0, 0); }
-  else if (a === "cancelar-edicion") { S.editPedido = null; S.carrito = {}; renderView(); window.scrollTo(0, 0); }
+  else if (a === "cancelar-edicion") { S.editPedido = null; S.carrito = {}; CPW.paso = 1; CPW.grupo = ""; renderView(); window.scrollTo(0, 0); }
   else if (a === "cancelar") { S.confirmar = id; renderListas(); }
   else if (a === "cancelar-no") { S.confirmar = null; renderListas(); }
   else if (a === "cancelar-si") cancelarPedido(id, b);
@@ -14652,6 +14982,7 @@ document.addEventListener("change", e => {
     { const bt = document.querySelector('.ad-card [data-act="ad-agregar-cli"]'); if (bt) bt.hidden = AD.nuevo; }
     const d = $("#ad-cli-datos"); if (d) d.innerHTML = adCliDatosHTML();
     AD.devTocado = {}; adTipoCambio();
+    if (adwOn() && ADW.paso === 2 && AD.clienteId) adwIr(3);
   }
   if (e.target.id === "pc-pagofijo") { PC.pagoFijo = e.target.value; PC.dirty = true; return; }
   if (e.target.id === "pc-siniva") {
@@ -15105,7 +15436,7 @@ function guardarNav() {
   /* Al abrir la página 100% Natural se entra siempre a Clientes (salvo que el enlace indique otra página con #pagina). */
   if (en(n.cliTab, ["nuevo", "mis", "canc", "prog", "pag", "con", "stk", "perf"])) S.cliTab = n.cliTab;
   if (en(n.misSub, ["pend", "ent"])) S.misSub = n.misSub;
-  if (en(n.adLocal, ["agp", "agua", "papas", "rep", "prov", "ped", "pag", "pper", "bus", "capt", "captados", "promo", "precios", "usu", "est", "red", "cuentas", "pron", "imp", "reg"])) AD.local = n.adLocal;
+  if (en(n.adLocal, ["agp", "borr", "agua", "papas", "rep", "prov", "ped", "pag", "pper", "bus", "capt", "captados", "promo", "precios", "usu", "est", "red", "cuentas", "pron", "imp", "reg"])) AD.local = n.adLocal;
   if (en(n.adSec, ["clientes", "prod"])) AD.seccion = n.adSec;
   if (en(n.adTab, ks(TABS_ADMIN))) AD.tab = n.adTab;
   if (en(n.agTab, ks(TABS_AGUA))) AG.tab = n.agTab;
