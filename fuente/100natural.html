@@ -2228,6 +2228,9 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 .wz-tile small{color:var(--muted);font-size:.84rem;line-height:1.25}
 .wz-tile .wz-cnt{position:absolute;top:10px;right:10px;background:var(--ok);color:var(--on-ok);border-radius:99px;padding:2px 9px;font-size:.78rem;font-weight:800}
 .wz-tile.col-pur{border-color:var(--agua)}.wz-tile.col-papa{border-color:var(--papa)}
+.wz-tile.wz-prox{border-style:dashed;border-color:var(--fam);background:var(--fam-soft)}
+.wz-tile .wz-ptag{position:absolute;top:10px;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--fam);color:#fff;border-radius:99px;padding:2px 9px;font-size:.72rem;font-weight:800;letter-spacing:.02em}
+.wz-tile.wz-prox .wz-e{margin-top:14px}
 .wz-cont{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:14px;background:var(--surface-2)}
 .wz-nav{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:18px 0 6px}
 .wz-nav .btn{min-height:52px;font-weight:800}
@@ -3854,24 +3857,30 @@ const verPrecios = () => !esLocal();
 /* ---------- Clientes › Nuevo pedido en pasos (carrusel): 1 Agua o papas · 2 Productos · 3 Entrega · 4 Revisar y enviar · 5 Listo ---------- */
 const CPW = { paso: 1, grupo: "", fin: null };
 const CPW_GR = [["agua", "💧", "Agua", "Purificada, alcalina y dispensadores", "col-pur"], ["papa", "🥔", "Papas", "Bolsas de 1 kg y 5 kg", "col-papa"]];
+/* Productos «Próximamente»: también se muestran como botones en el primer paso (abren su volante, sin pedir). */
+const CPW_PROX = [["helados", "🍦", "Helados", "Próximamente", "col-hel", ["helados"]], ["perritos", "🐶", "Perritos", "Comida y camas · Próximamente", "col-hel", ["perritos", "camas"]], ["completos", "🌭", "Completos", "Próximamente", "col-hel", ["completos"]], ["jugos", "🧃", "Jugos naturales", "Próximamente", "col-hel", ["jugos"]]];
+function cpwProx() { const ks = new Set(catsCliente().map(x => x.c.key)); return CPW_PROX.filter(g => g[5].some(k => ks.has(k) && PROXIMO.has(k))); }
+const cpwEsProx = g => CPW_PROX.find(x => x[0] === g);
 const CPW_TIT = { 1: "¿Qué quieres pedir?", 2: "Elige tus productos", 3: "Datos de entrega", 4: "Revisa y envía", 5: "Pedido enviado" };
 const cpwOn = () => S.portal === "cliente" && !S.editando;
 function cpwGrupos() { const cs = catsCliente().filter(x => !PROXIMO.has(x.c.key)); return CPW_GR.filter(g => cs.some(x => x.c.fam === g[0])); }
 function cpwHeadHTML() {
-  const p = CPW.paso, g = CPW_GR.find(x => x[0] === CPW.grupo);
+  const p = CPW.paso, g = CPW_GR.find(x => x[0] === CPW.grupo), gp = cpwEsProx(CPW.grupo);
   if (p === 5) return "";
-  const tit = p === 2 && g ? `${g[2]}: elige tus productos` : CPW_TIT[p];
+  const tit = p === 2 && gp ? `${gp[2]} · Próximamente` : p === 2 && g ? `${g[2]}: elige tus productos` : CPW_TIT[p];
   return `<div class="wz-head"><button type="button" class="wz-atras" data-act="cpw-atras" ${p === 1 ? "hidden" : ""} aria-label="Paso anterior">‹ Atrás</button>
     <div class="wz-tit"><small>Paso ${p} de 4</small><b>${esc(tit)}</b></div>
     <ol class="wz-dots" aria-hidden="true">${[1, 2, 3, 4].map(i => `<li class="${i === p ? "act" : i < p ? "ok" : ""}"></li>`).join("")}</ol></div>`;
 }
 function cpwPaso1HTML() {
   const lista = carritoLista(), gs = cpwGrupos();
-  const tiles = gs.map(([k, e, l, sub, col]) => { const xs = lista.filter(x => x.p.fam === k), n = xs.length ? cuentaTxt(xs) : ""; return `<button type="button" class="wz-tile ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub}</small>${n ? `<span class="wz-cnt">${esc(n)}</span>` : ""}</button>`; }).join("");
+  const tiles = gs.map(([k, e, l, sub, col]) => { const xs = lista.filter(x => x.p.fam === k), n = xs.length ? cuentaTxt(xs) : ""; return `<button type="button" class="wz-tile ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub}</small>${n ? `<span class="wz-cnt">${esc(n)}</span>` : ""}</button>`; }).join("")
+    + cpwProx().map(([k, e, l, sub, col]) => `<button type="button" class="wz-tile wz-prox ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-ptag">Próximamente</span><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub.replace(/ ?·? ?Próximamente$/, "") || "Muy pronto"}</small></button>`).join("");
   return `<div class="wz-tiles" role="group" aria-label="Tipo de producto">${tiles}</div>
     ${lista.length ? `<div class="wz-cont"><span>Tu pedido: <b>${esc(cuentaTxt(lista))}</b></span><button type="button" class="btn primario" data-act="cpw-ir" data-p="3">Continuar con mi pedido ›</button></div>` : ""}`;
 }
 function cpwNav2HTML() {
+  if (cpwEsProx(CPW.grupo)) return `<div class="wz-nav"><button type="button" class="btn suave wz-sig" data-act="cpw-ir" data-p="1">‹ Volver a elegir agua o papas</button></div>`;
   const otro = cpwGrupos().find(g => g[0] !== CPW.grupo);
   return `<div class="wz-nav">${otro ? `<button type="button" class="btn suave" data-act="cpw-grupo" data-g="${otro[0]}">＋ Agregar ${otro[2].toLowerCase()}</button>` : "<span></span>"}<button type="button" class="btn primario wz-sig" data-act="cpw-ir" data-p="3">Siguiente ›</button></div>`;
 }
@@ -4104,7 +4113,8 @@ const ocultos = () => (S.ses.cliente && Array.isArray(S.ses.cliente.ocultos) ? S
 function catalogoHTML() {
   if (cpwOn()) {
     S.cliCat = "";
-    const oc = new Set(ocultos()), cs = catsCliente().filter(x => !PROXIMO.has(x.c.key) && x.c.fam === CPW.grupo);
+    const gp = cpwEsProx(CPW.grupo), oc = new Set(ocultos()), cs = catsCliente().filter(x => gp ? gp[5].includes(x.c.key) : !PROXIMO.has(x.c.key) && x.c.fam === CPW.grupo);
+    if (gp) return cs.length ? cs.map(x => seccion(x.c, x.items, oc, true)).join("") : vacio("No hay productos para mostrar", "Vuelve atrás y elige otro tipo de producto.");
     return cs.length ? cs.map(x => seccion(x.c, x.items, oc, true)).join("") + `<div class="cat-tools cat-tools-fin"><button class="btn suave chico" data-act="editar-prods">Editar productos</button></div>` : vacio("No hay productos para mostrar", "Vuelve atrás y elige otro tipo de producto.");
   }
   const oc = new Set(ocultos()), ed = S.editando;
@@ -7077,7 +7087,6 @@ async function accionRep(act, id, btn) {
       await conReintento(() => ref.update({ estado: "entregado", entregado: tE, entregadoPor: r.nombre || "", entregadoPorId: r.id || "" }));
       const pe = S.pedidos.find(x => x.id === id); if (pe) Object.assign(pe, { estado: "entregado", entregado: tE, entregadoPor: r.nombre || "", entregadoPorId: r.id || "" });
       irAComanda(id, "ent", pe ? fEntRep(pe) : "");
-      toast(`Pedido #${codigo(id)} entregado a las ${fmtHora(tE)} · está en Entregados`);
     } else if (act === "liberar") {
       const upd = { estado: "pendiente", repartidorId: "", repartidorNombre: "", tomado: 0, rutaId: "", rutaOrden: 0, entregado: 0, entregadoPor: "", entregadoPorId: "" };
       await conReintento(() => ref.update(upd));
@@ -14271,7 +14280,8 @@ document.addEventListener("click", e => {
   } else if (a === "cli-cat" && cpwOn()) {
     /* En pasos: el ícono de una categoría abre «Elige tus productos» de su tipo (agua o papas). */
     const c = CATALOGO.find(x => x.key === b.dataset.k); cambiarCliTab("nuevo");
-    if (c && (c.fam === "agua" || c.fam === "papa") && !PROXIMO.has(c.key)) { CPW.grupo = c.fam; cpwIr(2); } else cpwIr(1);
+    const gp = c && CPW_PROX.find(g => g[5].includes(c.key));
+    if (c && (c.fam === "agua" || c.fam === "papa") && !PROXIMO.has(c.key)) { CPW.grupo = c.fam; cpwIr(2); } else if (gp && PROXIMO.has(c.key)) { CPW.grupo = gp[0]; cpwIr(2); } else cpwIr(1);
   } else if (a === "cli-cat") {
     /* Categorías de Clientes: cada botón abre su propia página (solo esa categoría); "Todos" muestra todos los productos. */
     /* Al salir de «Todos» se recuerda dónde estaba; al tocar «Todos» se vuelve a ese mismo punto y al volante de la última categoría vista. */
@@ -14893,7 +14903,6 @@ document.addEventListener("click", e => {
   }
   else if (a === "entregar" && !b.dataset.conf) {
     b.dataset.conf = "1"; const txt = b.textContent; b.textContent = "¿Confirmar entrega?"; b.classList.add("conf-ent");
-    toast("Toca de nuevo para confirmar. Una vez entregado no se puede deshacer.");
     setTimeout(() => { if (b.isConnected && b.dataset.conf) { delete b.dataset.conf; b.textContent = txt; b.classList.remove("conf-ent"); } }, 5000);
   }
   else if (a === "fac-ver") verFactura(id);
@@ -14982,7 +14991,6 @@ document.addEventListener("change", e => {
     { const bt = document.querySelector('.ad-card [data-act="ad-agregar-cli"]'); if (bt) bt.hidden = AD.nuevo; }
     const d = $("#ad-cli-datos"); if (d) d.innerHTML = adCliDatosHTML();
     AD.devTocado = {}; adTipoCambio();
-    if (adwOn() && ADW.paso === 2 && AD.clienteId) adwIr(3);
   }
   if (e.target.id === "pc-pagofijo") { PC.pagoFijo = e.target.value; PC.dirty = true; return; }
   if (e.target.id === "pc-siniva") {
