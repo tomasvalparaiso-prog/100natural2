@@ -4917,7 +4917,8 @@ function creadoHTML(p) {
   const t = Number(p && p.creado) || 0;
   const te = p && p.estado === "entregado" && !sinHoraEntrega() ? Number(p.entregado) || 0 : 0, quien = p && (p.entregadoPor || p.repartidorNombre);
   /* En Repartidores no se muestra cuándo se creó el pedido. */
-  const soloFecha = S.portal === "repartidor" || (S.portal === "admin" && AD.local === "rep");
+  /* Excepción: Administrador › Repartidores › Últimos pedidos sí muestra la hora en que se creó. */
+  const soloFecha = S.portal === "repartidor" || (S.portal === "admin" && AD.local === "rep" && S.repTab !== "ultimos");
   const cre = t ? (soloFecha ? (k => { const r = relativo(k); return r ? r.toLowerCase() : "el " + fmtFecha(k); })(ymd(new Date(t))) : cuandoMs(t)) : "";
   return fechaEntregaHTML(p) + (t && !soloFecha ? `<p class="creado-en">🕒 Creado ${esc(cre)}</p>` : "") + (te ? `<p class="creado-en entregado-en">✅ Entregado ${esc(cuandoMs(te))}${quien ? ` · por ${esc(quien)}` : ""}</p>` : "") + edicionesHTML(p);
 }
