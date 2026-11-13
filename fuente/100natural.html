@@ -16003,13 +16003,21 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     const rt = document.querySelector(".rep-top"); if (rt) rt.hidden = true;
     const ae = document.activeElement, dat = document.getElementById("comb-datos");
     if (dat && ae && ae.closest && ae.closest(".comb-form")) { dat.innerHTML = combHTML(true); return; }
-    const vals = ["cb-rep", "cb-fecha", "cb-monto", "cb-litros"].map(id => { const el = document.getElementById(id); return el ? [id, el.value] : null; }).filter(Boolean);
     lr.innerHTML = `<div id="comb-panel">${combHTML()}</div>`;
-    for (const [id, v] of vals) { const el = document.getElementById(id); if (el) el.value = v; }
+    /* Lo escrito en el formulario no se pierde aunque la página se vuelva a dibujar. */
+    for (const [id, v] of Object.entries(CB.vals || {})) { const el = document.getElementById(id); if (el) el.value = v; }
     const er = document.getElementById("cb-err"); if (er && CB.msg) { er.textContent = CB.msg; }
   }
+  CB.vals = {};
+  const cbGuardaVal = e => { const t = e.target; if (t && /^cb-(rep|fecha|monto|litros)$/.test(t.id || "")) CB.vals[t.id] = t.value; };
+  document.addEventListener("input", cbGuardaVal, true); document.addEventListener("change", cbGuardaVal, true);
   try { const _rl = renderListas;
-  renderListas = function () { const r = _rl.apply(this, arguments); try { combPintar(); } catch (err) { console.warn("combustible", err); } return r; }; } catch (er) { console.warn("renderListas", er); }
+  /* En Combustible, las actualizaciones automáticas no vuelven a dibujar la lista de pedidos encima del formulario
+     (eso cerraba el teclado y parecía que la página se actualizaba sola mientras se escribían los datos). */
+  renderListas = function () {
+    if (S.repTab === "comb" && document.getElementById("comb-panel")) { try { combPintar(); } catch (err) { console.warn("combustible", err); } return; }
+    const r = _rl.apply(this, arguments); try { combPintar(); } catch (err) { console.warn("combustible", err); } return r;
+  }; } catch (er) { console.warn("renderListas", er); }
   document.addEventListener("click", async e => {
     const b = e.target.closest && e.target.closest('[data-act^="cb-"]'); if (!b) return;
     const a = b.dataset.act;
@@ -16030,7 +16038,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
       try {
         await conReintento(() => S.db.doc("combustible/" + id).set(x));
         if (!CB.docs.some(d => d.id === id)) CB.docs.push(Object.assign({ id }, x));
-        ["cb-monto", "cb-litros"].forEach(i => { const el = document.getElementById(i); if (el) el.value = ""; });
+        ["cb-monto", "cb-litros"].forEach(i => { const el = document.getElementById(i); if (el) el.value = ""; delete CB.vals[i]; });
         toast(`Carga guardada: ${clp(monto)} · ${f1(x.litros)} L`);
       } catch (er) { if (err) err.textContent = msgError(er); }
       if (b.isConnected) ocupar(b, false);
