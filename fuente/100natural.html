@@ -2274,6 +2274,10 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 /* Buscar pedido: rango de días */
 .bus-rango em{font-style:normal;font-weight:400;color:var(--muted);font-size:.85em}
 .bus-rango-acc{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+/* Nota del pedido: letra más grande y en negrita */
+.nota{font-size:1.08rem;font-weight:800;color:var(--ink);line-height:1.35}
+.nota b{font-weight:700}
+.td-nota{font-size:1.08rem;font-weight:800;color:var(--ink);line-height:1.35}
 /* Clientes: Casa / Depto al lado de Dirección */
 .dir-fila{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:10px;align-items:start}
 .dir-fila>.campo{margin:0;min-width:0}
@@ -13147,7 +13151,7 @@ function pedAdmCardHTML(p, o) {
       <p class="meta">${esc(dirTxt(p))}, ${esc(p.comuna || "")}${p.telefono ? " · " + waA(p.telefono) : ""}${p.origen === "admin" ? " · Creado por administrador" : p.origen === "repartidor" ? " · Creado por repartidor" : ""}${p.repartidorNombre ? " · Repartidor: " + esc(p.repartidorNombre) : ""}</p>
       ${itemsHTML(its, enRep)}
       ${bidonesPedidoHTML(p, false)}
-      ${p.nota ? `<p class="meta"><b>Nota:</b> ${esc(p.nota)}</p>` : ""}
+      ${p.nota ? `<p class="nota"><b>Nota</b>${esc(p.nota)}</p>` : ""}
       ${pagoEstadoHTML(p)}
       ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}`}
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
