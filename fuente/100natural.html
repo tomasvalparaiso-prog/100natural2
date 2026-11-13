@@ -2271,6 +2271,9 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 .ad-pago-rep p{margin:0}
 @keyframes rpAlerta{0%,100%{box-shadow:0 0 0 0 transparent}30%,70%{box-shadow:0 0 0 4px var(--danger)}}
 .rp-sel.rp-alerta{border-radius:12px;animation:rpAlerta 1.4s ease 1}
+/* Buscar pedido: rango de días */
+.bus-rango em{font-style:normal;font-weight:400;color:var(--muted);font-size:.85em}
+.bus-rango-acc{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
 /* Emitir factura en el SII */
 .sii-btn{margin:0 0 8px}
 .sii-pan{display:grid;gap:10px;margin:0 0 10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
@@ -13265,7 +13268,7 @@ function ultHTML() {
       <div class="lista">${g.ps.map(p => pedAdmCardHTML(p, { rep: true })).join("")}</div>`).join("") : vacio("Aún no hay pedidos", "Cuando entren pedidos, aquí verás los más nuevos.")}`;
 }
 const BUS = { q: "" };
-const busCardHTML = () => `<div class="card bus-card"><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
+const busCardHTML = () => `<div class="card bus-card"><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><div class="bus-2 bus-rango"><label class="campo"><span>📅 Desde <em>fecha de entrega</em></span><input type="date" id="bus-desde" value="${esc(BUS.desde || "")}"></label><label class="campo"><span>📅 Hasta</span><input type="date" id="bus-hasta" value="${esc(BUS.hasta || "")}"></label></div><div class="bus-rango-acc">${[["hoy", "Hoy"], ["sem", "Esta semana"], ["mes", "Este mes"], ["x", "Sin fechas"]].map(([k, l]) => `<button type="button" class="btn chico suave" data-act="bus-rango" data-r="${k}">${l}</button>`).join("")}</div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
 /* Búsqueda de pedidos (Buscador de pedidos y Últimos pedidos). */
 function busMatch(raw) {
   raw = String(raw || "").trim(); const q = raw.replace(/[#\s]/g, "").toUpperCase();
@@ -13304,14 +13307,17 @@ function renderBus() {
   const enRep = !!el.closest("#rep-bus");
   const raw = String(BUS.q || "").trim(), q = raw.replace(/[#\s]/g, "").toUpperCase();
   const nom = String(BUS.nom || "").trim(), dir = String(BUS.dir || "").trim();
-  if (!q && !nom && !dir) { el.innerHTML = vacio("Busca un pedido", "Escribe el nombre del cliente, la dirección, o un código, comuna o producto."); return; }
+  /* Rango de días (fecha de entrega): se puede usar solo o junto con la búsqueda. */
+  let de = String(BUS.desde || ""), ha = String(BUS.hasta || ""); if (de && ha && de > ha) [de, ha] = [ha, de];
+  const conRango = !!(de || ha), enRango = f => { f = String(f || ""); return !conRango || (!!f && (!de || f >= de) && (!ha || f <= ha)); };
+  if (!q && !nom && !dir && !conRango) { el.innerHTML = vacio("Busca un pedido", "Escribe el nombre del cliente, la dirección, o un código, comuna o producto. También puedes elegir un rango de días."); return; }
   if (!S.cargado) { el.innerHTML = vacio("Cargando pedidos…", "Un momento."); return; }
   const { norm, cliAct, coincide } = busMatch(raw);
   /* Filtros por campo: nombre del cliente y dirección (sin importar tildes ni mayúsculas; todas las palabras deben estar). */
   const pw = t => norm(t).replace(/[.,#]/g, " ").split(/\s+/).filter(Boolean), wn = pw(nom), wd = pw(dir);
   const okNom = p => !wn.length || (t => wn.every(w => t.includes(w)))(norm([p.clienteNombre, cliAct(p).nombre, p.solicitante].join(" | ")));
   const okDir = p => !wd.length || (t => wd.every(w => t.includes(w)))(norm([p.direccion, p.depto, p.comuna, cliAct(p).direccion, cliAct(p).depto, cliAct(p).comuna].join(" | ")).replace(/[.,#]/g, " "));
-  const res = (S.pedidos || []).filter(p => (!q || coincide(p)) && okNom(p) && okDir(p))
+  const res = (S.pedidos || []).filter(p => (!q || coincide(p)) && okNom(p) && okDir(p) && enRango(p.fechaEntrega))
     .sort((a, b) => (codigo(a.id) === q ? 0 : 1) - (codigo(b.id) === q ? 0 : 1) || String(b.fechaEntrega || "").localeCompare(String(a.fechaEntrega || "")) || (b.creado || 0) - (a.creado || 0));
   /* Ventas de Punto de venta › Pedidos (ventas en local) y clientes guardados desde Punto de venta, solo en Administrador. */
   if (!enRep) { subPVT(); subPC(); }
@@ -13319,16 +13325,17 @@ function renderBus() {
   const pclTel = new Map((PCL.docs || []).filter(c => t8(c.celular).length === 8).map(c => [t8(c.celular), c]));
   const venDir = v => { const c = pclTel.get(t8(v.celular)); return c ? c.direccion : ""; };
   const ven = enRep ? [] : (raw ? busVentas(raw) : [...(PVT.docs || [])].sort((a, b) => (Number(b.en) || 0) - (Number(a.en) || 0)))
-    .filter(v => (!wn.length || (t => wn.every(w => t.includes(w)))(norm(v.cliente))) && (!wd.length || (t => wd.every(w => t.includes(w)))(norm(venDir(v)).replace(/[.,#]/g, " "))));
-  const pwr = pw(raw), cliPos = enRep ? [] : (PCL.docs || []).filter(c => {
+    .filter(v => (!wn.length || (t => wn.every(w => t.includes(w)))(norm(v.cliente))) && (!wd.length || (t => wd.every(w => t.includes(w)))(norm(venDir(v)).replace(/[.,#]/g, " "))) && enRango(v.fecha || (v.en ? ymd(new Date(Number(v.en))) : "")));
+  const pwr = pw(raw), cliPos = enRep || (!q && !nom && !dir) ? [] : (PCL.docs || []).filter(c => {
     const tn = norm(c.nombre), td = norm(c.direccion).replace(/[.,#]/g, " "), tt = norm([c.nombre, c.celular, t8(c.celular), String(c.celular || "").replace(/\D/g, ""), c.direccion].join(" | ")).replace(/[.,#]/g, " ");
     return (!pwr.length || pwr.every(w => tt.includes(w))) && wn.every(w => tn.includes(w)) && wd.every(w => td.includes(w));
   }).sort((a, b) => (b.ultimaEn || 0) - (a.ultimaEn || 0) || String(a.nombre || "").localeCompare(String(b.nombre || ""), "es"));
   const comprasPos = c => { const t = t8(c.celular); return (PVT.docs || []).filter(v => t.length === 8 ? t8(v.celular) === t : norm(v.cliente) === norm(c.nombre)).length + (S.pedidos || []).filter(p => p.posClienteId === c.id).length; };
-  const total = res.length, mostrados = res.slice(0, 100);
-  if (!total && !ven.length && !cliPos.length) { el.innerHTML = vacio("No se encontraron pedidos", `No hay pedidos que coincidan con ${[raw && `«${esc(raw)}»`, nom && `cliente «${esc(nom)}»`, dir && `dirección «${esc(dir)}»`].filter(Boolean).join(" y ")}. Prueba con menos palabras o revisa cómo está escrito.`); return; }
+  const lim = conRango ? 500 : 100, total = res.length, mostrados = res.slice(0, lim);
+  const rangoTxt = conRango ? (de && ha ? (de === ha ? `el ${fmtFecha(de)}` : `del ${fmtFecha(de)} al ${fmtFecha(ha)}`) : de ? `desde el ${fmtFecha(de)}` : `hasta el ${fmtFecha(ha)}`) : "";
+  if (!total && !ven.length && !cliPos.length) { el.innerHTML = vacio("No se encontraron pedidos", `No hay pedidos que coincidan con ${[raw && `«${esc(raw)}»`, nom && `cliente «${esc(nom)}»`, dir && `dirección «${esc(dir)}»`, rangoTxt && `entrega ${esc(rangoTxt)}`].filter(Boolean).join(" y ")}. Prueba con menos palabras o revisa cómo está escrito.`); return; }
   el.innerHTML = (cliPos.length ? `<h3 class="sec bus-ven-h">👤 Clientes de punto de venta <small>${fmtN(cliPos.length)} ${cliPos.length === 1 ? "cliente encontrado" : "clientes encontrados"}${cliPos.length > 50 ? " · se muestran 50" : ""}</small></h3><ul class="pcl-lista bus-pcl">${cliPos.slice(0, 50).map(c => { const n = comprasPos(c); return `<li class="pcl-li"><span class="pcc-av" aria-hidden="true">${esc(((c.nombre || "").trim()[0] || "👤").toUpperCase())}</span><div class="pcl-d"><b>${esc(c.nombre || "Sin nombre")}</b>${c.celular ? `<span>📱 ${waA(c.celular)}</span>` : ""}${c.direccion ? `<span>📍 ${esc(c.direccion)}</span>` : ""}<span class="muted">🧾 ${n ? `${fmtN(n)} ${n === 1 ? "compra" : "compras"} en punto de venta` : "Sin compras registradas"}</span></div></li>`; }).join("")}</ul>` : "")
-    + (total ? `<p class="rango-lbl">${total} ${total === 1 ? "pedido encontrado" : "pedidos encontrados"}${total > 100 ? " · se muestran los 100 más recientes" : ""}</p><div class="lista">` + mostrados.map(p => pedAdmCardHTML(p, { q, enRep, cliAct, norm, rep: !enRep })).join("") + "</div>" : "")
+    + (total ? `<p class="rango-lbl">${total} ${total === 1 ? "pedido encontrado" : "pedidos encontrados"}${rangoTxt ? ` · entrega ${esc(rangoTxt)}` : ""}${total > lim ? ` · se muestran los ${lim} más recientes` : ""}${conRango ? ` · total ${clp(res.filter(p => p.estado !== "cancelado").reduce((t, p) => t + (Number(p.total) || 0), 0))}` : ""}</p><div class="lista">` + mostrados.map(p => pedAdmCardHTML(p, { q, enRep, cliAct, norm, rep: !enRep })).join("") + "</div>" : "")
     + (ven.length ? `<h3 class="sec bus-ven-h">🧾 Ventas en punto de venta <small>${fmtN(ven.length)} ${ven.length === 1 ? "venta encontrada" : "ventas encontradas"}${ven.length > 100 ? " · se muestran las 100 más recientes" : ""}</small></h3><ul class="pv-lista">${ven.slice(0, 100).map(busVentaHTML).join("")}</ul>` : "");
 }
 const TPG = { per: "dia", ref: hoy(), dper: "dia", dref: hoy(), est: "pend", cat: "", forma: "", subs: false, agua: [], aguaOk: false };
@@ -14987,6 +14994,13 @@ document.addEventListener("click", e => {
     setTimeout(() => { if (b.isConnected && b.dataset.conf) { delete b.dataset.conf; b.textContent = txt; b.classList.remove("conf-ent"); } }, 5000);
   }
   else if (a === "fac-ver") verFactura(id);
+  else if (a === "bus-rango") {
+    /* Buscar pedido: atajos de rango de días (fecha de entrega). */
+    const r = b.dataset.r, h = hoy(), lun = lunesDe(h);
+    [BUS.desde, BUS.hasta] = r === "hoy" ? [h, h] : r === "sem" ? [lun, addDias(lun, 6)] : r === "mes" ? [h.slice(0, 8) + "01", ymd(new Date(Number(h.slice(0, 4)), Number(h.slice(5, 7)), 0))] : ["", ""];
+    const d1 = $("#bus-desde"), d2 = $("#bus-hasta"); if (d1) d1.value = BUS.desde; if (d2) d2.value = BUS.hasta;
+    renderBus();
+  }
   else if (a === "sii-abrir") { S.siiAbre = id; refrescarDelPed(); }
   else if (a === "sii-cerrar") { S.siiAbre = ""; refrescarDelPed(); }
   else if (a === "sii-cp" || a === "sii-todo") {
@@ -15259,6 +15273,7 @@ document.addEventListener("input", e => {
 document.addEventListener("input", e => {
   if (e.target.id === "bus-nom") { BUS.nom = e.target.value; renderBus(); return; }
   if (e.target.id === "bus-dir") { BUS.dir = e.target.value; renderBus(); return; }
+  if (e.target.id === "bus-desde" || e.target.id === "bus-hasta") { BUS[e.target.id === "bus-desde" ? "desde" : "hasta"] = e.target.value; renderBus(); return; }
   if (e.target.id !== "bus-q") return;
   BUS.q = e.target.value; renderBus();
 });
