@@ -2505,7 +2505,6 @@ function pintarVacios() {
   S.devTocado = S.devTocado || {};
   for (const t of tams) { const max = n[t] + Math.max(0, saldo[t]); if (S.dev[t] == null || !S.devTocado[t]) S.dev[t] = n[t]; if (S.dev[t] > max) S.dev[t] = max; }
   el.innerHTML = `<legend>¿Devuelves bidones vacíos?</legend>
-    <p class="muted-s bid-ayuda">Indica cuántos bidones vacíos le entregas al repartidor. Los que no devuelvas quedan registrados como bidones prestados${sinMontoBid() ? "" : `, con un valor de ${clp(VALOR_BIDON)} por bidón`}.</p>
     ${tams.map(t => { const max = n[t] + Math.max(0, saldo[t]); return `<div class="bid-fila">
       <span class="bid-tit">Bidón ${t} L <small>pides ${n[t]}${saldo[t] > 0 ? ` · ${saldo[t]} prestados de antes` : ""}</small></span>
       <div class="bid-step"><button type="button" class="c-menos" data-act="dev-q" data-t="${t}" data-d="-1" aria-label="Uno menos">−</button><b id="dev-n-${t}">${S.dev[t]}</b><button type="button" class="c-mas" data-act="dev-q" data-t="${t}" data-d="1" aria-label="Uno más" ${S.dev[t] >= max ? "disabled" : ""}>+</button></div>
