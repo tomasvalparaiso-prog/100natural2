@@ -2267,6 +2267,26 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 .borr-tot{margin:0}
 .borr-acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .borr-acc .btn{min-height:46px;font-weight:800}
+/* Forma de pago: la marca el repartidor */
+.ad-pago-rep p{margin:0}
+@keyframes rpAlerta{0%,100%{box-shadow:0 0 0 0 transparent}30%,70%{box-shadow:0 0 0 4px var(--danger)}}
+.rp-sel.rp-alerta{border-radius:12px;animation:rpAlerta 1.4s ease 1}
+/* Emitir factura en el SII */
+.sii-btn{margin:0 0 8px}
+.sii-pan{display:grid;gap:10px;margin:0 0 10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.sii-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sii-pasos{margin:0;padding-left:20px;display:grid;gap:12px}
+.sii-pasos li{display:grid;gap:6px}
+.sii-pasos li>.btn{justify-self:start}
+.sii-rut input{width:100%;min-height:44px;font:inherit;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.sii-cp{font:inherit;font-weight:700;text-align:left;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 9px;cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.sii-cp span{color:var(--muted);font-weight:400}
+.sii-tabla{display:grid;gap:8px}
+.sii-fila{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px;border-radius:10px;background:var(--bg)}
+.sii-nom{grid-column:1/-1}
+.sii-cel{display:grid;gap:3px;justify-items:start}
+.sii-cel small{color:var(--muted)}
+.sii-tot{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0}
 </style>
 <script>
 (() => {
@@ -3856,6 +3876,7 @@ const esLocal = () => !!(S.ses.cliente && S.ses.cliente.tipo === "Local comercia
 const verPrecios = () => !esLocal();
 /* ---------- Clientes › Nuevo pedido en pasos (carrusel): 1 Agua o papas · 2 Productos · 3 Entrega · 4 Revisar y enviar · 5 Listo ---------- */
 const CPW = { paso: 1, grupo: "", fin: null };
+S.cliIr = ""; /* pedido recién enviado que se resalta al tocar «Ir al pedido» */
 const CPW_GR = [["agua", "💧", "Agua", "Purificada, alcalina y dispensadores", "col-pur"], ["papa", "🥔", "Papas", "Bolsas de 1 kg y 5 kg", "col-papa"]];
 /* Productos «Próximamente»: también se muestran como botones en el primer paso (abren su volante, sin pedir). */
 const CPW_PROX = [["helados", "🍦", "Helados", "Próximamente", "col-hel", ["helados"]], ["perritos", "🐶", "Perritos", "Comida y camas · Próximamente", "col-hel", ["perritos", "camas"]], ["completos", "🌭", "Completos", "Próximamente", "col-hel", ["completos"]], ["jugos", "🧃", "Jugos naturales", "Próximamente", "col-hel", ["jugos"]]];
@@ -3889,7 +3910,7 @@ function cpwFinHTML() {
   return `<section class="card wz-fin" aria-live="polite"><div class="wz-fin-ic" aria-hidden="true">✅</div>
     <h2>¡Pedido${f.num ? ` N° ${esc(String(f.num))}` : ""} enviado!</h2>
     <p>${f.fecha ? `Entrega el ${esc(fmtFecha(f.fecha, true))}${f.horario ? `, entre ${esc(f.horario)} hrs` : ""}. ` : ""}Lo ves en Mis pedidos › Pendientes.${f.aviso ? esc(f.aviso) : ""}</p>
-    <div class="wz-fin-acc"><button type="button" class="btn primario grande" data-act="cpw-otro">＋ Crear otro pedido</button><button type="button" class="btn suave grande" data-act="cli-inicio">Ir a inicio</button></div></section>`;
+    <div class="wz-fin-acc"><button type="button" class="btn primario grande" data-act="cpw-otro">＋ Crear otro pedido</button>${f.id ? `<button type="button" class="btn suave grande" data-act="cpw-ver" data-id="${esc(f.id)}">Ir al pedido</button>` : ""}<button type="button" class="btn suave grande" data-act="cli-inicio">Ir a inicio</button></div></section>`;
 }
 /* Revisa los datos de entrega antes de pasar al último paso (mismas reglas que al enviar). */
 function cpwValEntrega() {
@@ -4493,7 +4514,7 @@ async function enviarPedido(btn) {
     S.misSub = "pend";
     { const [ra, rb] = rangoPeriodo(S.pendG, S.misRef); if (fecha < ra || fecha > rb) S.misRef = fecha; }
     if (!S.pedidos.some(x => x.id === id)) S.pedidos.unshift(Object.assign({ id }, doc));
-    if (cpwOn()) { CPW.fin = { num, fecha, horario, aviso: avisoCorte(fecha0, fecha) }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
+    if (cpwOn()) { CPW.fin = { id, num, fecha, horario, aviso: avisoCorte(fecha0, fecha) }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
     cambiarCliTab("mis"); renderListas(); window.scrollTo({ top: 0, behavior: "smooth" });
     toast(`Pedido N° ${num} enviado. Lo ves en Mis pedidos > Pendientes.${avisoCorte(fecha0, fecha)}`);
   } catch (e) { err.textContent = msgError(e); }
@@ -5001,7 +5022,7 @@ function pedidoClienteHTML(p) {
       : `<div class="acciones"><button class="btn chico suave" data-act="cancelar" data-id="${esc(p.id)}">Cancelar pedido</button><button class="btn chico primario" data-act="editar-pedido" data-id="${esc(p.id)}">Editar pedido</button></div>`;
   } else if (p.estado === "en_camino") pie = `<span class="estado-txt">Lo lleva ${esc(p.repartidorNombre || "un repartidor")}</span>`;
   else if (p.estado === "entregado") pie = `<span class="estado-txt">Entregado el ${!p.fechaEntrega || (p.entregado && ymd(new Date(p.entregado)) === p.fechaEntrega) ? `${esc(fmtDia(p.entregado))} a las ${fmtHora(p.entregado)}` : esc(fmtFecha(p.fechaEntrega))}${p.repartidorNombre ? " por " + esc(p.repartidorNombre) : ""}</span>`;
-  return `<article class="ped">
+  return `<article class="ped${S.cliIr === p.id ? " ped-recien" : ""}" data-pid="${esc(p.id)}">
     <div class="ped-h"><b class="t">Pedido N° ${Number(p.numCliente) || "–"}</b>${pill(p.estado)}</div>
     ${creadoHTML(p)}
     ${origenTagHTML(p)}
@@ -6953,7 +6974,7 @@ function comandaHTML(p, me, conFecha) {
     ${bidonesPedidoHTML(p, true)}
     ${p.nota ? `<p class="nota"><b>Nota</b>${esc(p.nota)}</p>` : ""}
     <p class="pago-rep ${p.pago === "Efectivo" ? "ef" : p.pago ? "tr" : "ni"}"><span>Pago</span><b>${p.pago === "Efectivo" ? "Efectivo · cobrar al entregar" : p.pago ? esc(p.pago) : "No indicado"}</b></p>${repPagoSelHTML(p)}
-    ${esEfectivo(p) && (p.estado === "en_camino" || p.estado === "entregado") ? `<div class="cobro-rep">
+    ${S.portal !== "repartidor" && esEfectivo(p) && (p.estado === "en_camino" || p.estado === "entregado") ? `<div class="cobro-rep">
       <span class="ver ${p.pagoCliente ? "ok" : ""}">${p.pagoCliente ? "✓" : "○"} Cliente</span><span class="ver ${segOk(p) ? "ok" : ""}">${segOk(p) ? "✓" : "○"} Repartidor${p.pagoRepPor ? " · " + esc(p.pagoRepPor) : ""}</span>
       ${segOk(p) ? `<span class="estado-txt">${pagado(p) ? "Pago en efectivo confirmado" : "Cobro confirmado · falta que confirme el cliente"}</span>`
         : S.portal === "repartidor" && p.repartidorId === me ? `<button type="button" class="btn chico ok" data-act="rep-cobro" data-id="${esc(p.id)}">Confirmar pago recibido</button>` : `<span class="estado-txt">Lo confirma el repartidor al cobrar</span>`}
@@ -6967,6 +6988,7 @@ const MSG_RAPIDOS = ["Voy en camino", "Llegaré en 10 minutos", "Llegaré en 20 
 S.msgDraft = {};
 const haceMin = ms => { const m = Math.round((Date.now() - ms) / 60000); return m < 1 ? "recién" : m < 60 ? `hace ${m} min` : `a las ${fmtHora(ms)}`; };
 function msgRepHTML(p, me) {
+  if (S.portal === "repartidor") return ""; /* Repartidores: sin la sección «Mensaje para el cliente». */
   if (p.estado !== "en_camino") return "";
   const propio = S.portal === "repartidor" && p.repartidorId === me;
   const actual = p.msgRep ? `<p class="msg-rep-act"><b>Mensaje enviado al cliente:</b> “${esc(p.msgRep)}” <small>${haceMin(Number(p.msgRepEn) || 0)}</small></p>` : "";
@@ -7030,8 +7052,11 @@ const repPagoSelHTML = p => {
   if (p.pagoCambioEn && !repPagoEditable(p)) return `<p class="rp-fijo">🔒 Forma de pago confirmada: <b>${esc(p.pago || "")}</b>${p.pagoAntes && p.pagoAntes !== p.pago ? ` (antes ${esc(p.pagoAntes)})` : ""}${p.pagoCambioRep ? ` · por ${esc(p.pagoCambioRep)}` : ""}</p>`;
   if (!repPagoEditable(p)) return "";
   if (RPC.id === p.id) return `<div class="rp-conf"><p>¿Confirmar el pago en <b>${esc(RPC.v)}</b>?${repPagoAdm() ? "" : " Una vez confirmado <b>no se puede cambiar</b>."}</p><div class="rp-sel"><button type="button" data-act="rep-pago-no" data-id="${esc(p.id)}">Cancelar</button><button type="button" class="rp-si" data-act="rep-pago-si" data-id="${esc(p.id)}">Sí, confirmar</button></div></div>`;
-  return `<p class="rp-nota">${repPagoAdm() ? "Forma de pago:" : "Confirma cómo paga el cliente:"}</p><div class="rp-sel" role="group" aria-label="Confirmar forma de pago">${[["Efectivo", "💵"], ["Transferencia", "🏦"]].map(([v, e]) => `<button type="button" data-act="rep-pago" data-id="${esc(p.id)}" data-v="${v}" aria-pressed="${p.pago === v}">${e} ${v}</button>`).join("")}</div>`;
+  return `<p class="rp-nota">${repPagoAdm() ? "Forma de pago:" : "Marca cómo pagó el cliente <b>(obligatorio para entregar)</b>:"}</p><div class="rp-sel" role="group" aria-label="Marcar forma de pago">${[["Efectivo", "💵"], ["Transferencia", "🏦"]].map(([v, e]) => `<button type="button" data-act="rep-pago" data-id="${esc(p.id)}" data-v="${v}" aria-pressed="false">${e} ${v}</button>`).join("")}</div>`;
 };
+/* Para marcar un pedido como entregado debe estar marcada la forma de pago (efectivo o transferencia),
+   salvo que el pago ya esté confirmado o el cliente tenga una forma de pago fija. */
+const pagoListo = p => !!(p && (p.pagoCambioEn || p.pagoCliente || p.pagoAdmin || p.pagoRep || pagoFijoDe(p.clienteId)));
 async function cambiarPagoRep(id, v, btn) {
   const p = (S.pedidos || []).find(x => x.id === id); if (!S.db || !p || !v) { RPC.id = ""; renderListas(); return; }
   if (!repPagoEditable(p)) { RPC.id = ""; toast("La forma de pago de este pedido ya está confirmada."); renderListas(); return; }
@@ -12615,7 +12640,7 @@ function asegurarAdmin() {
   if (AD.subs || !S.db) return;
   AD.subs = true;
   S.db.collection("clientes").limit(1000).onSnapshot(s => {
-    AD.clientes = s.docs.map(d => { const x = d.data() || {}; return { id: d.id, nombre: String(x.nombre || d.id), telefono: String(x.telefono || ""), direccion: String(x.direccion || ""), depto: String(x.depto || ""), comuna: String(x.comuna || ""), email: String(x.email || ""), tipo: String(x.tipo || ""), precios: x.precios && typeof x.precios === "object" ? x.precios : {}, sinIva: !!x.sinIva, pagoFijo: ["Transferencia", "Efectivo", "Cheque"].includes(x.pagoFijo) ? x.pagoFijo : "", ocultos: Array.isArray(x.ocultos) ? x.ocultos.filter(id => PROD[id]) : [] }; })
+    AD.clientes = s.docs.map(d => { const x = d.data() || {}; return { id: d.id, nombre: String(x.nombre || d.id), telefono: String(x.telefono || ""), direccion: String(x.direccion || ""), depto: String(x.depto || ""), comuna: String(x.comuna || ""), email: String(x.email || ""), tipo: String(x.tipo || ""), rut: String(x.rut || ""), precios: x.precios && typeof x.precios === "object" ? x.precios : {}, sinIva: !!x.sinIva, pagoFijo: ["Transferencia", "Efectivo", "Cheque"].includes(x.pagoFijo) ? x.pagoFijo : "", ocultos: Array.isArray(x.ocultos) ? x.ocultos.filter(id => PROD[id]) : [] }; })
       .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
     AD.cargadoC = true;
     refrescarAdmin(); reconciliarPagoFijo();
@@ -12751,18 +12776,9 @@ function adCliDatosHTML() {
   if (c) return `<div class="ad-cli-info"><p><b>${esc(c.nombre)}</b>${c.tipo ? `<br><span class="chip-t ${c.tipo === "Local comercial" ? "col-papa" : "col-pur"}">${esc(tipoTxt(c.tipo))}</span>` : ""}</p><p class="muted">${esc(c.direccion ? dirTxt(c) : "Sin dirección")}${c.comuna ? ", " + esc(c.comuna) : ""}${c.telefono ? " · " + waA(c.telefono) : ""}</p></div>`;
   return `<p class="muted">Elige un cliente registrado o crea uno nuevo.</p>`;
 }
+/* Crear pedido: la forma de pago ya no se elige aquí; la confirma el repartidor en cada pedido (efectivo o transferencia). */
 function adPagoHTML() {
-  if (adTipo() === "Local comercial") return `<fieldset class="campo"><legend>Forma de pago</legend>
-    <div class="seg">
-      <label><input type="radio" name="ad-pago" id="ad-pago-tr" value="Transferencia" checked><span>Transferencia</span></label>
-      <label><input type="radio" name="ad-pago" id="ad-pago-ef" value="Efectivo"><span>Efectivo</span></label>
-      <label><input type="radio" name="ad-pago" id="ad-pago-ch" value="Cheque"><span>Cheque</span></label>
-    </div></fieldset>`;
-  return `<fieldset class="campo"><legend>Forma de pago</legend>
-    <div class="seg">
-      <label><input type="radio" name="ad-pago" id="ad-pago-tr" value="Transferencia" checked><span>Transferencia</span></label>
-      <label><input type="radio" name="ad-pago" id="ad-pago-ef" value="Efectivo"><span>Efectivo</span></label>
-    </div>${adTipo() === "Particular" ? `<div id="ad-datos-tr">${datosTrHTML()}</div>` : ""}</fieldset>`;
+  return `<div class="campo ad-pago-rep"><input type="hidden" name="ad-pago" value=""><p class="muted-s">💳 La forma de pago (efectivo o transferencia) la marca el repartidor en el pedido antes de entregarlo.</p></div>`;
 }
 function adProdHTML(p) {
   const lbl = esc(etiqueta(p) + " " + (p.fam === "agua" ? p.cat : p.medida));
@@ -12925,7 +12941,7 @@ async function crearPedidoAdmin(btn) {
   if (!/^\d{2}:\d{2}$/.test(desde) || !/^\d{2}:\d{2}$/.test(hasta)) { err.textContent = "Elige el rango horario de entrega."; return; }
   if (desde < "10:00" || hasta > "18:00") { err.textContent = "El horario de entrega es de 10:00 a 18:00 hrs. Elige un rango dentro de ese horario."; return; }
   if (hasta <= desde) { err.textContent = "La hora final del rango debe ser posterior a la hora de inicio."; return; }
-  const pago = (document.querySelector('input[name="ad-pago"]:checked') || {}).value || "Transferencia";
+  const pago = (document.querySelector('input[name="ad-pago"]:checked') || {}).value || "";
   const esRep = S.portal === "repartidor" && S.ses.repartidor;
   const adm = esRep ? { id: "rep:" + S.ses.repartidor.id, nombre: S.ses.repartidor.nombre } : quienAdm();
   ocupar(btn, true, "Creando pedido…");
@@ -13643,11 +13659,62 @@ function refrescarDelPed() {
   if (AD.local === "ped") renderTP(); else if (AD.local === "bus") renderBus(); else if (AD.local === "ult") renderUlt(); else if ($("#admin-panel")) renderAdminPanel();
 }
 S.facCache = {}; S.facVer = ""; S.facSub = ""; S.facDel = "";
+/* ---------- Emitir factura en el SII (sistema gratuito): datos del pedido listos para copiar ---------- */
+/* El SII completa razón social, giro y dirección al ingresar el RUT del receptor; los precios del pedido incluyen IVA. */
+const SII_URL = "https://www1.sii.cl/cgi-bin/Portal001/mipeLaunchPage.cgi?OPCION=33&TIPO=4";
+S.siiAbre = "";
+const rutLimpio = r => String(r || "").toUpperCase().replace(/[^0-9K]/g, "");
+function rutValido(r) {
+  const s = rutLimpio(r); if (s.length < 2) return false;
+  const cuerpo = s.slice(0, -1), dv = s.slice(-1); if (!/^\d+$/.test(cuerpo)) return false;
+  let m = 2, t = 0; for (let i = cuerpo.length - 1; i >= 0; i--) { t += Number(cuerpo[i]) * m; m = m === 7 ? 2 : m + 1; }
+  const r2 = 11 - (t % 11), dvOk = r2 === 11 ? "0" : r2 === 10 ? "K" : String(r2);
+  return dv === dvOk;
+}
+const rutFmt = r => { const s = rutLimpio(r); if (s.length < 2) return s; return Number(s.slice(0, -1)).toLocaleString("es-CL") + "-" + s.slice(-1); };
+const siiDec = n => (Math.round(n * 100) / 100).toLocaleString("es-CL", { maximumFractionDigits: 2 });
+function siiCliente(p) { return (AD.clientes || []).find(c => c.id === p.clienteId) || {}; }
+function siiLineas(p) {
+  const ls = items(p).filter(i => (Number(i.cant) || 0) > 0).map(i => {
+    const r = itRen(i), pr = PROD[i.id], cant = Number(i.cant) || 0, bruto = Number(i.precio) || 0;
+    const nom = [r.nombre || (pr ? etiqueta(pr) : "Producto"), pr ? detalle(pr) : i.detalle || ""].filter(Boolean).join(" ");
+    return { nom, cant, bruto, neto: bruto / (1 + IVA), tot: bruto * cant };
+  });
+  const cb = cargoBid(p); if (cb) ls.push({ nom: cb > 0 ? "Garantía bidones" : "Devolución garantía bidones", cant: 1, bruto: cb, neto: cb / (1 + IVA), tot: cb });
+  return ls;
+}
+function siiTexto(p) {
+  const c = siiCliente(p), ls = siiLineas(p), tot = Math.round(ls.reduce((a, x) => a + x.tot, 0)), iva = ivaIncDe(tot);
+  return [`Factura electrónica · Pedido #${codigo(p.id)}`, `RUT receptor: ${c.rut ? rutFmt(c.rut) : "(falta)"}`, `Cliente: ${c.nombre || p.clienteNombre || ""}`, "",
+    ...ls.map(x => `${x.nom} | Cantidad ${fmtN(x.cant)} | Precio neto ${siiDec(x.neto)} | Precio con IVA ${clp(x.bruto)}`), "",
+    `Neto ${clp(tot - iva)} · IVA 19% ${clp(iva)} · Total ${clp(tot)}`].join("\n");
+}
+function siiHTML(p) {
+  const id = esc(p.id), c = siiCliente(p);
+  if (S.siiAbre !== p.id) return `<button type="button" class="btn chico sii-btn" data-act="sii-abrir" data-id="${id}">🧾 Emitir factura en el SII</button>`;
+  const ls = siiLineas(p), tot = Math.round(ls.reduce((a, x) => a + x.tot, 0)), iva = ivaIncDe(tot), rut = c.rut || "", ok = rutValido(rut);
+  const cp = (v, t) => `<button type="button" class="sii-cp" data-act="sii-cp" data-v="${esc(String(v))}" aria-label="Copiar ${esc(t)}">${esc(String(v))} <span aria-hidden="true">⧉</span></button>`;
+  return `<div class="sii-pan">
+    <div class="sii-h"><b>🧾 Emitir factura en el SII</b><button type="button" class="btn chico suave" data-act="sii-cerrar">Cerrar</button></div>
+    <ol class="sii-pasos">
+      <li><span>Abre el SII, entra con tu RUT y clave, y elige <b>Factura electrónica</b>.</span><a class="btn chico primario" href="${SII_URL}" target="_blank" rel="noopener">Abrir SII ↗</a></li>
+      <li><span>Pega el <b>RUT del receptor</b>: el SII completa la razón social, el giro y la dirección.</span>
+        <label class="sii-rut"><input type="text" class="sii-rut-in" data-cli="${esc(p.clienteId || "")}" value="${esc(rut ? rutFmt(rut) : "")}" placeholder="RUT del cliente, ej. 76.123.456-7" inputmode="text" autocomplete="off"></label>
+        ${rut ? (ok ? cp(rutFmt(rut), "RUT") : `<small class="err">El RUT no es válido. Revísalo.</small>`) : `<small class="muted-s">Escríbelo una vez: queda guardado en el cliente.</small>`}</li>
+      <li><span>Ingresa cada producto. Toca un valor para copiarlo. El precio del SII va <b>sin IVA</b> (neto).</span>
+        <div class="sii-tabla">${ls.map(x => `<div class="sii-fila"><div class="sii-nom">${cp(x.nom, "producto")}</div><div class="sii-cel"><small>Cantidad</small>${cp(fmtN(x.cant), "cantidad")}</div><div class="sii-cel"><small>Precio neto</small>${cp(siiDec(x.neto), "precio neto")}<small class="muted-s">con IVA ${clp(x.bruto)}</small></div></div>`).join("")}</div></li>
+      <li><span>Revisa que el SII calcule este total y firma:</span>
+        <p class="sii-tot"><span>Neto <b>${clp(tot - iva)}</b></span><span>IVA 19% <b>${clp(iva)}</b></span><span>Total <b>${clp(tot)}</b></span></p></li>
+      <li><span>Descarga el PDF de la factura y adjúntalo aquí abajo en <b>Adjuntar factura</b>.</span></li>
+    </ol>
+    <button type="button" class="btn chico suave" data-act="sii-todo" data-id="${id}">⧉ Copiar todo el detalle</button>
+  </div>`;
+}
 function facturaHTML(p) {
   if (!(S.portal === "admin" && S.ses.admin)) return "";
   const f = p.factura, id = esc(p.id), sub = S.facSub === p.id;
   if (!f && tipoCli(p) === "Particular") return "";
-  if (!f) return `<div class="fac-blk"><span class="fac-t">🧾 Factura</span><label class="comp-btn fac-btn"><span>${sub ? "Subiendo factura…" : "Adjuntar factura <em>(foto o PDF)</em>"}</span><input type="file" accept="image/*,application/pdf" class="fac-in" data-id="${id}" ${sub ? "disabled" : ""}></label></div>`;
+  if (!f) return `<div class="fac-blk">${p.estado !== "cancelado" ? siiHTML(p) : ""}<span class="fac-t">🧾 Factura</span><label class="comp-btn fac-btn"><span>${sub ? "Subiendo factura…" : "Adjuntar factura <em>(foto o PDF)</em>"}</span><input type="file" accept="image/*,application/pdf" class="fac-in" data-id="${id}" ${sub ? "disabled" : ""}></label></div>`;
   const c = S.facCache[p.id], ver = S.facVer === p.id;
   let cont = "";
   if (ver) cont = !c ? `<span class="estado-txt">Cargando factura…</span>` : !c.data ? `<span class="estado-txt">No se encontró el archivo.</span>`
@@ -14266,6 +14333,14 @@ document.addEventListener("click", e => {
   else if (a === "cpw-ir") cpwIr(Number(b.dataset.p));
   else if (a === "cpw-atras") cpwIr(CPW.paso === 3 && !CPW.grupo ? 1 : CPW.paso - 1);
   else if (a === "cpw-otro") { CPW.grupo = ""; CPW.fin = null; cpwIr(1); }
+  else if (a === "cpw-ver") {
+    /* «Ir al pedido»: abre Mis pedidos › Pendientes en el día de entrega y resalta el pedido recién enviado. */
+    const pid = b.dataset.id, f = CPW.fin || {};
+    S.cliIr = pid; S.misSub = "pend"; S.pendG = "dia"; if (f.fecha) S.misRef = f.fecha;
+    cambiarCliTab("mis"); renderListas();
+    setTimeout(() => { const el = document.querySelector(`article[data-pid="${CSS.escape(pid)}"]`); if (el) el.scrollIntoView({ block: "center", behavior: "smooth" }); else window.scrollTo({ top: 0, behavior: "smooth" }); }, 120);
+    setTimeout(() => { if (S.cliIr === pid) { S.cliIr = ""; document.querySelectorAll(`article[data-pid="${CSS.escape(pid)}"]`).forEach(x => x.classList.remove("ped-recien")); } }, 6000);
+  }
   else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "fdc-carro") { cambiarCliTab("nuevo"); const e = $("#entrega"); if (e && carritoLista().length) e.scrollIntoView({ block: "start", behavior: "smooth" }); else { toast("Tu pedido está vacío: agrega productos con +."); const t = $("#cli2-todos"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } }
   else if (a === "cfd-v") { CFD.v = b.dataset.v; try { localStorage.setItem("pya.cfdv", CFD.v); } catch (_) {} renderView(); }
@@ -14902,11 +14977,24 @@ document.addEventListener("click", e => {
     toast("Este pedido ya estaba entregado. Toca de nuevo para devolverlo a Por tomar.");
     setTimeout(() => { if (b.isConnected && b.dataset.conf) { delete b.dataset.conf; b.textContent = txt; b.classList.remove("conf-ent"); } }, 5000);
   }
+  else if (a === "entregar" && !pagoListo((S.pedidos || []).find(x => x.id === id))) {
+    toast("Primero marca la forma de pago: efectivo o transferencia.");
+    const sel = document.querySelector(`[data-act="rep-pago"][data-id="${CSS.escape(id)}"]`), g = sel && sel.closest(".rp-sel");
+    if (g) { g.scrollIntoView({ block: "center", behavior: "smooth" }); g.classList.remove("rp-alerta"); void g.offsetWidth; g.classList.add("rp-alerta"); }
+  }
   else if (a === "entregar" && !b.dataset.conf) {
     b.dataset.conf = "1"; const txt = b.textContent; b.textContent = "¿Confirmar entrega?"; b.classList.add("conf-ent");
     setTimeout(() => { if (b.isConnected && b.dataset.conf) { delete b.dataset.conf; b.textContent = txt; b.classList.remove("conf-ent"); } }, 5000);
   }
   else if (a === "fac-ver") verFactura(id);
+  else if (a === "sii-abrir") { S.siiAbre = id; refrescarDelPed(); }
+  else if (a === "sii-cerrar") { S.siiAbre = ""; refrescarDelPed(); }
+  else if (a === "sii-cp" || a === "sii-todo") {
+    const p = a === "sii-todo" ? (S.pedidos || []).find(x => x.id === id) : null, txt = a === "sii-todo" ? (p ? siiTexto(p) : "") : b.dataset.v;
+    const ok = () => toast(a === "sii-todo" ? "Detalle copiado." : `Copiado: ${txt.length > 40 ? txt.slice(0, 40) + "…" : txt}`);
+    const viejo = () => { const t = document.createElement("textarea"); t.value = txt; t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); ok(); } catch (_) { toast("No se pudo copiar."); } t.remove(); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, viejo); else viejo();
+  }
   else if (a === "fac-zoom") b.classList.toggle("grande");
   else if (a === "fac-del") { S.facDel = id; refrescarDelPed(); }
   else if (a === "fac-del-no") { S.facDel = ""; refrescarDelPed(); }
@@ -14986,6 +15074,12 @@ document.addEventListener("change", e => {
   }
   if (e.target.id === "pp-prov-sel") { PP.provId = e.target.value; const er = $("#bod-err"); if (er) er.textContent = ""; }
   if (e.target.id === "pago-fecha" && e.target.value) { AG.ref = e.target.value; subProdAgua(); renderAguaPanel(); }
+  if (e.target.classList && e.target.classList.contains("sii-rut-in")) {
+    const cid = e.target.dataset.cli, v = rutLimpio(e.target.value), c = (AD.clientes || []).find(x => x.id === cid);
+    if (!cid || !c) toast("No se encontró el cliente de este pedido.");
+    else if (v && !rutValido(v)) { toast("Ese RUT no es válido. Revísalo."); }
+    else if ((c.rut || "") !== v) { c.rut = v; e.target.blur(); S.db.doc("clientes/" + cid).update({ rut: v }).then(() => { toast(v ? `RUT ${rutFmt(v)} guardado en el cliente.` : "RUT quitado del cliente."); refrescarDelPed(); }, er => toast(msgError(er))); }
+  }
   if (e.target.id === "ad-cli") {
     const v = e.target.value;
     AD.nuevo = v === "__nuevo"; AD.clienteId = AD.nuevo ? "" : v;
