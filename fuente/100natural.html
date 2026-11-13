@@ -2274,6 +2274,15 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 /* Buscar pedido: rango de días */
 .bus-rango em{font-style:normal;font-weight:400;color:var(--muted);font-size:.85em}
 .bus-rango-acc{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+/* Clientes: Casa / Depto al lado de Dirección */
+.dir-fila{display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:10px;align-items:start}
+.dir-fila>.campo{margin:0;min-width:0}
+.dir-fila input{width:100%;min-width:0}
+.dir-fila.cm-fila{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+/* Clientes: datos de transferencia ocultos hasta tocar «Mostrar datos de transferencia» */
+.tr-det>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700}
+.tr-det>summary::-webkit-details-marker{display:none}
+.tr-det[open]>summary{margin-bottom:10px}
 /* Emitir factura en el SII */
 .sii-btn{margin:0 0 8px}
 .sii-pan{display:grid;gap:10px;margin:0 0 10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
@@ -4368,10 +4377,9 @@ function entregaHTML(c) {
         <h2 class="h2 wz-h-ent">Datos de entrega</h2>
         <div class="campos" data-wz="3">
           ${esLocal() ? `<label class="campo full"><span>Tu nombre <em>quien hace el pedido</em></span><input id="e-quien" autocomplete="off" value="" placeholder="Ej.: Juan Pérez"></label>` : ""}
-          <label class="campo full"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label>
-${esLocal() ? "" : `<label class="campo full"><span>Casa / Depto <em>opcional</em></span><input id="e-depto" autocomplete="address-line2" value="${esc(c.depto || "")}" placeholder="Ej.: Casa 12 o Depto 304, Torre B"></label>`}
-          <label class="campo"><span>Comuna</span><input id="e-comuna" autocomplete="off" value="${esc(c.comuna)}"></label>
-          <label class="campo"><span>Teléfono</span><input id="e-tel" type="tel" inputmode="tel" value="${esc(c.telefono)}"></label>
+          ${esLocal() ? `<label class="campo full"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label>` : `<div class="campo full dir-fila"><label class="campo"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label><label class="campo"><span>Casa / Depto</span><input id="e-depto" autocomplete="address-line2" value="${esc(c.depto || "")}" placeholder="Opcional"></label></div>`}
+          <div class="campo full dir-fila cm-fila"><label class="campo"><span>Comuna</span><input id="e-comuna" autocomplete="off" value="${esc(c.comuna)}"></label>
+          <label class="campo"><span>Teléfono</span><input id="e-tel" type="tel" inputmode="tel" value="${esc(c.telefono)}"></label></div>
           <label class="campo"><span>Fecha de entrega</span><input id="e-fecha" type="date" min="${S.editPedido ? hoy() : fechaSugerida()}" value="${fs}">${S.editPedido ? "" : `<small class="corte-nota">Pedidos hechos desde las ${HORA_CORTE}:00 se entregan al día siguiente.</small>`}</label>
           <fieldset class="campo"><legend>Rango horario de entrega <em>10:00 a 18:00 hrs</em></legend>
             <div class="rango">
@@ -4395,7 +4403,7 @@ ${esLocal() ? "" : `<label class="campo full"><span>Casa / Depto <em>opcional</e
               <label><input type="radio" name="pago" id="e-pago-ef" value="Efectivo"><span>Efectivo</span></label>
             </div>
           </fieldset>`}
-          ${esLocal() ? "" : `<div class="campo full" id="e-datos-tr">${datosTrHTML()}</div>`}
+          ${esLocal() ? "" : `<div class="campo full" id="e-datos-tr"><details class="tr-det"><summary>🏦 Mostrar datos de transferencia</summary>${datosTrHTML()}</details></div>`}
           <fieldset class="campo full bid-box" id="e-vacios" hidden></fieldset>
           <label class="campo full"><span>Nota para el repartidor <em>opcional</em></span><textarea id="e-nota" rows="2" placeholder="Ej.: llamar al llegar, el timbre no funciona"></textarea></label>
         </div>
@@ -15726,7 +15734,7 @@ main #bi-grp[hidden]{display:none!important}
 /* Carrusel de fotos de Clientes: una foto a la vez y paso suave. */
 .afi-track .afi-slide{scroll-snap-stop:always;transform-origin:center;will-change:transform,opacity}
 /* Combustible */
-.comb-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+.comb-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
 .comb-form .campo{margin:0}
 .comb-form .acciones{grid-column:1/-1;margin:0}
 @media(max-width:520px){.comb-form{grid-template-columns:1fr 1fr}.comb-form .comb-f{grid-column:1/-1}}
