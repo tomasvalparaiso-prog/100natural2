@@ -2303,6 +2303,7 @@ const CODIGO_PRUEBA_HASH = "fd6c7bd5cad3e224cfecc0d8a30d1d25cc2d1e066728b36c873c
 const CODIGO_POS_HASH = "df75339fa8ed5ed45b2c633f712cb1e77ae780785b669c1dea0318139c1ce0a7";
 const CODIGO_ADMIN_HASH = "eb567c43092e0806101fa055b37147bb0da578abe7cf0a5b7cdf3f6e780f12a9";
 const PORTALES = ["cliente", "repartidor", "agua", "papas", "pizzas", "prov", "pos", "utfsm", "prueba", "cfd", "admin"];
+addEventListener("hashchange", () => { const h = location.hash.slice(1); if (PORTALES.includes(h)) try { localStorage.setItem("pya.ultPortal", h); } catch (_) {} });
 const COMUNAS = ["Viña del Mar", "Concón", "Valparaíso", "Curauma", "Quilpué", "Villa Alemana"];
 const CATALOGO = [
   { key: "purificada", titulo: "Agua purificada", fam: "agua", color: "pur", items: [
@@ -2630,7 +2631,15 @@ const lsGet = () => { try { return JSON.parse(localStorage.getItem(LS) || "{}") 
 const lsSet = v => { try { localStorage.setItem(LS, JSON.stringify(v)); } catch (e) {} };
 const guardado = lsGet();
 const S = {
-  portal: PORTALES.includes(location.hash.slice(1)) ? location.hash.slice(1) : "cliente",
+  /* Al entrar sin #página, se abre la última página usada en este equipo; la primera vez, Clientes. */
+  portal: (() => {
+    const h = location.hash.slice(1); let u = "";
+    try { u = localStorage.getItem("pya.ultPortal") || ""; } catch (_) {}
+    const p = PORTALES.includes(h) ? h : PORTALES.includes(u) ? u : "cliente";
+    try { localStorage.setItem("pya.ultPortal", p); } catch (_) {}
+    if (!PORTALES.includes(h) && p !== "cliente") try { history.replaceState(null, "", "#" + p); } catch (_) {}
+    return p;
+  })(),
   db: null, conectando: true, sinDb: false, sinPermiso: false,
   ses: Object.fromEntries(PORTALES.map(k => [k, guardado[k] && guardado[k].id ? guardado[k] : null])),
   authTab: { cliente: "entrar", repartidor: "entrar", agua: "entrar", papas: "entrar", prov: "entrar", pos: "entrar", utfsm: "entrar", pizzas: "entrar", prueba: "entrar", admin: "entrar" },
@@ -10564,7 +10573,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 const AD_GRUPOS = [
   ["Locales", [["posad", "Punto de venta"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["prov", "Proveedores"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
   ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
-  ["Delivery", [["rep", "Repartidores"], ["efead", "Pagos en efectivo"]]],
+  ["Delivery", [["rep", "Repartidores"]]], /* «Pagos en efectivo» quedó como pestaña dentro de Repartidores */
   ["Registrados", [["usu", "Usuarios"], ["capt", "Clientes"], ["captados", "Captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
   ["Administración", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"]]]
@@ -14326,6 +14335,7 @@ document.addEventListener("click", e => {
     else if (S.portal === "pos") POS.tab = "vender";
     else if (S.portal === "admin") { AD.local = "ult"; ULT.add = false; ULT.per = "dia"; ULT.ref = hoy(); AD.seccion = "clientes"; AD.tab = "crear"; document.body.dataset.local = AD.local; }
     try { history.replaceState(null, "", "#" + S.portal); } catch (_) {}
+    try { localStorage.setItem("pya.ultPortal", S.portal); } catch (_) {}
     renderAll(); window.scrollTo(0, 0);
   } else if (a === "auth-tab") {
     S.authTab[b.dataset.k] = b.dataset.t; renderView();
@@ -15613,7 +15623,7 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   if (cambio) renderView();
 })();
 /* Deja disponibles para el bloque «Cambios 10-11» (otro <script>) las variables y funciones de la app que usa. */
-[["$", () => $], ["AD", () => AD], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
+[["$", () => $], ["AD", () => AD], ["US", () => US], ["subUsuarios", () => subUsuarios], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
 })();
 </script>
 
@@ -15948,8 +15958,13 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     const filas = [...grupos.entries()].flatMap(([rid, g]) => combCalc(g.l, rid)).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)) || (Number(b.creado) || 0) - (Number(a.creado) || 0));
     const cerr = filas.filter(x => x.cerrada && x.km > 0), kmC = cerr.reduce((t, x) => t + x.km, 0), ltC = cerr.reduce((t, x) => t + (Number(x.litros) || 0), 0), mC = cerr.reduce((t, x) => t + (Number(x.monto) || 0), 0);
     const gasto = filas.reduce((t, x) => t + (Number(x.monto) || 0), 0), litros = filas.reduce((t, x) => t + (Number(x.litros) || 0), 0);
-    const form = adm ? "" : `<section class="card comb-card"><h3 class="sec" style="margin-top:0">Ingresar carga de combustible</h3>
+    /* Administrador también ingresa cargas: elige a qué repartidor corresponde. */
+    if (adm && typeof subUsuarios === "function") subUsuarios();
+    if (adm && !(US.cargado || {}).repartidores) setTimeout(() => { if (S.repTab === "comb") combPintar(); }, 700);
+    const reps = adm ? ((US.data || {}).repartidores || []).filter(r => r && r.id).slice().sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), "es")) : [];
+    const form = `<section class="card comb-card"><h3 class="sec" style="margin-top:0">Ingresar carga de combustible</h3>
       <div class="comb-form">
+        ${adm ? `<label class="campo comb-f" style="grid-column:1/-1"><span>Repartidor</span><select id="cb-rep"><option value="">Elige el repartidor…</option>${reps.map(r => `<option value="${esc(r.id)}" ${CB.rep === r.id ? "selected" : ""}>${esc(r.nombre || r.usuario || r.id)}</option>`).join("")}</select></label>` : ""}
         <label class="campo comb-f"><span>Día de carga</span><input type="date" id="cb-fecha" value="${hoy()}" max="${hoy()}"></label>
         <label class="campo"><span>Monto ($)</span><input type="number" id="cb-monto" inputmode="numeric" min="0" step="1" placeholder="Ej.: 40000"></label>
         <label class="campo"><span>Litros</span><input type="number" id="cb-litros" inputmode="decimal" min="0" step="0.01" placeholder="Ej.: 32,5"></label>
@@ -15977,7 +15992,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     const rt = document.querySelector(".rep-top"); if (rt) rt.hidden = true;
     const ae = document.activeElement, dat = document.getElementById("comb-datos");
     if (dat && ae && ae.closest && ae.closest(".comb-form")) { dat.innerHTML = combHTML(true); return; }
-    const vals = ["cb-fecha", "cb-monto", "cb-litros"].map(id => { const el = document.getElementById(id); return el ? [id, el.value] : null; }).filter(Boolean);
+    const vals = ["cb-rep", "cb-fecha", "cb-monto", "cb-litros"].map(id => { const el = document.getElementById(id); return el ? [id, el.value] : null; }).filter(Boolean);
     lr.innerHTML = `<div id="comb-panel">${combHTML()}</div>`;
     for (const [id, v] of vals) { const el = document.getElementById(id); if (el) el.value = v; }
     const er = document.getElementById("cb-err"); if (er && CB.msg) { er.textContent = CB.msg; }
@@ -15991,13 +16006,15 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     if (a === "cb-del-no") { CB.del = ""; combPintar(); return; }
     if (a === "cb-del-si") { const id = b.dataset.id; CB.del = ""; try { await conReintento(() => S.db.doc("combustible/" + id).delete()); CB.docs = CB.docs.filter(d => d.id !== id); toast("Carga eliminada."); } catch (err) { toast(msgError(err)); } combPintar(); return; }
     if (a === "cb-guardar") {
-      const yo = combYo(), v = id => (document.getElementById(id) || {}).value || "";
+      const v = id => (document.getElementById(id) || {}).value || "";
+      let yo = combYo();
+      if (combAdmin()) { const rid = v("cb-rep"), r = (((US.data || {}).repartidores) || []).find(x => x.id === rid); yo = r ? { id: r.id, nombre: r.nombre || r.usuario || "" } : null; CB.rep = rid; }
       const fecha = v("cb-fecha"), monto = Math.round(Number(v("cb-monto").replace(/[^\d]/g, ""))), litros = Number(String(v("cb-litros")).replace(",", "."));
       const err = document.getElementById("cb-err");
-      const mal = !yo ? "Inicia sesión como repartidor." : !/^\d{4}-\d{2}-\d{2}$/.test(fecha) ? "Elige el día de la carga." : fecha > hoy() ? "El día de carga no puede ser futuro." : !(monto > 0) ? "Ingresa el monto de la carga." : !(litros > 0) ? "Ingresa los litros cargados." : litros > 400 ? "Revisa los litros: parecen demasiados." : "";
+      const mal = !yo ? (combAdmin() ? "Elige el repartidor de la carga." : "Inicia sesión como repartidor.") : !/^\d{4}-\d{2}-\d{2}$/.test(fecha) ? "Elige el día de la carga." : fecha > hoy() ? "El día de carga no puede ser futuro." : !(monto > 0) ? "Ingresa el monto de la carga." : !(litros > 0) ? "Ingresa los litros cargados." : litros > 400 ? "Revisa los litros: parecen demasiados." : "";
       if (mal) { if (err) err.textContent = mal; return; }
       const id = "cb" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      const x = { fecha, monto, litros: Math.round(litros * 100) / 100, repartidorId: yo.id, repartidorNombre: yo.nombre || "", creado: Date.now() };
+      const x = { fecha, monto, litros: Math.round(litros * 100) / 100, repartidorId: yo.id, repartidorNombre: yo.nombre || "", creado: Date.now(), ...(combAdmin() ? { ingresadoPor: "Administrador" } : {}) };
       ocupar(b, true, "Guardando…");
       try {
         await conReintento(() => S.db.doc("combustible/" + id).set(x));
