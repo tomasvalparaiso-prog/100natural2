@@ -5475,6 +5475,7 @@ function avisarPedidos(nuevas) {
 /* Aviso por WhatsApp a los repartidores al crear un pedido (llega aunque no tengan la página abierta). */
 const AVR = { msg: "", num: 0, cliente: "" };
 function avisoRepWA(num, cli, fecha, horario, its, nota) {
+  if (S.portal === "admin") return; /* Administrador: al crear un pedido no se muestra el recuadro para copiar el mensaje. */
   subUsuarios();
   const dir = [cli.direccion, cli.depto].filter(Boolean).join(", ") + (cli.comuna ? ", " + cli.comuna : "");
   AVR.num = num; AVR.cliente = cli.nombre;
@@ -13136,7 +13137,7 @@ function pedAdmCardHTML(p, o) {
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
       ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-pago">${prioBtnHTML(p)}${pagado(p) ? `<span class="ult-pagado">✅ Pagado${p.pagoAdminPor ? ` · ${esc(p.pagoAdminPor)}` : ""}</span>${p.pagoMarcadoAdm ? `<button type="button" class="link" data-act="ult-despagar" data-id="${esc(p.id)}">Deshacer</button>` : ""}` : `<button type="button" class="btn chico ult-pagar" data-act="ult-pagar" data-id="${esc(p.id)}">💰 Marcar como pagado</button>`}</div>` : ""}
-      ${o.rep && S.ses.admin ? (S.repPed === p.id && S.repF ? repPedHTML(p) : S.repHoy === p.id ? repHoyHTML(p) : `<div class="acciones rep-ped-acc"><button type="button" class="btn chico rep-ped-btn" data-act="rep-hoy" data-id="${esc(p.id)}">🔁 Repetir pedido hoy</button><button type="button" class="btn chico suave" data-act="rep-ped" data-id="${esc(p.id)}">✏️ Repetir y editar</button></div>`) : ""}
+      ${o.rep && S.ses.admin ? (S.repPed === p.id && S.repF ? repPedHTML(p) : S.repHoy === p.id ? repHoyHTML(p) : `<div class="acciones rep-ped-acc"><button type="button" class="btn chico rep-ped-btn" data-act="rep-hoy" data-id="${esc(p.id)}">🔁 Repetir pedido hoy</button></div>`) : ""}
       ${facturaHTML(p)}${delPedHTML(p)}
     </article>`;
   }
@@ -15628,7 +15629,8 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   btn.textContent = "Descargar respaldo";
   btn.style.cssText = "position:fixed;left:12px;bottom:calc(110px + env(safe-area-inset-bottom,0px));z-index:9999;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,#ccc);background:var(--surface,#fff);color:var(--ink,#000);font:inherit;font-weight:700;box-shadow:0 8px 20px -12px rgb(0 0 0 / .5);cursor:pointer";
   document.body.appendChild(btn);
-  const ver = () => { btn.hidden = !(esAdmin() && location.hash.slice(1) === "admin") && !btn.dataset.ocupado; };
+  /* No se muestra en Crear pedido (ni al terminar de crear uno). */
+  const ver = () => { btn.hidden = !(esAdmin() && location.hash.slice(1) === "admin" && document.body.dataset.local !== "agp") && !btn.dataset.ocupado; };
   ver(); setInterval(ver, 1500); addEventListener("hashchange", ver);
   const filas = s => s.docs.filter(d => d.exists !== false).map(d => [d.id, d.data() || {}]);
   async function leerColeccion(db, nombre, avisos) {
