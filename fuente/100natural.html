@@ -105,7 +105,7 @@ body[data-portal="admin"][data-local="papas"],body[data-portal="papas"]{ --accen
 .perf-av{flex:0 0 64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;font-weight:800;background:var(--ink);color:var(--bg)}
 .g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff!important;color:#1f1f1f!important;border:1px solid #dadce0!important;font-weight:700}.g-btn svg{width:22px;height:22px;flex:none}
 .g-sep{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-size:.85rem}.g-sep::before,.g-sep::after{content:"";flex:1;height:1px;background:var(--line)}
-.g-arriba{margin-bottom:6px}
+.g-fuera .g-btn{box-shadow:0 8px 20px -14px rgb(0 0 0 / .35)}.g-fuera .g-sep{margin:14px 0 12px}.g-abajo{margin-top:6px}.g-dentro{margin-top:4px}.g-dentro .g-sep{margin:12px 0}
 #g-comp{position:fixed;inset:0;z-index:1030;background:rgb(0 0 0 / .5);display:grid;place-items:end center;overflow:auto}#g-comp .g-box{background:var(--bg);color:var(--ink);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}#g-comp h2{margin:0 0 4px;font-size:1.25rem}#g-comp p.sub{margin:0 0 12px;color:var(--muted)}
 .perf-av-w{position:relative;flex:0 0 76px;width:76px;height:76px}.perf-av-w .perf-av{width:76px;height:76px;padding:0;border:0;overflow:hidden;cursor:pointer}.perf-av-w .perf-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}.perf-av-w button.perf-av{border-radius:50%!important;min-height:0!important;box-shadow:none}
 .perf-cam{position:absolute;right:-4px;bottom:-4px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);border:3px solid var(--surface);cursor:pointer;font-size:.95rem;box-shadow:0 4px 10px -4px var(--shadow)}.perf-cam.ocupado{opacity:.7;cursor:progress}.perf-cam:focus-within{outline:3px solid var(--accent-ink);outline-offset:2px}
@@ -2895,12 +2895,15 @@ function vistaAuth(k) {
   const t = S.authTab[k];
   return `<div class="auth">
     <div class="intro">${k === "utfsm" ? introUtfsm() : k === "pizzas" ? introPizzas() : k === "prueba" ? introPrueba() : k === "pos" ? introPos() : k === "cliente" ? introCliente() : k === "repartidor" ? introRep() : k === "agua" ? introAgua() : k === "papas" ? introPapas() : k === "prov" ? introProv() : introAdmin()}</div>
+    <div class="auth-lado">
     <div class="card auth-card">
       <div class="tabs" role="tablist" aria-label="Acceso">
         <button role="tab" data-act="auth-tab" data-k="${k}" data-t="entrar" aria-selected="${t === "entrar"}">Entrar</button>
         <button role="tab" data-act="auth-tab" data-k="${k}" data-t="registro" aria-selected="${t === "registro"}">Crear cuenta</button>
       </div>
       ${t === "entrar" ? formEntrar(k) : formRegistro(k)}
+      ${k === "cliente" ? `<div class="g-dentro"><div class="g-sep"><span>o</span></div><button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button></div>` : ""}
+    </div>
     </div>
   </div>`;
 }
@@ -2928,7 +2931,6 @@ function claveHTML(id, auto, ph) {
 }
 function formEntrar(k) {
   return `<form id="f-${k}-entrar" data-k="${k}" data-m="entrar" class="form" novalidate>
-    ${k === "cliente" ? `<button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button><div class="g-sep"><span>o entra con tu usuario y clave</span></div>` : ""}
     <label class="campo"><span>Usuario</span><input id="${k}-e-usuario" name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
     <label class="campo"><span>Clave</span>${claveHTML(`${k}-e-clave`, "current-password", "")}</label>
     <p class="err" role="alert"></p>
@@ -2939,7 +2941,6 @@ function formEntrar(k) {
 function formRegistro(k, adm) {
   const cli = k === "cliente", pre = adm ? (cli ? "adu" : "adp" + k) : k;
   return `<form id="f-${pre}-registro" data-k="${k}" data-m="registro"${adm ? ` data-adm="${adm === "usu" ? "usu" : "1"}"` : ""} class="form" novalidate>
-    ${cli && !adm ? `<div class="g-arriba"><button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Crear cuenta con Google</button><div class="g-sep"><span>o crea tu cuenta con usuario y clave</span></div></div>` : ""}
     <div class="campos">
       ${cli ? `<fieldset class="campo full"><legend>Tipo de cliente</legend>
         <div class="seg">
