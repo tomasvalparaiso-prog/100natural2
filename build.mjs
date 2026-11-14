@@ -75,7 +75,9 @@ const COMPARTIR = `<!doctype html><html lang="es"><head><meta charset="utf-8"><m
   if (i < 0 || i > 8000) throw new Error("Cambio «cargar adaptador»: no encontré el </head> inicial.");
   html = html.slice(0, i) +
     `<script>window.PYA_SUPABASE=${JSON.stringify(SUPABASE)};</script>` +
-    `<script src="vendor/supabase.js"></script><script src="supabase-db.js"></script>` + html.slice(i);
+    `<script src="vendor/supabase.js"></script><script src="supabase-db.js"></script>` +
+    // Notificaciones push (mensajes y pedidos nuevos) y datos para instalar la página en el teléfono.
+    `<link rel="manifest" href="/manifest.webmanifest"><script src="push.js" defer></script>` + html.slice(i);
 }
 
 // 2. Inicio de sesión de cada portal: la clave se verifica en el servidor.
@@ -127,7 +129,7 @@ writeFileSync("public/app.html", html);
 writeFileSync("public/compartir.html", COMPARTIR);
 copyFileSync("web/supabase-db.js", "public/supabase-db.js");
 copyFileSync("web/importar.html", "public/importar.html");
-for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png"]) copyFileSync("web/" + f, "public/" + f);
+for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png", "icono-192.png", "icono-512.png", "manifest.webmanifest", "sw.js", "push.js"]) copyFileSync("web/" + f, "public/" + f);
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve("@supabase/supabase-js/dist/umd/supabase.js"), "public/vendor/supabase.js");
 console.log("Listo: public/app.html (" + Math.round(html.length / 1024) + " KB), public/compartir.html (" + Math.round(COMPARTIR.length / 1024) + " KB)");
