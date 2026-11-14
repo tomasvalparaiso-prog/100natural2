@@ -103,6 +103,9 @@ body[data-portal="admin"][data-local="papas"],body[data-portal="papas"]{ --accen
 .perf{display:grid;gap:14px}
 .perf-top{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;min-width:0}
 .perf-av{flex:0 0 64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;font-weight:800;background:var(--ink);color:var(--bg)}
+.perf-av-w{position:relative;flex:0 0 76px;width:76px;height:76px}.perf-av-w .perf-av{width:76px;height:76px;padding:0;border:0;overflow:hidden;cursor:pointer}.perf-av-w .perf-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}.perf-av-w button.perf-av{border-radius:50%!important;min-height:0!important;box-shadow:none}
+.perf-cam{position:absolute;right:-4px;bottom:-4px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);border:3px solid var(--surface);cursor:pointer;font-size:.95rem;box-shadow:0 4px 10px -4px var(--shadow)}.perf-cam.ocupado{opacity:.7;cursor:progress}.perf-cam:focus-within{outline:3px solid var(--accent-ink);outline-offset:2px}
+.perf-foto-acc{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}.perf-foto-acc .link{padding:0;border:0;background:none;color:var(--accent-ink);font:inherit;font-size:.88rem;font-weight:700;text-decoration:underline;cursor:pointer}
 .perf-id{display:grid;gap:4px;min-width:0}.perf-id h2{margin:0;font-size:1.35rem;line-height:1.2;overflow-wrap:anywhere}
 .perf-id p{margin:0;display:flex;flex-wrap:wrap;gap:6px}.perf-id small{color:var(--muted)}
 .perf-chip{font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--surface-2);color:var(--ink)}
@@ -4154,10 +4157,12 @@ function perfilCliHTML() {
   const inicial = esc(((c.nombre || "").trim()[0] || "👤").toUpperCase());
   return `<div class="perf">
     <section class="perf-top">
-      <span class="perf-av" aria-hidden="true">${inicial}</span>
+      ${(() => { subPerfil("cliente"); const f = fotoDe("cliente"); return `<div class="perf-av-w">${f ? `<button type="button" class="perf-av pf-ver" data-k="cliente" aria-label="Ver foto de perfil en grande"><img src="${f}" alt=""></button>` : `<span class="perf-av" aria-hidden="true">${inicial}</span>`}
+        <label class="perf-cam${PERF.ocupado ? " ocupado" : ""}" title="${f ? "Cambiar foto de perfil" : "Subir foto de perfil"}"><span aria-hidden="true">${PERF.ocupado ? "⏳" : "📷"}</span><input type="file" accept="image/*" class="pf-foto-in" data-k="cliente" aria-label="${f ? "Cambiar foto de perfil" : "Subir foto de perfil"}" hidden ${PERF.ocupado ? "disabled" : ""}></label></div>`; })()}
       <div class="perf-id"><h2>${esc(c.nombre)}</h2>
         <p>${c.tipo ? `<span class="perf-chip">${esc(c.tipo)}</span>` : ""}${num ? `<span class="perf-chip">Cliente N° ${esc(num)}</span>` : ""}</p>
-        ${creado ? `<small>Cliente desde el ${esc(fmtFecha(ymd(new Date(creado))))}</small>` : ""}</div>
+        ${creado ? `<small>Cliente desde el ${esc(fmtFecha(ymd(new Date(creado))))}</small>` : ""}
+        <div class="perf-foto-acc"><label class="link">${PERF.ocupado ? "Guardando foto…" : fotoDe("cliente") ? "📷 Cambiar foto" : "📷 Subir foto de perfil"}<input type="file" accept="image/*" class="pf-foto-in" data-k="cliente" hidden ${PERF.ocupado ? "disabled" : ""}></label>${fotoDe("cliente") && !PERF.ocupado ? `<button type="button" class="link" data-act="pf-quitar" data-k="cliente">Quitar foto</button>` : ""}</div></div>
     </section>
     <div class="perf-stats">
       <div><b>${fmtN(validos.length)}</b><small>Pedidos</small></div>
@@ -8828,12 +8833,13 @@ function pcEstimadoHTML(f, t) {
     <p class="pc-total">Total estimado del día <b>${fmtL(tot)} kg</b> · ya pedido ${fmtL(ya)} kg</p>`;
 }
 /* Perfil de usuario (Local papas, Local agua, Repartidores y Administrador): datos y foto (se guarda en <colección>/<id>.foto, comprimida). */
-const PERF_COL = { papas: "usuarios_papas", agua: "usuarios_agua", repartidor: "repartidores", admin: "usuarios_admin", prov: "proveedores" };
+const PERF_COL = { papas: "usuarios_papas", agua: "usuarios_agua", repartidor: "repartidores", admin: "usuarios_admin", prov: "proveedores", cliente: "fotos_perfil" };
+/* Clientes: su foto va aparte, en «fotos_perfil/<cliente>» (con clienteId), para no hacer más pesada la lista de clientes. */
 const PERF_ROL = { prov: "📦 Proveedor", papas: "🥔 Local papas", agua: "💧 Local agua", repartidor: "🚚 Repartidor", admin: "⚙️ Administrador" };
 const PERF = { doc: {}, sub: {}, ocupado: false };
 function subPerfil(k) {
   const u = S.ses[k], col = PERF_COL[k]; if (!u || !col || !S.db || PERF.sub[k] === u.id) return; PERF.sub[k] = u.id;
-  S.db.doc(col + "/" + u.id).onSnapshot(d => { PERF.doc[k] = d.exists ? Object.assign({ id: d.id }, d.data()) : { id: u.id, nombre: u.nombre }; renderUsuBar(); pintarPerfilIco(); perfilRepintar(); }, e => console.warn("perfil " + k, e));
+  S.db.doc(col + "/" + u.id).onSnapshot(d => { PERF.doc[k] = d.exists ? Object.assign({ id: d.id }, d.data()) : { id: u.id, nombre: u.nombre }; renderUsuBar(); pintarPerfilIco(); perfilRepintar(); if (k === "cliente") renderPerfilCli(); }, e => console.warn("perfil " + k, e));
 }
 const iniDe = n => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
 const fotoDe = k => { const d = PERF.doc[k], u = S.ses[k]; return d && u && d.id === u.id ? d.foto || "" : ""; };
@@ -8881,10 +8887,10 @@ async function fotoPerfil(file) {
 }
 async function guardarFotoPerfil(k, foto) {
   const u = S.ses[k], col = PERF_COL[k]; if (!u || !col || !S.db) return;
-  PERF.ocupado = true; perfilRepintar();
-  try { await conReintento(() => S.db.doc(col + "/" + u.id).update({ foto: foto || null, fotoEn: Date.now() })); PERF.doc[k] = Object.assign({ id: u.id }, PERF.doc[k] || {}, { foto: foto || null }); toast(foto ? "Foto de perfil guardada." : "Foto de perfil quitada."); }
+  PERF.ocupado = true; perfilRepintar(); if (k === "cliente") renderPerfilCli();
+  try { await conReintento(() => k === "cliente" ? S.db.doc(col + "/" + u.id).set({ clienteId: u.id, foto: foto || null, fotoEn: Date.now() }) : S.db.doc(col + "/" + u.id).update({ foto: foto || null, fotoEn: Date.now() })); PERF.doc[k] = Object.assign({ id: u.id }, PERF.doc[k] || {}, { foto: foto || null }); toast(foto ? "Foto de perfil guardada." : "Foto de perfil quitada."); }
   catch (e) { toast(msgError(e)); }
-  PERF.ocupado = false; renderUsuBar(); pintarPerfilIco(); perfilRepintar();
+  PERF.ocupado = false; renderUsuBar(); pintarPerfilIco(); perfilRepintar(); if (k === "cliente") renderPerfilCli();
 }
 document.addEventListener("change", async e => { const t = e.target; if (!t || !t.classList || !t.classList.contains("pf-foto-in") || !t.files || !t.files[0]) return; try { await guardarFotoPerfil(t.dataset.k, await fotoPerfil(t.files[0])); } catch (_) { toast("No se pudo leer la foto. Prueba con otra."); } });
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="pf-quitar"]'); if (b) guardarFotoPerfil(b.dataset.k, null); });
@@ -12514,7 +12520,7 @@ function envolverDb(db) {
   const log = (accion, path, data, prev) => {
     try {
       const [col, ...r] = String(path).split("/"), id = r.join("/");
-      if (col === REG_COL || col === "borradores" || col === "mensajes" || col === "mensajes_fotos" || col === "mensajes_leidos") return;
+      if (col === REG_COL || col === "borradores" || col === "mensajes" || col === "mensajes_fotos" || col === "mensajes_leidos" || col === "fotos_perfil") return;
       const q = regQuien(), e = { en: Date.now(), accion, coleccion: col, que: REG_NOM[col] || col, docId: id, resumen: regResumen(col, id, data, prev), quien: q.quien, portal: q.portal };
       if (accion === "Modificación") e.campos = regCambios(data);
       db.doc(REG_COL + "/r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)).set(e).catch(() => {});
@@ -16324,6 +16330,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-env{background:var(--accent);color:var(--on-accent);font-weight:800}
 .msj-env:disabled{opacity:.5}
 .msj-vacio{padding:30px 20px;text-align:center;color:var(--muted)}
+.msj-solo{text-align:center;color:var(--muted);font-size:.9rem;padding-top:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 .msj-ver{position:fixed;inset:0;z-index:1010;background:rgb(0 0 0 / .9);display:grid;place-items:center;padding:12px}
 .msj-ver img{max-width:100%;max-height:100%;border-radius:8px}
 .msj-m.yo[data-mid]{cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.msj-m[data-mid]:focus-visible{outline:3px solid var(--accent-ink);outline-offset:2px}
@@ -16372,7 +16379,11 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   const cliDe = id => todosClientes().find(c => c.id === id) || null;
   const cliCoincide = (c, q) => { if (!c) return false; const dig = q.replace(/\D/g, ""); return [c.nombre, c.id, c.direccion, c.comuna, c.email].some(v => String(v || "").toLowerCase().includes(q)) || (dig.length >= 4 && String(c.telefono || "").replace(/\D/g, "").includes(dig)); };
   const nomCliente = id => { const c = cliDe(id); if (c && c.nombre) return c.nombre; const m = M.docs.find(x => x.chat === chatCli(id) && x.deKey === "clientes:" + id); return m ? m.deNom : "Cliente"; };
+  /* Administrador: puede ver (solo leer) las conversaciones privadas entre otros usuarios del equipo. */
+  const ajeno = (chat, me) => !!me && me.col === "usuarios_admin" && chat.startsWith("p-") && !chat.slice(2).split("~").includes(me.key);
+  const nomKey = k => { const p = personas().find(x => x.key === k); if (p) return p.nombre; const m = M.docs.find(x => x.deKey === k); return m ? String(m.deNom || "Persona") : "Persona"; };
   const tituloChat = (chat, me) => {
+    if (ajeno(chat, me)) { const [a, b] = chat.slice(2).split("~"); return { t: `${nomKey(a)} ↔ ${nomKey(b)}`, s: "Conversación privada · solo lectura", av: "👁" }; }
     if (chat.startsWith("c-")) { if (esCli(me)) return { t: "Administración 100% Natural", s: "Escríbenos tus consultas", av: "🌿" }; const n = nomCliente(chat.slice(2)); return { t: n, s: "Cliente", av: n.trim().charAt(0).toUpperCase() || "?" }; }
     const g = GRUPOS.find(x => x[0] === chat); if (g) return { t: g[2], s: g[3] ? `${ROL[g[3]]} y administración` : "Todos", av: g[1] };
     const k = otroDe(chat, me), p = personas().find(x => x.key === k), nom = p ? p.nombre : "Persona";
@@ -16454,7 +16465,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   function listaHTML(me) {
     const q = M.q.trim().toLowerCase();
     const ult = chat => M.docs.filter(m => m.chat === chat).slice(-1)[0];
-    const fila = (chat, av, t, s) => { const u = ult(chat), n = noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}"><span class="msj-av" aria-hidden="true">${esc(av)}</span><span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
+    const fila = (chat, av, t, s) => { const u = ult(chat), n = ajeno(chat, me) ? 0 : noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}"><span class="msj-av" aria-hidden="true">${esc(av)}</span><span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
     const grupos = GRUPOS.filter(g => enGrupo(g, me) && (!q || g[2].toLowerCase().includes(q))).map(g => fila(g[0], g[1], g[2], g[3] ? `${ROL[g[3]]} y administración` : "Todo el equipo"));
     const gente = personas().filter(p => p.key !== me.key && (!q || p.nombre.toLowerCase().includes(q) || (ROL[p.col] || "").toLowerCase().includes(q)))
       .map(p => ({ p, chat: chatPriv(me.key, p.key) })).map(x => Object.assign(x, { u: ult(x.chat) }))
@@ -16469,12 +16480,15 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     const cliNuevos = me.col !== "usuarios_admin" || !q ? [] : todosClientes().filter(c => !conChat.has(c.id) && cliCoincide(c, q))
       .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).slice(0, 30)
       .map(c => fila(chatCli(c.id), String(c.nombre || c.id).trim().charAt(0).toUpperCase() || "?", String(c.nombre || c.id), ["Cliente", [c.direccion, c.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · ")));
+    const otros = me.col !== "usuarios_admin" ? [] : [...new Set(M.docs.filter(m => ajeno(m.chat, me)).map(m => m.chat))]
+      .map(chat => ({ chat, t: tituloChat(chat, me), u: ult(chat) })).filter(x => !q || x.t.t.toLowerCase().includes(q))
+      .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, "👁", x.t.t, "Conversación privada"));
     return `<div class="msj-top"><b>Mensajes${M.ped ? `<small>Elige a quién enviar el pedido</small>` : ""}</b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo">${M.ped ? `<div class="msj-buscar">${adjuntosHTML()}</div>` : ""}<div class="msj-buscar"><input type="search" id="msj-q" placeholder="${me.col === "usuarios_admin" ? "Buscar persona, grupo o cliente" : "Buscar persona o grupo"}" value="${esc(M.q)}" autocomplete="off"></div>
-      <ul class="msj-lista">${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : !US.cargado || !Object.keys(US.cargado).length ? `<li class="msj-vacio">Cargando personas…</li>` : ""}</ul></div>`;
+      <ul class="msj-lista">${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : !US.cargado || !Object.keys(US.cargado).length ? `<li class="msj-vacio">Cargando personas…</li>` : ""}${otros.length ? `<li class="msj-sec">Conversaciones de otros usuarios</li>${otros.join("")}` : ""}</ul></div>`;
   }
   function hiloHTML(me) {
-    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (M.chat.startsWith("c-") && !esCli(me));
+    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (M.chat.startsWith("c-") && !esCli(me)) || ajeno(M.chat, me);
     let dia = "";
     const hilo = ms.map(m => {
       const d = diaTxt(m.en), sep = d !== dia ? `<span class="msj-dia">${esc(d)}</span>` : ""; dia = d;
@@ -16484,8 +16498,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     }).join("");
     return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
-      <div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
-      <input type="file" id="msj-file" accept="image/*" hidden></div>`;
+      ${ajeno(M.chat, me) ? `<div class="msj-comp msj-solo">👁 Solo lectura: puedes ver esta conversación, pero no escribir en ella.</div>` : `<div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
+      <input type="file" id="msj-file" accept="image/*" hidden></div>`}`;
   }
   function pintar(forzar) {
     if (!M.abierto) return;
