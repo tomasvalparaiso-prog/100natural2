@@ -4186,7 +4186,7 @@ function vistaCliente() {
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-promos"><span class="rep-ti" aria-hidden="true" style="color:#f59e0b!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span class="rep-tt">Promociones</span><span class="cnt" id="cnt-promos"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones disponibles</span><span class="cnt" id="cnt-cupcli"></span></button>
-    <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Comentarios</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Sugerencias</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Comunidad</span><span class="cnt" id="cnt-comun"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
@@ -16140,12 +16140,12 @@ function abrirComentario() {
   document.querySelectorAll("#com-modal").forEach(x => x.remove());
   const m = document.createElement("div"); m.id = "com-modal"; m.className = "promo-modal";
   m.innerHTML = `<form class="promo-box com-box" role="dialog" aria-modal="true" aria-labelledby="com-t" novalidate>
-      <div class="pl-h"><b id="com-t">💬 Comentarios</b><button type="button" class="ap-cerrar" data-com="x" aria-label="Cerrar">×</button></div>
+      <div class="pl-h"><b id="com-t">💡 Sugerencias</b><button type="button" class="ap-cerrar" data-com="x" aria-label="Cerrar">×</button></div>
       <p class="com-sub">¿Qué productos te gustaría ver en la app? Elige los que quieras o escríbenos tu idea.</p>
       <div class="com-chips" role="group" aria-label="Productos sugeridos">${COM_SUG.map(t => `<button type="button" class="com-chip" data-com="chip" aria-pressed="false">${esc(t)}</button>`).join("")}</div>
-      <label class="campo full"><span>Tu comentario <em>opcional si elegiste productos</em></span><textarea id="com-txt" maxlength="600" rows="4" placeholder="Ej.: Me gustaría poder pedir hielo en bolsa los fines de semana."></textarea></label>
+      <label class="campo full"><span>Tu sugerencia <em>opcional si elegiste productos</em></span><textarea id="com-txt" maxlength="600" rows="4" placeholder="Ej.: Me gustaría poder pedir hielo en bolsa los fines de semana."></textarea></label>
       <p class="err" role="alert" id="com-err"></p>
-      <button type="submit" class="btn primario grande">Enviar comentario</button>
+      <button type="submit" class="btn primario grande">Enviar sugerencia</button>
       <div id="com-mios"></div>
     </form>`;
   document.body.appendChild(m);
@@ -16159,24 +16159,24 @@ function abrirComentario() {
   f.addEventListener("submit", async e => {
     e.preventDefault(); err.textContent = "";
     const texto = (f.querySelector("#com-txt").value || "").trim(), productos = [...COM.sel];
-    if (!texto && !productos.length) { err.textContent = "Elige al menos un producto o escribe tu comentario."; return; }
+    if (!texto && !productos.length) { err.textContent = "Elige al menos un producto o escribe tu sugerencia."; return; }
     const btn = f.querySelector('[type="submit"]'); ocupar(btn, true, "Enviando…");
     const id = "cm" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     try {
       await conReintento(() => S.db.doc("comentarios/" + id).set({ clienteId: cli.id, clienteNombre: cli.nombre || "", tipo: cli.tipo || "", comuna: cli.comuna || "", texto: texto.slice(0, 600), productos, en: Date.now(), leido: false }));
-      m.remove(); toast("🙌 ¡Gracias! Recibimos tu comentario.");
+      m.remove(); toast("🙌 ¡Gracias! Recibimos tu sugerencia.");
     } catch (er) { err.textContent = msgError(er); ocupar(btn, false); }
   });
   /* Comentarios que ya envió este cliente. */
   S.db.collection("comentarios").where("clienteId", "==", cli.id).limit(20).get().then(sn => {
     const xs = sn.docs.map(d => d.data() || {}).sort((a, b) => (b.en || 0) - (a.en || 0)); const el = m.querySelector("#com-mios"); if (!el || !xs.length) return;
-    el.innerHTML = `<details class="com-mios"><summary>Tus comentarios enviados (${xs.length})</summary>${xs.map(x => `<p><small>${esc(fmtFecha(ymd(new Date(x.en || Date.now()))))}</small>${x.productos && x.productos.length ? `<b>${esc(x.productos.join(", "))}</b>` : ""}${x.texto ? ` ${esc(x.texto)}` : ""}</p>`).join("")}</details>`;
+    el.innerHTML = `<details class="com-mios"><summary>Tus sugerencias enviadas (${xs.length})</summary>${xs.map(x => `<p><small>${esc(fmtFecha(ymd(new Date(x.en || Date.now()))))}</small>${x.productos && x.productos.length ? `<b>${esc(x.productos.join(", "))}</b>` : ""}${x.texto ? ` ${esc(x.texto)}` : ""}</p>`).join("")}</details>`;
   }).catch(() => {});
   setTimeout(() => { const c = m.querySelector(".com-chip"); if (c) c.focus(); }, 50);
 }
 function comentariosHTML() {
   if (!COM.cargado) return vacio("Cargando comentarios…", "Un momento.");
-  if (!COM.lista.length) return vacio("Aún no hay comentarios", "Los clientes pueden enviarlos desde Inicio › Comentarios.");
+  if (!COM.lista.length) return vacio("Aún no hay comentarios", "Los clientes pueden enviarlos desde Inicio › Sugerencias.");
   const cnt = new Map(); for (const c of COM.lista) for (const p of c.productos || []) cnt.set(p, (cnt.get(p) || 0) + 1);
   const top = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([l, v]) => ({ l, v, vt: `${v} ${v === 1 ? "cliente" : "clientes"}` }));
   const nuevos = COM.lista.filter(c => !c.leido).length;
