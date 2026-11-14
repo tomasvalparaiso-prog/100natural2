@@ -17,7 +17,10 @@ const GRUPOS: Record<string, [string, string[]]> = {
   "g-papas": ["Producción papas", ["admin", "papas"]],
 };
 type Sub = { endpoint: string; p256dh: string; auth: string; portal: string; cuenta: string };
-type Aviso = { titulo: string; cuerpo: string; tag: string; url: string };
+type Aviso = {
+  titulo: string; cuerpo: string; tag: string; url: string;
+  badge?: string; vibrar?: number[]; fijo?: boolean; cuando?: number; acciones?: { id: string; titulo: string; url: string }[];
+};
 
 let cfg: { secreto: string; pub: string; priv: string } | null = null;
 async function config() {
@@ -53,22 +56,50 @@ function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null
   return [dest, { titulo: `💬 ${titulo}`, cuerpo: contenido, tag: "msj-" + chat, url: "/?msj=" + encodeURIComponent(chat) }];
 }
 
-// Pedido nuevo: el administrador ve el total; los repartidores reciben el mismo aviso pero sin precio.
+// Pedido nuevo: aviso detallado (productos, dirección, cuándo, nota) con botones «Ver pedido» y «Cómo llegar».
+// El administrador ve además el total y el tipo de pago; los repartidores reciben el mismo aviso sin precio.
+const hoyCL = (dias = 0) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago" }).format(new Date(Date.now() + dias * 864e5));
+const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+function cuandoTxt(f: string, horario: string) {
+  let dia = "";
+  if (f) {
+    if (f === hoyCL()) dia = "Hoy";
+    else if (f === hoyCL(1)) dia = "Mañana";
+    else { const [y, m, d] = f.split("-").map(Number); const dt = new Date(Date.UTC(y, m - 1, d, 12)); dia = `${DIAS[dt.getUTCDay()].replace(/^./, (c) => c.toUpperCase())} ${d}/${m}`; }
+  }
+  return [dia, horario].filter(Boolean).join(" · ");
+}
 function paraPedido(id: string, d: Record<string, any>, subs: Sub[]): [Sub[], Aviso][] | null {
   if (d.estado === "cancelado") return null;
   const items = Array.isArray(d.items) ? d.items : [];
-  const lista = items.slice(0, 3).map((x: any) => `${x.cant}× ${x.nombre}`).join(", ") + (items.length > 3 ? ` y ${items.length - 3} más` : "");
-  const cuando = [d.fechaEntrega ? String(d.fechaEntrega).split("-").reverse().slice(0, 2).join("/") : "", d.horario || ""].filter(Boolean).join(" ");
-  const lugar = [d.comuna, cuando].filter(Boolean).join(" · ");
-  const conPrecio = [lista, d.total ? clp(Number(d.total)) : "", lugar].filter(Boolean).join(" · ");
-  const sinPrecio = [lista, lugar].filter(Boolean).join(" · ");
+  const unid = items.reduce((a: number, x: any) => a + (Number(x.cant) || 0), 0);
+  const prods = items.slice(0, 4).map((x: any) => `${x.cant}× ${x.nombre}${x.detalle && !String(x.nombre).includes(x.detalle) ? ` (${x.detalle})` : ""}`).join(", ") + (items.length > 4 ? ` y ${items.length - 4} más` : "");
+  const dir = [[d.direccion, d.depto].filter(Boolean).join(" "), d.comuna].filter(Boolean).join(", ");
+  const cuando = cuandoTxt(String(d.fechaEntrega || ""), String(d.horario || ""));
+  const nota = corto(d.nota, 90);
+  const cod = String(id).slice(-5).toUpperCase();
+  const lineas = [
+    prods ? `📦 ${prods}` : "",
+    dir ? `📍 ${dir}` : "",
+    cuando ? `🕒 ${cuando}` : "",
+  ];
+  const pago = [d.total ? clp(Number(d.total)) : "", d.pago || ""].filter(Boolean).join(" · ");
+  const fin = nota ? [`📝 ${nota}`] : [];
+  const titulo = `🛒 Pedido nuevo #${cod} · ${corto(d.clienteNombre || "Cliente", 40)}${unid ? ` (${unid} ${unid === 1 ? "unidad" : "unid."})` : ""}`;
+  const lugar = [d.direccion, d.comuna].filter(Boolean).join(", ");
+  const mapa = d.direccion ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(lugar) : "";
+  const base = (cuerpo: string): Aviso => ({
+    titulo, cuerpo, tag: "ped-" + id, url: "/?pedido=" + encodeURIComponent(id),
+    badge: "/badge-96.png", vibrar: [200, 100, 200, 100, 300], fijo: true, cuando: Number(d.creado) || Date.now(),
+    acciones: [{ id: "ver", titulo: "📋 Ver pedido", url: "/?pedido=" + encodeURIComponent(id) }, ...(mapa ? [{ id: "mapa", titulo: "🗺️ Cómo llegar", url: mapa }] : [])],
+  });
   const creador = d.origen === "admin" && d.creadoPor ? `usuarios_admin:${d.creadoPor}` : "";
-  const titulo = `🛒 Pedido nuevo · ${corto(d.clienteNombre || "Cliente", 60)}`;
   const admins = subs.filter((s) => s.portal === "admin" && llave(s) !== creador);
   const reps = subs.filter((s) => s.portal === "repartidor");
+  const txt = (xs: string[]) => { const t = xs.filter(Boolean).join("\n"); return t.length > 400 ? t.slice(0, 399) + "…" : t; };
   return [
-    [admins, { titulo, cuerpo: corto(conPrecio, 180), tag: "ped-" + id, url: "/" }],
-    [reps, { titulo, cuerpo: corto(sinPrecio, 180), tag: "ped-" + id, url: "/" }],
+    [admins, base(txt([...lineas, pago ? `💰 ${pago}` : "", ...fin]))],
+    [reps, base(txt([...lineas, ...fin]))],
   ];
 }
 

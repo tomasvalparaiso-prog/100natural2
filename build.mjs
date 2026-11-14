@@ -129,7 +129,7 @@ writeFileSync("public/app.html", html);
 writeFileSync("public/compartir.html", COMPARTIR);
 copyFileSync("web/supabase-db.js", "public/supabase-db.js");
 copyFileSync("web/importar.html", "public/importar.html");
-for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png", "icono-192.png", "icono-512.png", "manifest.webmanifest", "sw.js", "push.js"]) copyFileSync("web/" + f, "public/" + f);
+for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png", "icono-192.png", "icono-512.png", "badge-96.png", "manifest.webmanifest", "sw.js", "push.js"]) copyFileSync("web/" + f, "public/" + f);
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve("@supabase/supabase-js/dist/umd/supabase.js"), "public/vendor/supabase.js");
 console.log("Listo: public/app.html (" + Math.round(html.length / 1024) + " KB), public/compartir.html (" + Math.round(COMPARTIR.length / 1024) + " KB)");
