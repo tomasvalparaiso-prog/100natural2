@@ -126,6 +126,32 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
     const t = setInterval(() => { n++; try { if ((window.abrirPromo && window.abrirPromo(id)) || n > 60) clearInterval(t); } catch (_) { clearInterval(t); } }, 500);
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir") abrirPromo(e.data.url); });
+  /* Aviso de pedido nuevo: ir a la lista de pedidos y resaltar ese pedido. */
+  function abrirPedido(url) {
+    let id = null;
+    try { id = new URL(url, location.href).searchParams.get("pedido"); } catch (_) {}
+    if (!id) return;
+    let n = 0, fuiLista = false;
+    const t = setInterval(() => {
+      n++;
+      const el = document.querySelector('[data-id="' + CSS.escape(id) + '"]');
+      const card = el && (el.closest("article, .ped, .card") || el);
+      if (card && card.offsetParent) {
+        clearInterval(t);
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        card.style.transition = "box-shadow .3s"; card.style.boxShadow = "0 0 0 4px #f59e0b";
+        setTimeout(() => { card.style.boxShadow = ""; }, 4000);
+        return;
+      }
+      if (!fuiLista && cuenta()) {
+        const b = document.querySelector('[data-act="rep-tab"][data-t="ultimos"], [data-act="ad-local"][data-l="ult"]');
+        if (b) { b.click(); fuiLista = true; }
+      }
+      if (n > 40) clearInterval(t);
+    }, 500);
+  }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir") abrirPedido(e.data.url); });
+  if (/[?&]pedido=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirPedido(u); }
   if (/[?&]promo=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirPromo(u); }
   if (/[?&]msj=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirUrl(u); }
 })();
