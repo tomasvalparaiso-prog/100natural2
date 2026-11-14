@@ -1013,6 +1013,10 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .pr-items{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.pr-items li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--surface-2,rgba(0,0,0,.04));font-size:.9rem}
 .promo-card{display:flex;gap:12px;align-items:flex-start}.pr-thumb{width:84px;flex:none;border-radius:10px;aspect-ratio:2/3;object-fit:cover}.promo-info{flex:1;min-width:0}
 .pr-push{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2);display:grid;gap:8px}.pr-push label{display:grid;gap:4px;font-weight:700;font-size:.9rem}.pr-push input,.pr-push textarea{font:inherit;font-weight:400;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}.pr-push textarea{min-height:64px;resize:vertical}
+.est-vista{margin:0 0 14px;display:flex;gap:6px}.est-vista button{flex:1}
+.est-promos{display:grid;gap:14px;margin-top:14px}@media(min-width:900px){.est-promos{grid-template-columns:1fr 1fr}}
+.est-promo .ep-h{display:flex;gap:12px;align-items:center;margin-bottom:10px}.est-promo .ep-h img,.est-promo .ep-ph{flex:none;width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--surface-2);display:grid;place-items:center;font-size:1.8rem}.est-promo .ep-h .est-h{margin:0}
+.ep-num{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0}.ep-num div{background:var(--surface-2);border-radius:12px;padding:10px}.ep-num dt{font-size:.8rem;color:var(--muted)}.ep-num dd{margin:2px 0 0;font-size:1.25rem;font-weight:800}.ep-num dd small{display:block;font-size:.75rem;font-weight:500;color:var(--muted)}
 .pr-push-ult{margin:6px 0 0;font-size:.85rem;color:var(--ok,#15803d);font-weight:700}
 .pr-est{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}.pr-pub{background:#dcfce7;color:#166534}.pr-prog{background:#e0f2fe;color:#075985}.pr-pausa{background:#fef3c7;color:#92400e}.pr-fin{background:#e5e7eb;color:#374151}
 .promo-modal{position:fixed;inset:0;z-index:1000;background:rgba(10,20,25,.62);display:flex;align-items:center;justify-content:center;padding:16px;animation:prIn .2s ease}
@@ -4115,6 +4119,7 @@ function vistaCliente() {
     <button role="tab" data-act="cli-tab" data-t="nuevo" aria-selected="${S.cliTab === "nuevo"}"><span class="rep-ti" aria-hidden="true">${TI.carro}</span><span class="rep-tt">Nuevo pedido</span></button>
     <button role="tab" data-act="cli-tab" data-t="mis" aria-selected="${S.cliTab === "mis"}"><span class="rep-ti" aria-hidden="true">${TI.boleta}</span><span class="rep-tt">Mis pedidos</span><span class="cnt" id="cnt-mis"></span></button>
     <button type="button" class="cli-favs" data-act="cli-favs"><span class="rep-ti" aria-hidden="true" style="color:#e11d48!important">${FAV_SVG.replace('<svg ', '<svg width="26" height="26" fill="currentColor" ')}</span><span class="rep-tt">Mis favoritos</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
     ${esLocal() ? `<button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
@@ -4735,7 +4740,9 @@ async function enviarPedido(btn) {
       estado: "pendiente", repartidorId: "", repartidorNombre: "",
       creado: Date.now(), tomado: 0, entregado: 0
     };
+    const promoPid = promoDelPedido(lista); if (promoPid) doc.promoId = promoPid;
     await conReintento(() => S.db.collection("pedidos").doc(id).set(doc));
+    if (promoPid) { try { sessionStorage.removeItem(PROMO_PED_LS); } catch (_) {} promoEvento(promoPid, prev => { const ps = [...(prev.pedidos || []).filter(x => x.id !== id), { id, total: doc.total, en: Date.now() }].slice(-50); return { pedidos: ps, monto: ps.reduce((a2, x) => a2 + (Number(x.total) || 0), 0) }; }); }
     if (dir !== cli.direccion || depto !== (cli.depto || "") || comuna !== cli.comuna || tel !== cli.telefono) {
       try { await S.db.doc("clientes/" + cli.id).update({ direccion: dir, depto, comuna, telefono: tel }); Object.assign(cli, { direccion: dir, depto, comuna, telefono: tel }); guardarSesion(); } catch (_) {}
     }
@@ -10420,7 +10427,7 @@ function vistaAdmin() {
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
 /* ---------- Estadísticas (administrador) ---------- */
-const EST = { per: "30d", tip: null };
+const EST = { per: "30d", tip: null, vista: "gen" };
 const EST_PERS = [["7d", "7 días"], ["30d", "30 días"], ["mes", "Este mes"], ["anio", "Este año"], ["todo", "Todo"]];
 const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 const MESES_C = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
@@ -10507,7 +10514,13 @@ function estTip(e) {
   left = Math.max(0, Math.min(wr.width - tip.offsetWidth, left));
   tip.style.left = left + "px"; tip.style.top = "4px";
 }
+/* Botones arriba: «Estadísticas» (general) y «Promociones» (sección aparte). */
+const estVistaHTML = () => `<div class="usu-tipo tp-est est-vista" role="group" aria-label="Sección"><button type="button" data-act="est-vista" data-v="gen" aria-pressed="${EST.vista !== "promo"}">📊 Estadísticas</button><button type="button" data-act="est-vista" data-v="promo" aria-pressed="${EST.vista === "promo"}">🎉 Promociones</button></div>`;
 function estadisticasHTML() {
+  if (EST.vista === "promo") return estVistaHTML() + estPromosHTML();
+  return estVistaHTML() + estGeneralHTML();
+}
+function estGeneralHTML() {
   if (!S.cargado) return vacio("Cargando estadísticas…", "Un momento.");
   const [a, b] = estRango(EST.per), dias = difDias(a, b) + 1, [pa0, pb0] = [sumarDias(a, -dias), sumarDias(a, -1)];
   const enR = (p, x, y) => p.fechaEntrega && p.fechaEntrega >= x && p.fechaEntrega <= y;
@@ -10609,6 +10622,42 @@ function estUsuariosHTML(a, b, pa0, pb0, sfx) {
       <section class="est-card"><h3 class="est-h">Últimos registrados</h3><p class="est-sub">Las 6 cuentas más recientes</p>${ult.length ? `<ul class="est-ult">${ult.map(u => `<li><span><b>${esc(u.nombre)}</b><small>${esc(u.rol)}${u.col === "clientes" && u.tipo ? " · " + esc(tipoTxt(u.tipo)) : ""}</small></span><time>${esc(fmtFecha(u.f))}</time></li>`).join("")}</ul>` : `<p class="muted est-vacio">Sin registros con fecha.</p>`}</section>
     </div>
     ${sinFecha ? `<p class="muted nota-disp">${sinFecha} ${sinFecha === 1 ? "cuenta antigua no tiene" : "cuentas antiguas no tienen"} fecha de registro: se cuentan en los totales, pero no en los gráficos por período.</p>` : ""}`;
+}
+/* Estadísticas › Promociones: eventos de los clientes (vistas, descartes, «Pedir») y pedidos con promoId. */
+const PEV = { lista: [], subs: false, cargado: false };
+function subPromoEv() {
+  if (PEV.subs || !S.db) return; PEV.subs = true;
+  S.db.collection("promo_eventos").limit(5000).onSnapshot(sn => { PEV.lista = sn.docs.map(d => d.data() || {}); PEV.cargado = true; if (AD.local === "est") renderEst(); }, e => { PEV.cargado = true; console.warn("promo_eventos", e); });
+}
+function estPromosHTML() {
+  subPromos(); subPromoEv();
+  if (!PR.cargado || !PEV.cargado) return vacio("Cargando promociones…", "Un momento.");
+  if (!PR.lista.length) return `<section class="est-card"><p class="muted est-vacio">Aún no hay promociones publicadas. Créalas en Pedidos › Promociones.</p></section>`;
+  const filas = PR.lista.map(p => {
+    const ev = PEV.lista.filter(x => x.promoId === p.id);
+    const vistos = ev.filter(x => x.vistas).length, veces = ev.reduce((a, x) => a + (Number(x.vistas) || 0), 0);
+    const desc = ev.filter(x => x.descartado).length, clics = ev.filter(x => x.clics).length;
+    const peds = S.pedidos.filter(q => q.promoId === p.id && q.estado !== "cancelado");
+    const ventas = peds.reduce((a, q) => a + (Number(q.total) || 0), 0), compradores = new Set(peds.map(q => q.clienteId)).size;
+    return { p, vistos, veces, desc, clics, n: peds.length, ventas, compradores, conv: vistos ? Math.round(compradores / vistos * 100) : 0, push: p.pushUlt && p.pushUlt.total >= 0 ? p.pushUlt.enviados : null };
+  });
+  const tot = filas.reduce((a, f) => ({ vistos: a.vistos + f.vistos, n: a.n + f.n, ventas: a.ventas + f.ventas, comp: a.comp + f.compradores }), { vistos: 0, n: 0, ventas: 0, comp: 0 });
+  const tile = (l, v, sub) => `<div class="est-tile"><span>${l}</span><b>${v}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  const card = f => { const [ek, el] = promoEstado(f.p); return `<section class="est-card est-promo">
+      <div class="ep-h">${f.p.foto ? `<img src="${f.p.foto}" alt="">` : `<span class="ep-ph" aria-hidden="true">🎉</span>`}<div><h3 class="est-h">${esc(f.p.titulo || "Promoción")}</h3><p class="est-sub"><span class="pr-est pr-${ek}">${el}</span> · desde ${esc(fmtFecha(f.p.desde || ymd(new Date(f.p.creado || Date.now()))))}${f.p.hasta ? ` hasta ${esc(fmtFecha(f.p.hasta))}` : ""}</p></div></div>
+      <dl class="ep-num">
+        <div><dt>👁 Clientes que la vieron</dt><dd>${fmtN(f.vistos)}<small>${fmtN(f.veces)} veces en total</small></dd></div>
+        <div><dt>👆 Tocaron «Pedir»</dt><dd>${fmtN(f.clics)}<small>${f.vistos ? Math.round(f.clics / f.vistos * 100) : 0}% de los que la vieron</small></dd></div>
+        <div><dt>🛒 Pedidos</dt><dd>${fmtN(f.n)}<small>${fmtN(f.compradores)} ${f.compradores === 1 ? "cliente" : "clientes"}</small></dd></div>
+        <div><dt>💰 Ventas</dt><dd>${clp(f.ventas)}<small>${f.n ? `${clp(f.ventas / f.n)} por pedido` : "—"}</small></dd></div>
+        <div><dt>📈 Conversión</dt><dd>${f.conv}%<small>vieron y compraron</small></dd></div>
+        <div><dt>✋ Descartaron</dt><dd>${fmtN(f.desc)}<small>${f.vistos ? Math.round(f.desc / f.vistos * 100) : 0}% de los que la vieron</small></dd></div>
+        ${f.push != null ? `<div><dt>📣 Aviso push</dt><dd>${fmtN(f.push)}<small>teléfonos avisados</small></dd></div>` : ""}
+      </dl></section>`; };
+  return `<div class="est-tiles">${tile("Promociones", fmtN(filas.length), (n => `${n} ${n === 1 ? "publicada" : "publicadas"} ahora`)(filas.filter(f => promoEstado(f.p)[0] === "pub").length))}${tile("Clientes que vieron alguna", fmtN(tot.vistos))}${tile("Pedidos desde promociones", fmtN(tot.n))}${tile("Ventas desde promociones", clp(tot.ventas))}</div>
+    <div class="est-grid">${estBarras("Ventas por promoción", "Pedidos hechos desde la promoción (sin cancelados)", filas.filter(f => f.ventas).sort((x, y) => y.ventas - x.ventas).slice(0, 8).map(f => ({ l: f.p.titulo || "Promoción", v: f.ventas, vt: clp(f.ventas), s: `${f.n} ${f.n === 1 ? "pedido" : "pedidos"}` })), "Aún no hay pedidos hechos desde una promoción.")}</div>
+    <div class="est-promos">${filas.map(card).join("")}</div>
+    <p class="muted nota-disp">Promociones: se cuenta desde que existe este seguimiento (los datos anteriores no se registraron). «Vieron» = el cliente vio la ventana de la promoción al entrar. Un pedido cuenta para la promoción si el cliente tocó «Pedir» en ella y envió su pedido dentro de las 3 horas siguientes.</p>`;
 }
 function renderEst() { const el = $("#est-panel"); if (!el) return; EST.w = (el.clientWidth || 640) - 34; el.innerHTML = estadisticasHTML(); }
 { let t = null, w0 = 0; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { const el = $("#est-panel"); if (el && Math.abs(el.clientWidth - w0) > 20) { w0 = el.clientWidth; renderEst(); } }, 200); }); }
@@ -12580,7 +12629,7 @@ function envolverDb(db) {
   const log = (accion, path, data, prev) => {
     try {
       const [col, ...r] = String(path).split("/"), id = r.join("/");
-      if (col === REG_COL || col === "borradores" || col === "mensajes" || col === "mensajes_fotos" || col === "mensajes_leidos" || col === "fotos_perfil") return;
+      if (col === REG_COL || col === "borradores" || col === "mensajes" || col === "mensajes_fotos" || col === "mensajes_leidos" || col === "fotos_perfil" || col === "promo_eventos") return;
       const q = regQuien(), e = { en: Date.now(), accion, coleccion: col, que: REG_NOM[col] || col, docId: id, resumen: regResumen(col, id, data, prev), quien: q.quien, portal: q.portal };
       if (accion === "Modificación") e.campos = regCambios(data);
       db.doc(REG_COL + "/r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)).set(e).catch(() => {});
@@ -14587,6 +14636,7 @@ document.addEventListener("click", e => {
     setTimeout(() => { const el = document.querySelector(`article[data-pid="${CSS.escape(pid)}"]`); if (el) el.scrollIntoView({ block: "center", behavior: "smooth" }); else window.scrollTo({ top: 0, behavior: "smooth" }); }, 120);
     setTimeout(() => { if (S.cliIr === pid) { S.cliIr = ""; document.querySelectorAll(`article[data-pid="${CSS.escape(pid)}"]`).forEach(x => x.classList.remove("ped-recien")); } }, 6000);
   }
+  else if (a === "cli-musica") { if (window.pyaRadio) window.pyaRadio.abrir("fav"); else toast("La radio no está disponible en esta vista."); }
   else if (a === "cli-favs") { cambiarCliTab("nuevo"); setTimeout(() => { CPW.grupo = "fav"; cpwIr(2, true); const c = $("#catalogo"); if (c) { c.innerHTML = catalogoHTML(); updateCarritoUI(); } window.scrollTo({ top: 0, behavior: "smooth" }); }, 0); }
   else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "fdc-carro") { cambiarCliTab("nuevo"); const e = $("#entrega"); if (e && carritoLista().length) e.scrollIntoView({ block: "start", behavior: "smooth" }); else { toast("Tu pedido está vacío: agrega productos con +."); const t = $("#cli2-todos"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } }
@@ -15094,7 +15144,7 @@ document.addEventListener("click", e => {
   }
   else if (a === "pr-del-no") { leerFormPromo(); PR.del = ""; renderPromo(); }
   else if (a === "pr-del-si") { leerFormPromo(); PR.del = ""; if (PR.editId === id) Object.assign(PR, { editId: "", foto: "", items: [], titulo: "", texto: "Pedir ahora", desde: hoy(), hasta: "", aud: "todos" }); if (S.db) conReintento(() => S.db.doc("promociones/" + id).delete()).then(() => toast("Promoción eliminada.")).catch(e => toast(msgError(e))); }
-  else if (a === "promo-descartar") { if (!b.dataset.prev && id) marcarPromo(id); cerrarPromoModal(); if (!b.dataset.prev) setTimeout(revisarPromo, 300); }
+  else if (a === "promo-descartar") { if (!b.dataset.prev && id) { marcarPromo(id); promoEvento(id, () => ({ descartado: Date.now() })); } cerrarPromoModal(); if (!b.dataset.prev) setTimeout(revisarPromo, 300); }
   else if (a === "promo-pedir") { if (b.dataset.prev) cerrarPromoModal(); else pedirPromo(id); }
   else if (a === "pc-grupo") { if (PC.dirty && !confirmarSalirPC()) return; PC.grupo = b.dataset.g; PC.cli = ""; PC.dirty = false; renderPrecios(); }
   else if (a === "pc-sel") { if (PC.cli !== id && PC.dirty && !confirmarSalirPC()) return; { const cx = (US.data.clientes || []).find(x => x.id === id); if (cx) PC.grupo = cx.tipo === "Local comercial" ? "local" : "part"; } PC.cli = id; PC.dirty = false; PC.sinIvaCli = ""; renderPrecios(); const f = $("#pc-form"); if (f) f.scrollIntoView({ behavior: "smooth", block: "start" }); }
@@ -15199,6 +15249,7 @@ document.addEventListener("click", e => {
   else if (a === "red-unir-no") { RED.unir = ""; renderRed(); }
   else if (a === "red-unir-si") redUnir(b.dataset.k, b);
   else if (a === "est-per") { EST.per = b.dataset.v; renderEst(); }
+  else if (a === "est-vista") { EST.vista = b.dataset.v === "promo" ? "promo" : "gen"; renderEst(); const el = $("#est-panel"); if (el) el.scrollIntoView({ block: "start" }); }
   else if (a === "tomar-tipo") { S.tomarTipo = b.dataset.v; renderListas(); }
   else if (a === "ad-ptipo") { AD.pTipo = b.dataset.v; rerenderAdCli(); }
   else if (a === "ad-ftipo") { AD.fTipo = b.dataset.v; renderAdminPanel(); }
@@ -15675,7 +15726,7 @@ function subPromos() {
   S.db.collection("promociones").limit(60).onSnapshot(sn => {
     PR.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.creado || 0) - (a.creado || 0));
     PR.cargado = true;
-    renderPromo(); revisarPromo(); const bsl = $("#cli2-ban-slot"); if (bsl) bsl.innerHTML = cli2Banners();
+    renderPromo(); revisarPromo(); if (S.portal === "admin" && AD.local === "est") renderEst(); const bsl = $("#cli2-ban-slot"); if (bsl) bsl.innerHTML = cli2Banners();
   }, e => { PR.cargado = true; console.warn("promociones", e); renderPromo(); });
 }
 const promoEstado = p => p.activa === false ? ["pausa", "Pausada"] : p.hasta && p.hasta < hoy() ? ["fin", "Finalizada"] : p.desde > hoy() ? ["prog", "Programada"] : ["pub", "Publicada"];
@@ -15763,6 +15814,22 @@ async function elegirFlyer(file) {
 /* Cliente: pop-up */
 const promoDescartadas = () => { try { return JSON.parse(localStorage.getItem(PR_LS) || "{}") || {}; } catch (_) { return {}; } };
 const promoKey = id => { const p = PR.lista.find(x => x.id === id); return p && Number(p.rev) ? `${id}@${p.rev}` : id; };
+/* ---------- Seguimiento de promociones (para Estadísticas › Promociones) ----------
+   Un documento por promoción y cliente: «promo_eventos/<promo>__<cliente>» (con clienteId), con cuántas veces la vio,
+   si la descartó, si tocó «Pedir» y los pedidos que hizo desde ella. */
+function promoEvento(pid, cambios) {
+  const cli = S.ses.cliente; if (!cli || !pid || !S.db) return Promise.resolve();
+  const ref = S.db.doc("promo_eventos/" + String(pid).replace(/[^A-Za-z0-9_-]/g, "_") + "__" + String(cli.id).replace(/[^A-Za-z0-9_-]/g, "_"));
+  return ref.get().then(d => { const prev = d.exists ? (d.data() || {}) : {}; return ref.set(Object.assign({}, prev, { promoId: pid, clienteId: cli.id, clienteNombre: cli.nombre || "", tipo: cli.tipo || "" }, cambios(prev), { en: Date.now() })); }).catch(e => console.warn("promo_eventos", e));
+}
+const PROMO_PED_LS = "pya.promo.pedir";
+function promoDelPedido(lista) {
+  let x = null; try { x = JSON.parse(sessionStorage.getItem(PROMO_PED_LS) || "null"); } catch (_) {}
+  if (!x || !x.id || Date.now() - (x.en || 0) > 3 * 36e5) return "";
+  const p = PR.lista.find(q => q.id === x.id);
+  const ids = new Set(((p && p.items) || []).map(i => i.id));
+  return !ids.size || lista.some(l => ids.has(l.p.id)) ? x.id : "";
+}
 function marcarPromo(id) {
   const cli = S.ses.cliente; if (!cli) return;
   id = promoKey(id);
@@ -15779,6 +15846,7 @@ function promoParaCliente() {
 function mostrarPromoModal(p, preview) {
   cerrarPromoModal();
   const m = document.createElement("div");
+  if (!preview && p.id && S.ses.cliente) { const n = Date.now(); promoEvento(p.id, prev => ({ vistas: (Number(prev.vistas) || 0) + 1, primerVisto: prev.primerVisto || n, ultVisto: n })); }
   m.id = "promo-modal"; m.className = "promo-modal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", p.titulo || "Promoción");
   m.innerHTML = `<div class="promo-box">
       ${preview ? `<p class="pr-prev-tag">Vista previa</p>` : ""}
@@ -15797,6 +15865,7 @@ function revisarPromo() {
 }
 function pedirPromo(id) {
   const p = PR.lista.find(x => x.id === id);
+  if (id) { promoEvento(id, prev => ({ clics: (Number(prev.clics) || 0) + 1, pidio: Date.now() })); try { sessionStorage.setItem(PROMO_PED_LS, JSON.stringify({ id, en: Date.now() })); } catch (_) {} }
   if (id) marcarPromo(id);
   cerrarPromoModal();
   if (!p) return;
@@ -16377,6 +16446,8 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
 .rad-tx{min-width:0;display:grid}.rad-tx b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rad-tx small{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem}
 .rad-fav{flex:none;width:40px;height:40px;border:0;background:none;color:#f59e0b;font-size:1.3rem;cursor:pointer;border-radius:50%}
 .rad-msg{padding:24px 16px;text-align:center;color:var(--muted)}
+.rad-auto{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:.85rem;opacity:.95}.rad-auto input{width:18px;height:18px;accent-color:#fff}
+.rad-tabs button{font-size:.82rem;padding:0 6px}
 </style>
 <script>
 /* ===== Radio: escuchar radios en vivo dentro de 100% Natural (todos los usuarios).
@@ -16390,6 +16461,8 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
   let cfg = { vol: 0.8, ult: null, favs: [] };
   try { cfg = Object.assign(cfg, JSON.parse(localStorage.getItem(LS) || "{}")); } catch (_) {}
   const guardar = () => { try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch (_) {} };
+  if (!Array.isArray(cfg.rec)) cfg.rec = [];
+  if (cfg.auto === undefined) cfg.auto = true;
   const R = { tab: "cl", q: "", lista: {}, cargando: false, err: "", actual: cfg.ult, estado: "parado" };
   const audio = new Audio(); audio.preload = "none"; audio.volume = cfg.vol;
 
@@ -16398,6 +16471,7 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
   document.body.appendChild(btn); document.body.appendChild(pan);
 
   const sesion = () => { const S = window.S; return !!(S && S.ses && S.portal && S.ses[S.portal]); };
+  const esCliente = () => { const S = window.S; return !!(S && S.portal === "cliente" && S.ses && S.ses.cliente); };
   function pintarBtn() {
     btn.hidden = !sesion() && R.estado === "parado";
     const on = R.estado === "sonando";
@@ -16430,12 +16504,12 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
   }
   const rutaCL = "/json/stations/search?countrycode=CL&order=clickcount&reverse=true&limit=80&hidebroken=true&is_https=true";
   const rutaQ = q => `/json/stations/search?name=${encodeURIComponent(q)}&order=clickcount&reverse=true&limit=50&hidebroken=true&is_https=true`;
-  const listaActual = () => R.tab === "fav" ? cfg.favs : R.tab === "q" ? (R.lista["q:" + R.q] || []) : (R.lista.cl || []);
+  const listaActual = () => R.tab === "fav" ? cfg.favs : R.tab === "rec" ? cfg.rec : R.tab === "q" ? (R.lista["q:" + R.q] || []) : (R.lista.cl || []);
 
   /* ---------- Reproducción ---------- */
   function tocar(st) {
     if (!st || !st.url) return;
-    R.actual = st; cfg.ult = st; guardar();
+    R.actual = st; cfg.ult = st; cfg.rec = [st, ...cfg.rec.filter(x => x.id !== st.id)].slice(0, 15); guardar();
     R.estado = "cargando"; audio.src = st.url; audio.load();
     audio.play().catch(() => { if (R.actual === st) { R.estado = "parado"; pintar(); pintarBtn(); toast("No se pudo reproducir esta radio. Prueba con otra."); } });
     if ("mediaSession" in navigator) try { navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: "Radio · 100% Natural", artwork: st.logo ? [{ src: st.logo }] : [] }); } catch (_) {}
@@ -16458,17 +16532,18 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
     const a = R.actual, xs = listaActual();
     const foco = document.activeElement && document.activeElement.id === "rad-q" ? document.activeElement.selectionStart : null;
     const listaH = R.cargando && !xs.length ? `<li class="rad-msg">Cargando radios…</li>` : R.err && !xs.length ? `<li class="rad-msg">${esc(R.err)}</li>`
-      : !xs.length ? `<li class="rad-msg">${R.tab === "fav" ? "Aún no tienes radios guardadas. Toca ☆ en una radio para guardarla aquí." : R.tab === "q" ? (R.q.trim().length < 2 ? "Escribe el nombre de una radio (por ejemplo: Cooperativa, Futuro, Romántica)." : "No encontramos radios con ese nombre.") : "No hay radios para mostrar."}</li>` : xs.map(itemHTML).join("");
+      : !xs.length ? `<li class="rad-msg">${R.tab === "fav" ? "Aún no tienes radios guardadas. Toca ☆ en una radio para guardarla aquí." : R.tab === "rec" ? "Aquí aparecerán las radios que escuches." : R.tab === "q" ? (R.q.trim().length < 2 ? "Escribe el nombre de una radio (por ejemplo: Cooperativa, Futuro, Romántica)." : "No encontramos radios con ese nombre.") : "No hay radios para mostrar."}</li>` : xs.map(itemHTML).join("");
     /* Mientras escribe en el buscador solo se cambia la lista, para no cerrar el teclado. */
     const ul = pan.querySelector(".rad-lista");
     if (foco != null && ul && R.tab === "q") { ul.innerHTML = listaH; return; }
     pan.innerHTML = `<div class="rad-box" role="dialog" aria-modal="true" aria-label="Radio">
-      <div class="rad-top"><b>🎵 Radio</b><button type="button" class="rad-x" data-rad="cerrar" aria-label="Cerrar">✕</button></div>
+      <div class="rad-top"><b>🎵 Mi música</b><button type="button" class="rad-x" data-rad="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="rad-now"><span class="rad-logo" ${a && a.logo ? `style="background-image:url('${esc(a.logo)}')"` : ""} aria-hidden="true">${a && a.logo ? "" : "📻"}</span>
         <span style="min-width:0"><b>${a ? esc(a.name) : "Elige una radio"}</b><small>${R.estado === "sonando" ? "🔴 En vivo" : R.estado === "cargando" ? "Conectando…" : a ? "En pausa" : "Toca una radio de la lista"}</small></span>
         <button type="button" class="rad-play" data-rad="play" aria-label="${R.estado === "parado" ? "Reproducir" : "Pausar"}" ${a ? "" : "disabled"}>${R.estado === "parado" ? "▶" : R.estado === "cargando" ? "⏳" : "⏸"}</button>
-        <label class="rad-vol"><span aria-hidden="true">🔈</span><input type="range" id="rad-vol" min="0" max="1" step="0.05" value="${audio.volume}" aria-label="Volumen"><span aria-hidden="true">🔊</span></label></div>
-      <div class="rad-tabs" role="group" aria-label="Lista de radios"><button type="button" data-rad="tab" data-t="cl" aria-pressed="${R.tab === "cl"}">🇨🇱 Chile</button><button type="button" data-rad="tab" data-t="fav" aria-pressed="${R.tab === "fav"}">★ Mis radios</button><button type="button" data-rad="tab" data-t="q" aria-pressed="${R.tab === "q"}">🔎 Buscar</button></div>
+        <label class="rad-vol"><span aria-hidden="true">🔈</span><input type="range" id="rad-vol" min="0" max="1" step="0.05" value="${audio.volume}" aria-label="Volumen"><span aria-hidden="true">🔊</span></label>
+        ${esCliente() ? `<label class="rad-auto"><input type="checkbox" id="rad-auto" ${cfg.auto ? "checked" : ""}> Sonar mi última radio al entrar</label>` : ""}</div>
+      <div class="rad-tabs" role="group" aria-label="Lista de radios"><button type="button" data-rad="tab" data-t="cl" aria-pressed="${R.tab === "cl"}">🇨🇱 Chile</button><button type="button" data-rad="tab" data-t="fav" aria-pressed="${R.tab === "fav"}">★ Mis radios</button><button type="button" data-rad="tab" data-t="rec" aria-pressed="${R.tab === "rec"}">🕘 Recientes</button><button type="button" data-rad="tab" data-t="q" aria-pressed="${R.tab === "q"}">🔎 Buscar</button></div>
       ${R.tab === "q" ? `<div class="rad-buscar"><input type="search" id="rad-q" placeholder="Nombre de la radio" value="${esc(R.q)}" autocomplete="off"></div>` : ""}
       <ul class="rad-lista">${listaH}</ul></div>`;
     if (foco != null) { const q = document.getElementById("rad-q"); if (q) { q.focus(); try { q.setSelectionRange(foco, foco); } catch (_) {} } }
@@ -16490,10 +16565,33 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
   });
   let qT = null;
   pan.addEventListener("input", e => {
+    if (e.target.id === "rad-auto") { cfg.auto = e.target.checked; guardar(); return; }
     if (e.target.id === "rad-vol") { audio.volume = Number(e.target.value); cfg.vol = audio.volume; guardar(); return; }
     if (e.target.id === "rad-q") { R.q = e.target.value; clearTimeout(qT); const q = R.q.trim(); if (q.length < 2) { pintar(); return; } qT = setTimeout(() => cargar("q:" + R.q, rutaQ(q)), 450); }
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !pan.hidden) cerrar(); });
+
+  /* «Mi música» (botón en Inicio de Clientes) abre el panel en una pestaña. */
+  window.pyaRadio = { abrir(tab) { if (tab) R.tab = tab; abrir(); if (R.tab === "fav" && !cfg.favs.length && cfg.rec.length) { R.tab = "rec"; pintar(); } } };
+
+  /* Clientes: al entrar suena la última radio que escucharon (se puede apagar en el panel).
+     Los navegadores no dejan sonar sin un toque: si se bloquea, suena con el primer toque en la página. */
+  let autoHecho = "";
+  function autoplay() {
+    if (!sesion() && R.estado !== "parado") { pausar(); autoHecho = ""; }
+    const S = window.S, id = S && S.portal === "cliente" && S.ses && S.ses.cliente && S.ses.cliente.id;
+    if (!id || autoHecho === id) return;
+    autoHecho = id;
+    if (!cfg.auto || !cfg.ult || R.estado !== "parado") return;
+    const st = cfg.ult;
+    R.actual = st; R.estado = "cargando"; audio.src = st.url;
+    audio.play().then(() => { pintarBtn(); }).catch(() => {
+      R.estado = "parado"; pintarBtn();
+      const al = () => { document.removeEventListener("pointerdown", al, true); document.removeEventListener("keydown", al, true); if (R.estado === "parado" && cfg.auto && window.S && window.S.portal === "cliente") tocar(st); };
+      document.addEventListener("pointerdown", al, true); document.addEventListener("keydown", al, true);
+    });
+  }
+  setInterval(autoplay, 1000);
 })();
 </script>
 <style>
