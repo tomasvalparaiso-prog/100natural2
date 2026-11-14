@@ -53,15 +53,23 @@ function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null
   return [dest, { titulo: `💬 ${titulo}`, cuerpo: contenido, tag: "msj-" + chat, url: "/?msj=" + encodeURIComponent(chat) }];
 }
 
-function paraPedido(id: string, d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null {
+// Pedido nuevo: el administrador ve el total; los repartidores reciben el mismo aviso pero sin precio.
+function paraPedido(id: string, d: Record<string, any>, subs: Sub[]): [Sub[], Aviso][] | null {
   if (d.estado === "cancelado") return null;
   const items = Array.isArray(d.items) ? d.items : [];
   const lista = items.slice(0, 3).map((x: any) => `${x.cant}× ${x.nombre}`).join(", ") + (items.length > 3 ? ` y ${items.length - 3} más` : "");
   const cuando = [d.fechaEntrega ? String(d.fechaEntrega).split("-").reverse().slice(0, 2).join("/") : "", d.horario || ""].filter(Boolean).join(" ");
-  const cuerpo = [lista, d.total ? clp(Number(d.total)) : "", [d.comuna, cuando].filter(Boolean).join(" · ")].filter(Boolean).join(" · ");
+  const lugar = [d.comuna, cuando].filter(Boolean).join(" · ");
+  const conPrecio = [lista, d.total ? clp(Number(d.total)) : "", lugar].filter(Boolean).join(" · ");
+  const sinPrecio = [lista, lugar].filter(Boolean).join(" · ");
   const creador = d.origen === "admin" && d.creadoPor ? `usuarios_admin:${d.creadoPor}` : "";
-  const dest = subs.filter((s) => (s.portal === "admin" || s.portal === "repartidor") && llave(s) !== creador);
-  return [dest, { titulo: `🛒 Pedido nuevo · ${corto(d.clienteNombre || "Cliente", 60)}`, cuerpo: corto(cuerpo, 180), tag: "ped-" + id, url: "/" }];
+  const titulo = `🛒 Pedido nuevo · ${corto(d.clienteNombre || "Cliente", 60)}`;
+  const admins = subs.filter((s) => s.portal === "admin" && llave(s) !== creador);
+  const reps = subs.filter((s) => s.portal === "repartidor");
+  return [
+    [admins, { titulo, cuerpo: corto(conPrecio, 180), tag: "ped-" + id, url: "/" }],
+    [reps, { titulo, cuerpo: corto(sinPrecio, 180), tag: "ped-" + id, url: "/" }],
+  ];
 }
 
 // Aviso masivo de una promoción a los clientes (lo crea el administrador en «avisos_push»).
@@ -101,11 +109,13 @@ Deno.serve(async (req) => {
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const r = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : await paraPromo(doc.data, subs as Sub[]);
-    if (!r || !r[0].length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, r ? 0 : -1); return new Response("ok"); }
-    const [dest, aviso] = r, carga = JSON.stringify(aviso);
+    const uno = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : null;
+    const grupos: [Sub[], Aviso][] | null = coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : uno ? [uno] : null;
+    const envios = (grupos ?? []).flatMap(([ds, av]) => ds.map((s) => [s, JSON.stringify(av)] as [Sub, string]));
+    if (!envios.length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
+    const dest = envios.map((e) => e[0]);
     let enviados = 0;
-    await Promise.all(dest.map(async (s) => {
+    await Promise.all(envios.map(async ([s, carga]) => {
       try {
         await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, carga, { TTL: 86400, urgency: "high" });
         enviados++;
