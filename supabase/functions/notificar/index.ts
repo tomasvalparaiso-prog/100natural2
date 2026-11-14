@@ -64,18 +64,45 @@ function paraPedido(id: string, d: Record<string, any>, subs: Sub[]): [Sub[], Av
   return [dest, { titulo: `🛒 Pedido nuevo · ${corto(d.clienteNombre || "Cliente", 60)}`, cuerpo: corto(cuerpo, 180), tag: "ped-" + id, url: "/" }];
 }
 
+// Aviso masivo de una promoción a los clientes (lo crea el administrador en «avisos_push»).
+// Los clientes no pueden crear estos avisos: un documento con clienteId (lo único que la base de datos le deja crear a un cliente) se ignora.
+async function paraPromo(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
+  if (!d || d.clienteId || !d.promoId) return null;
+  const { data: pr } = await adm.from("documentos").select("data").eq("coleccion", "promociones").eq("id", String(d.promoId)).maybeSingle();
+  if (!pr) return null;
+  let dest = subs.filter((s) => s.portal === "cliente");
+  const aud = String(pr.data?.aud || "todos");
+  if (aud === "local" || aud === "part") {
+    const ids = dest.map((s) => s.cuenta);
+    const { data: cs } = await adm.from("documentos").select("id,data").eq("coleccion", "clientes").in("id", ids.length ? ids : ["-"]);
+    const local = new Set((cs ?? []).filter((c: any) => c.data?.tipo === "Local comercial").map((c: any) => c.id));
+    dest = dest.filter((s) => (aud === "local") === local.has(s.cuenta));
+  }
+  const titulo = corto(d.titulo || pr.data?.titulo || "Promoción", 70);
+  return [dest, { titulo: `🎉 ${titulo}`, cuerpo: corto(d.cuerpo || "Toca para ver la promoción de 100% Natural.", 180), tag: "promo-" + d.promoId, url: "/?promo=" + encodeURIComponent(String(d.promoId)) }];
+}
+
+// Deja anotado en el aviso y en la promoción a cuántos teléfonos llegó (el administrador lo ve en la tarjeta).
+async function anotarPromo(id: string, d: Record<string, any>, enviados: number, total: number) {
+  const res = { en: Date.now(), enviados, total };
+  await adm.from("documentos").update({ data: { ...d, resultado: res } }).eq("coleccion", "avisos_push").eq("id", id);
+  if (!d?.promoId || d.clienteId) return;
+  const { data: pr } = await adm.from("documentos").select("data").eq("coleccion", "promociones").eq("id", String(d.promoId)).maybeSingle();
+  if (pr) await adm.from("documentos").update({ data: { ...pr.data, pushUlt: { ...res, por: String(d.por || "") } } }).eq("coleccion", "promociones").eq("id", String(d.promoId));
+}
+
 Deno.serve(async (req) => {
   try {
     const c = await config();
     if (!c.secreto || req.headers.get("x-push-secreto") !== c.secreto) return new Response("no autorizado", { status: 401 });
     const { coleccion, id } = await req.json();
-    if (!["mensajes", "pedidos"].includes(coleccion) || !id) return new Response("ok");
+    if (!["mensajes", "pedidos", "avisos_push"].includes(coleccion) || !id) return new Response("ok");
     const { data: doc } = await adm.from("documentos").select("data").eq("coleccion", coleccion).eq("id", id).maybeSingle();
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const r = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : paraPedido(id, doc.data, subs as Sub[]);
-    if (!r || !r[0].length) return new Response("ok");
+    const r = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : await paraPromo(doc.data, subs as Sub[]);
+    if (!r || !r[0].length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, r ? 0 : -1); return new Response("ok"); }
     const [dest, aviso] = r, carga = JSON.stringify(aviso);
     let enviados = 0;
     await Promise.all(dest.map(async (s) => {
@@ -87,6 +114,7 @@ Deno.serve(async (req) => {
         else console.warn("push", e?.statusCode, e?.body || e?.message);
       }
     }));
+    if (coleccion === "avisos_push") await anotarPromo(id, doc.data, enviados, dest.length);
     return new Response(JSON.stringify({ enviados }), { headers: { "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
