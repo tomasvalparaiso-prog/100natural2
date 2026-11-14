@@ -80,6 +80,38 @@ async function portalDelLlamador(req: Request) {
   return (data.user?.app_metadata?.portal as string) ?? null;
 }
 
+// ---------- Entrar / crear cuenta de cliente con Google ----------
+// La página inicia sesión con Google en Supabase Auth y llama aquí con ese token. Se reconoce al cliente
+// por su cuenta de Google (googleId) o por su correo; si no existe, la página pide los datos de despacho y se crea.
+async function usuarioGoogle(req: Request) {
+  const t = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  if (!t || t === ANON) return null;
+  const { data } = await adm.auth.getUser(t);
+  const u = data.user;
+  if (!u || !u.email) return null;
+  const esGoogle = u.app_metadata?.provider === "google" || (u.identities ?? []).some((i) => i.provider === "google");
+  if (!esGoogle || u.app_metadata?.portal) return null;
+  return u;
+}
+const likeEsc = (s: string) => s.replace(/[\\%_]/g, (c) => "\\" + c);
+async function clientePorGoogle(u: { id: string; email?: string }) {
+  const { data: porId } = await adm.from("documentos").select("id,data").eq("coleccion", "clientes").eq("data->>googleId", u.id).limit(1);
+  if (porId && porId[0]) return porId[0];
+  const email = String(u.email || "").trim().toLowerCase();
+  if (!email) return null;
+  const { data } = await adm.from("documentos").select("id,data").eq("coleccion", "clientes").ilike("data->>email", likeEsc(email)).limit(5);
+  return (data ?? []).find((c) => String(c.data?.email || "").trim().toLowerCase() === email) ?? null;
+}
+async function idLibre(base: string) {
+  const b = (base.toLowerCase().replace(/[^a-z0-9._-]/g, "").replace(/^[._-]+|[._-]+$/g, "") || "cliente").slice(0, 40);
+  const raiz = b.length >= 3 ? b : b + "cli";
+  for (let i = 0; i < 50; i++) {
+    const id = i ? `${raiz}${i + 1}` : raiz;
+    if (!await buscarCuenta("clientes", id)) return id;
+  }
+  return `${raiz}${Date.now().toString(36)}`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "método no permitido" }, 405);
@@ -95,6 +127,33 @@ Deno.serve(async (req) => {
       const c = await buscarCuenta(col, usuario);
       if (!c || c.data?.claveHash !== await sha(`pya:${portal}:${c.id}:${clave}`)) return json({ ok: false });
       return json({ ok: true, cuenta: { id: c.id, data: sinClave(c.data) }, sesion: await sesionPara(portal, c.id) });
+    }
+
+    if (b.accion === "google" || b.accion === "google_registrar") {
+      if (portal !== "cliente") return json({ error: "solo clientes" }, 400);
+      const u = await usuarioGoogle(req);
+      if (!u) return json({ error: "No se pudo verificar tu cuenta de Google. Intenta de nuevo." }, 401);
+      const nombreG = String(u.user_metadata?.full_name || u.user_metadata?.name || "").trim();
+      const ya = await clientePorGoogle(u);
+      if (ya) {
+        if (ya.data?.googleId !== u.id) await adm.from("documentos").update({ data: { ...ya.data, googleId: u.id } }).eq("coleccion", "clientes").eq("id", ya.id);
+        return json({ ok: true, cuenta: { id: ya.id, data: sinClave({ ...ya.data, googleId: u.id }) }, sesion: await sesionPara("cliente", ya.id) });
+      }
+      if (b.accion === "google") return json({ ok: false, nuevo: true, nombre: nombreG, email: u.email });
+      const e = (b.datos && typeof b.datos === "object") ? b.datos as Record<string, unknown> : {};
+      const txt = (k: string, n = 120) => String(e[k] ?? "").trim().slice(0, n);
+      const datos: Record<string, unknown> = {
+        nombre: txt("nombre", 80) || nombreG, telefono: txt("telefono", 30), tipo: txt("tipo") === "Local comercial" ? "Local comercial" : "Particular",
+        comuna: txt("comuna", 60), direccion: txt("direccion", 120), depto: txt("depto", 60), email: String(u.email).toLowerCase(),
+      };
+      if (String(datos.nombre).length < 2) return json({ error: "Escribe tu nombre o el nombre del local." }, 400);
+      if (String(datos.telefono).replace(/\D/g, "").length < 8) return json({ error: "Escribe un teléfono válido, con al menos 8 dígitos." }, 400);
+      if (!datos.direccion || !datos.comuna) return json({ error: "Escribe tu dirección y comuna." }, 400);
+      const id = await idLibre(String(u.email).split("@")[0]);
+      Object.assign(datos, { usuario: id, creado: Date.now(), googleId: u.id, conGoogle: true });
+      const { error } = await adm.from("documentos").insert({ coleccion: "clientes", id, data: datos });
+      if (error) return json({ error: error.code === "23505" ? "Intenta de nuevo." : error.message }, 500);
+      return json({ ok: true, cuenta: { id, data: datos }, sesion: await sesionPara("cliente", id) });
     }
 
     if (b.accion === "registrar") {

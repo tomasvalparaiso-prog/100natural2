@@ -10,7 +10,8 @@
     if (!localStorage.getItem("pya.supabase") && localStorage.getItem("pya.sesion.v1")) localStorage.removeItem("pya.sesion.v1");
   } catch (_) {}
   const sb = window.supabase.createClient(CFG.url, CFG.anonKey, {
-    auth: { persistSession: true, autoRefreshToken: true, storageKey: "pya.supabase" },
+    /* pkce: al volver de Google el código llega como ?code=… (no en el #, que la app usa para elegir la página). */
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: "pya.supabase", flowType: "pkce", detectSessionInUrl: true },
     realtime: { params: { eventsPerSecond: 20 } },
   });
   const listo = sb.auth.getSession().catch(() => null);
@@ -219,6 +220,12 @@
         return r || {};
       } finally { entrando--; ultimoIngreso = Date.now(); }
     },
+    /* Entrar con Google (clientes): abre Google y vuelve a la página; al volver se termina el ingreso abajo. */
+    async google() {
+      try { sessionStorage.setItem("pya.google", String(Date.now())); } catch (_) {}
+      const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + "/", queryParams: { prompt: "select_account" } } });
+      if (error) throw traducir(error);
+    },
     salir: async () => { saliendo = true; try { await sb.auth.signOut(); } finally { saliendo = false; } avisarTodos(); },
     cliente: sb,
   };
@@ -247,6 +254,40 @@
     }
     if (ev === "TOKEN_REFRESHED") avisarTodos();
   });
+
+  /* ---------- Vuelta desde Google: cambiar la sesión de Google por la de la cuenta de cliente ---------- */
+  (async () => {
+    let marca = 0; try { marca = Number(sessionStorage.getItem("pya.google") || 0); } catch (_) {}
+    if (!marca) return;
+    await listo;
+    const { data } = await sb.auth.getSession();
+    const u = data && data.session && data.session.user;
+    if (!u || (u.app_metadata || {}).portal) { if (Date.now() - marca > 600000) try { sessionStorage.removeItem("pya.google"); } catch (_) {} return; }
+    try { sessionStorage.removeItem("pya.google"); } catch (_) {}
+    entrando++;
+    const app = async () => { for (let i = 0; i < 60 && !window.pyaGoogle; i++) await new Promise(r => setTimeout(r, 250)); return window.pyaGoogle; };
+    const toast = m => { try { (window.toastFn || (() => {}))(m); } catch (_) {} };
+    try {
+      const r = await llamar({ accion: "google", portal: "cliente" });
+      const G = await app(); if (!G) return;
+      if (r && r.ok) { await sb.auth.setSession(r.sesion); ultimoIngreso = Date.now(); await refrescarTodos(); G.entrar(r.cuenta); return; }
+      if (r && r.nuevo) {
+        const fin = await G.completar({ nombre: r.nombre, email: r.email, registrar: async datos => {
+          const x = await llamar({ accion: "google_registrar", portal: "cliente", datos });
+          if (!x || !x.ok) throw new Error((x && x.error) || "No se pudo crear la cuenta.");
+          await sb.auth.setSession(x.sesion); ultimoIngreso = Date.now(); await refrescarTodos();
+          return x.cuenta;
+        } });
+        if (fin) G.entrar(fin);
+        else { await pya.salir(); }
+        return;
+      }
+      toast("No se pudo entrar con Google. Intenta de nuevo.");
+    } catch (e) {
+      toast(e && e.code === "rechazado" ? e.message : "No se pudo entrar con Google. Revisa tu conexión e intenta de nuevo.");
+      try { await pya.salir(); } catch (_) {}
+    } finally { entrando--; ultimoIngreso = Date.now(); }
+  })();
 
   /* ---------- Descargas: el navegador guarda el archivo ---------- */
   const downloads = Object.freeze({
