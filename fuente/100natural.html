@@ -16249,6 +16249,16 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-vacio{padding:30px 20px;text-align:center;color:var(--muted)}
 .msj-ver{position:fixed;inset:0;z-index:1010;background:rgb(0 0 0 / .9);display:grid;place-items:center;padding:12px}
 .msj-ver img{max-width:100%;max-height:100%;border-radius:8px}
+.msj-m.yo[data-mid]{cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.msj-m[data-mid]:focus-visible{outline:3px solid var(--accent-ink);outline-offset:2px}
+.msj-m .ed{font-style:italic;opacity:.75;margin-right:4px}
+.msj-m.borrado{font-style:italic;opacity:.7;background:var(--surface-2);color:var(--muted);border:1px dashed var(--line)}
+.msj-menu{position:fixed;inset:0;z-index:1020;display:grid;align-items:end;background:rgb(0 0 0 / .4)}
+.msj-menu>div{background:var(--surface);color:var(--ink);border-radius:20px 20px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;max-width:560px;width:100%;margin:0 auto}
+.msj-menu p{margin:0 4px 4px;color:var(--muted);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msj-menu button{min-height:50px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;text-align:left;padding:0 16px;cursor:pointer}
+.msj-menu button.peligro{color:#D93025}.msj-menu button.cancelar{text-align:center;background:var(--surface-2)}
+.msj-edit{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 10px;border-left:4px solid var(--accent);background:var(--surface-2);border-radius:8px;font-size:.85rem}
+.msj-edit span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.msj-edit button{border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;min-width:36px;min-height:36px}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
@@ -16355,7 +16365,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     suscribir(); pintarBtn(); pintar(true);
     if (M.chat) marcarLeido(M.chat);
   }
-  function cerrar() { M.abierto = false; M.chat = ""; pan.hidden = true; document.documentElement.style.overflow = ""; pintarBtn(); }
+  function cerrar() { M.edit = null; M.abierto = false; M.chat = ""; pan.hidden = true; document.documentElement.style.overflow = ""; pintarBtn(); }
   function adjuntosHTML() {
     if (!M.adj && !M.ped) return "";
     return `<div class="msj-adj">${M.adj ? `<img src="${M.adj}" alt="Foto adjunta"><button type="button" data-msj="quitar-foto" aria-label="Quitar foto">✕</button>` : ""}${M.ped ? `<span class="msj-ped">📦 ${pedTxt(M.ped)}</span><button type="button" data-msj="quitar-ped" aria-label="Quitar pedido">✕</button>` : ""}</div>`;
@@ -16364,7 +16374,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   function listaHTML(me) {
     const q = M.q.trim().toLowerCase();
     const ult = chat => M.docs.filter(m => m.chat === chat).slice(-1)[0];
-    const fila = (chat, av, t, s) => { const u = ult(chat), n = noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}"><span class="msj-av" aria-hidden="true">${esc(av)}</span><span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
+    const fila = (chat, av, t, s) => { const u = ult(chat), n = noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}"><span class="msj-av" aria-hidden="true">${esc(av)}</span><span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
     const grupos = GRUPOS.filter(g => enGrupo(g, me) && (!q || g[2].toLowerCase().includes(q))).map(g => fila(g[0], g[1], g[2], g[3] ? `${ROL[g[3]]} y administración` : "Todo el equipo"));
     const gente = personas().filter(p => p.key !== me.key && (!q || p.nombre.toLowerCase().includes(q) || (ROL[p.col] || "").toLowerCase().includes(q)))
       .map(p => ({ p, chat: chatPriv(me.key, p.key) })).map(x => Object.assign(x, { u: ult(x.chat) }))
@@ -16384,11 +16394,12 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     const hilo = ms.map(m => {
       const d = diaTxt(m.en), sep = d !== dia ? `<span class="msj-dia">${esc(d)}</span>` : ""; dia = d;
       const mio = m.deKey === me.key;
-      return `${sep}<div class="msj-m${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${hm(m.en)}</time></div>`;
+      if (m.borrado) return `${sep}<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`;
+      return `${sep}<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}</time></div>`;
     }).join("");
     return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
-      <div class="msj-comp">${adjuntosHTML()}<div class="msj-fila"><button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button><textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="Enviar" ${M.enviando ? "disabled" : ""}>➤</button></div>
+      <div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
       <input type="file" id="msj-file" accept="image/*" hidden></div>`;
   }
   function pintar(forzar) {
@@ -16419,6 +16430,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   async function enviar() {
     const me = yo(), ta = document.getElementById("msj-texto"); if (!me || !M.chat || M.enviando) return;
     const texto = (ta ? ta.value : "").trim();
+    if (M.edit) { await guardarEdicion(texto); return; }
     if (!texto && !M.adj && !M.ped) { if (ta) ta.focus(); return; }
     M.enviando = true; const b = pan.querySelector('[data-msj="enviar"]'); if (b) b.disabled = true;
     const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -16437,17 +16449,65 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     const t2 = document.getElementById("msj-texto"); if (t2) t2.focus();
   }
 
+  /* ---------- Editar y eliminar mensajes propios (mantener apretado el mensaje) ---------- */
+  const msjDe = id => { const me = yo(), m = M.docs.find(x => x.id === id); return me && m && m.deKey === me.key && !m.borrado ? m : null; };
+  function menuMsj(id) {
+    const m = msjDe(id); if (!m) return;
+    document.querySelectorAll(".msj-menu").forEach(x => x.remove());
+    const v = document.createElement("div"); v.className = "msj-menu";
+    v.innerHTML = `<div role="dialog" aria-modal="true" aria-label="Opciones del mensaje"><p>${esc(m.texto ? String(m.texto).slice(0, 80) : m.fotoId ? "📷 Foto" : "📦 Pedido")}</p>${m.texto || !m.fotoId ? `<button type="button" data-mm="editar">✏️ Editar</button>` : ""}<button type="button" class="peligro" data-mm="eliminar">🗑️ Eliminar</button><button type="button" class="cancelar" data-mm="x">Cancelar</button></div>`;
+    v.addEventListener("click", e => {
+      const b = e.target.closest("[data-mm]"); if (e.target !== v && !b) return;
+      v.remove(); if (!b) return;
+      if (b.dataset.mm === "editar") { const t0 = document.getElementById("msj-texto"); M.edit = id; M.borrEdit = t0 ? t0.value : M.borr; M.borr = m.texto || ""; if (t0) t0.value = M.borr; pintar(true); const t = document.getElementById("msj-texto"); if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
+      else if (b.dataset.mm === "eliminar") eliminarMsj(id);
+    });
+    document.body.appendChild(v); const f = v.querySelector("button"); if (f) f.focus();
+  }
+  async function guardarEdicion(texto) {
+    const m = msjDe(M.edit), ta = document.getElementById("msj-texto");
+    if (!m) { salirEdicion(); return; }
+    if (!texto && !m.fotoId && !m.pedido) { toast("El mensaje no puede quedar vacío. Si quieres, elimínalo."); if (ta) ta.focus(); return; }
+    if (texto === (m.texto || "")) { salirEdicion(); return; }
+    M.enviando = true;
+    try {
+      const cambio = { texto: texto.slice(0, 1000), editado: Date.now() };
+      await conReintento(() => S.db.doc("mensajes/" + m.id).update(cambio));
+      Object.assign(m, cambio); M.enviando = false; salirEdicion(); toast("Mensaje editado.");
+    } catch (e) { M.enviando = false; toast(msgError(e)); pintar(true); }
+  }
+  function salirEdicion() { M.edit = null; M.borr = M.borrEdit || ""; M.borrEdit = ""; const t0 = document.getElementById("msj-texto"); if (t0) t0.value = M.borr; pintar(true); }
+  async function eliminarMsj(id) {
+    const m = msjDe(id); if (!m) return;
+    if (!confirm("¿Eliminar este mensaje? Los demás verán «Mensaje eliminado».")) return;
+    try {
+      const cambio = { borrado: Date.now(), texto: "", pedido: null, fotoId: null };
+      await conReintento(() => S.db.doc("mensajes/" + id).update(cambio));
+      if (m.fotoId) { const fid = m.fotoId; S.db.doc("mensajes_fotos/" + fid).delete().catch(() => {}); delete M.fotos[fid]; }
+      Object.assign(m, cambio); if (M.edit === id) { M.edit = null; M.borr = M.borrEdit || ""; const t0 = document.getElementById("msj-texto"); if (t0) t0.value = M.borr; }
+      pintar(true); toast("Mensaje eliminado.");
+    } catch (e) { toast(msgError(e)); }
+  }
+  /* Mantener apretado (teléfono), clic derecho (computador) o Enter sobre el mensaje propio abre el menú. */
+  let lpT = null, lpX = 0, lpY = 0, lpHecho = false;
+  document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest("#msj-pan .msj-m[data-mid]"); if (!b) return; lpX = e.clientX; lpY = e.clientY; lpHecho = false; clearTimeout(lpT); lpT = setTimeout(() => { lpHecho = true; if (navigator.vibrate) try { navigator.vibrate(15); } catch (_) {} menuMsj(b.dataset.mid); }, 480); });
+  document.addEventListener("pointermove", e => { if (lpT && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) { clearTimeout(lpT); lpT = null; } });
+  ["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, () => { clearTimeout(lpT); lpT = null; }));
+  document.addEventListener("contextmenu", e => { const b = e.target.closest && e.target.closest("#msj-pan .msj-m[data-mid]"); if (!b) return; e.preventDefault(); if (!lpHecho) menuMsj(b.dataset.mid); lpHecho = false; });
+  document.addEventListener("keydown", e => { const b = e.target.closest && e.target.closest("#msj-pan .msj-m[data-mid]"); if (b && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); menuMsj(b.dataset.mid); } if (e.key === "Escape") document.querySelectorAll(".msj-menu").forEach(x => x.remove()); });
+
   /* ---------- Clics y escritura ---------- */
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("[data-msj]"); if (!b) return;
     const a = b.dataset.msj;
     if (a === "abrir") abrir("");
     else if (a === "cerrar") { M.ped = null; cerrar(); }
-    else if (a === "volver") { M.chat = ""; pintar(true); }
-    else if (a === "chat") { M.chat = b.dataset.c; M.borr = ""; pintar(true); marcarLeido(M.chat); const t = document.getElementById("msj-texto"); if (t && M.ped) t.focus(); }
+    else if (a === "volver") { M.chat = ""; M.edit = null; pintar(true); }
+    else if (a === "chat") { M.chat = b.dataset.c; M.borr = ""; M.edit = null; pintar(true); marcarLeido(M.chat); const t = document.getElementById("msj-texto"); if (t && M.ped) t.focus(); }
     else if (a === "enviar") enviar();
     else if (a === "foto") { const f = document.getElementById("msj-file"); if (f) f.click(); }
     else if (a === "quitar-foto") { M.adj = null; pintar(true); }
+    else if (a === "edit-x") salirEdicion();
     else if (a === "quitar-ped") { M.ped = null; pintar(true); }
     else if (a === "ver-foto") { if (!b.src) return; const v = document.createElement("div"); v.className = "msj-ver"; v.innerHTML = `<img src="${b.src}" alt="Foto">`; v.addEventListener("click", () => v.remove()); document.body.appendChild(v); }
     else if (a === "ped") {
