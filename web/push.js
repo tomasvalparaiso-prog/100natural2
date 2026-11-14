@@ -164,6 +164,10 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir") abrirPedido(e.data.url); });
   if (/[?&]pedido=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirPedido(u); }
+  /* Aviso de actividad de la Comunidad: abrir la Comunidad del cliente. */
+  function abrirComunidad() { let n = 0; const t = setInterval(() => { n++; try { if ((window.abrirComunidad && window.abrirComunidad()) || n > 60) clearInterval(t); } catch (_) { clearInterval(t); } }, 500); }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir" && /[?&]comunidad=/.test(e.data.url || "")) abrirComunidad(); });
+  if (/[?&]comunidad=/.test(location.search)) { history.replaceState(null, "", location.pathname + location.hash); abrirComunidad(); }
   if (/[?&]promo=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirPromo(u); }
   if (/[?&]msj=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirUrl(u); }
 })();

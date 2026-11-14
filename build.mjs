@@ -1,7 +1,7 @@
 // Construye el sitio para Vercel a partir del HTML del artifact de claude.ai (fuente/100natural.html):
 // le agrega el adaptador de Supabase y cambia el inicio de sesión y el registro para que pasen por el servidor.
 // Cada cambio debe aplicarse exactamente una vez; si el HTML cambió y un cambio ya no calza, el build falla.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const SUPABASE = {
@@ -130,6 +130,8 @@ writeFileSync("public/compartir.html", COMPARTIR);
 copyFileSync("web/supabase-db.js", "public/supabase-db.js");
 copyFileSync("web/importar.html", "public/importar.html");
 for (const f of ["og.jpg", "apple-touch-icon.png", "favicon-32.png", "icono-192.png", "icono-512.png", "badge-96.png", "manifest.webmanifest", "sw.js", "push.js"]) copyFileSync("web/" + f, "public/" + f);
+mkdirSync("public/img", { recursive: true });
+for (const f of readdirSync("web/img")) copyFileSync("web/img/" + f, "public/img/" + f);
 const require = createRequire(import.meta.url);
 copyFileSync(require.resolve("@supabase/supabase-js/dist/umd/supabase.js"), "public/vendor/supabase.js");
 console.log("Listo: public/app.html (" + Math.round(html.length / 1024) + " KB), public/compartir.html (" + Math.round(COMPARTIR.length / 1024) + " KB)");

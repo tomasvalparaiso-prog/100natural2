@@ -121,6 +121,14 @@ async function paraPromo(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], A
   return [dest, { titulo: `🎉 ${titulo}`, cuerpo: corto(d.cuerpo || "Toca para ver la promoción de 100% Natural.", 180), tag: "promo-" + d.promoId, url: "/?promo=" + encodeURIComponent(String(d.promoId)) }];
 }
 
+// Actividad nueva de la Comunidad: aviso a todos los clientes (las sube el administrador; un documento con clienteId se ignora).
+function paraActividad(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null {
+  if (!d || d.clienteId || !d.nombre) return null;
+  const f = String(d.fecha || "");
+  const fecha = f ? f.split("-").reverse().slice(0, 2).join("/") : "";
+  return [subs.filter((s) => s.portal === "cliente"), { titulo: `📅 Comunidad · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
+}
+
 // Deja anotado en el aviso y en la promoción a cuántos teléfonos llegó (el administrador lo ve en la tarjeta).
 async function anotarPromo(id: string, d: Record<string, any>, enviados: number, total: number) {
   const res = { en: Date.now(), enviados, total };
@@ -135,12 +143,12 @@ Deno.serve(async (req) => {
     const c = await config();
     if (!c.secreto || req.headers.get("x-push-secreto") !== c.secreto) return new Response("no autorizado", { status: 401 });
     const { coleccion, id } = await req.json();
-    if (!["mensajes", "pedidos", "avisos_push"].includes(coleccion) || !id) return new Response("ok");
+    if (!["mensajes", "pedidos", "avisos_push", "actividades"].includes(coleccion) || !id) return new Response("ok");
     const { data: doc } = await adm.from("documentos").select("data").eq("coleccion", coleccion).eq("id", id).maybeSingle();
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const uno = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : null;
+    const uno = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
     const grupos: [Sub[], Aviso][] | null = coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : uno ? [uno] : null;
     const envios = (grupos ?? []).flatMap(([ds, av]) => ds.map((s) => [s, JSON.stringify(av)] as [Sub, string]));
     if (!envios.length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
