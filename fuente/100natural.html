@@ -2928,11 +2928,11 @@ function claveHTML(id, auto, ph) {
 }
 function formEntrar(k) {
   return `<form id="f-${k}-entrar" data-k="${k}" data-m="entrar" class="form" novalidate>
+    ${k === "cliente" ? `<button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button><div class="g-sep"><span>o entra con tu usuario y clave</span></div>` : ""}
     <label class="campo"><span>Usuario</span><input id="${k}-e-usuario" name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
     <label class="campo"><span>Clave</span>${claveHTML(`${k}-e-clave`, "current-password", "")}</label>
     <p class="err" role="alert"></p>
     <button class="btn primario grande" type="submit">Entrar</button>
-    ${k === "cliente" ? `<div class="g-sep"><span>o</span></div><button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button>` : ""}
     <p class="ayuda">¿Primera vez? <button type="button" class="link" data-act="auth-tab" data-k="${k}" data-t="registro">Crea tu cuenta</button></p>
   </form>`;
 }
@@ -16527,6 +16527,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-m .de{display:block;font-size:.76rem;font-weight:800;color:var(--accent-ink);margin-bottom:2px}
 .msj-m .t{white-space:pre-wrap}
 .msj-m time{display:block;font-size:.7rem;opacity:.7;text-align:right;margin-top:3px}
+.msj-tick{margin-left:4px;font-weight:800;letter-spacing:-2px}.msj-tick.visto{color:#38bdf8;opacity:1}.msj-m.yo .msj-tick.visto{color:#7dd3fc}
+.msj-visto{align-self:flex-end;font-size:.75rem;color:var(--muted);margin:-2px 4px 4px;text-align:right}
 .msj-m img{display:block;max-width:100%;max-height:260px;border-radius:10px;margin:4px 0;cursor:zoom-in;background:var(--surface-2);min-height:80px;min-width:120px;object-fit:cover}
 .msj-ped{display:block;margin:2px 0 4px;padding:6px 9px;border-radius:10px;background:var(--surface-2);color:var(--ink);font-size:.84rem;text-align:left}
 .msj-m.yo .msj-ped{background:rgb(255 255 255 / .18);color:inherit}
@@ -16621,12 +16623,37 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
       }, e => { console.warn("mensajes", e); M.cargado = true; pintar(); });
     }
     const me = yo();
+    subVistos(me);
     if (me && M.subL !== me.key) {
       if (M.offL) try { M.offL(); } catch (_) {}
       M.subL = me.key; M.leidos = {}; M.leidosLocal = {};
       M.offL = S.db.doc("mensajes_leidos/" + llaveDoc(me.key)).onSnapshot(d => { const x = d.exists ? (d.data() || {}) : {}; M.leidos = Object.assign({}, x.chats || {}, M.leidosLocal || {}); pintarBtn(); if (M.abierto && !M.chat) pintar(); }, () => {});
     }
   }
+  /* ---------- Visto: hasta dónde leyó cada persona cada chat ----------
+     Personal: lee «mensajes_leidos» de todos. Cliente: solo puede leer su propio documento, así que el administrador
+     deja además «mensajes_leidos/vistoadm_<cliente>» (con clienteId) cuando lee el chat de ese cliente. */
+  function subVistos(me) {
+    if (!me || M.subV === me.key) return;
+    if (M.offV) try { M.offV(); } catch (_) {}
+    M.subV = me.key; M.otros = {};
+    const ok = d => { const x = d.data() || {}; return x; };
+    M.offV = esCli(me)
+      ? S.db.doc("mensajes_leidos/vistoadm_" + llaveDoc(me.id)).onSnapshot(d => { const x = d.exists ? ok(d) : {}; M.otros = x.chat ? { "usuarios_admin:*": { [x.chat]: Number(x.en) || 0 } } : {}; if (M.abierto && M.chat) pintar(true); }, () => {})
+      : S.db.collection("mensajes_leidos").limit(1000).onSnapshot(s => { const o = {}; s.docs.forEach(d => { const x = ok(d); if (x.usuario && x.chats && x.tipo !== "admc") o[x.usuario] = x.chats; }); M.otros = o; if (M.abierto && M.chat) pintar(true); }, () => {});
+  }
+  /* Quiénes (aparte de mí) ya leyeron hasta este mensaje. */
+  function vistoPor(m, me) {
+    const out = [];
+    for (const [k, chats] of Object.entries(M.otros || {})) {
+      if (k === me.key || !chats) continue;
+      if (m.chat.startsWith("p-") && !m.chat.slice(2).split("~").includes(k)) continue;
+      if (m.chat.startsWith("c-") && !esCli(me) && k !== "clientes:" + m.chat.slice(2)) continue;
+      if ((Number(chats[m.chat]) || 0) >= m.en) out.push(k);
+    }
+    return out;
+  }
+  const nomVisto = k => k === "usuarios_admin:*" ? "Administración" : k.startsWith("clientes:") ? nomCliente(k.slice(9)) : nomKey(k);
   function avisar(m) {
     try { if (navigator.vibrate) navigator.vibrate(120); } catch (_) {}
     const g = GRUPOS.find(x => x[0] === m.chat);
@@ -16640,6 +16667,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     clearTimeout(M.t); M.t = setTimeout(() => {
       const ref = S.db.doc("mensajes_leidos/" + llaveDoc(me.key));
       ref.get().then(d => ref.set({ usuario: me.key, ...(esCli(me) ? { clienteId: me.id } : {}), chats: Object.assign({}, (d.exists && (d.data() || {}).chats) || {}, M.leidosLocal || {}), en: Date.now() })).catch(e => console.warn("leidos", e));
+      if (chat.startsWith("c-") && me.col === "usuarios_admin") S.db.doc("mensajes_leidos/vistoadm_" + llaveDoc(chat.slice(2))).set({ tipo: "admc", clienteId: chat.slice(2), chat, en: ult, por: me.nombre }).catch(() => {});
     }, 600);
     pintarBtn();
   }
@@ -16702,11 +16730,13 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   function hiloHTML(me) {
     const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (M.chat.startsWith("c-") && !esCli(me)) || ajeno(M.chat, me);
     let dia = "";
+    const propios = ms.filter(m => m.deKey === me.key && !m.borrado), ultPropio = propios.length ? propios[propios.length - 1].id : "";
+    const lector = !ajeno(M.chat, me);
     const hilo = ms.map(m => {
       const d = diaTxt(m.en), sep = d !== dia ? `<span class="msj-dia">${esc(d)}</span>` : ""; dia = d;
       const mio = m.deKey === me.key;
       if (m.borrado) return `${sep}<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`;
-      return `${sep}<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}</time></div>`;
+      return `${sep}<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}${mio && lector ? (() => { const v = vistoPor(m, me); return v.length ? `<span class="msj-tick visto" aria-label="Visto">✓✓</span>` : `<span class="msj-tick" aria-label="Enviado">✓</span>`; })() : ""}</time></div>${mio && lector && m.id === ultPropio ? (() => { const v = vistoPor(m, me); if (!v.length) return ""; const g = M.chat.startsWith("g-"); const ns = v.map(nomVisto); return `<div class="msj-visto">👁 ${g ? `Visto por ${esc(ns.length > 3 ? ns.slice(0, 3).join(", ") + ` y ${ns.length - 3} más` : ns.join(", "))}` : "Visto"}</div>`; })() : ""}`;
     }).join("");
     return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
