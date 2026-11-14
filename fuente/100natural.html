@@ -2243,6 +2243,13 @@ body[data-portal="cliente"] #catalogo .cat > .cat-h.cat-h,body[data-portal="cfd"
 .wz-tile{position:relative;display:grid;justify-items:center;align-content:center;gap:6px;min-height:170px;padding:18px 12px;border-radius:20px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;text-align:center;box-shadow:0 10px 24px -18px var(--shadow)}
 .wz-tile:active{transform:scale(.98)}
 .wz-tile .wz-e{font-size:3rem;line-height:1}
+.wz-vista{display:flex;gap:4px;justify-content:flex-end;margin:0 0 10px}.wz-vista button{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:.85rem;font-weight:700;cursor:pointer}.wz-vista button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}.wz-vista button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.wz-car-w{position:relative}
+.wz-tiles.wz-car{display:flex;grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;padding:4px 11% 10px;margin:0 -4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.wz-tiles.wz-car::-webkit-scrollbar{display:none}
+.wz-tiles.wz-car>.wz-tile{flex:0 0 78%;min-height:260px;scroll-snap-align:center;gap:10px}.wz-tiles.wz-car>.wz-tile .wz-e{font-size:4.6rem}.wz-tiles.wz-car>.wz-tile b{font-size:1.6rem}.wz-tiles.wz-car>.wz-tile small{font-size:.95rem}
+@media(min-width:760px){.wz-tiles.wz-car>.wz-tile{flex-basis:44%}}
+.wz-car-fl{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.6rem;line-height:1;cursor:pointer;box-shadow:0 6px 16px -8px var(--shadow)}.wz-car-fl.izq{left:-2px}.wz-car-fl.der{right:-2px}.wz-car-fl:disabled{opacity:0;pointer-events:none}
+.wz-car-pts{display:flex;justify-content:center;gap:7px;margin:2px 0 6px}.wz-car-pts span{width:8px;height:8px;border-radius:50%;background:var(--line)}.wz-car-pts span.on{background:var(--accent);width:20px;border-radius:99px}
 .wz-tile b{font-family:var(--f-display);font-size:1.3rem}
 .wz-tile small{color:var(--muted);font-size:.84rem;line-height:1.25}
 .wz-tile .wz-cnt{position:absolute;top:10px;right:10px;background:var(--ok);color:var(--on-ok);border-radius:99px;padding:2px 9px;font-size:.78rem;font-weight:800}
@@ -3940,11 +3947,25 @@ function cpwHeadHTML() {
     <div class="wz-tit"><small>Paso ${p} de 4</small><b>${esc(tit)}</b></div>
     <ol class="wz-dots" aria-hidden="true">${[1, 2, 3, 4].map(i => `<li class="${i === p ? "act" : i < p ? "ok" : ""}"></li>`).join("")}</ol></div>`;
 }
+/* Paso 1: los botones de productos se ven en cuadrícula o en carrusel (el cliente elige; se recuerda en este teléfono). */
+const CPW_VISTA_LS = "pya.cpw.vista";
+const cpwVista = () => { try { return localStorage.getItem(CPW_VISTA_LS) === "car" ? "car" : "grid"; } catch (_) { return "grid"; } };
+function cpwCarPuntos(c) {
+  const w = c.closest(".wz-car-w"), pts = w && w.nextElementSibling; if (!pts || !pts.classList.contains("wz-car-pts")) return;
+  const ts = [...c.children], mid = c.scrollLeft + c.clientWidth / 2;
+  let k = 0, best = Infinity; ts.forEach((t, i) => { const d = Math.abs(t.offsetLeft + t.offsetWidth / 2 - mid); if (d < best) { best = d; k = i; } });
+  [...pts.children].forEach((p, i) => p.classList.toggle("on", i === k));
+  const izq = w.querySelector(".izq"), der = w.querySelector(".der");
+  if (izq) izq.disabled = c.scrollLeft < 8; if (der) der.disabled = c.scrollLeft + c.clientWidth > c.scrollWidth - 8;
+}
+document.addEventListener("scroll", e => { const c = e.target; if (c && c.classList && c.classList.contains("wz-car")) cpwCarPuntos(c); }, true);
 function cpwPaso1HTML() {
   const lista = carritoLista(), gs = cpwGrupos(), fv = favoritos().filter(id => !new Set(ocultos()).has(id));
   const tiles = gs.map(([k, e, l, sub, col]) => { const xs = lista.filter(x => x.p.fam === k), n = xs.length ? cuentaTxt(xs) : ""; return `<button type="button" class="wz-tile ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub}</small>${n ? `<span class="wz-cnt">${esc(n)}</span>` : ""}</button>`; }).join("")
     + cpwProx().map(([k, e, l, sub, col]) => `<button type="button" class="wz-tile wz-prox ${col}" data-act="cpw-grupo" data-g="${k}"><span class="wz-ptag">Próximamente</span><span class="wz-e" aria-hidden="true">${e}</span><b>${l}</b><small>${sub.replace(/ ?·? ?Próximamente$/, "") || "Muy pronto"}</small></button>`).join("");
-  return `<div class="wz-tiles" role="group" aria-label="Tipo de producto">${tiles}</div>
+  const car = cpwVista() === "car", nT = gs.length + cpwProx().length;
+  const sw = `<div class="wz-vista" role="group" aria-label="Ver productos como"><button type="button" data-act="cpw-vista" data-v="grid" aria-pressed="${!car}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>Cuadrícula</button><button type="button" data-act="cpw-vista" data-v="car" aria-pressed="${car}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M2.5 7v10M21.5 7v10"/></svg>Carrusel</button></div>`;
+  return `${sw}${car ? `<div class="wz-car-w"><button type="button" class="wz-car-fl izq" data-act="cpw-car" data-d="-1" aria-label="Anterior" disabled>‹</button><div class="wz-tiles wz-car" role="group" aria-label="Tipo de producto" tabindex="0">${tiles}</div><button type="button" class="wz-car-fl der" data-act="cpw-car" data-d="1" aria-label="Siguiente">›</button></div><div class="wz-car-pts" aria-hidden="true">${Array.from({ length: nT }, (_, i) => `<span${i === 0 ? ' class="on"' : ""}></span>`).join("")}</div>` : `<div class="wz-tiles" role="group" aria-label="Tipo de producto">${tiles}</div>`}
     ${lista.length ? `<div class="wz-cont"><span>Tu pedido: <b>${esc(cuentaTxt(lista))}</b></span><button type="button" class="btn primario" data-act="cpw-ir" data-p="3">Continuar con mi pedido ›</button></div>` : ""}`;
 }
 function cpwNav2HTML() {
@@ -15088,6 +15109,8 @@ document.addEventListener("click", e => {
     const el = $("#catalogo"); if (el) el.scrollIntoView({ block: "start" });
   } else if (a === "quitar-prod" || a === "mostrar-prod") cambiarOculto(id, a === "quitar-prod");
   else if (a === "fav") cambiarFav(id);
+  else if (a === "cpw-vista") { try { localStorage.setItem(CPW_VISTA_LS, b.dataset.v === "car" ? "car" : "grid"); } catch (_) {} const t = $("#cpw-p1"); if (t) { t.innerHTML = cpwPaso1HTML(); const c = t.querySelector(".wz-car"); if (c) cpwCarPuntos(c); } }
+  else if (a === "cpw-car") { const c = b.closest(".wz-car-w") && b.closest(".wz-car-w").querySelector(".wz-car"); if (c) { const t = c.firstElementChild; c.scrollBy({ left: (Number(b.dataset.d) || 1) * ((t ? t.offsetWidth : c.clientWidth * .8) + 14), behavior: "smooth" }); } }
   else if (a === "compartir") compartirProd(id);
   else if (a === "enviar") enviarPedido(b);
   else if (a === "editar-pedido") { S.repCli = null; editarPedido(id); }
