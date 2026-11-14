@@ -1025,6 +1025,11 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .ad-buscar{grid-column:1/-1;margin:0 0 4px}.ad-buscar input{width:100%;min-height:48px;font:inherit;padding:0 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 6px 16px -14px var(--shadow)}
 .ad-q-oculto{display:none!important}.ad-sub-res,.ad-q-vacio{grid-column:1/-1}.ad-sub-res:empty{display:none}.ad-sub-res{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.ad-sub-res .ad-grp-h{grid-column:1/-1}
 .ad-sub-btn{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.ad-sub-btn small{color:var(--muted);font-size:.78rem}
+.cupc-box{max-height:88vh;overflow:auto;display:grid;gap:12px}.cupc-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
+.cupc-it{display:grid;grid-template-columns:96px 1fr;border:2px dashed #db2777;border-radius:16px;overflow:hidden;background:var(--surface)}.cupc-it.usado{opacity:.6;border-color:var(--line)}
+.cupc-val{display:grid;place-content:center;text-align:center;background:linear-gradient(160deg,#db2777,#f59e0b);color:#fff;font-weight:900;font-size:1.4rem;line-height:1.1;padding:10px 6px}.cupc-it.usado .cupc-val{background:#94a3b8}.cupc-val small{font-size:.7rem;font-weight:700;opacity:.95}
+.cupc-info{display:grid;gap:3px;padding:12px}.cupc-cod{font-size:1.15rem;letter-spacing:.06em;font-family:ui-monospace,Menlo,monospace}.cupc-info small{color:var(--muted)}.cupc-ya{font-weight:800;color:#15803d!important}
+.cupc-acc{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.cupc-sub{margin:8px 0 0;font-size:1rem;color:var(--muted)}
 .cmu-box{max-height:88vh;overflow:auto;display:grid;gap:12px}.cmu-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
 .cmu-act{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--surface);display:grid;gap:8px}.cmu-act.ins{border-color:#16a34a;background:color-mix(in srgb,#16a34a 8%,var(--surface))}.cmu-act h3{margin:0;font-size:1.1rem}
 .cmu-cuando{margin:0;font-weight:700;color:var(--accent-ink)}.cmu-desc{margin:0;white-space:pre-wrap;color:var(--ink)}.cmu-acc{display:flex;align-items:center;justify-content:space-between;gap:10px}.cmu-ok{font-weight:800;color:#15803d}
@@ -4180,6 +4185,7 @@ function vistaCliente() {
     <button type="button" class="cli-favs" data-act="cli-favs"><span class="rep-ti" aria-hidden="true" style="color:#e11d48!important">${FAV_SVG.replace('<svg ', '<svg width="26" height="26" fill="currentColor" ')}</span><span class="rep-tt">Mis favoritos</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-promos"><span class="rep-ti" aria-hidden="true" style="color:#f59e0b!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span class="rep-tt">Promociones</span><span class="cnt" id="cnt-promos"></span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones disponibles</span><span class="cnt" id="cnt-cupcli"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Comentarios</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Comunidad</span><span class="cnt" id="cnt-comun"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
@@ -4740,6 +4746,50 @@ async function aplicarCupon() {
   if (Number(r.porCliente) && r.usosCliente >= Number(r.porCliente)) { di(Number(r.porCliente) === 1 ? "Ya usaste este cupón." : `Ya usaste este cupón ${r.porCliente} veces.`); return; }
   S.cupon = { codigo: r.codigo || cod, tipo: r.tipo === "porc" ? "porc" : "monto", valor: Number(r.valor) || 0, minimo: Number(r.minimo) || 0, tope: Number(r.tope) || 0 };
   pintarCupon(); updateCarritoUI(); toast(`🎟️ Cupón ${S.cupon.codigo} aplicado.`);
+}
+/* ---------- Clientes: «Cupones disponibles» (los cupones vigentes que este cliente puede usar) ---------- */
+const CUPC = { lista: null, en: 0, cargando: false };
+async function cargarCuponesCli(forzar) {
+  const cli = S.ses.cliente; if (!cli || !S.db || CUPC.cargando) return CUPC.lista || [];
+  if (!forzar && CUPC.lista && Date.now() - CUPC.en < 60000) return CUPC.lista;
+  CUPC.cargando = true;
+  try {
+    if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("cupones_disponibles"); if (x.error) throw x.error; CUPC.lista = Array.isArray(x.data) ? x.data : []; }
+    else {
+      const sn = await S.db.collection("cupones").get(), h = hoy(), loc = cli.tipo === "Local comercial";
+      CUPC.lista = sn.docs.map(d => Object.assign({ codigo: d.id }, d.data() || {})).filter(c => c.activo !== false && !(c.desde && c.desde > h) && !(c.hasta && c.hasta < h) && !((c.aud === "local" || c.aud === "part") && (c.aud === "local") !== loc)).map(c => {
+        const us = S.pedidos.filter(p => p.cupon === c.codigo && p.estado !== "cancelado"), pc = c.porCliente === "" || c.porCliente == null ? 1 : Number(c.porCliente), uc = us.filter(p => p.clienteId === cli.id).length;
+        return Number(c.maxUsos) && us.length >= Number(c.maxUsos) ? null : { codigo: c.codigo, tipo: c.tipo || "monto", valor: Number(c.valor) || 0, minimo: Number(c.minimo) || 0, tope: Number(c.tope) || 0, hasta: c.hasta || "", porCliente: pc, usosCliente: uc, agotado: pc > 0 && uc >= pc };
+      }).filter(Boolean);
+    }
+    CUPC.en = Date.now();
+  } catch (e) { console.warn("cupones_disponibles", e); }
+  CUPC.cargando = false; contarCuponesCli();
+  return CUPC.lista || [];
+}
+function contarCuponesCli() { const el = $("#cnt-cupcli"); if (!el) return; const n = S.ses.cliente && CUPC.lista ? CUPC.lista.filter(c => !c.agotado).length : 0, t = n ? String(n) : ""; if (el.textContent !== t) el.textContent = t; }
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && $("#cnt-cupcli")) cargarCuponesCli(); }, 15000);
+function cuponesCliHTML(xs) {
+  const ok = xs.filter(c => !c.agotado).sort((a, b) => String(a.hasta || "9").localeCompare(String(b.hasta || "9"))), usados = xs.filter(c => c.agotado), pedir = verPrecios();
+  const card = c => `<article class="cupc-it${c.agotado ? " usado" : ""}"><div class="cupc-val">${c.tipo === "porc" ? `${c.valor}%` : esc(clp(c.valor))}<small>de descuento</small></div>
+    <div class="cupc-info"><b class="cupc-cod">${esc(c.codigo)}</b><span>${esc(cupTxt(c))}</span>${Number(c.minimo) ? `<small>Compra mínima ${esc(clp(c.minimo))}</small>` : ""}<small>${c.hasta ? `Válido hasta el ${esc(fmtFecha(c.hasta))}` : "Sin fecha de vencimiento"}</small>
+    ${c.agotado ? `<small class="cupc-ya">✓ Ya lo usaste</small>` : `<div class="cupc-acc"><button type="button" class="btn chico suave" data-act="cupc-copiar" data-id="${esc(c.codigo)}">Copiar código</button>${pedir ? `<button type="button" class="btn chico primario" data-act="cupc-usar" data-id="${esc(c.codigo)}">Usar en mi pedido</button>` : ""}</div>`}</div></article>`;
+  return `<div class="promo-box cupc-box" role="dialog" aria-modal="true" aria-labelledby="cupc-t"><div class="pl-h"><b id="cupc-t">🎟️ Cupones disponibles</b><button type="button" class="ap-cerrar" data-act="cupc-cerrar" aria-label="Cerrar">×</button></div>
+    ${CUPC.lista === null ? `<p class="muted">Cargando cupones…</p>` : ok.length ? `<p class="com-sub">Escribe el código al hacer tu pedido, o toca «Usar en mi pedido».</p>${ok.map(card).join("")}` : `<p class="muted cmu-vacio">Por ahora no hay cupones disponibles. Te avisaremos cuando haya uno nuevo.</p>`}
+    ${usados.length ? `<h3 class="cupc-sub">Ya usados</h3>${usados.map(card).join("")}` : ""}</div>`;
+}
+async function abrirCuponesCli() {
+  if (!S.ses.cliente) return;
+  let m = $("#cupc-modal");
+  if (!m) { m = document.createElement("div"); m.id = "cupc-modal"; m.className = "promo-modal"; m.addEventListener("click", e => { if (e.target === m) m.remove(); }); document.body.appendChild(m); }
+  m.innerHTML = cuponesCliHTML(CUPC.lista ? CUPC.lista : []);
+  const xs = await cargarCuponesCli(true), m2 = $("#cupc-modal"); if (m2) m2.innerHTML = cuponesCliHTML(xs);
+}
+function usarCuponCli(cod) {
+  const m = $("#cupc-modal"); if (m) m.remove();
+  const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click();
+  let n = 0; const ir = () => { const inp = $("#cup-cod"); if (inp) { inp.value = cod; aplicarCupon(); const b = $("#cupon-box"); if (b) b.scrollIntoView({ block: "center", behavior: "smooth" }); } else if (S.cupon && S.cupon.codigo === cod) toast(`🎟️ El cupón ${cod} ya está aplicado.`); else if (++n < 20) setTimeout(ir, 150); };
+  setTimeout(ir, 120);
 }
 /* El carrito del cliente suma IVA si es Local comercial (o si edita un pedido que ya lo tenía). */
 function carritoConIva() { if (S.editPedido) { const p = (S.pedidos || []).find(x => x.id === S.editPedido.id); return !!(p && p.conIva); } return ivaAplicaCli(S.ses.cliente); }
@@ -14809,6 +14859,10 @@ document.addEventListener("click", e => {
     setTimeout(() => { if (S.cliIr === pid) { S.cliIr = ""; document.querySelectorAll(`article[data-pid="${CSS.escape(pid)}"]`).forEach(x => x.classList.remove("ped-recien")); } }, 6000);
   }
   else if (a === "cli-promos") abrirPromosCli();
+  else if (a === "cli-cupones") abrirCuponesCli();
+  else if (a === "cupc-cerrar") { const m = $("#cupc-modal"); if (m) m.remove(); }
+  else if (a === "cupc-copiar") { try { navigator.clipboard.writeText(id).then(() => toast(`📋 Código ${id} copiado.`), () => toast(`Código: ${id}`)); } catch (_) { toast(`Código: ${id}`); } }
+  else if (a === "cupc-usar") usarCuponCli(id);
   else if (a === "cli-coment") abrirComentario();
   else if (a === "cli-comun") abrirComunidad();
   else if (a === "cmu-cerrar") { const m = $("#cmu-modal"); if (m) m.remove(); }
