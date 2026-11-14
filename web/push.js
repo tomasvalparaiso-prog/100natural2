@@ -7,7 +7,7 @@
 (() => {
   "use strict";
   const VAPID = "BPjVipTVc_u00gLNOqplmpOSDDCYPQUrNO7MCqT5P6jQ9LMmOgGKIGsWtLdEXt-Mt6JzdAnPDjIug1H2qgYDUCw";
-  const LS = "pya.push", LS_NO = "pya.push.no";
+  const LS = "pya.push", LS_NO = "pya.push.no", LS_OFF = "pya.avisos.off";
   const PORTALES = ["admin", "repartidor", "agua", "papas", "cliente"];
   const hayPush = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
   const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -49,6 +49,16 @@
     if (ep && c) try { await c.rpc("push_quitar", { p_endpoint: ep }); } catch (_) {}
   }
 
+  /* Apagar / encender desde el botón «Notificaciones activas» de la página. */
+  const apagadas = () => lsGet(LS_OFF) === "1";
+  async function desactivar() {
+    lsSet(LS_OFF, "1");
+    await quitar();
+    try { const r = reg || await navigator.serviceWorker.ready; const sub = await r.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch (_) {}
+  }
+  async function activar() { lsSet(LS_OFF, null); return suscribir(true); }
+  window.pyaPush = { activar, desactivar, apagadas };
+
   /* ---------- Tarjeta «Activar notificaciones» ---------- */
   const css = document.createElement("style");
   css.textContent = `#push-card{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:70;max-width:520px;margin:0 auto;background:var(--surface,#fff);color:var(--ink,#111);border:1px solid var(--line,#ddd);border-radius:18px;box-shadow:0 14px 34px -14px rgb(0 0 0 / .45);padding:14px 14px 12px;display:grid;gap:10px;font:inherit}
@@ -73,6 +83,7 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
     if (b.dataset.push === "no") { lsSet(LS_NO, String(Date.now())); if (card) card.hidden = true; return; }
     b.disabled = true;
     try {
+      lsSet(LS_OFF, null);
       const ok = await suscribir(true);
       if (card) card.hidden = true;
       if (window.toastFn) window.toastFn(ok ? "🔔 Notificaciones activadas." : Notification.permission === "denied" ? "Las notificaciones están bloqueadas. Actívalas en la configuración del navegador." : "No se activaron las notificaciones.");
@@ -91,6 +102,7 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
       const c = cuenta(), g = lsGet(LS), gc = g ? g.split("|")[0] : null;
       if (!c) { if (card) card.hidden = true; if (g && window.S && window.S.ses && !Object.keys(window.S.ses).some(k => PORTALES.includes(k) && window.S.ses[k])) await quitar(); return; }
       if (!hayPush) { if (ios && !instalada && !(Date.now() - Number(lsGet(LS_NO) || 0) < 7 * 864e5)) tarjeta("ios"); return; }
+      if (apagadas()) { if (card) card.hidden = true; if (g) await quitar(); return; }
       if (Notification.permission === "granted") { if (card) card.hidden = true; if (gc !== c) await suscribir(false); return; }
       if (Notification.permission === "default" && !(Date.now() - Number(lsGet(LS_NO) || 0) < 3 * 864e5)) tarjeta("pedir");
     } catch (err) { console.warn("push", err); }
