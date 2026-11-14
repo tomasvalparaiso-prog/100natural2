@@ -117,5 +117,15 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
     }, 400);
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir") abrirUrl(e.data.url); });
+  /* Aviso de promoción: mostrar la promoción cuando el cliente ya entró y las promociones cargaron. */
+  function abrirPromo(url) {
+    let id = null;
+    try { id = new URL(url, location.href).searchParams.get("promo"); } catch (_) {}
+    if (!id) return;
+    let n = 0;
+    const t = setInterval(() => { n++; try { if ((window.abrirPromo && window.abrirPromo(id)) || n > 60) clearInterval(t); } catch (_) { clearInterval(t); } }, 500);
+  }
+  if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { if (e.data && e.data.pya === "abrir") abrirPromo(e.data.url); });
+  if (/[?&]promo=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirPromo(u); }
   if (/[?&]msj=/.test(location.search)) { const u = location.href; history.replaceState(null, "", location.pathname + location.hash); abrirUrl(u); }
 })();
