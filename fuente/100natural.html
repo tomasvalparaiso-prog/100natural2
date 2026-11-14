@@ -103,6 +103,10 @@ body[data-portal="admin"][data-local="papas"],body[data-portal="papas"]{ --accen
 .perf{display:grid;gap:14px}
 .perf-top{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;min-width:0}
 .perf-av{flex:0 0 64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;font-weight:800;background:var(--ink);color:var(--bg)}
+.g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff!important;color:#1f1f1f!important;border:1px solid #dadce0!important;font-weight:700}.g-btn svg{width:22px;height:22px;flex:none}
+.g-sep{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--muted);font-size:.85rem}.g-sep::before,.g-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.g-arriba{margin-bottom:6px}
+#g-comp{position:fixed;inset:0;z-index:1030;background:rgb(0 0 0 / .5);display:grid;place-items:end center;overflow:auto}#g-comp .g-box{background:var(--bg);color:var(--ink);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px))}#g-comp h2{margin:0 0 4px;font-size:1.25rem}#g-comp p.sub{margin:0 0 12px;color:var(--muted)}
 .perf-av-w{position:relative;flex:0 0 76px;width:76px;height:76px}.perf-av-w .perf-av{width:76px;height:76px;padding:0;border:0;overflow:hidden;cursor:pointer}.perf-av-w .perf-av img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}.perf-av-w button.perf-av{border-radius:50%!important;min-height:0!important;box-shadow:none}
 .perf-cam{position:absolute;right:-4px;bottom:-4px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);border:3px solid var(--surface);cursor:pointer;font-size:.95rem;box-shadow:0 4px 10px -4px var(--shadow)}.perf-cam.ocupado{opacity:.7;cursor:progress}.perf-cam:focus-within{outline:3px solid var(--accent-ink);outline-offset:2px}
 .perf-foto-acc{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}.perf-foto-acc .link{padding:0;border:0;background:none;color:var(--accent-ink);font:inherit;font-size:.88rem;font-weight:700;text-decoration:underline;cursor:pointer}
@@ -901,7 +905,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 @keyframes apIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.aviso-pedido{animation:none}}
 .sesion .avisos-slot{margin-left:auto;margin-right:12px;font-size:.88rem}
-.avisos-on{color:var(--ok);font-weight:700}
+.avisos-on{color:var(--ok);font-weight:700}.avisos-btn.avisos-on,.avisos-btn.avisos-off{background:none;border:0;padding:4px 0;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}.avisos-btn.avisos-off{color:var(--muted)}
 .dir .depto{font-weight:700}
 .kg-tot{display:block;font-size:.82rem;font-weight:700;color:var(--papa);margin-top:2px}
 .kg-tot:empty{display:none}
@@ -2928,12 +2932,14 @@ function formEntrar(k) {
     <label class="campo"><span>Clave</span>${claveHTML(`${k}-e-clave`, "current-password", "")}</label>
     <p class="err" role="alert"></p>
     <button class="btn primario grande" type="submit">Entrar</button>
+    ${k === "cliente" ? `<div class="g-sep"><span>o</span></div><button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button>` : ""}
     <p class="ayuda">¿Primera vez? <button type="button" class="link" data-act="auth-tab" data-k="${k}" data-t="registro">Crea tu cuenta</button></p>
   </form>`;
 }
 function formRegistro(k, adm) {
   const cli = k === "cliente", pre = adm ? (cli ? "adu" : "adp" + k) : k;
   return `<form id="f-${pre}-registro" data-k="${k}" data-m="registro"${adm ? ` data-adm="${adm === "usu" ? "usu" : "1"}"` : ""} class="form" novalidate>
+    ${cli && !adm ? `<div class="g-arriba"><button type="button" class="btn g-btn grande" data-act="google-entrar"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Crear cuenta con Google</button><div class="g-sep"><span>o crea tu cuenta con usuario y clave</span></div></div>` : ""}
     <div class="campos">
       ${cli ? `<fieldset class="campo full"><legend>Tipo de cliente</legend>
         <div class="seg">
@@ -3057,6 +3063,52 @@ function regSesion(k, p, extra) {
   try { if (!S.db) return; const e = { en: Date.now(), accion: "Inicio de sesión", coleccion: "sesiones", que: "Ingreso al sistema", docId: (p && p.id) || "", resumen: `${REG_PORTAL[k] || k}${p && p.id ? " · usuario " + p.id : ""}${extra ? " · " + extra : ""}`, quien: (p && (p.nombre || p.id)) || "", portal: REG_PORTAL[k] || k };
     S.db.doc(REG_COL + "/s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)).set(e).catch(() => {}); } catch (_) {}
 }
+/* Entrar o crear cuenta con Google (solo en el sitio publicado: el servidor reconoce al cliente por su correo de Google).
+   El adaptador del sitio (supabase-db.js) llama a GOOGLE_APP.entrar(cuenta) o GOOGLE_APP.completar(info). */
+const GOOGLE_APP = {
+  entrar(c) { if (!c || !c.id) return; iniciarSesion("cliente", perfil(c.id, c.data || {})); toast("✅ Entraste con Google."); },
+  completar(info) {
+    return new Promise(res => {
+      document.querySelectorAll("#g-comp").forEach(x => x.remove());
+      const d = document.createElement("div"); d.id = "g-comp";
+      d.innerHTML = `<form class="g-box form" novalidate role="dialog" aria-modal="true" aria-labelledby="g-comp-t">
+        <h2 id="g-comp-t">Completa tus datos</h2><p class="sub">Entraste con Google${info.email ? ` (${esc(info.email)})` : ""}. Solo falta saber dónde llevarte tus pedidos.</p>
+        <div class="campos">
+          <fieldset class="campo full"><legend>Tipo de cliente</legend><div class="seg"><label><input type="radio" name="tipo" value="Local comercial"><span>Local comercial</span></label><label><input type="radio" name="tipo" value="Particular" checked><span>Particular</span></label></div></fieldset>
+          <label class="campo full"><span>Nombre o nombre del local</span><input name="nombre" autocomplete="name" value="${esc(info.nombre || "")}"></label>
+          <label class="campo"><span>Teléfono</span><input name="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></label>
+          <label class="campo"><span>Comuna</span><input name="comuna" autocomplete="off"></label>
+          <label class="campo full"><span>Dirección</span><input name="direccion" autocomplete="address-line1" placeholder="Calle y número"></label>
+          <label class="campo full"><span>Casa / Depto <em>opcional</em></span><input name="depto" autocomplete="address-line2" placeholder="Ej.: Casa 12 o Depto 304, Torre B"></label>
+        </div>
+        <p class="err" role="alert"></p>
+        <div class="acciones"><button type="button" class="btn suave" data-g="no">Cancelar</button><button class="btn primario grande" type="submit">Crear mi cuenta</button></div></form>`;
+      document.body.appendChild(d);
+      const f = d.querySelector("form"), err = f.querySelector(".err");
+      f.querySelector('[data-g="no"]').addEventListener("click", () => { d.remove(); res(null); });
+      f.addEventListener("submit", async e => {
+        e.preventDefault(); err.textContent = "";
+        const v = n => (f[n] ? f[n].value.trim() : "");
+        const datos = { tipo: (f.querySelector('input[name="tipo"]:checked') || {}).value || "Particular", nombre: v("nombre"), telefono: v("telefono"), comuna: v("comuna"), direccion: v("direccion"), depto: v("depto") };
+        if (datos.nombre.length < 2) { err.textContent = "Escribe tu nombre o el nombre del local."; return; }
+        if (digitos(datos.telefono) < 8) { err.textContent = "Escribe un teléfono válido, con al menos 8 dígitos."; return; }
+        if (!datos.direccion) { err.textContent = "Escribe tu dirección para que podamos llevarte el pedido."; return; }
+        if (!datos.comuna) { err.textContent = "Escribe tu comuna."; return; }
+        const b = f.querySelector('[type="submit"]'); ocupar(b, true, "Creando tu cuenta…");
+        try { const r = await info.registrar(datos); if (r) { d.remove(); res(r); } }
+        catch (e2) { err.textContent = e2 && e2.message ? e2.message : msgError(e2); }
+        finally { if (b.isConnected) ocupar(b, false); }
+      });
+      const n = f.querySelector('[name="telefono"]'); if (n) setTimeout(() => n.focus(), 50);
+    });
+  },
+};
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act="google-entrar"]'); if (!b) return;
+  e.preventDefault();
+  if (window.__pya && window.__pya.google) { ocupar(b, true, "Abriendo Google…"); window.__pya.google().catch(er => { ocupar(b, false); toast(msgError(er)); }); }
+  else toast("Entrar con Google funciona en la página publicada de 100% Natural (no en esta vista previa).");
+});
 function iniciarSesion(k, p) {
   S.ses[k] = p; guardarSesion(); regSesion(k, p);
   if (S.authTab && S.authTab[k]) S.authTab[k] = "entrar";
@@ -4162,7 +4214,7 @@ function perfilCliHTML() {
       <div class="perf-id"><h2>${esc(c.nombre)}</h2>
         <p>${c.tipo ? `<span class="perf-chip">${esc(c.tipo)}</span>` : ""}${num ? `<span class="perf-chip">Cliente N° ${esc(num)}</span>` : ""}</p>
         ${creado ? `<small>Cliente desde el ${esc(fmtFecha(ymd(new Date(creado))))}</small>` : ""}
-        <div class="perf-foto-acc"><label class="link">${PERF.ocupado ? "Guardando foto…" : fotoDe("cliente") ? "📷 Cambiar foto" : "📷 Subir foto de perfil"}<input type="file" accept="image/*" class="pf-foto-in" data-k="cliente" hidden ${PERF.ocupado ? "disabled" : ""}></label>${fotoDe("cliente") && !PERF.ocupado ? `<button type="button" class="link" data-act="pf-quitar" data-k="cliente">Quitar foto</button>` : ""}</div></div>
+        <div class="perf-foto-acc"><span class="avisos-slot">${avisosBtnHTML()}</span><label class="link">${PERF.ocupado ? "Guardando foto…" : fotoDe("cliente") ? "📷 Cambiar foto" : "📷 Subir foto de perfil"}<input type="file" accept="image/*" class="pf-foto-in" data-k="cliente" hidden ${PERF.ocupado ? "disabled" : ""}></label>${fotoDe("cliente") && !PERF.ocupado ? `<button type="button" class="link" data-act="pf-quitar" data-k="cliente">Quitar foto</button>` : ""}</div></div>
     </section>
     <div class="perf-stats">
       <div><b>${fmtN(validos.length)}</b><small>Pedidos</small></div>
@@ -5614,6 +5666,9 @@ async function eliminarConsumo(id, btn) {
 /* ---------- Avisos de pedidos nuevos ---------- */
 const AV = { ctx: null, sinLeer: 0, ultimos: [], titulo: document.title };
 const recibeAvisos = () => (S.portal === "repartidor" && !!S.ses.repartidor) || (S.portal === "admin" && !!S.ses.admin);
+/* El usuario puede apagar las notificaciones de este teléfono con el mismo botón (el navegador no deja quitar el permiso desde la página, así que se recuerda aquí). */
+const AVISOS_OFF = "pya.avisos.off";
+const avisosOff = () => { try { return localStorage.getItem(AVISOS_OFF) === "1"; } catch (_) { return false; } };
 const notifSistema = () => { try { return "Notification" in window ? Notification.permission : "no"; } catch (_) { return "no"; } };
 function desbloquearSonido() {
   try {
@@ -5642,7 +5697,9 @@ function avisarPedidos(nuevas) {
   pintarAvisoPedido();
   sonarAviso();
   try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (_) {}
-  if (notifSistema() === "granted") {
+  /* Con avisos push activos el servidor ya envía la notificación: no repetirla aquí. */
+  let conPush = false; try { conPush = !!localStorage.getItem("pya.push"); } catch (_) {}
+  if (notifSistema() === "granted" && !avisosOff() && !conPush) {
     for (const p of lista.slice(0, 3)) {
       try { new Notification("Nuevo pedido · 100% Natural", { body: `${p.clienteNombre || "Cliente"} · ${p.comuna || ""} · ${fmtFecha(p.fechaEntrega)} ${p.horario || ""}`, tag: "pedido-" + p.id }); } catch (_) {}
     }
@@ -5693,7 +5750,9 @@ function verAvisoPedido() {
 }
 function avisosBtnHTML() {
   const est = notifSistema();
-  if (est === "granted") return `<span class="avisos-on">🔔 Notificaciones activas</span>`;
+  if (est === "granted") return avisosOff()
+    ? `<button type="button" class="link avisos-btn avisos-off" data-act="avisos-toggle" aria-pressed="false" title="Toca para activarlas">🔕 Notificaciones desactivadas</button>`
+    : `<button type="button" class="link avisos-btn avisos-on" data-act="avisos-toggle" aria-pressed="true" title="Toca para desactivarlas">🔔 Notificaciones activas</button>`;
   if (est === "default") return `<button type="button" class="link avisos-btn" data-act="avisos-activar">🔔 Activar notificaciones</button>`;
   return "";
 }
@@ -5701,7 +5760,7 @@ async function activarAvisos() {
   desbloquearSonido();
   let r = "no";
   try { r = await Notification.requestPermission(); } catch (_) {}
-  if (r === "granted") toast("Notificaciones activadas: te avisaremos de cada pedido nuevo.");
+  if (r === "granted") { try { localStorage.removeItem(AVISOS_OFF); } catch (_) {} try { if (window.pyaPush) await window.pyaPush.activar(); } catch (_) {} toast(S.portal === "cliente" ? "Notificaciones activadas: te avisaremos de mensajes y promociones." : "Notificaciones activadas: te avisaremos de cada pedido nuevo."); }
   else toast("Este navegador no permite notificaciones del sistema aquí. Verás el aviso con sonido mientras la página esté abierta.");
   document.querySelectorAll(".avisos-slot").forEach(s => { s.innerHTML = avisosBtnHTML(); });
 }
@@ -14692,6 +14751,13 @@ document.addEventListener("click", e => {
   else if (a === "rep-pago-si") cambiarPagoRep(id, RPC.v, b);
   else if (a === "aviso-cerrar") limpiarAviso();
   else if (a === "avisos-activar") activarAvisos();
+  else if (a === "avisos-toggle") {
+    const apagar = !avisosOff();
+    try { if (apagar) localStorage.setItem(AVISOS_OFF, "1"); else localStorage.removeItem(AVISOS_OFF); } catch (_) {}
+    document.querySelectorAll(".avisos-slot").forEach(x => { x.innerHTML = avisosBtnHTML(); });
+    Promise.resolve(window.pyaPush ? (apagar ? window.pyaPush.desactivar() : window.pyaPush.activar()) : null).catch(() => {});
+    toast(apagar ? "🔕 Notificaciones desactivadas en este teléfono. Toca el mismo botón para volver a activarlas." : "🔔 Notificaciones activadas en este teléfono.");
+  }
   else if (a === "lav-foto-quitar") { const L = LAV[b.dataset.l]; if (L) { L.fotosSel[b.dataset.f] = null; pintarFotos(b.dataset.l); } }
   else if (a === "lav-fotos-ver") { if (LAV[b.dataset.l]) verFotosLavado(b.dataset.l, id); }
   else if (a === "lav-foto-zoom") b.classList.toggle("grande");
@@ -15811,7 +15877,7 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   if (cambio) renderView();
 })();
 /* Deja disponibles para el bloque «Cambios 10-11» (otro <script>) las variables y funciones de la app que usa. */
-[["abrirPromo", () => id => { const p = PR.lista.find(x => x.id === id); if (!p || !esCliP() || !S.ses.cliente) return false; if (p.activa === false || (p.hasta && p.hasta < hoy())) return true; mostrarPromoModal(p); return true; }], ["$", () => $], ["AD", () => AD], ["US", () => US], ["subUsuarios", () => subUsuarios], ["comprimirFoto", () => comprimirFoto], ["toastFn", () => toast], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
+[["pyaGoogle", () => GOOGLE_APP], ["abrirPromo", () => id => { const p = PR.lista.find(x => x.id === id); if (!p || !esCliP() || !S.ses.cliente) return false; if (p.activa === false || (p.hasta && p.hasta < hoy())) return true; mostrarPromoModal(p); return true; }], ["$", () => $], ["AD", () => AD], ["US", () => US], ["subUsuarios", () => subUsuarios], ["comprimirFoto", () => comprimirFoto], ["toastFn", () => toast], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
 })();
 </script>
 
