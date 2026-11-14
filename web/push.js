@@ -104,7 +104,7 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
       if (!hayPush) { if (ios && !instalada && !(Date.now() - Number(lsGet(LS_NO) || 0) < 7 * 864e5)) tarjeta("ios"); return; }
       if (apagadas()) { if (card) card.hidden = true; if (g) await quitar(); return; }
       if (Notification.permission === "granted") { if (card) card.hidden = true; if (gc !== c) await suscribir(false); return; }
-      if (Notification.permission === "default" && !(Date.now() - Number(lsGet(LS_NO) || 0) < 3 * 864e5)) tarjeta("pedir");
+      /* Ya no se muestra la tarjeta «Activar»: la página pide el permiso sola al primer toque (notificaciones activas por defecto). */
     } catch (err) { console.warn("push", err); }
     finally { ocupado = false; }
   }

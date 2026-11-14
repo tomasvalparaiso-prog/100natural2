@@ -905,7 +905,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 @keyframes apIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.aviso-pedido{animation:none}}
 .sesion .avisos-slot{margin-left:auto;margin-right:12px;font-size:.88rem}
-.avisos-on{color:var(--ok);font-weight:700}.avisos-btn.avisos-on,.avisos-btn.avisos-off{background:none;border:0;padding:4px 0;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}.avisos-btn.avisos-off{color:var(--muted)}
+.avisos-on{color:var(--ok);font-weight:700}.avisos-bloq{color:var(--muted);font-size:.85rem}.pf-avisos{text-align:center;margin:10px 0 0}.pf-avisos:has(.avisos-slot:empty){display:none}.avisos-btn.avisos-on,.avisos-btn.avisos-off{background:none;border:0;padding:4px 0;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}.avisos-btn.avisos-off{color:var(--muted)}
 .dir .depto{font-weight:700}
 .kg-tot{display:block;font-size:.82rem;font-weight:700;color:var(--papa);margin-top:2px}
 .kg-tot:empty{display:none}
@@ -5762,6 +5762,7 @@ function avisosBtnHTML() {
     ? `<button type="button" class="link avisos-btn avisos-off" data-act="avisos-toggle" aria-pressed="false" title="Toca para activarlas">🔕 Notificaciones desactivadas</button>`
     : `<button type="button" class="link avisos-btn avisos-on" data-act="avisos-toggle" aria-pressed="true" title="Toca para desactivarlas">🔔 Notificaciones activas</button>`;
   if (est === "default") return `<button type="button" class="link avisos-btn" data-act="avisos-activar">🔔 Activar notificaciones</button>`;
+  if (est === "denied") return `<span class="avisos-bloq" title="Para activarlas, permite las notificaciones de esta página en la configuración del navegador.">🔕 Notificaciones bloqueadas en el navegador</span>`;
   return "";
 }
 async function activarAvisos() {
@@ -5774,6 +5775,20 @@ async function activarAvisos() {
 }
 document.addEventListener("pointerdown", desbloquearSonido, { capture: true, passive: true });
 document.addEventListener("keydown", desbloquearSonido, { capture: true, passive: true });
+/* Notificaciones activas por defecto: con la sesión iniciada, al primer toque se pide el permiso (el navegador exige un toque).
+   No se pide si el usuario las desactivó, ni más de una vez cada 3 días si no respondió. */
+const AVISOS_PIDIO = "pya.avisos.pidio";
+function pedirAvisosAuto() {
+  if (notifSistema() !== "default" || avisosOff() || !S.portal || !S.ses || !S.ses[S.portal]) return;
+  let ult = 0; try { ult = Number(localStorage.getItem(AVISOS_PIDIO) || 0); } catch (_) {}
+  if (Date.now() - ult < 3 * 864e5) return;
+  try { localStorage.setItem(AVISOS_PIDIO, String(Date.now())); } catch (_) {}
+  Notification.requestPermission().then(async r => {
+    if (r === "granted") { try { if (window.pyaPush) await window.pyaPush.activar(); } catch (_) {} toast("🔔 Notificaciones activadas. Puedes desactivarlas en tu Perfil."); }
+    document.querySelectorAll(".avisos-slot").forEach(x => { x.innerHTML = avisosBtnHTML(); });
+  }).catch(() => {});
+}
+document.addEventListener("pointerup", pedirAvisosAuto, { capture: true, passive: true });
 
 /* ---------- Tipo de cliente (local comercial / particular) ---------- */
 S.tipos = {}; S.tiposSub = false;
@@ -6385,7 +6400,7 @@ function usuariosHTML() {
 /* ---------- Repartidor ---------- */
 function vistaRep() {
   const r = S.ses.repartidor;
-  return `<div class="rep-avisos"><span class="avisos-slot">${avisosBtnHTML()}</span></div>${repBodyHTML()}`;
+  return repBodyHTML();
 }
 const repUsuario = () => usuarioProd("repartidor");
 const REP_SVG = p => `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
@@ -8933,6 +8948,7 @@ function perfilHTML(k) {
       <label class="btn primario pf-subir ${PERF.ocupado ? "disabled" : ""}">${PERF.ocupado ? "Guardando foto…" : f ? "📷 Cambiar foto" : "📷 Subir foto"}<input type="file" accept="image/*" class="pf-foto-in" data-k="${k}" hidden ${PERF.ocupado ? "disabled" : ""}></label>
       ${f && !PERF.ocupado ? `<button type="button" class="btn suave" data-act="pf-quitar" data-k="${k}">Quitar foto</button>` : ""}
     </div>
+    <p class="pf-avisos"><span class="avisos-slot">${avisosBtnHTML()}</span></p>
     <dl class="pf-datos">
       <div><dt>Usuario</dt><dd>@${esc(u.usuario || u.id || "")}</dd></div>
       <div><dt>Teléfono</dt><dd>${u.telefono ? esc(u.telefono) : `<span class="muted-s">Sin teléfono</span>`}</dd></div>
@@ -10415,7 +10431,7 @@ function adPrbHTML() {
 const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
-  return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button><span class="avisos-slot">${avisosBtnHTML()}</span></div>
+  return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button></div>
     <div id="ad-aprobar"></div>
     <nav class="ad-barra" aria-label="Administración"><button type="button" role="tab" class="local-btn bar-inicio" data-act="ad-local" data-l="inicio" aria-selected="${AD.local === "inicio"}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>${AD_BARRA.map(adBtn).join("")}<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button></nav>
     <div class="local-switch ${AD_CERR() ? "ls-uno" : ""}" role="tablist" aria-label="Local">
