@@ -16284,6 +16284,152 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
 })();
 </script>
 <style>
+/* ===== Radio: música en vivo para todos los usuarios (estaciones de radio-browser.info) ===== */
+#rad-btn{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 186px);z-index:60;width:50px;height:50px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.35rem;box-shadow:0 10px 24px -12px var(--shadow);cursor:pointer;display:grid;place-items:center}
+#rad-btn[hidden]{display:none}
+#rad-btn.on{background:#7c3aed;color:#fff;border-color:transparent}
+#rad-btn .rad-eq{display:flex;align-items:flex-end;gap:2px;height:18px}#rad-btn .rad-eq i{width:4px;background:currentColor;border-radius:2px;animation:radEq 1s ease-in-out infinite}#rad-btn .rad-eq i:nth-child(2){animation-delay:-.3s}#rad-btn .rad-eq i:nth-child(3){animation-delay:-.6s}
+@keyframes radEq{0%,100%{height:5px}50%{height:18px}}
+html:has(#msj-pan:not([hidden])) #rad-btn,html:has(#rad-pan:not([hidden])) #rad-btn{display:none}
+html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) #barra,html:has(#rad-pan:not([hidden])) #push-card{display:none!important}
+#rad-pan{position:fixed;inset:0;z-index:1005;display:grid;align-items:end;background:rgb(0 0 0 / .45)}#rad-pan[hidden]{display:none}
+#rad-pan .rad-box{background:var(--bg);color:var(--ink);border-radius:22px 22px 0 0;max-width:620px;width:100%;margin:0 auto;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 -12px 30px -14px rgb(0 0 0 / .45)}
+.rad-top{display:flex;align-items:center;gap:10px;padding:14px 14px 8px}.rad-top b{flex:1;font-family:var(--f-display);font-size:1.25rem}
+.rad-x{min-width:44px;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+.rad-now{margin:0 14px 10px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center}
+.rad-now .rad-logo{width:56px;height:56px;border-radius:12px;background:rgb(255 255 255 / .18) center/cover no-repeat;display:grid;place-items:center;font-size:1.6rem}
+.rad-now b{display:block;font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rad-now small{display:block;opacity:.85;font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rad-play{width:54px;height:54px;border-radius:50%;border:0;background:#fff;color:#4f46e5;font-size:1.4rem;cursor:pointer;display:grid;place-items:center}.rad-play:disabled{opacity:.6}
+.rad-vol{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:.95rem}.rad-vol input{flex:1;accent-color:#fff}
+.rad-tabs{display:flex;gap:6px;padding:0 14px 8px}.rad-tabs button{flex:1;min-height:40px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}.rad-tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rad-buscar{padding:0 14px 8px}.rad-buscar input{width:100%;min-height:44px;font:inherit;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.rad-lista{list-style:none;margin:0;padding:0 6px calc(12px + env(safe-area-inset-bottom,0px));overflow:auto;-webkit-overflow-scrolling:touch;flex:1}
+.rad-it{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:12px}.rad-it.act{background:var(--accent-soft)}
+.rad-sel{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:4px 0}
+.rad-ic{flex:none;width:42px;height:42px;border-radius:10px;background:var(--surface-2) center/cover no-repeat;display:grid;place-items:center;font-size:1.2rem}
+.rad-tx{min-width:0;display:grid}.rad-tx b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rad-tx small{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem}
+.rad-fav{flex:none;width:40px;height:40px;border:0;background:none;color:#f59e0b;font-size:1.3rem;cursor:pointer;border-radius:50%}
+.rad-msg{padding:24px 16px;text-align:center;color:var(--muted)}
+</style>
+<script>
+/* ===== Radio: escuchar radios en vivo dentro de 100% Natural (todos los usuarios).
+   Las estaciones vienen de radio-browser.info (directorio público y gratuito). Solo se usan transmisiones https.
+   Se recuerdan en este teléfono: la última radio, el volumen y las radios favoritas (★). ===== */
+(() => {
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const toast = (...x) => { try { (window.toastFn || (() => {}))(...x); } catch (_) {} };
+  const LS = "pya.radio.v1";
+  const SERV = ["https://de1.api.radio-browser.info", "https://nl1.api.radio-browser.info", "https://at1.api.radio-browser.info", "https://de2.api.radio-browser.info"];
+  let cfg = { vol: 0.8, ult: null, favs: [] };
+  try { cfg = Object.assign(cfg, JSON.parse(localStorage.getItem(LS) || "{}")); } catch (_) {}
+  const guardar = () => { try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch (_) {} };
+  const R = { tab: "cl", q: "", lista: {}, cargando: false, err: "", actual: cfg.ult, estado: "parado" };
+  const audio = new Audio(); audio.preload = "none"; audio.volume = cfg.vol;
+
+  const btn = document.createElement("button"); btn.type = "button"; btn.id = "rad-btn"; btn.hidden = true; btn.setAttribute("aria-label", "Radio");
+  const pan = document.createElement("div"); pan.id = "rad-pan"; pan.hidden = true;
+  document.body.appendChild(btn); document.body.appendChild(pan);
+
+  const sesion = () => { const S = window.S; return !!(S && S.ses && S.portal && S.ses[S.portal]); };
+  function pintarBtn() {
+    btn.hidden = !sesion() && R.estado === "parado";
+    const on = R.estado === "sonando";
+    btn.classList.toggle("on", on);
+    btn.innerHTML = on ? `<span class="rad-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : `<span aria-hidden="true">🎵</span>`;
+    btn.setAttribute("aria-label", on && R.actual ? `Radio: sonando ${R.actual.name}` : "Radio");
+  }
+  setInterval(pintarBtn, 1500); setTimeout(pintarBtn, 900);
+
+  /* ---------- Estaciones ---------- */
+  const limpia = x => ({ id: x.stationuuid, name: String(x.name || "Radio").trim(), url: x.url_resolved || x.url, logo: /^https:/.test(x.favicon || "") ? x.favicon : "", tags: String(x.tags || "").split(",").filter(Boolean).slice(0, 3).join(", "), pais: x.country || "" });
+  async function api(ruta) {
+    let ult;
+    for (const s of SERV) {
+      try {
+        const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 9000);
+        const r = await fetch(s + ruta, { signal: ctl.signal }); clearTimeout(t);
+        if (r.ok) return (await r.json()).filter(x => /^https:/.test(x.url_resolved || x.url || "")).map(limpia);
+        ult = new Error("http " + r.status);
+      } catch (e) { ult = e; }
+    }
+    throw ult || new Error("sin conexión");
+  }
+  async function cargar(clave, ruta) {
+    if (R.lista[clave]) return;
+    R.cargando = true; R.err = ""; pintar();
+    try { const xs = await api(ruta), vistos = new Set(); R.lista[clave] = xs.filter(x => { const k = x.name.toLowerCase(); if (vistos.has(k)) return false; vistos.add(k); return true; }); }
+    catch (_) { R.err = "No se pudieron cargar las radios. Revisa tu conexión e intenta de nuevo."; }
+    R.cargando = false; pintar();
+  }
+  const rutaCL = "/json/stations/search?countrycode=CL&order=clickcount&reverse=true&limit=80&hidebroken=true&is_https=true";
+  const rutaQ = q => `/json/stations/search?name=${encodeURIComponent(q)}&order=clickcount&reverse=true&limit=50&hidebroken=true&is_https=true`;
+  const listaActual = () => R.tab === "fav" ? cfg.favs : R.tab === "q" ? (R.lista["q:" + R.q] || []) : (R.lista.cl || []);
+
+  /* ---------- Reproducción ---------- */
+  function tocar(st) {
+    if (!st || !st.url) return;
+    R.actual = st; cfg.ult = st; guardar();
+    R.estado = "cargando"; audio.src = st.url; audio.load();
+    audio.play().catch(() => { if (R.actual === st) { R.estado = "parado"; pintar(); pintarBtn(); toast("No se pudo reproducir esta radio. Prueba con otra."); } });
+    if ("mediaSession" in navigator) try { navigator.mediaSession.metadata = new MediaMetadata({ title: st.name, artist: "Radio · 100% Natural", artwork: st.logo ? [{ src: st.logo }] : [] }); } catch (_) {}
+    pintar(); pintarBtn();
+  }
+  function pausar() { audio.pause(); R.estado = "parado"; pintar(); pintarBtn(); }
+  audio.addEventListener("playing", () => { R.estado = "sonando"; pintar(); pintarBtn(); });
+  audio.addEventListener("waiting", () => { if (R.estado !== "parado") { R.estado = "cargando"; pintar(); } });
+  audio.addEventListener("error", () => { if (R.estado !== "parado") { R.estado = "parado"; pintar(); pintarBtn(); toast("Esta radio no está transmitiendo ahora. Prueba con otra."); } });
+  if ("mediaSession" in navigator) try { navigator.mediaSession.setActionHandler("play", () => R.actual && tocar(R.actual)); navigator.mediaSession.setActionHandler("pause", pausar); navigator.mediaSession.setActionHandler("stop", pausar); } catch (_) {}
+
+  /* ---------- Panel ---------- */
+  const esFav = st => cfg.favs.some(x => x.id === st.id);
+  function itemHTML(st) {
+    const act = R.actual && R.actual.id === st.id;
+    return `<li class="rad-it${act ? " act" : ""}"><button type="button" class="rad-sel" data-rad="tocar" data-id="${esc(st.id)}"><span class="rad-ic" ${st.logo ? `style="background-image:url('${esc(st.logo)}')"` : ""} aria-hidden="true">${st.logo ? "" : "📻"}</span><span class="rad-tx"><b>${esc(st.name)}</b><small>${act && R.estado === "sonando" ? "🔊 Sonando" : esc([st.tags, st.pais].filter(Boolean).join(" · ") || "Radio en vivo")}</small></span></button><button type="button" class="rad-fav" data-rad="fav" data-id="${esc(st.id)}" aria-pressed="${esFav(st)}" aria-label="${esFav(st) ? "Quitar de mis radios" : "Agregar a mis radios"}">${esFav(st) ? "★" : "☆"}</button></li>`;
+  }
+  function pintar() {
+    if (pan.hidden) return;
+    const a = R.actual, xs = listaActual();
+    const foco = document.activeElement && document.activeElement.id === "rad-q" ? document.activeElement.selectionStart : null;
+    const listaH = R.cargando && !xs.length ? `<li class="rad-msg">Cargando radios…</li>` : R.err && !xs.length ? `<li class="rad-msg">${esc(R.err)}</li>`
+      : !xs.length ? `<li class="rad-msg">${R.tab === "fav" ? "Aún no tienes radios guardadas. Toca ☆ en una radio para guardarla aquí." : R.tab === "q" ? (R.q.trim().length < 2 ? "Escribe el nombre de una radio (por ejemplo: Cooperativa, Futuro, Romántica)." : "No encontramos radios con ese nombre.") : "No hay radios para mostrar."}</li>` : xs.map(itemHTML).join("");
+    /* Mientras escribe en el buscador solo se cambia la lista, para no cerrar el teclado. */
+    const ul = pan.querySelector(".rad-lista");
+    if (foco != null && ul && R.tab === "q") { ul.innerHTML = listaH; return; }
+    pan.innerHTML = `<div class="rad-box" role="dialog" aria-modal="true" aria-label="Radio">
+      <div class="rad-top"><b>🎵 Radio</b><button type="button" class="rad-x" data-rad="cerrar" aria-label="Cerrar">✕</button></div>
+      <div class="rad-now"><span class="rad-logo" ${a && a.logo ? `style="background-image:url('${esc(a.logo)}')"` : ""} aria-hidden="true">${a && a.logo ? "" : "📻"}</span>
+        <span style="min-width:0"><b>${a ? esc(a.name) : "Elige una radio"}</b><small>${R.estado === "sonando" ? "🔴 En vivo" : R.estado === "cargando" ? "Conectando…" : a ? "En pausa" : "Toca una radio de la lista"}</small></span>
+        <button type="button" class="rad-play" data-rad="play" aria-label="${R.estado === "parado" ? "Reproducir" : "Pausar"}" ${a ? "" : "disabled"}>${R.estado === "parado" ? "▶" : R.estado === "cargando" ? "⏳" : "⏸"}</button>
+        <label class="rad-vol"><span aria-hidden="true">🔈</span><input type="range" id="rad-vol" min="0" max="1" step="0.05" value="${audio.volume}" aria-label="Volumen"><span aria-hidden="true">🔊</span></label></div>
+      <div class="rad-tabs" role="group" aria-label="Lista de radios"><button type="button" data-rad="tab" data-t="cl" aria-pressed="${R.tab === "cl"}">🇨🇱 Chile</button><button type="button" data-rad="tab" data-t="fav" aria-pressed="${R.tab === "fav"}">★ Mis radios</button><button type="button" data-rad="tab" data-t="q" aria-pressed="${R.tab === "q"}">🔎 Buscar</button></div>
+      ${R.tab === "q" ? `<div class="rad-buscar"><input type="search" id="rad-q" placeholder="Nombre de la radio" value="${esc(R.q)}" autocomplete="off"></div>` : ""}
+      <ul class="rad-lista">${listaH}</ul></div>`;
+    if (foco != null) { const q = document.getElementById("rad-q"); if (q) { q.focus(); try { q.setSelectionRange(foco, foco); } catch (_) {} } }
+  }
+  function abrir() { pan.hidden = false; pintar(); if (R.tab === "cl") cargar("cl", rutaCL); }
+  function cerrar() { pan.hidden = true; pintarBtn(); }
+  const buscarSt = id => [...Object.values(R.lista).flat(), ...cfg.favs, ...(R.actual ? [R.actual] : [])].find(x => x.id === id);
+
+  btn.addEventListener("click", abrir);
+  pan.addEventListener("click", e => {
+    if (e.target === pan) { cerrar(); return; }
+    const b = e.target.closest("[data-rad]"); if (!b) return;
+    const a = b.dataset.rad;
+    if (a === "cerrar") cerrar();
+    else if (a === "play") { if (R.estado === "parado") tocar(R.actual); else pausar(); }
+    else if (a === "tocar") { const st = buscarSt(b.dataset.id); if (st) { if (R.actual && R.actual.id === st.id && R.estado !== "parado") pausar(); else tocar(st); } }
+    else if (a === "fav") { const st = buscarSt(b.dataset.id); if (!st) return; cfg.favs = esFav(st) ? cfg.favs.filter(x => x.id !== st.id) : [...cfg.favs, st].slice(-40); guardar(); pintar(); }
+    else if (a === "tab") { R.tab = b.dataset.t; pintar(); if (R.tab === "cl") cargar("cl", rutaCL); if (R.tab === "q") { const q = document.getElementById("rad-q"); if (q) q.focus(); } }
+  });
+  let qT = null;
+  pan.addEventListener("input", e => {
+    if (e.target.id === "rad-vol") { audio.volume = Number(e.target.value); cfg.vol = audio.volume; guardar(); return; }
+    if (e.target.id === "rad-q") { R.q = e.target.value; clearTimeout(qT); const q = R.q.trim(); if (q.length < 2) { pintar(); return; } qT = setTimeout(() => cargar("q:" + R.q, rutaQ(q)), 450); }
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !pan.hidden) cerrar(); });
+})();
+</script>
+<style>
 /* ===== Mensajes del equipo (Administrador, Repartidores, Producción agua y papas) ===== */
 #msj-btn{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 122px);z-index:60;width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);font-size:1.55rem;box-shadow:0 10px 24px -10px var(--shadow);cursor:pointer;display:grid;place-items:center}
 #msj-btn[hidden]{display:none}
