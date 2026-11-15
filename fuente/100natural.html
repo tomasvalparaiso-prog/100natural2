@@ -6061,7 +6061,7 @@ async function verComprobante(id) {
   catch (e) { toast(msgError(e)); delete S.compVer[id]; }
   refrescarComp();
 }
-function refrescarComp() { renderListas(); if (S.portal === "admin" && $("#ad-pag-cont")) rerenderAdCli(); }
+function refrescarComp() { renderListas(); if (S.portal === "admin" && $("#ad-pag-cont")) rerenderAdCli(); if ($("#ult-panel")) renderUlt(); }
 async function elegirComprobante(id, file) {
   if (!file) return;
   S.compSel = { id, nombre: file.name || "comprobante", procesando: true, data: "" }; renderListas();
@@ -13816,7 +13816,7 @@ function ultPagoAvisoHTML(p) {
   if (!p || !p.pagoCliente || p.estado === "cancelado") return "";
   const ok = pagado(p), cuando = p.pagoClienteEn ? ` el ${fmtDia(p.pagoClienteEn)} a las ${fmtHora(p.pagoClienteEn)}` : "";
   return `<div class="ult-pago-av${ok ? " ok" : ""}" role="status"><span class="upa-i" aria-hidden="true">${ok ? "✅" : "💰"}</span><div><b>${ok ? "Pagado · confirmado por el cliente y la administración" : "El cliente marcó este pedido como pagado"}</b>
-    <small>${esc((p.clienteNombre || "El cliente") + " lo marcó" + cuando)}${esEfectivo(p) ? " · 💵 Efectivo" : p.comprobante ? " · 🧾 Adjuntó comprobante" : " · Sin comprobante"}${ok ? "" : ` · Falta la confirmación del ${segQuien(p)}`}</small>${p.comprobante ? compLinkHTML(p) : ""}</div></div>`;
+    <small>${esc((p.clienteNombre || "El cliente") + " lo marcó" + cuando)}${esEfectivo(p) ? " · 💵 Efectivo" : p.comprobante ? " · 🧾 Adjuntó comprobante" : " · Sin comprobante"}${ok ? "" : ` · Falta la confirmación del ${segQuien(p)}`}</small></div></div>`;
 }
 const BUS = { q: "" };
 const busCardHTML = () => `<div class="card bus-card"><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><div class="bus-2 bus-rango"><label class="campo"><span>📅 Desde <em>fecha de entrega</em></span><input type="date" id="bus-desde" value="${esc(BUS.desde || "")}"></label><label class="campo"><span>📅 Hasta</span><input type="date" id="bus-hasta" value="${esc(BUS.hasta || "")}"></label></div><div class="bus-rango-acc">${[["hoy", "Hoy"], ["sem", "Esta semana"], ["mes", "Este mes"], ["x", "Sin fechas"]].map(([k, l]) => `<button type="button" class="btn chico suave" data-act="bus-rango" data-r="${k}">${l}</button>`).join("")}</div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
