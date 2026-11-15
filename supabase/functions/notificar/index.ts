@@ -126,7 +126,7 @@ function paraActividad(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | nu
   if (!d || d.clienteId || !d.nombre) return null;
   const f = String(d.fecha || "");
   const fecha = f ? f.split("-").reverse().slice(0, 2).join("/") : "";
-  return [subs.filter((s) => s.portal === "cliente"), { titulo: `📅 Comunidad · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
+  return [subs.filter((s) => s.portal === "cliente"), { titulo: `📅 Trabajos comunitarios · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
 }
 
 // Deja anotado en el aviso y en la promoción a cuántos teléfonos llegó (el administrador lo ve en la tarjeta).
