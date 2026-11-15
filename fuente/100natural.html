@@ -936,6 +936,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mt-lista{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.mt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,#22c55e 7%,var(--surface))}.mt-it.pas{background:color-mix(in srgb,#f59e0b 9%,var(--surface))}
 .mt-i{font-size:1.4rem;line-height:1.1}.mt-it>div{flex:1;min-width:0}.mt-it b{display:block}.mt-it small{display:block;color:var(--muted)}.mt-it p{margin:4px 0 0;font-size:.88rem;white-space:pre-wrap}
 .mt-est{flex:none;font-size:.75rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534}.mt-it.pas .mt-est{background:#fef3c7;color:#92400e}
+.com-tipo{margin-bottom:10px;display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px}.com-tipo button{width:100%;min-width:0;padding:10px 8px!important;font-size:.92rem}.com-tipo button small{display:inline!important}.com-tipo button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.25;text-align:center}.com-nl{font-size:.7rem;font-weight:800;color:#b45309}.com-tipo button[aria-pressed="true"] .com-nl{color:#fde68a}
 .comp-falta{color:#b45309!important;font-weight:600}.comp-prev{max-width:180px;max-height:180px;border-radius:10px;border:1px solid var(--line);object-fit:contain;background:var(--bg)}
 .comp-ver{font-size:.88rem}
 .fac-blk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}.fac-blk.ok{border-color:var(--ok,var(--line))}.fac-blk .fac-t{font-weight:700;margin-right:auto}.fac-blk .comp-btn{flex:1 1 100%}.fac-blk .acciones{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}.fac-cambiar{position:relative;overflow:hidden}.fac-cambiar input{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -11101,7 +11102,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
   ["Locales", [["posad", "Punto de venta"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["prov", "Proveedores"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
-  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Comentarios de clientes"], ["comun", "Trabajos comunitarios"], ["muro", "Muro de comentarios"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
+  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["comun", "Trabajos comunitarios"], ["muro", "Muro de comentarios"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
   ["Delivery", [["rep", "Repartidores"]]], /* «Pagos en efectivo» quedó como pestaña dentro de Repartidores */
   ["Registrados", [["usu", "Usuarios"], ["capt", "Clientes"], ["captados", "Captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
@@ -14924,10 +14925,11 @@ document.addEventListener("click", e => {
   else if (a === "cmu-del-no") { CMU.del = ""; renderCmu(); }
   else if (a === "cmu-del-si") { CMU.del = ""; conReintento(() => S.db.doc("actividades/" + id).delete()).then(() => toast("Actividad eliminada.")).catch(e => toast(msgError(e))); }
   else if (a === "com-filtro") { COM.filtro = b.dataset.g || "todos"; renderCom(); }
+  else if (a === "com-tipo") { COM.tipo = b.dataset.g; COM.filtro = "todos"; renderCom(); }
   else if (a === "com-leido") conReintento(() => S.db.doc("comentarios/" + id).update({ leido: true })).catch(e => toast(msgError(e)));
   else if (a === "com-del") { COM.del = id; renderCom(); }
   else if (a === "com-del-no") { COM.del = ""; renderCom(); }
-  else if (a === "com-del-si") { COM.del = ""; conReintento(() => S.db.doc("comentarios/" + id).delete()).then(() => toast("Comentario eliminado.")).catch(e => toast(msgError(e))); }
+  else if (a === "com-del-si") { COM.del = ""; conReintento(() => S.db.doc("comentarios/" + id).delete()).then(() => toast("Sugerencia eliminada.")).catch(e => toast(msgError(e))); }
   else if (a === "com-resp") { const btnM = document.getElementById("msj-btn"); if (btnM && id) { btnM.click(); setTimeout(() => { const q = document.getElementById("msj-q"); const it = document.querySelector('#msj-pan [data-c="c-' + CSS.escape(id) + '"]'); if (it) { it.click(); return; } if (q) { q.value = b.dataset.n || ""; q.dispatchEvent(new Event("input", { bubbles: true })); setTimeout(() => { const it2 = document.querySelector('#msj-pan [data-c="c-' + CSS.escape(id) + '"]'); if (it2) it2.click(); }, 250); } }, 300); } }
   else if (a === "ad-ir") {
     const p = b.dataset.l, t = b.dataset.t; AD.q = "";
@@ -16324,7 +16326,8 @@ async function subirActividad() {
 /* ---------- Comentarios de clientes: «¿Qué productos te gustaría ver en la app?» ----------
    Clientes › Inicio › Comentarios guarda «comentarios/<id>» (con clienteId); el administrador los ve en Pedidos › Comentarios de clientes. */
 const COM_SUG = ["Helados", "Jugos naturales", "Bebidas", "Hielo", "Pan", "Huevos", "Frutas y verduras", "Carnes", "Congelados", "Snacks", "Productos de limpieza", "Comida para mascotas"];
-const COM = { lista: [], subs: false, cargado: false, mios: [], sel: new Set(), filtro: "todos", del: "" };
+const COM = { lista: [], subs: false, cargado: false, mios: [], sel: new Set(), filtro: "todos", del: "", tipo: "part" };
+const comTipo = c => c.tipo === "Local comercial" ? "local" : "part";
 function subComentarios() {
   if (COM.subs || !S.db) return; COM.subs = true;
   S.db.collection("comentarios").limit(1000).onSnapshot(sn => { COM.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.en || 0) - (a.en || 0)); COM.cargado = true; renderCom(); }, e => { COM.cargado = true; console.warn("comentarios", e); renderCom(); });
@@ -16370,20 +16373,25 @@ function abrirComentario() {
   setTimeout(() => { const c = m.querySelector(".com-chip"); if (c) c.focus(); }, 50);
 }
 function comentariosHTML() {
-  if (!COM.cargado) return vacio("Cargando comentarios…", "Un momento.");
-  if (!COM.lista.length) return vacio("Aún no hay comentarios", "Los clientes pueden enviarlos desde Inicio › Sugerencias.");
-  const cnt = new Map(); for (const c of COM.lista) for (const p of c.productos || []) cnt.set(p, (cnt.get(p) || 0) + 1);
+  if (!COM.cargado) return vacio("Cargando sugerencias…", "Un momento.");
+  if (!COM.lista.length) return vacio("Aún no hay sugerencias", "Los clientes pueden enviarlas desde Inicio › Sugerencias.");
+  /* Organizadas por tipo de cliente: Particulares y Locales comerciales. */
+  const nT = t => COM.lista.filter(c => comTipo(c) === t), nSL = t => nT(t).filter(c => !c.leido).length;
+  const tipos = `<div class="seg-per com-tipo" role="group" aria-label="Tipo de cliente">${[["part", "👤 Particulares"], ["local", "🏪 Locales comerciales"]].map(([k, l]) => `<button type="button" data-act="com-tipo" data-g="${k}" aria-pressed="${COM.tipo === k}"><span>${l} <small>${nT(k).length}</small></span>${nSL(k) ? `<span class="com-nl">${nSL(k)} sin leer</span>` : ""}</button>`).join("")}</div>`;
+  const base = nT(COM.tipo);
+  const cnt = new Map(); for (const c of base) for (const p of c.productos || []) cnt.set(p, (cnt.get(p) || 0) + 1);
   const top = [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([l, v]) => ({ l, v, vt: `${v} ${v === 1 ? "cliente" : "clientes"}` }));
-  const nuevos = COM.lista.filter(c => !c.leido).length;
-  const lista = COM.lista.filter(c => COM.filtro === "todos" || (COM.filtro === "nuevos" ? !c.leido : (c.productos || []).includes(COM.filtro)));
-  return `<div class="seg-per ult-fam com-filtro" role="group" aria-label="Mostrar"><button type="button" data-act="com-filtro" data-g="todos" aria-pressed="${COM.filtro === "todos"}">Todos <small>${COM.lista.length}</small></button><button type="button" data-act="com-filtro" data-g="nuevos" aria-pressed="${COM.filtro === "nuevos"}">Sin leer <small>${nuevos}</small></button>${COM.filtro !== "todos" && COM.filtro !== "nuevos" ? `<button type="button" data-act="com-filtro" data-g="${esc(COM.filtro)}" aria-pressed="true">${esc(COM.filtro)}</button>` : ""}</div>
-    ${top.length ? estBarras("Productos que más piden los clientes", "Cuántas veces los eligieron en sus comentarios", top) : ""}
+  const nuevos = base.filter(c => !c.leido).length;
+  const lista = base.filter(c => COM.filtro === "todos" || (COM.filtro === "nuevos" ? !c.leido : (c.productos || []).includes(COM.filtro)));
+  if (!base.length) return tipos + vacio(COM.tipo === "local" ? "Aún no hay sugerencias de locales comerciales" : "Aún no hay sugerencias de clientes particulares", "Aparecerán aquí cuando las envíen desde Inicio › Sugerencias.");
+  return tipos + `<div class="seg-per ult-fam com-filtro" role="group" aria-label="Mostrar"><button type="button" data-act="com-filtro" data-g="todos" aria-pressed="${COM.filtro === "todos"}">Todos <small>${base.length}</small></button><button type="button" data-act="com-filtro" data-g="nuevos" aria-pressed="${COM.filtro === "nuevos"}">Sin leer <small>${nuevos}</small></button>${COM.filtro !== "todos" && COM.filtro !== "nuevos" ? `<button type="button" data-act="com-filtro" data-g="${esc(COM.filtro)}" aria-pressed="true">${esc(COM.filtro)}</button>` : ""}</div>
+    ${top.length ? estBarras("Productos que más piden los clientes", "Cuántas veces los eligieron en sus sugerencias", top) : ""}
     <div class="com-lista">${lista.map(c => `<article class="card ad-card com-card${c.leido ? "" : " nuevo"}"><div class="com-h"><b>${esc(c.clienteNombre || "Cliente")}</b><small>${esc([c.tipo, c.comuna].filter(Boolean).join(" · "))}</small><time>${esc(fmtFecha(ymd(new Date(c.en || Date.now()))))} ${new Date(c.en || Date.now()).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}</time></div>
       ${(c.productos || []).length ? `<div class="com-chips">${c.productos.map(p => `<button type="button" class="com-chip" data-act="com-filtro" data-g="${esc(p)}">${esc(p)}</button>`).join("")}</div>` : ""}
       ${c.texto ? `<p class="com-txt">${esc(c.texto)}</p>` : ""}
-      ${COM.del === c.id ? `<div class="acciones"><span class="muted-s">¿Eliminar este comentario?</span><button type="button" class="btn chico suave" data-act="com-del-no">No</button><button type="button" class="btn chico peligro" data-act="com-del-si" data-id="${esc(c.id)}">Eliminar</button></div>`
+      ${COM.del === c.id ? `<div class="acciones"><span class="muted-s">¿Eliminar esta sugerencia?</span><button type="button" class="btn chico suave" data-act="com-del-no">No</button><button type="button" class="btn chico peligro" data-act="com-del-si" data-id="${esc(c.id)}">Eliminar</button></div>`
         : `<div class="acciones">${c.leido ? `<span class="muted-s">✓ Leído</span>` : `<button type="button" class="btn chico primario" data-act="com-leido" data-id="${esc(c.id)}">Marcar como leído</button>`}<button type="button" class="btn chico suave" data-act="com-resp" data-id="${esc(c.clienteId || "")}" data-n="${esc(c.clienteNombre || "")}">💬 Responder</button><button type="button" class="btn chico suave" data-act="com-del" data-id="${esc(c.id)}">Eliminar</button></div>`}
-    </article>`).join("") || `<p class="muted">No hay comentarios con este filtro.</p>`}</div>`;
+    </article>`).join("") || `<p class="muted">No hay sugerencias con este filtro.</p>`}</div>`;
 }
 function renderCom() { const el = $("#com-panel"); if (!el || !(S.portal === "admin" && AD.local === "coment")) return; EST.w = (el.clientWidth || 640) - 34; el.innerHTML = comentariosHTML(); }
 /* ---------- Cupones de descuento (Administrador › Pedidos › Cupones) ----------
