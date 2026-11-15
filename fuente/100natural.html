@@ -932,6 +932,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ult-pago-av{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#fef3c7;border:2px solid #f59e0b;color:#78350f}.ult-pago-av.ok{background:#dcfce7;border-color:#22c55e;color:#14532d}
 .ult-pago-av .upa-i{font-size:1.3rem;line-height:1.2}.ult-pago-av b{display:block}.ult-pago-av small{display:block;opacity:.9;margin-top:2px}.ult-pago-av .comp-ver{color:inherit}.ult-pago-av .comp-img{max-width:220px;margin-top:6px;border-radius:10px}
 .ures-pago{margin:0 0 4px;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#78350f;font-size:.78rem;font-weight:700;width:max-content;max-width:100%}.ures-pago.ok{background:#dcfce7;color:#14532d}
+.mis-trab h3 small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-top:2px}.mt-sub{margin:10px 0 6px;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mt-lista{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.mt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,#22c55e 7%,var(--surface))}.mt-it.pas{background:color-mix(in srgb,#f59e0b 9%,var(--surface))}
+.mt-i{font-size:1.4rem;line-height:1.1}.mt-it>div{flex:1;min-width:0}.mt-it b{display:block}.mt-it small{display:block;color:var(--muted)}.mt-it p{margin:4px 0 0;font-size:.88rem;white-space:pre-wrap}
+.mt-est{flex:none;font-size:.75rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534}.mt-it.pas .mt-est{background:#fef3c7;color:#92400e}
 .comp-falta{color:#b45309!important;font-weight:600}.comp-prev{max-width:180px;max-height:180px;border-radius:10px;border:1px solid var(--line);object-fit:contain;background:var(--bg)}
 .comp-ver{font-size:.88rem}
 .fac-blk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}.fac-blk.ok{border-color:var(--ok,var(--line))}.fac-blk .fac-t{font-weight:700;margin-right:auto}.fac-blk .comp-btn{flex:1 1 100%}.fac-blk .acciones{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}.fac-cambiar{position:relative;overflow:hidden}.fac-cambiar input{position:absolute;inset:0;opacity:0;cursor:pointer}
@@ -4318,6 +4322,7 @@ function perfilCliHTML() {
       <div><b>${fmtN(act.length)}</b><small>En curso</small></div>
       ${verPrecios() ? `<div class="perf-wide"><b>${clp(total)}</b><small>Total en pedidos</small></div>` : ""}
     </div>
+    ${misTrabajosHTML()}
     <section class="perf-card"><h3>Datos de contacto</h3><dl>
       ${fila("Nombre", esc(c.nombre))}
       ${fila("Usuario", esc(c.usuario || c.id))}
@@ -16227,12 +16232,25 @@ function subComunidad() {
   if (!CMU.subsI) {
     const cli = S.ses.cliente;
     if (staff) { CMU.subsI = true; S.db.collection("inscripciones").limit(5000).onSnapshot(sn => { CMU.insc = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.cargadoI = true; renderCmu(); }, () => { CMU.cargadoI = true; }); }
-    else if (cli) { CMU.subsI = cli.id; S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { const antes = CMU.mias.size > 0; CMU.mias = new Set(sn.docs.map(d => (d.data() || {}).actividadId)); const prim = !CMU.cargadoI; CMU.cargadoI = true; pintarComunCli(); contarComun(); if (prim || antes !== (CMU.mias.size > 0)) insigniasRepintar(); }, () => { CMU.cargadoI = true; }); }
+    else if (cli) { CMU.subsI = cli.id; S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { const antes = CMU.mias.size > 0; CMU.misIns = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.mias = new Set(CMU.misIns.map(d => d.actividadId)); const prim = !CMU.cargadoI; CMU.cargadoI = true; pintarComunCli(); contarComun(); if (prim || antes !== (CMU.mias.size > 0)) insigniasRepintar(); else if (S.cliTab === "perf") renderPerfilCli(); }, () => { CMU.cargadoI = true; }); }
   }
 }
 function contarComun() { const el = $("#cnt-comun"); if (!el) return; const n = S.ses.cliente ? cmuProx().filter(a => !CMU.mias.has(a.id)).length : 0, t = n ? String(n) : ""; if (el.textContent !== t) el.textContent = t; }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db) { subComunidad(); contarComun(); } if ((S.portal === "cliente" && S.ses.cliente) || (S.portal === "admin" && S.ses.admin)) cargarInsignias(); }, 4000);
 const cmuFechaTxt = a => `${a.fecha ? cap(fmtFecha(a.fecha)) : "Fecha por confirmar"}${a.horario ? ` · ${a.horario}` : ""}`;
+/* Clientes › Perfil: «Mis trabajos comunitarios» (las actividades en que se inscribió; los datos quedan guardados en su inscripción). */
+function misTrabajosHTML() {
+  if (S.portal !== "cliente" || !S.ses.cliente) return "";
+  subComunidad();
+  const xs = (CMU.misIns || []).map(i => { const a = CMU.lista.find(x => x.id === i.actividadId) || {}; return { id: i.actividadId, nombre: a.nombre || i.actividad || "Actividad", fecha: a.fecha || i.fecha || "", horario: a.horario || i.horario || "", desc: a.descripcion || i.descripcion || "" }; })
+    .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+  const h = hoy(), prox = xs.filter(x => x.fecha && x.fecha >= h).reverse(), hechas = xs.filter(x => !x.fecha || x.fecha < h);
+  const it = (x, pas) => `<li class="mt-it${pas ? " pas" : ""}"><span class="mt-i" aria-hidden="true">${pas ? "🏅" : "📅"}</span><div><b>${esc(x.nombre)}</b><small>${esc(x.fecha ? cap(fmtFecha(x.fecha)) : "Fecha por confirmar")}${x.horario ? ` · ${esc(x.horario)}` : ""}</small>${x.desc ? `<p>${esc(x.desc)}</p>` : ""}</div><span class="mt-est">${pas ? "Participaste" : "Inscrito"}</span></li>`;
+  return `<section class="perf-card mis-trab"><h3>🤝 Mis trabajos comunitarios${xs.length ? ` <small>${fmtN(hechas.length)} ${hechas.length === 1 ? "realizado" : "realizados"}${prox.length ? ` · ${fmtN(prox.length)} ${prox.length === 1 ? "próximo" : "próximos"}` : ""}</small>` : ""}</h3>
+    ${!CMU.cargadoI ? `<p class="muted-s">Cargando…</p>` : xs.length ? `${prox.length ? `<p class="mt-sub">Próximos</p><ul class="mt-lista">${prox.map(x => it(x, false)).join("")}</ul>` : ""}${hechas.length ? `<p class="mt-sub">Realizados</p><ul class="mt-lista">${hechas.map(x => it(x, true)).join("")}</ul>` : ""}`
+      : `<p class="muted-s">Aún no participas en trabajos comunitarios.</p>`}
+    <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>`;
+}
 /* Clientes: ventana Comunidad con las actividades próximas para inscribirse. */
 function comunidadCliHTML() {
   const xs = cmuProx();
@@ -16256,7 +16274,7 @@ async function inscribirse(aid, salir) {
   const ref = S.db.doc("inscripciones/" + cmuId(aid, cli.id));
   try {
     if (salir) { await conReintento(() => ref.delete()); CMU.mias.delete(aid); toast("Inscripción cancelada."); }
-    else { await conReintento(() => ref.set({ actividadId: aid, actividad: a.nombre, clienteId: cli.id, clienteNombre: cli.nombre || "", telefono: cli.telefono || "", tipo: cli.tipo || "", comuna: cli.comuna || "", en: Date.now() })); CMU.mias.add(aid); toast(`🎉 ¡Listo! Quedaste inscrito en «${a.nombre}».`); }
+    else { await conReintento(() => ref.set({ actividadId: aid, actividad: a.nombre, fecha: a.fecha || "", horario: a.horario || "", descripcion: String(a.descripcion || "").slice(0, 300), clienteId: cli.id, clienteNombre: cli.nombre || "", telefono: cli.telefono || "", tipo: cli.tipo || "", comuna: cli.comuna || "", en: Date.now() })); CMU.mias.add(aid); toast(`🎉 ¡Listo! Quedaste inscrito en «${a.nombre}».`); }
   } catch (e) { toast(msgError(e)); }
   pintarComunCli(); contarComun();
 }
