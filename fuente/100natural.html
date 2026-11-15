@@ -1028,7 +1028,7 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .muro-box{max-height:88vh;overflow:auto;display:grid;gap:12px;align-content:start}.muro-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
 .muro-nuevo,.muro-it{display:flex;gap:10px;align-items:flex-start}.muro-nuevo{padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
 .muro-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:color-mix(in srgb,#7c3aed 14%,var(--surface));color:#6d28d9;font-weight:800}.muro-av img{width:100%;height:100%;object-fit:cover;display:block}
-.muro-c{flex:1;min-width:0;display:grid;gap:4px}.muro-c textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);resize:vertical}
+.muro-c{flex:1;min-width:0;display:grid;gap:4px}.muro-it .muro-acc .btn{min-height:36px}.muro-c textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);resize:vertical}
 .muro-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .muro-lista{display:grid;gap:4px}.muro-it{padding:12px 4px;border-bottom:1px solid var(--line)}.muro-it:last-child{border-bottom:0}
 .muro-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.muro-h b{font-size:1rem}.muro-h time{font-size:.8rem;color:var(--muted)}
@@ -14886,6 +14886,9 @@ document.addEventListener("click", e => {
   else if (a === "cli-muro") abrirMuro();
   else if (a === "muro-cerrar") cerrarMuro();
   else if (a === "muro-pub") publicarMuro();
+  else if (a === "muro-edit") { const c = MURO.lista.find(x => x.id === id); if (c) { MURO.edit = id; MURO.del = ""; MURO.editTxt = c.texto || ""; pintarMuroCli(); const t = $("#muro-edit-txt"); if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } } }
+  else if (a === "muro-edit-no") { MURO.edit = ""; pintarMuroCli(); }
+  else if (a === "muro-edit-si") guardarEdicionMuro(id);
   else if (a === "muro-del") { MURO.del = id; pintarMuroCli(); renderMuroAd(); }
   else if (a === "muro-del-no") { MURO.del = ""; pintarMuroCli(); renderMuroAd(); }
   else if (a === "muro-del-si") { MURO.del = ""; conReintento(() => S.db.doc("muro/" + id).delete()).then(() => toast("Comentario eliminado.")).catch(e => toast(msgError(e))); }
@@ -16082,21 +16085,28 @@ function contarMuro() {
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db && $("#cnt-muro")) { subMuro(); contarMuro(); } }, 4000);
 const muroCuando = ts => { const d = new Date(ts), h = new Date(), ay = new Date(Date.now() - 864e5), hm = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }); return d.toDateString() === h.toDateString() ? `Hoy, ${hm}` : d.toDateString() === ay.toDateString() ? `Ayer, ${hm}` : `${d.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: d.getFullYear() === h.getFullYear() ? undefined : "numeric" })}, ${hm}`; };
 const muroAv = (foto, nombre) => foto ? `<span class="muro-av"><img src="${esc(foto)}" alt=""></span>` : `<span class="muro-av">${esc(String(nombre || "?").trim().charAt(0).toUpperCase() || "?")}</span>`;
-function muroItemHTML(c, puedeBorrar) {
-  return `<article class="muro-it">${muroAv(c.foto, c.nombre)}<div class="muro-c"><div class="muro-h"><b>${esc(c.nombre || "Cliente")}</b><time datetime="${new Date(c.en || 0).toISOString()}">${esc(muroCuando(c.en || 0))}</time></div><p>${esc(c.texto)}</p>
-    ${puedeBorrar ? (MURO.del === c.id ? `<div class="muro-acc"><span class="muted-s">¿Eliminar este comentario?</span><button type="button" class="link" data-act="muro-del-no">No</button><button type="button" class="link peligro" data-act="muro-del-si" data-id="${esc(c.id)}">Eliminar</button></div>` : `<div class="muro-acc"><button type="button" class="link" data-act="muro-del" data-id="${esc(c.id)}">Eliminar</button></div>`) : ""}</div></article>`;
+function muroItemHTML(c, puedeBorrar, puedeEditar) {
+  const ed = puedeEditar && MURO.edit === c.id;
+  const acc = !puedeBorrar ? "" : MURO.del === c.id ? `<div class="muro-acc"><span class="muted-s">¿Eliminar este comentario?</span><button type="button" class="link" data-act="muro-del-no">No</button><button type="button" class="link peligro" data-act="muro-del-si" data-id="${esc(c.id)}">Eliminar</button></div>`
+    : `<div class="muro-acc">${puedeEditar ? `<button type="button" class="link" data-act="muro-edit" data-id="${esc(c.id)}">✏️ Editar</button>` : ""}<button type="button" class="link" data-act="muro-del" data-id="${esc(c.id)}">Eliminar</button></div>`;
+  return `<article class="muro-it" data-mid="${esc(c.id)}">${muroAv(c.foto, c.nombre)}<div class="muro-c"><div class="muro-h"><b>${esc(c.nombre || "Cliente")}</b><time datetime="${new Date(c.en || 0).toISOString()}">${esc(muroCuando(c.en || 0))}${c.editado ? " · editado" : ""}</time></div>
+    ${ed ? `<textarea id="muro-edit-txt" maxlength="500" rows="3" aria-label="Editar tu comentario">${esc(MURO.editTxt)}</textarea><div class="muro-acc"><button type="button" class="link" data-act="muro-edit-no">Cancelar</button><button type="button" class="btn primario chico" data-act="muro-edit-si" data-id="${esc(c.id)}" ${MURO.guardandoEd ? "disabled" : ""}>${MURO.guardandoEd ? "Guardando…" : "Guardar"}</button></div>`
+      : `<p>${esc(c.texto)}</p>${acc}`}</div></article>`;
 }
 function muroCliHTML() {
   const cli = S.ses.cliente || {};
   return `<div class="promo-box muro-box" role="dialog" aria-modal="true" aria-labelledby="muro-t"><div class="pl-h"><b id="muro-t">💬 Muro de comentarios</b><button type="button" class="ap-cerrar" data-act="muro-cerrar" aria-label="Cerrar">×</button></div>
     <div class="muro-nuevo">${muroAv(fotoDe("cliente") || MURO.miFoto, cli.nombre)}<div class="muro-c"><textarea id="muro-txt" aria-label="Tu comentario" maxlength="500" rows="3" placeholder="Escribe tu comentario para la comunidad…">${esc(MURO.borr)}</textarea>
       <div class="muro-pie"><small class="muted-s">Lo verán todos los clientes con tu nombre y tu foto.</small><button type="button" class="btn primario chico" data-act="muro-pub" ${MURO.enviando ? "disabled" : ""}>${MURO.enviando ? "Publicando…" : "Publicar"}</button></div></div></div>
-    <div class="muro-lista">${!MURO.cargado ? `<p class="muted">Cargando comentarios…</p>` : MURO.lista.length ? MURO.lista.map(c => muroItemHTML(c, c.clienteId === cli.id)).join("") : `<p class="muted cmu-vacio">Aún no hay comentarios. ¡Sé el primero en escribir!</p>`}</div></div>`;
+    <div class="muro-lista">${!MURO.cargado ? `<p class="muted">Cargando comentarios…</p>` : MURO.lista.length ? MURO.lista.map(c => muroItemHTML(c, c.clienteId === cli.id, c.clienteId === cli.id)).join("") : `<p class="muted cmu-vacio">Aún no hay comentarios. ¡Sé el primero en escribir!</p>`}</div></div>`;
 }
 function pintarMuroCli() {
   const m = $("#muro-modal"); if (!m) return;
+  const te = $("#muro-edit-txt"); if (te) MURO.editTxt = te.value;
+  const focoEd = te && document.activeElement === te, posEd = focoEd ? te.selectionStart : 0;
   const ta = $("#muro-txt"), foco = ta && document.activeElement === ta, pos = foco ? ta.selectionStart : 0;
   if (ta) MURO.borr = ta.value;
+  if (focoEd) { const tmp = document.createElement("div"); tmp.innerHTML = muroCliHTML(); m.innerHTML = tmp.innerHTML; const t2 = $("#muro-edit-txt"); if (t2) { t2.focus(); try { t2.setSelectionRange(posEd, posEd); } catch (_) {} } return; }
   const lista = m.querySelector(".muro-lista"), tmp = document.createElement("div"); tmp.innerHTML = muroCliHTML();
   if (foco && lista) { lista.innerHTML = tmp.querySelector(".muro-lista").innerHTML; return; }
   m.innerHTML = tmp.innerHTML;
@@ -16124,6 +16134,16 @@ function muroMini(src) {
     im.onload = () => { try { const n = 96, c = document.createElement("canvas"), r = Math.min(im.width, im.height); c.width = c.height = n; c.getContext("2d").drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, n, n); res(c.toDataURL("image/jpeg", 0.78)); } catch (_) { res(""); } };
     im.onerror = () => res(""); im.src = src;
   });
+}
+async function guardarEdicionMuro(id) {
+  const te = $("#muro-edit-txt"), cli = S.ses.cliente, c = MURO.lista.find(x => x.id === id); if (!te || !cli || !c || c.clienteId !== cli.id || MURO.guardandoEd) return;
+  const texto = te.value.trim().slice(0, 500);
+  if (texto.length < 2) { toast("Escribe tu comentario."); te.focus(); return; }
+  if (texto === c.texto) { MURO.edit = ""; pintarMuroCli(); return; }
+  MURO.guardandoEd = true; MURO.editTxt = te.value; pintarMuroCli();
+  try { await conReintento(() => S.db.doc("muro/" + id).update({ texto, editado: Date.now() })); MURO.edit = ""; toast("✏️ Comentario actualizado."); }
+  catch (e) { toast(msgError(e)); }
+  MURO.guardandoEd = false; pintarMuroCli();
 }
 async function publicarMuro() {
   const cli = S.ses.cliente, ta = $("#muro-txt"); if (!cli || !ta || MURO.enviando) return;
