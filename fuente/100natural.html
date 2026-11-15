@@ -1057,6 +1057,9 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .pr-push-ult{margin:6px 0 0;font-size:.85rem;color:var(--ok,#15803d);font-weight:700}
 .pr-est{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}.pr-pub{background:#dcfce7;color:#166534}.pr-prog{background:#e0f2fe;color:#075985}.pr-pausa{background:#fef3c7;color:#92400e}.pr-fin{background:#e5e7eb;color:#374151}
 .promo-modal{position:fixed;inset:0;z-index:1000;background:rgba(10,20,25,.62);display:flex;align-items:center;justify-content:center;padding:16px;animation:prIn .2s ease}
+.promo-modal.pagina-cli{position:static;inset:auto;z-index:auto;background:none;padding:0;display:block;animation:none}
+.pagina-cli>.promo-box{max-width:none;width:100%;max-height:none;height:auto;border-radius:0;box-shadow:none;background:none;overflow:visible;padding:0;display:grid;align-content:start;gap:12px}
+.pagina-cli>.promo-box>.pl-h{display:none}
 .promo-box{background:var(--card,#fff);border-radius:18px;max-width:420px;width:100%;max-height:calc(100vh - 32px);overflow:auto;padding:12px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5)}
 .promo-box img{display:block;width:100%;border-radius:12px}.promo-tit{margin:12px 4px 2px;font-weight:800;font-size:1.05rem}.promo-its{margin:4px 4px 0;font-size:.85rem;color:var(--muted,#5b6b70)}
 .promo-acc{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:12px}.promo-acc .btn{width:100%}.pr-prev-tag{margin:0 0 8px;text-align:center;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#5b6b70)}
@@ -4223,6 +4226,7 @@ function vistaCliente() {
   <div id="panel-pag" ${S.cliTab !== "pag" ? "hidden" : ""}><div id="pagos-cli"></div></div>
   <div id="panel-con" ${S.cliTab !== "con" ? "hidden" : ""}><div id="consumo-cli"></div></div>
   <div id="panel-stk" ${S.cliTab !== "stk" ? "hidden" : ""}><div id="stock-cli"></div></div>
+  <div id="panel-sec" ${S.cliTab !== "sec" ? "hidden" : ""}></div>
   <div id="panel-perf" ${S.cliTab !== "perf" ? "hidden" : ""}><div id="perfil-cli">${S.cliTab === "perf" ? perfilCliHTML() : ""}</div></div>
   <div class="cli-nav-esp" aria-hidden="true"></div>`;
 }
@@ -4790,7 +4794,7 @@ function cuponesCliHTML(xs) {
 async function abrirCuponesCli() {
   if (!S.ses.cliente) return;
   let m = $("#cupc-modal");
-  if (!m) { m = document.createElement("div"); m.id = "cupc-modal"; m.className = "promo-modal"; m.addEventListener("click", e => { if (e.target === m) m.remove(); }); document.body.appendChild(m); }
+  if (!m) { m = document.createElement("div"); m.id = "cupc-modal"; m.className = "promo-modal pagina-cli"; montarPaginaCli(m); }
   m.innerHTML = cuponesCliHTML(CUPC.lista ? CUPC.lista : []);
   const xs = await cargarCuponesCli(true), m2 = $("#cupc-modal"); if (m2) m2.innerHTML = cuponesCliHTML(xs);
 }
@@ -5300,6 +5304,8 @@ function cambiarCliTab(t) {
   const pp = $("#panel-prog"); if (pp) pp.hidden = t !== "prog";
   const pk = $("#panel-canc"); if (pk) pk.hidden = t !== "canc";
   const pf = $("#panel-perf"); if (pf) pf.hidden = t !== "perf";
+  const pq = $("#panel-sec"); if (pq) pq.hidden = t !== "sec";
+  if (t !== "sec" && PAG_EL) cerrarPaginaCli();
   if (t === "perf") renderPerfilCli();
   if (t === "prog") { subProgramados(); renderProgramados(); }
   if (t === "con") { asegurarConsumo(); renderConsumo(); }
@@ -5313,7 +5319,7 @@ function cliIniPintar() {
   if (S.portal !== "cliente" && S.portal !== "cfd") return;
   const bar = document.querySelector(".cli-tabs"), tit = $("#cli-sec-tit"), pi = $("#panel-ini"); if (!bar || !tit) return;
   const ini = S.cliTab === "inicio";
-  const cur = ini ? bar.querySelector(".bar-inicio") : bar.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`);
+  const cur = ini ? bar.querySelector(".bar-inicio") : S.cliTab === "sec" ? (S.cliSec ? bar.querySelector(`[data-act="${S.cliSec}"]`) : null) : bar.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`);
   const sv = cur && cur.querySelector("svg"), nom = ini ? "Inicio" : cur ? (cur.querySelector(".rep-tt") || cur).textContent.trim() : "";
   const h = nom ? `<div class="ini-row"><button type="button" class="nav-volver" data-act="nav-volver" ${(NAVH[S.portal] || []).length > 1 ? "" : "hidden"}><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button><button type="button" class="ini-tit cli-sec-btn" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true">${sv ? sv.outerHTML : ""}</span><span class="rep-tt">${esc(nom)}</span></button></div>` : "";
   if (tit.dataset.h !== h) { tit.dataset.h = h; tit.innerHTML = h; }
@@ -9233,6 +9239,7 @@ function navEntrada(b) {
   const a = b.dataset.act, k = S.portal; if (!a) return null;
   if (a === "ini-portal" || a === "pv-inicio" || a === "cli-inicio" || (a === "ad-local" && b.dataset.l === "inicio")) return { key: "inicio", sel: NAV_INICIO[k] };
   if (a === "usu-bar") return ["admin", "papas", "cliente", "cfd"].includes(k) ? { key: "perfil", sel: "#usu-bar" } : null;
+  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
   if (!(/tab$/.test(a) || a === "ad-local")) return null;
   let key = `[data-act="${a}"]`; ["t", "l"].forEach(d => { if (b.dataset[d]) key += `[data-${d}="${b.dataset[d]}"]`; });
   const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
@@ -14916,6 +14923,7 @@ document.addEventListener("click", e => {
   else if (a === "cup-quitar") { S.cupon = null; pintarCupon(); updateCarritoUI(); }
   else if (a === "promo-ver") { const p = PR.lista.find(x => x.id === id); if (p) mostrarPromoModal(p); }
   else if (a === "promo-cerrar") cerrarPromoModal();
+  else if (a === "promo-pag-cerrar") { const m = $("#promo-pag"); if (m) m.remove(); }
   else if (a === "cli-musica") { if (window.pyaRadio) window.pyaRadio.abrir("fav"); else toast("La radio no está disponible en esta vista."); }
   else if (a === "cli-favs") { cambiarCliTab("nuevo"); setTimeout(() => { CPW.grupo = "fav"; cpwIr(2, true); const c = $("#catalogo"); if (c) { c.innerHTML = catalogoHTML(); updateCarritoUI(); } window.scrollTo({ top: 0, behavior: "smooth" }); }, 0); }
   else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
@@ -16098,7 +16106,7 @@ function abrirMuro() {
   if (!S.ses.cliente || !S.db) return false;
   subMuro();
   let m = $("#muro-modal");
-  if (!m) { m = document.createElement("div"); m.id = "muro-modal"; m.className = "promo-modal"; m.addEventListener("click", e => { if (e.target === m) cerrarMuro(); }); document.body.appendChild(m); }
+  if (!m) { m = document.createElement("div"); m.id = "muro-modal"; m.className = "promo-modal pagina-cli"; montarPaginaCli(m); }
   m.innerHTML = muroCliHTML(); contarMuro();
   if (!fotoDe("cliente") && MURO.miFotoDe !== S.ses.cliente.id) { const cid = MURO.miFotoDe = S.ses.cliente.id; S.db.doc("fotos_perfil/" + cid).get().then(d => { MURO.miFoto = d.exists ? (d.data() || {}).foto || "" : ""; if (MURO.miFoto) pintarMuroCli(); }).catch(() => {}); }
   return true;
@@ -16170,7 +16178,7 @@ function abrirComunidad() {
   if (!S.ses.cliente || !S.db) return false;
   subComunidad();
   let m = $("#cmu-modal");
-  if (!m) { m = document.createElement("div"); m.id = "cmu-modal"; m.className = "promo-modal"; m.addEventListener("click", e => { if (e.target === m) m.remove(); }); document.body.appendChild(m); }
+  if (!m) { m = document.createElement("div"); m.id = "cmu-modal"; m.className = "promo-modal pagina-cli"; montarPaginaCli(m); }
   m.innerHTML = comunidadCliHTML();
   return true;
 }
@@ -16238,7 +16246,7 @@ function abrirComentario() {
   const cli = S.ses.cliente; if (!cli || !S.db) return;
   COM.sel = new Set();
   document.querySelectorAll("#com-modal").forEach(x => x.remove());
-  const m = document.createElement("div"); m.id = "com-modal"; m.className = "promo-modal";
+  const m = document.createElement("div"); m.id = "com-modal"; m.className = "promo-modal pagina-cli";
   m.innerHTML = `<form class="promo-box com-box" role="dialog" aria-modal="true" aria-labelledby="com-t" novalidate>
       <div class="pl-h"><b id="com-t">💡 Sugerencias</b><button type="button" class="ap-cerrar" data-com="x" aria-label="Cerrar">×</button></div>
       <p class="com-sub">¿Qué productos te gustaría ver en la app? Elige los que quieras o escríbenos tu idea.</p>
@@ -16248,7 +16256,7 @@ function abrirComentario() {
       <button type="submit" class="btn primario grande">Enviar sugerencia</button>
       <div id="com-mios"></div>
     </form>`;
-  document.body.appendChild(m);
+  montarPaginaCli(m);
   const f = m.querySelector("form"), err = m.querySelector("#com-err");
   m.addEventListener("click", e => {
     if (e.target === m) { m.remove(); return; }
@@ -16435,14 +16443,12 @@ setInterval(contarPromosCli, 3000);
 function abrirPromosCli() {
   subPromos();
   const ps = promosActivasCli();
-  if (!ps.length) { toast(PR.cargado ? "No hay promociones activas en este momento. Te avisaremos cuando haya una nueva." : "Cargando promociones…"); return; }
-  if (ps.length === 1) { mostrarPromoModal(ps[0]); return; }
-  cerrarPromoModal();
+  document.querySelectorAll("#promo-pag").forEach(x => x.remove());
   const m = document.createElement("div");
-  m.id = "promo-modal"; m.className = "promo-modal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", "Promociones");
-  m.innerHTML = `<div class="promo-box promo-lista"><div class="pl-h"><b>🎁 Promociones activas</b><button type="button" class="ap-cerrar" data-act="promo-cerrar" aria-label="Cerrar">×</button></div>
-    ${ps.map(p => `<button type="button" class="pl-it" data-act="promo-ver" data-id="${esc(p.id)}"><img src="${p.foto}" alt=""><span><b>${esc(p.titulo || "Promoción")}</b>${(p.items || []).length ? `<small>${esc(promoItemsTxt(p.items))}</small>` : ""}${p.hasta ? `<small>Hasta el ${esc(fmtFecha(p.hasta))}</small>` : ""}</span><i aria-hidden="true">›</i></button>`).join("")}</div>`;
-  document.body.appendChild(m);
+  m.id = "promo-pag"; m.className = "promo-modal pagina-cli"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", "Promociones");
+  m.innerHTML = `<div class="promo-box promo-lista"><div class="pl-h"><b>🎁 Promociones</b><button type="button" class="ap-cerrar" data-act="promo-pag-cerrar" aria-label="Volver">×</button></div>
+    ${ps.length ? ps.map(p => `<button type="button" class="pl-it" data-act="promo-ver" data-id="${esc(p.id)}"><img src="${p.foto}" alt=""><span><b>${esc(p.titulo || "Promoción")}</b>${(p.items || []).length ? `<small>${esc(promoItemsTxt(p.items))}</small>` : ""}${p.hasta ? `<small>Hasta el ${esc(fmtFecha(p.hasta))}</small>` : ""}</span><i aria-hidden="true">›</i></button>`).join("") : `<p class="muted cmu-vacio">${PR.cargado ? "No hay promociones activas en este momento. Te avisaremos cuando haya una nueva." : "Cargando promociones…"}</p>`}</div>`;
+  montarPaginaCli(m);
 }
 function promoParaCliente() {
   const cli = S.ses.cliente; if (!cli) return null;
@@ -16466,6 +16472,48 @@ function mostrarPromoModal(p, preview) {
   const bt = m.querySelector('[data-act="promo-pedir"]'); if (bt) setTimeout(() => bt.focus(), 0);
 }
 function cerrarPromoModal() { const m = $("#promo-modal"); if (m) m.remove(); }
+/* Clientes: Promociones, Cupones disponibles, Sugerencias, Comunidad y Muro de comentarios se abren como una sección más
+   de la página (con el banner, el nombre de la sección arriba y la barra inferior), igual que Inicio o Mis pedidos.
+   Se muestran en «#panel-sec» (S.cliTab = "sec"); el botón Atrás del teléfono vuelve a Inicio. */
+let PAG_N = 0, PAG_EL = null;
+const PAG_ACT = { "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+function montarPaginaCli(m) {
+  const ps = $("#panel-sec");
+  if (!ps || S.portal !== "cliente") { document.body.appendChild(m); return; }
+  if (PAG_EL && PAG_EL !== m) cerrarPaginaCli();
+  m.removeAttribute("aria-modal"); m.removeAttribute("role"); const bx = m.querySelector(".promo-box"); if (bx) { bx.removeAttribute("aria-modal"); bx.setAttribute("role", "region"); }
+  if (!m.dataset.pag) {
+    m.dataset.pag = String(++PAG_N);
+    try { history.pushState(Object.assign({}, history.state || {}, { pyaPag: m.dataset.pag }), ""); } catch (_) {}
+  }
+  PAG_EL = m; S.cliSec = PAG_ACT[m.id] || "";
+  if (m.parentNode !== ps) { ps.innerHTML = ""; ps.appendChild(m); }
+  if (S.cliTab !== "sec") cambiarCliTab("sec"); else { ps.hidden = false; cliIniPintar(); window.scrollTo(0, 0); }
+}
+/* Cierra la sección abierta sin volver a Inicio (al cambiar a otra sección con la barra inferior). */
+function cerrarPaginaCli() {
+  const m = PAG_EL; if (!m) return;
+  PAG_EL = null; m.dataset.cerrando = "1";
+  if (m.id === "muro-modal") try { localStorage.setItem(MURO_VISTO, String(Math.max(Date.now(), ...MURO.lista.map(c => c.en || 0)))); } catch (_) {}
+  m.remove();
+}
+addEventListener("popstate", () => {
+  const m = PAG_EL, st = (history.state || {}).pyaPag;
+  if (!m || (st && Number(st) >= Number(m.dataset.pag))) return;
+  m.dataset.cerrando = "1"; const b = m.querySelector(".pl-h .ap-cerrar"); if (b) b.click(); if (document.body.contains(m)) m.remove();
+  PAG_EL = null; if (S.cliTab === "sec") cambiarCliTab("inicio");
+});
+new MutationObserver(ms => {
+  for (const mu of ms) for (const n of mu.removedNodes) if (n.nodeType === 1 && n.classList.contains("pagina-cli")) {
+    if (n === PAG_EL) PAG_EL = null;
+    if (n.dataset.cerrando) continue;
+    n.dataset.cerrando = "1";
+    if ((history.state || {}).pyaPag === n.dataset.pag) try { history.back(); } catch (_) {}
+    setTimeout(() => { if (!PAG_EL && S.cliTab === "sec") cambiarCliTab("inicio"); }, 0);
+  }
+  /* Si la página del cliente se vuelve a dibujar, la sección abierta se vuelve a poner en su lugar. */
+  if (PAG_EL && S.cliTab === "sec" && !document.body.contains(PAG_EL)) { const ps = $("#panel-sec"); if (ps) { ps.innerHTML = ""; ps.appendChild(PAG_EL); ps.hidden = false; } }
+}).observe(document.body, { childList: true, subtree: true });
 function revisarPromo() {
   if (!esCliP() || !S.ses.cliente || $("#promo-modal") || $("#msg-modal")) return;
   const p = promoParaCliente(); if (p) mostrarPromoModal(p);
