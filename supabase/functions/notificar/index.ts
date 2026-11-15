@@ -7,7 +7,7 @@ const adm = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_S
   auth: { persistSession: false, autoRefreshToken: false },
 });
 const COL: Record<string, string> = {
-  admin: "usuarios_admin", repartidor: "repartidores", agua: "usuarios_agua", papas: "usuarios_papas", cliente: "clientes",
+  admin: "usuarios_admin", repartidor: "repartidores", agua: "usuarios_agua", papas: "usuarios_papas", cliente: "clientes", prov: "proveedores",
 };
 const EQUIPO = ["admin", "repartidor", "agua", "papas"];
 const GRUPOS: Record<string, [string, string[]]> = {
@@ -51,6 +51,11 @@ function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null
     const cli = chat.slice(2);
     if (de.startsWith("clientes:")) { dest = subs.filter((s) => s.portal === "admin"); titulo = `${titulo} (cliente)`; }
     else { dest = subs.filter((s) => s.portal === "cliente" && s.cuenta === cli); titulo = "100% Natural"; }
+  } else if (chat.startsWith("v-")) {
+    // Proveedores: conversan solo con la administración.
+    const pv = chat.slice(2);
+    if (de.startsWith("proveedores:")) { dest = subs.filter((s) => s.portal === "admin"); titulo = `${titulo} (proveedor)`; }
+    else { dest = subs.filter((s) => s.portal === "prov" && s.cuenta === pv); titulo = "100% Natural"; }
   }
   dest = dest.filter((s) => llave(s) !== de);
   return [dest, { titulo: `💬 ${titulo}`, cuerpo: contenido, tag: "msj-" + chat, url: "/?msj=" + encodeURIComponent(chat) }];

@@ -17409,6 +17409,9 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-menu button.peligro{color:#D93025}.msj-menu button.cancelar{text-align:center;background:var(--surface-2)}
 .msj-edit{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 10px;border-left:4px solid var(--accent);background:var(--surface-2);border-radius:8px;font-size:.85rem}
 .msj-edit span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.msj-edit button{border:0;background:none;color:var(--muted);font-size:1.1rem;cursor:pointer;min-width:36px;min-height:36px}
+.msj-fil{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 12px 8px}.msj-fil::-webkit-scrollbar{display:none}
+.msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
@@ -17416,13 +17419,21 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
    Datos: «mensajes» (un documento por mensaje), «mensajes_fotos» (fotos aparte, se cargan al abrir el chat)
    y «mensajes_leidos/<usuario>» (hasta dónde leyó cada persona cada chat, para los avisos de no leídos). ===== */
 (() => {
-  const COL = { admin: "usuarios_admin", repartidor: "repartidores", agua: "usuarios_agua", papas: "usuarios_papas", cliente: "clientes" };
+  const COL = { admin: "usuarios_admin", repartidor: "repartidores", agua: "usuarios_agua", papas: "usuarios_papas", cliente: "clientes", prov: "proveedores" };
   const EQUIPO = ["usuarios_admin", "repartidores", "usuarios_agua", "usuarios_papas"];
-  const ROL = { usuarios_admin: "Administrador", repartidores: "Repartidor", usuarios_agua: "Producción agua", usuarios_papas: "Producción papas", clientes: "Cliente" };
+  const ROL = { usuarios_admin: "Administrador", repartidores: "Repartidor", usuarios_agua: "Producción agua", usuarios_papas: "Producción papas", clientes: "Cliente", proveedores: "Proveedor" };
   /* Clientes: solo pueden escribirle a la administración. Su chat es «c-<cliente>» y lo ven ese cliente y los administradores.
      Cada mensaje de esos chats lleva «clienteId», así la base de datos solo le muestra al cliente su propia conversación. */
-  const esCli = me => me && me.col === "clientes";
+  /* Clientes («c-<cliente>», con clienteId) y proveedores («v-<proveedor>», con proveedorId): solo conversan con la administración. */
+  const esCli = me => !!me && (me.col === "clientes" || me.col === "proveedores");
   const chatCli = id => "c-" + id;
+  const chatProv = id => "v-" + id;
+  const esExt = chat => /^[cv]-/.test(chat);
+  const campoExt = chat => chat.charAt(0) === "v" ? "proveedorId" : "clienteId";
+  const keyExt = chat => (chat.charAt(0) === "v" ? "proveedores:" : "clientes:") + chat.slice(2);
+  const chatPropio = me => (me.col === "proveedores" ? chatProv : chatCli)(me.id);
+  const todosProv = () => (((US.data || {}).proveedores) || []).filter(p => p && p.id && p.activo !== false);
+  const nomProv = id => { const p = todosProv().find(x => x.id === id); if (p && (p.nombre || p.empresa)) return String(p.nombre || p.empresa); const m = M.docs.find(x => x.chat === chatProv(id) && x.deKey === "proveedores:" + id); return m ? m.deNom : "Proveedor"; };
   const GRUPOS = [["g-todos", "👥", "Todo el equipo", null], ["g-rep", "🛵", "Repartidores", "repartidores"], ["g-agua", "💧", "Producción agua", "usuarios_agua"], ["g-papas", "🥔", "Producción papas", "usuarios_papas"]];
   const toast = (...x) => { try { (window.toastFn || (() => {}))(...x); } catch (_) {} };
   const M = { docs: [], sub: false, cargado: false, leidos: {}, subL: "", abierto: false, chat: "", q: "", adj: null, ped: null, fotos: {}, maxVisto: 0, enviando: false, t: null };
@@ -17440,7 +17451,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   const chatPriv = (a, b) => "p-" + [a, b].sort().join("~");
   const otroDe = (chat, me) => { const ks = chat.slice(2).split("~"); return ks[0] === me.key ? ks[1] : ks[0]; };
   const misChats = me => new Set([...GRUPOS.filter(g => enGrupo(g, me)).map(g => g[0])]);
-  const esMio = (m, me) => m.chat.startsWith("c-") ? (me.col === "usuarios_admin" || m.chat === chatCli(me.id)) : esCli(me) ? false : m.chat.startsWith("p-") ? m.chat.slice(2).split("~").includes(me.key) : misChats(me).has(m.chat);
+  const esMio = (m, me) => esExt(m.chat) ? (me.col === "usuarios_admin" || m.chat === chatPropio(me)) : esCli(me) ? false : m.chat.startsWith("p-") ? m.chat.slice(2).split("~").includes(me.key) : misChats(me).has(m.chat);
   const todosClientes = () => { const m = new Map(); for (const c of [...(((US.data || {}).clientes) || []), ...((window.AD && AD.clientes) || [])]) if (c && c.id && c.activo !== false) m.set(c.id, Object.assign({}, m.get(c.id) || {}, c)); return [...m.values()]; };
   const cliDe = id => todosClientes().find(c => c.id === id) || null;
   const cliCoincide = (c, q) => { if (!c) return false; const dig = q.replace(/\D/g, ""); return [c.nombre, c.id, c.direccion, c.comuna, c.email].some(v => String(v || "").toLowerCase().includes(q)) || (dig.length >= 4 && String(c.telefono || "").replace(/\D/g, "").includes(dig)); };
@@ -17450,7 +17461,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   const nomKey = k => { const p = personas().find(x => x.key === k); if (p) return p.nombre; const m = M.docs.find(x => x.deKey === k); return m ? String(m.deNom || "Persona") : "Persona"; };
   const tituloChat = (chat, me) => {
     if (ajeno(chat, me)) { const [a, b] = chat.slice(2).split("~"); return { t: `${nomKey(a)} ↔ ${nomKey(b)}`, s: "Conversación privada · solo lectura", av: "👁" }; }
-    if (chat.startsWith("c-")) { if (esCli(me)) return { t: "Administración 100% Natural", s: "Escríbenos tus consultas", av: "🌿" }; const n = nomCliente(chat.slice(2)); return { t: n, s: "Cliente", av: n.trim().charAt(0).toUpperCase() || "?" }; }
+    if (esExt(chat)) { if (esCli(me)) return { t: "Administración 100% Natural", s: "Escríbenos tus consultas", av: "🌿" }; const pv = chat.charAt(0) === "v", n = pv ? nomProv(chat.slice(2)) : nomCliente(chat.slice(2)); return { t: n, s: pv ? "Proveedor" : "Cliente", av: n.trim().charAt(0).toUpperCase() || "?" }; }
     const g = GRUPOS.find(x => x[0] === chat); if (g) return { t: g[2], s: g[3] ? `${ROL[g[3]]} y administración` : "Todos", av: g[1] };
     const k = otroDe(chat, me), p = personas().find(x => x.key === k), nom = p ? p.nombre : "Persona";
     return { t: nom, s: ROL[k.split(":")[0]] || "", av: nom.trim().charAt(0).toUpperCase() || "?" };
@@ -17525,7 +17536,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     M.subV = me.key; M.otros = {};
     const ok = d => { const x = d.data() || {}; return x; };
     M.offV = esCli(me)
-      ? S.db.doc("mensajes_leidos/vistoadm_" + llaveDoc(me.id)).onSnapshot(d => { const x = d.exists ? ok(d) : {}; M.otros = x.chat ? { "usuarios_admin:*": { [x.chat]: Number(x.en) || 0 } } : {}; if (M.abierto && M.chat) pintar(true); }, () => {})
+      ? S.db.doc("mensajes_leidos/vistoadm_" + (me.col === "proveedores" ? "v_" : "") + llaveDoc(me.id)).onSnapshot(d => { const x = d.exists ? ok(d) : {}; M.otros = x.chat ? { "usuarios_admin:*": { [x.chat]: Number(x.en) || 0 } } : {}; if (M.abierto && M.chat) pintar(true); }, () => {})
       : S.db.collection("mensajes_leidos").limit(1000).onSnapshot(s => { const o = {}; s.docs.forEach(d => { const x = ok(d); if (x.usuario && x.chats && x.tipo !== "admc") o[x.usuario] = x.chats; }); M.otros = o; if (M.abierto && M.chat) pintar(true); }, () => {});
   }
   /* Quiénes (aparte de mí) ya leyeron hasta este mensaje. */
@@ -17534,16 +17545,16 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     for (const [k, chats] of Object.entries(M.otros || {})) {
       if (k === me.key || !chats) continue;
       if (m.chat.startsWith("p-") && !m.chat.slice(2).split("~").includes(k)) continue;
-      if (m.chat.startsWith("c-") && !esCli(me) && k !== "clientes:" + m.chat.slice(2)) continue;
+      if (esExt(m.chat) && !esCli(me) && k !== keyExt(m.chat)) continue;
       if ((Number(chats[m.chat]) || 0) >= m.en) out.push(k);
     }
     return out;
   }
-  const nomVisto = k => k === "usuarios_admin:*" ? "Administración" : k.startsWith("clientes:") ? nomCliente(k.slice(9)) : nomKey(k);
+  const nomVisto = k => k === "usuarios_admin:*" ? "Administración" : k.startsWith("clientes:") ? nomCliente(k.slice(9)) : k.startsWith("proveedores:") ? nomProv(k.slice(12)) : nomKey(k);
   function avisar(m) {
     try { if (navigator.vibrate) navigator.vibrate(120); } catch (_) {}
     const g = GRUPOS.find(x => x[0] === m.chat);
-    toast(`💬 ${m.chat.startsWith("c-") && m.deKey.startsWith("usuarios_admin:") ? "Administración" : m.deNom || "Mensaje"}${g ? ` en ${g[2]}` : m.chat.startsWith("c-") && !m.deKey.startsWith("usuarios_admin:") ? " (cliente)" : ""}: ${m.texto ? String(m.texto).slice(0, 60) : m.fotoId ? "📷 Foto" : m.pedido ? "📦 Pedido" : ""}`);
+    toast(`💬 ${esExt(m.chat) && m.deKey.startsWith("usuarios_admin:") ? "Administración" : m.deNom || "Mensaje"}${g ? ` en ${g[2]}` : esExt(m.chat) && !m.deKey.startsWith("usuarios_admin:") ? (m.chat.charAt(0) === "v" ? " (proveedor)" : " (cliente)") : ""}: ${m.texto ? String(m.texto).slice(0, 60) : m.fotoId ? "📷 Foto" : m.pedido ? "📦 Pedido" : ""}`);
   }
   function marcarLeido(chat) {
     const me = yo(); if (!me) return;
@@ -17552,8 +17563,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     M.leidos[chat] = ult; M.leidosLocal = Object.assign(M.leidosLocal || {}, { [chat]: ult });
     clearTimeout(M.t); M.t = setTimeout(() => {
       const ref = S.db.doc("mensajes_leidos/" + llaveDoc(me.key));
-      ref.get().then(d => ref.set({ usuario: me.key, ...(esCli(me) ? { clienteId: me.id } : {}), chats: Object.assign({}, (d.exists && (d.data() || {}).chats) || {}, M.leidosLocal || {}), en: Date.now() })).catch(e => console.warn("leidos", e));
-      if (chat.startsWith("c-") && me.col === "usuarios_admin") S.db.doc("mensajes_leidos/vistoadm_" + llaveDoc(chat.slice(2))).set({ tipo: "admc", clienteId: chat.slice(2), chat, en: ult, por: me.nombre }).catch(() => {});
+      ref.get().then(d => ref.set({ usuario: me.key, ...(esCli(me) ? { [me.col === "proveedores" ? "proveedorId" : "clienteId"]: me.id } : {}), chats: Object.assign({}, (d.exists && (d.data() || {}).chats) || {}, M.leidosLocal || {}), en: Date.now() })).catch(e => console.warn("leidos", e));
+      if (esExt(chat) && me.col === "usuarios_admin") S.db.doc("mensajes_leidos/vistoadm_" + (chat.charAt(0) === "v" ? "v_" : "") + llaveDoc(chat.slice(2))).set({ tipo: "admc", [campoExt(chat)]: chat.slice(2), chat, en: ult, por: me.nombre }).catch(() => {});
     }, 600);
     pintarBtn();
   }
@@ -17578,7 +17589,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   document.body.appendChild(pan);
   function abrir(chat) {
     const me = yo(); if (!me) return;
-    M.abierto = true; M.chat = esCli(me) ? chatCli(me.id) : chat || ""; pan.hidden = false; document.documentElement.style.overflow = "hidden";
+    M.abierto = true; M.chat = esCli(me) ? chatPropio(me) : chat || ""; pan.hidden = false; document.documentElement.style.overflow = "hidden";
     suscribir(); pintarBtn(); pintar(true);
     if (M.chat) marcarLeido(M.chat);
   }
@@ -17592,29 +17603,43 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     const q = M.q.trim().toLowerCase();
     const ult = chat => M.docs.filter(m => m.chat === chat).slice(-1)[0];
     const fila = (chat, av, t, s, fk) => { const u = ult(chat), n = ajeno(chat, me) ? 0 : noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}">${avH(av, fk)}<span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
-    const grupos = GRUPOS.filter(g => enGrupo(g, me) && (!q || g[2].toLowerCase().includes(q))).map(g => fila(g[0], g[1], g[2], g[3] ? `${ROL[g[3]]} y administración` : "Todo el equipo"));
-    const gente = personas().filter(p => p.key !== me.key && (!q || p.nombre.toLowerCase().includes(q) || (ROL[p.col] || "").toLowerCase().includes(q)))
+    /* Administrador: filtros Particular · Local comercial · 100 natural (equipo, grupos y proveedores). */
+    const fil = me.col === "usuarios_admin" ? (M.fil || "") : "", verEq = !fil || fil === "equipo";
+    const esLocalC = c => !!c && c.tipo === "Local comercial";
+    const cliFiltro = c => !fil || (fil === "part" ? !esLocalC(c) : fil === "local" ? esLocalC(c) : false);
+    const grupos = !verEq ? [] : GRUPOS.filter(g => enGrupo(g, me) && (!q || g[2].toLowerCase().includes(q))).map(g => fila(g[0], g[1], g[2], g[3] ? `${ROL[g[3]]} y administración` : "Todo el equipo"));
+    const gente = !verEq ? [] : personas().filter(p => p.key !== me.key && (!q || p.nombre.toLowerCase().includes(q) || (ROL[p.col] || "").toLowerCase().includes(q)))
       .map(p => ({ p, chat: chatPriv(me.key, p.key) })).map(x => Object.assign(x, { u: ult(x.chat) }))
       .sort((a, b) => ((b.u || {}).en || 0) - ((a.u || {}).en || 0) || a.p.nombre.localeCompare(b.p.nombre, "es"))
       .map(x => fila(x.chat, x.p.nombre.trim().charAt(0).toUpperCase() || "?", x.p.nombre, ROL[x.p.col], x.p.key));
     /* Administrador: conversaciones con clientes (las que tienen mensajes), la más reciente primero. */
     const cliChats = me.col !== "usuarios_admin" ? [] : [...new Set(M.docs.filter(m => m.chat.startsWith("c-")).map(m => m.chat))]
-      .map(chat => ({ chat, n: nomCliente(chat.slice(2)), u: ult(chat), c: cliDe(chat.slice(2)) })).filter(x => !q || x.n.toLowerCase().includes(q) || cliCoincide(x.c, q))
+      .map(chat => ({ chat, n: nomCliente(chat.slice(2)), u: ult(chat), c: cliDe(chat.slice(2)) })).filter(x => (!q || x.n.toLowerCase().includes(q) || cliCoincide(x.c, q)) && cliFiltro(x.c))
       .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, x.n.trim().charAt(0).toUpperCase() || "?", x.n, "Cliente", "clientes:" + x.chat.slice(2)));
     /* Administrador: al buscar, también aparecen los clientes con los que aún no hay conversación, para escribirles primero. */
     const conChat = new Set(M.docs.filter(m => m.chat.startsWith("c-")).map(m => m.chat.slice(2)));
-    const cliNuevos = me.col !== "usuarios_admin" || !q ? [] : todosClientes().filter(c => !conChat.has(c.id) && cliCoincide(c, q))
+    const cliNuevos = me.col !== "usuarios_admin" || !q ? [] : todosClientes().filter(c => !conChat.has(c.id) && cliCoincide(c, q) && cliFiltro(c))
       .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).slice(0, 30)
       .map(c => fila(chatCli(c.id), String(c.nombre || c.id).trim().charAt(0).toUpperCase() || "?", String(c.nombre || c.id), ["Cliente", [c.direccion, c.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · "), "clientes:" + c.id));
-    const otros = me.col !== "usuarios_admin" ? [] : [...new Set(M.docs.filter(m => ajeno(m.chat, me)).map(m => m.chat))]
+    /* Administrador: proveedores (todos, el de la conversación más reciente primero). */
+    const provs = me.col !== "usuarios_admin" || !verEq ? [] : (() => {
+      const ids = new Set([...todosProv().map(p => p.id), ...M.docs.filter(m => m.chat.startsWith("v-")).map(m => m.chat.slice(2))]);
+      return [...ids].map(id => ({ chat: chatProv(id), id, n: nomProv(id), p: todosProv().find(x => x.id === id) || {} })).map(x => Object.assign(x, { u: ult(x.chat) }))
+        .filter(x => !q || [x.n, x.p.empresa, x.p.rut, x.p.telefono, "proveedor"].some(v => String(v || "").toLowerCase().includes(q)))
+        .sort((a, b) => ((b.u || {}).en || 0) - ((a.u || {}).en || 0) || a.n.localeCompare(b.n, "es"))
+        .map(x => fila(x.chat, x.n.trim().charAt(0).toUpperCase() || "?", x.n, "Proveedor", "proveedores:" + x.id));
+    })();
+    const nlDe = f => { let n = 0; for (const chat of new Set(M.docs.map(m => m.chat))) { if (!esMio({ chat }, me) || ajeno(chat, me)) continue; const k = chat.startsWith("c-") ? (esLocalC(cliDe(chat.slice(2))) ? "local" : "part") : "equipo"; if (k === f) n += noLeidos(chat, me); } return n; };
+    const filtros = me.col !== "usuarios_admin" ? "" : `<div class="msj-fil" role="group" aria-label="Filtrar mensajes">${[["", "Todos"], ["part", "👤 Particular"], ["local", "🏪 Local comercial"], ["equipo", "🌿 100 natural"]].map(([k, l]) => { const n = k ? nlDe(k) : 0; return `<button type="button" data-msj="fil" data-f="${k}" aria-pressed="${fil === k}">${l}${n ? `<span class="msj-fn">${n > 99 ? "99+" : n}</span>` : ""}</button>`; }).join("")}</div>`;
+    const otros = me.col !== "usuarios_admin" || !verEq ? [] : [...new Set(M.docs.filter(m => ajeno(m.chat, me)).map(m => m.chat))]
       .map(chat => ({ chat, t: tituloChat(chat, me), u: ult(chat) })).filter(x => !q || x.t.t.toLowerCase().includes(q))
       .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, "👁", x.t.t, "Conversación privada"));
     return `<div class="msj-top"><b>Mensajes${M.ped ? `<small>Elige a quién enviar el pedido</small>` : ""}</b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
-      <div class="msj-cuerpo">${M.ped ? `<div class="msj-buscar">${adjuntosHTML()}</div>` : ""}<div class="msj-buscar"><input type="search" id="msj-q" placeholder="${me.col === "usuarios_admin" ? "Buscar persona, grupo o cliente" : "Buscar persona o grupo"}" value="${esc(M.q)}" autocomplete="off"></div>
-      <ul class="msj-lista">${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : !US.cargado || !Object.keys(US.cargado).length ? `<li class="msj-vacio">Cargando personas…</li>` : ""}${otros.length ? `<li class="msj-sec">Conversaciones de otros usuarios</li>${otros.join("")}` : ""}</ul></div>`;
+      <div class="msj-cuerpo">${M.ped ? `<div class="msj-buscar">${adjuntosHTML()}</div>` : ""}<div class="msj-buscar"><input type="search" id="msj-q" placeholder="${me.col === "usuarios_admin" ? "Buscar persona, grupo, cliente o proveedor" : "Buscar persona o grupo"}" value="${esc(M.q)}" autocomplete="off"></div>${filtros}
+      <ul class="msj-lista">${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : verEq && (!US.cargado || !Object.keys(US.cargado).length) ? `<li class="msj-vacio">Cargando personas…</li>` : ""}${provs.length ? `<li class="msj-sec">Proveedores</li>${provs.join("")}` : ""}${fil && fil !== "equipo" && !cliChats.length && !cliNuevos.length ? `<li class="msj-vacio">${fil === "local" ? "No hay conversaciones con locales comerciales." : "No hay conversaciones con clientes particulares."} Busca un cliente para escribirle.</li>` : ""}${otros.length ? `<li class="msj-sec">Conversaciones de otros usuarios</li>${otros.join("")}` : ""}</ul></div>`;
   }
   function hiloHTML(me) {
-    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (M.chat.startsWith("c-") && !esCli(me)) || ajeno(M.chat, me);
+    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (esExt(M.chat) && !esCli(me)) || ajeno(M.chat, me);
     let dia = "";
     const propios = ms.filter(m => m.deKey === me.key && !m.borrado), ultPropio = propios.length ? propios[propios.length - 1].id : "";
     const lector = !ajeno(M.chat, me);
@@ -17624,7 +17649,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
       if (m.borrado) return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`);
       return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}${mio && lector ? (() => { const v = vistoPor(m, me); return v.length ? `<span class="msj-tick visto" aria-label="Visto">✓✓</span>` : `<span class="msj-tick" aria-label="Enviado">✓</span>`; })() : ""}</time></div>${mio && lector && m.id === ultPropio ? (() => { const v = vistoPor(m, me); if (!v.length) return ""; const g = M.chat.startsWith("g-"); const ns = v.map(nomVisto); return `<div class="msj-visto">👁 ${g ? `Visto por ${esc(ns.length > 3 ? ns.slice(0, 3).join(", ") + ` y ${ns.length - 3} más` : ns.join(", "))}` : "Visto"}</div>`; })() : ""}`);
     }).join("");
-    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}${avH(t.av, ajeno(M.chat, me) ? "" : M.chat.startsWith("p-") ? otroDe(M.chat, me) : M.chat.startsWith("c-") && !esCli(me) ? "clientes:" + M.chat.slice(2) : "", "cab")}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
+    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}${avH(t.av, ajeno(M.chat, me) ? "" : M.chat.startsWith("p-") ? otroDe(M.chat, me) : esExt(M.chat) && !esCli(me) ? keyExt(M.chat) : "", "cab")}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
       ${ajeno(M.chat, me) ? `<div class="msj-comp msj-solo">👁 Solo lectura: puedes ver esta conversación, pero no escribir en ella.</div>` : `<div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
       <input type="file" id="msj-file" accept="image/*" hidden></div>`}`;
@@ -17662,11 +17687,11 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     M.enviando = true; const b = pan.querySelector('[data-msj="enviar"]'); if (b) b.disabled = true;
     const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const x = { chat: M.chat, deKey: me.key, deNom: me.nombre, dePortal: S.portal, en: Date.now() };
-    if (M.chat.startsWith("c-")) x.clienteId = M.chat.slice(2);
+    if (esExt(M.chat)) x[campoExt(M.chat)] = M.chat.slice(2);
     if (texto) x.texto = texto.slice(0, 1000);
     if (M.ped) x.pedido = M.ped;
     try {
-      if (M.adj) { const fid = "f" + id; await conReintento(() => S.db.doc("mensajes_fotos/" + fid).set(Object.assign({ foto: M.adj, chat: M.chat, en: x.en }, x.clienteId ? { clienteId: x.clienteId } : {}))); M.fotos[fid] = M.adj; x.fotoId = fid; }
+      if (M.adj) { const fid = "f" + id; await conReintento(() => S.db.doc("mensajes_fotos/" + fid).set(Object.assign({ foto: M.adj, chat: M.chat, en: x.en }, x.clienteId ? { clienteId: x.clienteId } : {}, x.proveedorId ? { proveedorId: x.proveedorId } : {}))); M.fotos[fid] = M.adj; x.fotoId = fid; }
       await conReintento(() => S.db.doc("mensajes/" + id).set(x));
       if (!M.docs.some(m => m.id === id)) M.docs.push(Object.assign({ id }, x));
       M.borr = ""; M.adj = null; M.ped = null; if (ta) ta.value = "";
@@ -17730,6 +17755,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     if (a === "abrir") abrir("");
     else if (a === "cerrar") { M.ped = null; cerrar(); }
     else if (a === "volver") { M.chat = ""; M.edit = null; pintar(true); }
+    else if (a === "fil") { M.fil = b.dataset.f || ""; pintar(true); }
     else if (a === "chat") { M.chat = b.dataset.c; M.borr = ""; M.edit = null; pintar(true); marcarLeido(M.chat); const t = document.getElementById("msj-texto"); if (t && M.ped) t.focus(); }
     else if (a === "enviar") enviar();
     else if (a === "foto") { const f = document.getElementById("msj-file"); if (f) f.click(); }
