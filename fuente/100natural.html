@@ -17127,6 +17127,9 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-buscar{padding:10px 12px 0}
 .msj-buscar input{width:100%;min-height:44px;font:inherit;padding:0 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
 .msj-hilo{display:flex;flex-direction:column;gap:8px;padding:12px}
+.msj-av.ft{overflow:hidden;padding:0;background:var(--surface-2)}.msj-av.ft img{width:100%;height:100%;object-fit:cover;display:block}
+.msj-av.cab{width:38px;height:38px;font-size:.95rem}.msj-av.chico{width:30px;height:30px;font-size:.8rem;align-self:flex-start;margin-top:2px}.msj-av.vacio{background:none}
+.msj-fl{display:flex;align-items:flex-start;gap:7px;align-self:flex-start;max-width:88%}.msj-fl>.msj-m{max-width:none;min-width:0;align-self:auto}
 .msj-dia{align-self:center;font-size:.74rem;color:var(--muted);background:var(--surface-2);border-radius:99px;padding:3px 10px;margin:6px 0}
 .msj-m{max-width:82%;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:8px 11px;overflow-wrap:anywhere}
 .msj-m.yo{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-color:transparent;border-radius:16px 16px 4px 16px}
@@ -17210,6 +17213,38 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     return { t: nom, s: ROL[k.split(":")[0]] || "", av: nom.trim().charAt(0).toUpperCase() || "?" };
   };
   const hm = ts => new Date(ts).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+  /* Fotos de perfil en el chat: se piden juntas (RPC «fotos_chat») y se guardan 5 minutos.
+     Un cliente solo recibe las fotos de la administración; el equipo ve las de todos. */
+  const FT = {}; let ftPend = null;
+  function fotoK(k) {
+    if (!k) return "";
+    const me = yo(); if (me && k === me.key) return fotoDe(S.portal) || "";
+    const x = FT[k]; if (!x || (!x.pend && Date.now() - x.en > 300000)) pedirFoto(k);
+    return x ? x.f || "" : "";
+  }
+  function pedirFoto(k) {
+    FT[k] = Object.assign(FT[k] || { f: "" }, { pend: 1, en: Date.now() });
+    (ftPend || (ftPend = new Set())).add(k); clearTimeout(M.ftT); M.ftT = setTimeout(cargarFotosPerfil, 50);
+  }
+  async function cargarFotosPerfil() {
+    const ks = [...(ftPend || [])]; ftPend = null; if (!ks.length) return;
+    let r = {};
+    try {
+      if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("fotos_chat", { p_keys: ks }); if (x.error) throw x.error; r = x.data || {}; }
+      else await Promise.all(ks.map(async k => { const c = k.split(":")[0], id = k.slice(c.length + 1); try { const d = await S.db.doc((c === "clientes" ? "fotos_perfil" : c) + "/" + id).get(); r[k] = d.exists ? (d.data() || {}).foto || "" : ""; } catch (_) {} }));
+    } catch (e) { console.warn("fotos_chat", e); }
+    let cambio = false;
+    for (const k of ks) { const f = r[k] || ""; if ((FT[k] || {}).f !== f) cambio = true; FT[k] = { f, en: Date.now() }; }
+    if (cambio && M.abierto) pintar(true);
+  }
+  const avH = (av, fk, cls) => { const f = fotoK(fk); return f ? `<span class="msj-av ft${cls ? " " + cls : ""}" aria-hidden="true"><img src="${f}" alt=""></span>` : `<span class="msj-av${cls ? " " + cls : ""}" aria-hidden="true">${esc(av)}</span>`; };
+  /* Mensajes de otros: la foto (o inicial) de quien escribe a la izquierda, solo en el primero de una seguidilla. */
+  function envolver(m, mio, prev, sep, html) {
+    if (mio) return sep + html;
+    const me = yo(), primero = !!sep || !prev || prev.deKey !== m.deKey;
+    const ini = esCli(me) && String(m.deKey).startsWith("usuarios_admin:") ? "🌿" : (String(m.deNom || "?").trim().charAt(0).toUpperCase() || "?");
+    return `${sep}<div class="msj-fl">${primero ? avH(ini, m.deKey, "chico") : `<span class="msj-av chico vacio" aria-hidden="true"></span>`}${html}</div>`;
+  }
   const diaTxt = ts => { const d = new Date(ts), h = new Date(), ay = new Date(Date.now() - 864e5); const f = x => x.toDateString(); return f(d) === f(h) ? "Hoy" : f(d) === f(ay) ? "Ayer" : d.toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" }); };
   const cuandoCorto = ts => { const d = new Date(ts); return d.toDateString() === new Date().toDateString() ? hm(ts) : d.toLocaleDateString("es-CL", { day: "numeric", month: "short" }); };
   const noLeidos = (chat, me) => { const l = Number(M.leidos[chat]) || 0; return M.docs.filter(m => m.chat === chat && m.deKey !== me.key && m.en > l).length; };
@@ -17311,21 +17346,21 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   function listaHTML(me) {
     const q = M.q.trim().toLowerCase();
     const ult = chat => M.docs.filter(m => m.chat === chat).slice(-1)[0];
-    const fila = (chat, av, t, s) => { const u = ult(chat), n = ajeno(chat, me) ? 0 : noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}"><span class="msj-av" aria-hidden="true">${esc(av)}</span><span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
+    const fila = (chat, av, t, s, fk) => { const u = ult(chat), n = ajeno(chat, me) ? 0 : noLeidos(chat, me); return `<li><button type="button" class="msj-it" data-msj="chat" data-c="${esc(chat)}">${avH(av, fk)}<span class="msj-tx"><b>${esc(t)}</b><small>${u ? `${u.deKey === me.key ? "Tú: " : chat.startsWith("g-") ? esc((u.deNom || "").split(" ")[0]) + ": " : ""}${u.borrado ? "🚫 Mensaje eliminado" : u.texto ? esc(String(u.texto).slice(0, 70)) : u.fotoId ? "📷 Foto" : u.pedido ? "📦 Pedido" : ""}` : esc(s)}</small></span><span class="msj-der">${u ? `<span>${cuandoCorto(u.en)}</span>` : ""}${n ? `<span class="msj-n">${n}</span>` : ""}</span></button></li>`; };
     const grupos = GRUPOS.filter(g => enGrupo(g, me) && (!q || g[2].toLowerCase().includes(q))).map(g => fila(g[0], g[1], g[2], g[3] ? `${ROL[g[3]]} y administración` : "Todo el equipo"));
     const gente = personas().filter(p => p.key !== me.key && (!q || p.nombre.toLowerCase().includes(q) || (ROL[p.col] || "").toLowerCase().includes(q)))
       .map(p => ({ p, chat: chatPriv(me.key, p.key) })).map(x => Object.assign(x, { u: ult(x.chat) }))
       .sort((a, b) => ((b.u || {}).en || 0) - ((a.u || {}).en || 0) || a.p.nombre.localeCompare(b.p.nombre, "es"))
-      .map(x => fila(x.chat, x.p.nombre.trim().charAt(0).toUpperCase() || "?", x.p.nombre, ROL[x.p.col]));
+      .map(x => fila(x.chat, x.p.nombre.trim().charAt(0).toUpperCase() || "?", x.p.nombre, ROL[x.p.col], x.p.key));
     /* Administrador: conversaciones con clientes (las que tienen mensajes), la más reciente primero. */
     const cliChats = me.col !== "usuarios_admin" ? [] : [...new Set(M.docs.filter(m => m.chat.startsWith("c-")).map(m => m.chat))]
       .map(chat => ({ chat, n: nomCliente(chat.slice(2)), u: ult(chat), c: cliDe(chat.slice(2)) })).filter(x => !q || x.n.toLowerCase().includes(q) || cliCoincide(x.c, q))
-      .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, x.n.trim().charAt(0).toUpperCase() || "?", x.n, "Cliente"));
+      .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, x.n.trim().charAt(0).toUpperCase() || "?", x.n, "Cliente", "clientes:" + x.chat.slice(2)));
     /* Administrador: al buscar, también aparecen los clientes con los que aún no hay conversación, para escribirles primero. */
     const conChat = new Set(M.docs.filter(m => m.chat.startsWith("c-")).map(m => m.chat.slice(2)));
     const cliNuevos = me.col !== "usuarios_admin" || !q ? [] : todosClientes().filter(c => !conChat.has(c.id) && cliCoincide(c, q))
       .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).slice(0, 30)
-      .map(c => fila(chatCli(c.id), String(c.nombre || c.id).trim().charAt(0).toUpperCase() || "?", String(c.nombre || c.id), ["Cliente", [c.direccion, c.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · ")));
+      .map(c => fila(chatCli(c.id), String(c.nombre || c.id).trim().charAt(0).toUpperCase() || "?", String(c.nombre || c.id), ["Cliente", [c.direccion, c.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · "), "clientes:" + c.id));
     const otros = me.col !== "usuarios_admin" ? [] : [...new Set(M.docs.filter(m => ajeno(m.chat, me)).map(m => m.chat))]
       .map(chat => ({ chat, t: tituloChat(chat, me), u: ult(chat) })).filter(x => !q || x.t.t.toLowerCase().includes(q))
       .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, "👁", x.t.t, "Conversación privada"));
@@ -17338,13 +17373,13 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     let dia = "";
     const propios = ms.filter(m => m.deKey === me.key && !m.borrado), ultPropio = propios.length ? propios[propios.length - 1].id : "";
     const lector = !ajeno(M.chat, me);
-    const hilo = ms.map(m => {
+    const hilo = ms.map((m, i) => {
       const d = diaTxt(m.en), sep = d !== dia ? `<span class="msj-dia">${esc(d)}</span>` : ""; dia = d;
       const mio = m.deKey === me.key;
-      if (m.borrado) return `${sep}<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`;
-      return `${sep}<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}${mio && lector ? (() => { const v = vistoPor(m, me); return v.length ? `<span class="msj-tick visto" aria-label="Visto">✓✓</span>` : `<span class="msj-tick" aria-label="Enviado">✓</span>`; })() : ""}</time></div>${mio && lector && m.id === ultPropio ? (() => { const v = vistoPor(m, me); if (!v.length) return ""; const g = M.chat.startsWith("g-"); const ns = v.map(nomVisto); return `<div class="msj-visto">👁 ${g ? `Visto por ${esc(ns.length > 3 ? ns.slice(0, 3).join(", ") + ` y ${ns.length - 3} más` : ns.join(", "))}` : "Visto"}</div>`; })() : ""}`;
+      if (m.borrado) return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`);
+      return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}${mio && lector ? (() => { const v = vistoPor(m, me); return v.length ? `<span class="msj-tick visto" aria-label="Visto">✓✓</span>` : `<span class="msj-tick" aria-label="Enviado">✓</span>`; })() : ""}</time></div>${mio && lector && m.id === ultPropio ? (() => { const v = vistoPor(m, me); if (!v.length) return ""; const g = M.chat.startsWith("g-"); const ns = v.map(nomVisto); return `<div class="msj-visto">👁 ${g ? `Visto por ${esc(ns.length > 3 ? ns.slice(0, 3).join(", ") + ` y ${ns.length - 3} más` : ns.join(", "))}` : "Visto"}</div>`; })() : ""}`);
     }).join("");
-    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
+    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}${avH(t.av, ajeno(M.chat, me) ? "" : M.chat.startsWith("p-") ? otroDe(M.chat, me) : M.chat.startsWith("c-") && !esCli(me) ? "clientes:" + M.chat.slice(2) : "", "cab")}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
       ${ajeno(M.chat, me) ? `<div class="msj-comp msj-solo">👁 Solo lectura: puedes ver esta conversación, pero no escribir en ella.</div>` : `<div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
       <input type="file" id="msj-file" accept="image/*" hidden></div>`}`;
