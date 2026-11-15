@@ -928,7 +928,11 @@ button,input,select,textarea{font:inherit;color:inherit}
 .comp-btn em{font-style:normal;font-weight:400;color:var(--muted)}
 .comp-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .comp-btn:focus-within{outline:3px solid var(--accent);outline-offset:2px}
-.comp-prev{max-width:180px;max-height:180px;border-radius:10px;border:1px solid var(--line);object-fit:contain;background:var(--bg)}
+.ult-w{display:grid;gap:0}.ult-w>.ult-pago-av{border-radius:16px 16px 0 0;margin-bottom:-2px;position:relative;z-index:1}
+.ult-pago-av{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#fef3c7;border:2px solid #f59e0b;color:#78350f}.ult-pago-av.ok{background:#dcfce7;border-color:#22c55e;color:#14532d}
+.ult-pago-av .upa-i{font-size:1.3rem;line-height:1.2}.ult-pago-av b{display:block}.ult-pago-av small{display:block;opacity:.9;margin-top:2px}.ult-pago-av .comp-ver{color:inherit}.ult-pago-av .comp-img{max-width:220px;margin-top:6px;border-radius:10px}
+.ures-pago{margin:0 0 4px;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#78350f;font-size:.78rem;font-weight:700;width:max-content;max-width:100%}.ures-pago.ok{background:#dcfce7;color:#14532d}
+.comp-falta{color:#b45309!important;font-weight:600}.comp-prev{max-width:180px;max-height:180px;border-radius:10px;border:1px solid var(--line);object-fit:contain;background:var(--bg)}
 .comp-ver{font-size:.88rem}
 .fac-blk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}.fac-blk.ok{border-color:var(--ok,var(--line))}.fac-blk .fac-t{font-weight:700;margin-right:auto}.fac-blk .comp-btn{flex:1 1 100%}.fac-blk .acciones{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}.fac-cambiar{position:relative;overflow:hidden}.fac-cambiar input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .fac-vista{flex-basis:100%;display:grid;gap:8px;cursor:zoom-in;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.fac-vista canvas{display:block;width:100%;max-width:420px;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;pointer-events:none}.fac-vista.grande{cursor:zoom-out}.fac-vista.grande canvas{max-width:100%}.fac-nota{flex-basis:100%}
@@ -1027,6 +1031,9 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .ad-sub-btn{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.ad-sub-btn small{color:var(--muted);font-size:.78rem}
 .muro-box{max-height:88vh;overflow:auto;display:grid;gap:12px;align-content:start}.muro-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
 .muro-nuevo,.muro-it{display:flex;gap:10px;align-items:flex-start}.muro-nuevo{padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.muro-av-w,.ub-av-w,.msj-av-w{position:relative;flex:none;display:inline-flex}.perf-av-w{position:relative}.msj-av-w.chico{align-self:flex-start}
+.insig-com{position:absolute;right:-5px;bottom:-4px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;line-height:1;background:linear-gradient(145deg,#22c55e,#15803d);border:2px solid var(--surface,#fff);box-shadow:0 1px 4px rgba(0,0,0,.25);z-index:1;pointer-events:auto;cursor:default}
+.insig-com.grande{width:34px;height:34px;font-size:18px;right:auto;left:-2px;bottom:2px;border-width:3px}.insig-com.chat{width:17px;height:17px;font-size:9.5px;right:-4px;bottom:-3px}.insig-com.ub{width:19px;height:19px;font-size:10.5px}
 .muro-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:color-mix(in srgb,#7c3aed 14%,var(--surface));color:#6d28d9;font-weight:800}.muro-av img{width:100%;height:100%;object-fit:cover;display:block}
 .muro-c{flex:1;min-width:0;display:grid;gap:4px}.muro-it .muro-acc .btn{min-height:36px}.muro-c textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);resize:vertical}
 .muro-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -2878,7 +2885,7 @@ function renderUsuBar() {
   const ini = String(u.nombre).trim().split(/\s+/).slice(0, 2).map(x => x[0] || "").join("").toUpperCase();
   if (PERF_COL[S.portal]) subPerfil(S.portal);
   const fotoU = PERF_COL[S.portal] ? fotoDe(S.portal) : "";
-  document.getElementById("usu-bar").innerHTML = `<span class="ub-av" aria-hidden="true">${fotoU ? `<img src="${fotoU}" alt="">` : esc(ini)}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}</b></span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
+  document.getElementById("usu-bar").innerHTML = `<span class="ub-av-w"><span class="ub-av" aria-hidden="true">${fotoU ? `<img src="${fotoU}" alt="">` : esc(ini)}</span>${S.portal === "cliente" && S.ses.cliente ? insigniaHTML(S.ses.cliente.id, "ub") : ""}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}</b></span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
   w.hidden = false;
 }
 function renderHeader() {
@@ -4298,7 +4305,7 @@ function perfilCliHTML() {
   const inicial = esc(((c.nombre || "").trim()[0] || "👤").toUpperCase());
   return `<div class="perf">
     <section class="perf-top">
-      ${(() => { subPerfil("cliente"); const f = fotoDe("cliente"); return `<div class="perf-av-w">${f ? `<button type="button" class="perf-av pf-ver" data-k="cliente" aria-label="Ver foto de perfil en grande"><img src="${f}" alt=""></button>` : `<span class="perf-av" aria-hidden="true">${inicial}</span>`}
+      ${(() => { subPerfil("cliente"); const f = fotoDe("cliente"); return `<div class="perf-av-w">${f ? `<button type="button" class="perf-av pf-ver" data-k="cliente" aria-label="Ver foto de perfil en grande"><img src="${f}" alt=""></button>` : `<span class="perf-av" aria-hidden="true">${inicial}</span>`}${insigniaHTML(c.id, "grande")}
         <label class="perf-cam${PERF.ocupado ? " ocupado" : ""}" title="${f ? "Cambiar foto de perfil" : "Subir foto de perfil"}"><span aria-hidden="true">${PERF.ocupado ? "⏳" : "📷"}</span><input type="file" accept="image/*" class="pf-foto-in" data-k="cliente" aria-label="${f ? "Cambiar foto de perfil" : "Subir foto de perfil"}" hidden ${PERF.ocupado ? "disabled" : ""}></label></div>`; })()}
       <div class="perf-id"><h2>${esc(c.nombre)}</h2>
         <p>${c.tipo ? `<span class="perf-chip">${esc(c.tipo)}</span>` : ""}${num ? `<span class="perf-chip">Cliente N° ${esc(num)}</span>` : ""}</p>
@@ -4712,7 +4719,7 @@ function entregaHTML(c) {
           <label class="campo full"><span>Nota para el repartidor <em>opcional</em></span><textarea id="e-nota" rows="2" placeholder="Ej.: llamar al llegar, el timbre no funciona"></textarea></label>
         </div>
         <p class="err" id="err-pedido" role="alert" data-wz="4" style="margin-top:14px"></p>
-        <button class="btn primario grande" data-act="enviar" id="btn-enviar" data-wz="4" style="margin-top:14px">${S.editPedido ? "Guardar cambios" : "Enviar pedido"}</button>
+        <button class="btn primario grande" data-act="enviar" id="btn-enviar" data-wz="4" style="margin-top:14px">${S.editPedido ? "Guardar cambios" : "Enviar pedido"}</button>${S.editPedido ? "" : `<p class="muted-s" style="text-align:center;margin:8px 0 0">Revisa bien tu pedido: una vez enviado ya no se puede editar ni cancelar.</p>`}
       </div>
     </div>
   </section>`;
@@ -5178,7 +5185,7 @@ function renderProgramados() {
   const sw = esLocal() ? `<div class="sec-switch mis-sw pg-modo" role="tablist" aria-label="Tipo de programación"><button type="button" role="tab" data-act="pg-modo" data-v="man" aria-selected="${PG.modo !== "auto"}">No automático</button><button type="button" role="tab" data-act="pg-modo" data-v="auto" aria-selected="${PG.modo === "auto"}">Automático</button></div>` : "";
   if (PG.modo === "auto") { subAuto(); asegurarConsumo(); el.innerHTML = sw + paHTML(); return; }
   if (PG.form) { el.innerHTML = sw + pgFormHTML(); return; }
-  el.innerHTML = sw + `<div class="pg-intro"><p class="muted">Programa pedidos que se repiten (por ejemplo, todos los lunes) o un pedido para una fecha futura. Cada pedido se crea solo ${PG_ANTICIPO} días antes de la entrega y aparece en <b>Mis pedidos</b>, donde puedes editarlo o cancelarlo.</p>
+  el.innerHTML = sw + `<div class="pg-intro"><p class="muted">Programa pedidos que se repiten (por ejemplo, todos los lunes) o un pedido para una fecha futura. Cada pedido se crea solo ${PG_ANTICIPO} días antes de la entrega y aparece en <b>Mis pedidos</b>.</p>
     <button type="button" class="btn primario" data-act="pg-nuevo">+ Programar pedido</button></div>
     <div class="lista">${!PG.cargado ? vacio("Cargando…", "Un momento.") : PG.lista.length ? PG.lista.map(pgCardHTML).join("") : vacio("No tienes pedidos programados", "Toca Programar pedido para crear el primero.")}</div>`;
 }
@@ -5430,12 +5437,9 @@ function entregadosCliHTML(lista) {
 const origenTagHTML = p => p.autoStock ? `<span class="org-tag auto">⚡ Programado automático</span>` : p.programado ? `<span class="org-tag prog">🔁 Programado no automático</span>` : `<span class="org-tag norm">🛒 Pedido normal</span>`;
 function pedidoClienteHTML(p) {
   let pie = "";
-  if (p.estado === "pendiente" && (p.pagoCliente || p.pagoAdmin || p.pagoRep)) pie = `<span class="estado-txt">Pago confirmado · el pedido ya no se puede editar ni cancelar</span>`;
-  else if (p.estado === "pendiente") {
-    pie = S.confirmar === p.id
-      ? `<div class="acciones"><span class="estado-txt">¿Cancelar este pedido?</span><button class="btn chico" data-act="cancelar-si" data-id="${esc(p.id)}">Sí, cancelar</button><button class="btn chico suave" data-act="cancelar-no">No</button></div>`
-      : `<div class="acciones"><button class="btn chico suave" data-act="cancelar" data-id="${esc(p.id)}">Cancelar pedido</button><button class="btn chico primario" data-act="editar-pedido" data-id="${esc(p.id)}">Editar pedido</button></div>`;
-  } else if (p.estado === "en_camino") pie = `<span class="estado-txt">Lo lleva ${esc(p.repartidorNombre || "un repartidor")}</span>`;
+  /* Un pedido confirmado ya no se puede editar ni cancelar desde la página de clientes. */
+  if (p.estado === "pendiente") pie = `<span class="estado-txt">${p.pagoCliente || p.pagoAdmin || p.pagoRep ? "Pago confirmado · " : ""}Pedido confirmado · en preparación</span>`;
+  else if (p.estado === "en_camino") pie = `<span class="estado-txt">Lo lleva ${esc(p.repartidorNombre || "un repartidor")}</span>`;
   else if (p.estado === "entregado") pie = `<span class="estado-txt">Entregado el ${!p.fechaEntrega || (p.entregado && ymd(new Date(p.entregado)) === p.fechaEntrega) ? `${esc(fmtDia(p.entregado))} a las ${fmtHora(p.entregado)}` : esc(fmtFecha(p.fechaEntrega))}${p.repartidorNombre ? " por " + esc(p.repartidorNombre) : ""}</span>`;
   return `<article class="ped${S.cliIr === p.id ? " ped-recien" : ""}" data-pid="${esc(p.id)}">
     <div class="ped-h"><b class="t">Pedido N° ${Number(p.numCliente) || "–"}</b>${pill(p.estado)}</div>
@@ -5588,10 +5592,11 @@ function pagoCardCliente(p) {
   else if (S.pagoForm === p.id) {
     const sel = S.compSel && S.compSel.id === p.id ? S.compSel : null;
     acc = `<div class="comp-form">
-        ${esEfectivo(p) ? `<p class="muted-s">Pago en efectivo: no necesitas comprobante. Confirma cuando le pagues al repartidor.</p>` : `<label class="comp-btn"><span>${sel ? (sel.procesando ? "Preparando archivo…" : `📎 ${esc(sel.nombre)}`) : "📎 Adjuntar comprobante de pago <em>(opcional)</em>"}</span>
+        ${esEfectivo(p) ? `<p class="muted-s">Pago en efectivo: no necesitas comprobante. Confirma cuando le pagues al repartidor.</p>` : `<label class="comp-btn"><span>${sel ? (sel.procesando ? "Preparando archivo…" : `📎 ${esc(sel.nombre)}`) : "📎 Adjuntar comprobante de transferencia <em>(obligatorio)</em>"}</span>
           <input type="file" accept="image/*" class="comp-in" data-id="${esc(p.id)}"></label>
         ${sel && sel.data ? `<img class="comp-prev" src="${sel.data}" alt="Vista previa del comprobante">` : ""}`}
-        <div class="acciones"><button type="button" class="btn chico ok" data-act="cp-conf-si" data-id="${esc(p.id)}" ${sel && sel.procesando ? "disabled" : ""}>Confirmar pago</button><button type="button" class="btn chico suave" data-act="cpp-no">Cancelar</button></div>
+        ${compFaltaTxt(p, sel)}
+        <div class="acciones"><button type="button" class="btn chico ok" data-act="cp-conf-si" data-id="${esc(p.id)}" ${compFalta(p, sel) ? "disabled" : ""}>Confirmar pago</button><button type="button" class="btn chico suave" data-act="cpp-no">Cancelar</button></div>
       </div>`;
   }
   else acc = `<button type="button" class="btn chico primario" data-act="cp-conf-abrir" data-id="${esc(p.id)}">Marcar como pagado</button>${segOk(p) ? `<span class="estado-txt">El ${segQuien(p)} ya confirmó el pago</span>` : ""}`;
@@ -5994,6 +5999,9 @@ const tipoTxt = t => t;
 const tipoChip = t => t ? `<span class="tipo-cli ${t === "Local comercial" ? "t-local" : "t-part"}">${esc(tipoTxt(t))}</span>` : "";
 
 /* ---------- Pago por pedido (cliente particular) con comprobante ---------- */
+/* Transferencia: el cliente solo puede confirmar el pago con el comprobante adjunto. Efectivo: no se pide comprobante. */
+const compFalta = (p, sel) => !!(sel && sel.procesando) || (!esEfectivo(p) && !(sel && sel.data) && !p.comprobante);
+const compFaltaTxt = (p, sel) => !esEfectivo(p) && !(sel && (sel.data || sel.procesando)) && !p.comprobante ? `<p class="muted-s comp-falta">Adjunta el comprobante de la transferencia para poder confirmar el pago.</p>` : "";
 S.pagoForm = null; S.compSel = null; S.compVer = {}; S.compCache = {};
 const DATOS_TR = [["Nombre", "Tomás Véliz Campos"], ["RUT", "15.020.342-2"], ["Banco", "Banco Bci"], ["Tipo de cuenta", "Cuenta Corriente"], ["N° de cuenta", "63139537"], ["Correo", "tomasvalparaiso@gmail.com"]];
 function datosTrHTML(monto) {
@@ -6017,10 +6025,11 @@ function pagoPedidoCliHTML(p) {
   if (S.pagoForm === p.id) {
     const sel = S.compSel && S.compSel.id === p.id ? S.compSel : null;
     acc = `<div class="comp-form">
-        ${esEfectivo(p) ? `<p class="muted-s">Pago en efectivo: no necesitas comprobante. Confirma cuando le pagues al repartidor.</p>` : `<label class="comp-btn"><span>${sel ? (sel.procesando ? "Preparando archivo…" : `📎 ${esc(sel.nombre)}`) : "📎 Adjuntar comprobante <em>(opcional)</em>"}</span>
+        ${esEfectivo(p) ? `<p class="muted-s">Pago en efectivo: no necesitas comprobante. Confirma cuando le pagues al repartidor.</p>` : `<label class="comp-btn"><span>${sel ? (sel.procesando ? "Preparando archivo…" : `📎 ${esc(sel.nombre)}`) : "📎 Adjuntar comprobante de transferencia <em>(obligatorio)</em>"}</span>
           <input type="file" accept="image/*" class="comp-in" data-id="${esc(p.id)}"></label>
         ${sel && sel.data && /^data:image/.test(sel.data) ? `<img class="comp-prev" src="${sel.data}" alt="Vista previa del comprobante">` : ""}`}
-        <div class="acciones"><button type="button" class="btn chico ok" data-act="cpp-si" data-id="${esc(p.id)}" ${sel && sel.procesando ? "disabled" : ""}>Confirmar pago</button><button type="button" class="btn chico suave" data-act="cpp-no">Cancelar</button></div>
+        ${compFaltaTxt(p, sel)}
+        <div class="acciones"><button type="button" class="btn chico ok" data-act="cpp-si" data-id="${esc(p.id)}" ${compFalta(p, sel) ? "disabled" : ""}>Confirmar pago</button><button type="button" class="btn chico suave" data-act="cpp-no">Cancelar</button></div>
       </div>`;
   } else acc = `<div class="acciones">${p.pagoCliente
       ? `<span class="estado-txt">${pagado(p) ? "Pago confirmado" : `Marcaste este pedido como pagado · esperando la confirmación del ${segQuien(p)}`}</span>`
@@ -6063,6 +6072,7 @@ async function pagarConComprobante(id, btn) {
   const c = S.ses.cliente;
   if (!S.db || !c) return;
   const sel = S.compSel && S.compSel.id === id && S.compSel.data ? S.compSel : null;
+  { const p = S.pedidos.find(x => x.id === id); if (p && compFalta(p, sel)) { toast("Adjunta el comprobante de la transferencia para confirmar el pago."); return; } }
   if (sel) {
     ocupar(btn, true, "Subiendo comprobante…");
     try {
@@ -6080,6 +6090,7 @@ async function marcarPagoCli(id, valor, btn) {
   if (!S.db || !c) { toast("Conectando… intenta de nuevo en un momento."); return; }
   ocupar(btn, true, "Guardando…");
   const datos = { pagoCliente: valor, pagoClienteEn: valor ? Date.now() : 0, pagoClientePor: valor ? c.nombre : "" };
+  { const p = S.pedidos.find(x => x.id === id), sl = S.compSel && S.compSel.id === id && S.compSel.data ? S.compSel : null; if (valor && p && compFalta(p, sl)) { ocupar(btn, false); toast("Adjunta el comprobante de la transferencia para confirmar el pago."); return; } }
   try {
     const sel = valor && S.compSel && S.compSel.id === id && S.compSel.data ? S.compSel : null;
     if (sel) {
@@ -13774,7 +13785,7 @@ function renderUlt() {
 try { ULT.res = localStorage.getItem("pya.ultRes") === "1"; } catch (_) {}
 function ultResHTML(vis, full) {
   const card = p => `<article class="ures ures-${p.estado || "pendiente"}">
-      <p class="ures-h"><b>${esc(p.clienteNombre || "Cliente")}</b><span class="ures-est" title="${esc(ESTADO[p.estado] || p.estado || "")}">${esc(ESTADO[p.estado] || p.estado || "")}</span></p>
+      ${p.pagoCliente && p.estado !== "cancelado" ? `<p class="ures-pago${pagado(p) ? " ok" : ""}">${pagado(p) ? "✅ Pagado" : "💰 El cliente lo marcó como pagado"}</p>` : ""}<p class="ures-h"><b>${esc(p.clienteNombre || "Cliente")}</b><span class="ures-est" title="${esc(ESTADO[p.estado] || p.estado || "")}">${esc(ESTADO[p.estado] || p.estado || "")}</span></p>
       <p class="ures-f">📅 ${esc(cap(fmtFecha(p.fechaEntrega)))}${p.horario ? ` · ${esc(p.horario)}` : ""}</p>
       <ul class="ures-its">${items(p).map(i => { const pr = PROD[i.id], alc = /alcalina/i.test(i.detalle || (pr && pr.cat) || ""), ag = pr && pr.fam === "agua" && /^Agua /.test(pr.cat || ""); return `<li><b>${fmtN(i.cant)}×</b> ${esc(itRen(i).nombre || (pr ? etiqueta(pr) : i.id))}${ag ? ` <small class="${alc ? "c-alc" : "c-pur"}">${alc ? "alcalina" : "purificada"}</small>` : pr && pr.medida ? ` <small>${esc(pr.medida)}</small>` : ""}</li>`; }).join("")}</ul>
     </article>`;
@@ -13792,7 +13803,14 @@ function ultHTML() {
   return `<p class="lead-sm">Los ${ULT_N} pedidos más nuevos, organizados por día, del más nuevo al más antiguo.</p>
     <div class="seg-per ult-fam" role="group" aria-label="Productos">${[["", "Todos"], ["agua", "💧 Agua"], ["papa", "🥔 Papas"]].map(([k, l]) => `<button type="button" data-act="ult-fam" data-g="${k}" aria-pressed="${ULT.fam === k}">${l} <small>${fmtN(cnt[k])}</small></button>`).join("")}</div>
     ${vis.length ? dias.map(g => `<h3 class="sec ult-dia">${esc(cap(g.d ? parse(g.d).toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "Sin fecha"))} <small>${fmtN(g.ps.length)} ${g.ps.length === 1 ? "pedido" : "pedidos"}</small></h3>
-      <div class="lista">${g.ps.map(p => pedAdmCardHTML(p, { rep: true })).join("")}</div>`).join("") : vacio("Aún no hay pedidos", "Cuando entren pedidos, aquí verás los más nuevos.")}`;
+      <div class="lista">${g.ps.map(p => ultPagoAvisoHTML(p) ? `<div class="ult-w">${ultPagoAvisoHTML(p)}${pedAdmCardHTML(p, { rep: true })}</div>` : pedAdmCardHTML(p, { rep: true })).join("")}</div>`).join("") : vacio("Aún no hay pedidos", "Cuando entren pedidos, aquí verás los más nuevos.")}`;
+}
+/* Últimos pedidos: aviso cuando el cliente ya marcó el pedido como pagado (con o sin comprobante). */
+function ultPagoAvisoHTML(p) {
+  if (!p || !p.pagoCliente || p.estado === "cancelado") return "";
+  const ok = pagado(p), cuando = p.pagoClienteEn ? ` el ${fmtDia(p.pagoClienteEn)} a las ${fmtHora(p.pagoClienteEn)}` : "";
+  return `<div class="ult-pago-av${ok ? " ok" : ""}" role="status"><span class="upa-i" aria-hidden="true">${ok ? "✅" : "💰"}</span><div><b>${ok ? "Pagado · confirmado por el cliente y la administración" : "El cliente marcó este pedido como pagado"}</b>
+    <small>${esc((p.clienteNombre || "El cliente") + " lo marcó" + cuando)}${esEfectivo(p) ? " · 💵 Efectivo" : p.comprobante ? " · 🧾 Adjuntó comprobante" : " · Sin comprobante"}${ok ? "" : ` · Falta la confirmación del ${segQuien(p)}`}</small>${p.comprobante ? compLinkHTML(p) : ""}</div></div>`;
 }
 const BUS = { q: "" };
 const busCardHTML = () => `<div class="card bus-card"><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><div class="bus-2 bus-rango"><label class="campo"><span>📅 Desde <em>fecha de entrega</em></span><input type="date" id="bus-desde" value="${esc(BUS.desde || "")}"></label><label class="campo"><span>📅 Hasta</span><input type="date" id="bus-hasta" value="${esc(BUS.hasta || "")}"></label></div><div class="bus-rango-acc">${[["hoy", "Hoy"], ["sem", "Esta semana"], ["mes", "Este mes"], ["x", "Sin fechas"]].map(([k, l]) => `<button type="button" class="btn chico suave" data-act="bus-rango" data-r="${k}">${l}</button>`).join("")}</div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
@@ -16064,6 +16082,37 @@ function leerFormPromo() {
   if ($("#pr-push-tit")) { PR.pushTit = ($("#pr-push-tit").value || ""); PR.pushTxt = ($("#pr-push-txt").value || ""); }
   if ($("#pr-titulo")) { PR.titulo = v("pr-titulo"); PR.texto = v("pr-texto"); PR.desde = v("pr-desde") || PR.desde; PR.hasta = v("pr-hasta"); PR.prodSel = v("pr-prod"); PR.cantSel = Math.max(1, Math.min(99, Number(v("pr-cant")) || 1)); }
 }
+/* ---------- Insignia de Trabajos comunitarios: los clientes inscritos en alguna actividad llevan un 🤝 junto a su foto ----------
+   RPC «insignias_comunitarias» → { clienteId: n° de inscripciones }. Para el propio cliente se usa lo que ya sabe la app (CMU.mias). */
+const COMI = { map: {}, en: 0, cargando: false };
+async function cargarInsignias(forzar) {
+  if (COMI.cargando || !S.db || !(S.portal === "cliente" || S.portal === "admin")) return;
+  if (!forzar && Date.now() - COMI.en < 120000) return;
+  COMI.cargando = true;
+  try {
+    let m = {};
+    if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("insignias_comunitarias"); if (x.error) throw x.error; m = x.data || {}; }
+    else { const sn = await S.db.collection("inscripciones").get(); sn.docs.forEach(d => { const c = (d.data() || {}).clienteId; if (c) m[c] = (m[c] || 0) + 1; }); }
+    const antes = JSON.stringify(COMI.map); COMI.map = m; COMI.en = Date.now();
+    if (antes !== JSON.stringify(m)) insigniasRepintar();
+  } catch (e) { console.warn("insignias", e); COMI.en = Date.now(); }
+  COMI.cargando = false;
+}
+setInterval(() => cargarInsignias(), 30000);
+function esComunitario(id) {
+  if (!id) return false;
+  const cli = S.ses.cliente;
+  if (S.portal === "cliente" && cli && id === cli.id && CMU.cargadoI) return CMU.mias.size > 0;
+  return (Number(COMI.map[id]) || 0) > 0;
+}
+const insigniaHTML = (id, cls) => esComunitario(id) ? `<span class="insig-com${cls ? " " + cls : ""}" title="Participa en Trabajos comunitarios" aria-label="Participa en Trabajos comunitarios" role="img">🤝</span>` : "";
+window.pyaInsignia = insigniaHTML;
+function insigniasRepintar() {
+  try { renderUsuBar(); } catch (_) {}
+  try { pintarMuroCli(); renderMuroAd(); } catch (_) {}
+  try { if (S.portal === "cliente" && S.cliTab === "perf") renderPerfilCli(); } catch (_) {}
+  try { if (typeof window.__msjRepintar === "function") window.__msjRepintar(); } catch (_) {}
+}
 /* ---------- Muro de comentarios: cada cliente deja un comentario que ven todos los clientes ----------
    «muro/<id>»: { clienteId, nombre, foto (miniatura 96 px), texto, en }. Los clientes leen todos y solo crean/borran los suyos;
    el administrador los ve y puede eliminar cualquiera (Administrador › Muro de comentarios). */
@@ -16084,19 +16133,19 @@ function contarMuro() {
 }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db && $("#cnt-muro")) { subMuro(); contarMuro(); } }, 4000);
 const muroCuando = ts => { const d = new Date(ts), h = new Date(), ay = new Date(Date.now() - 864e5), hm = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }); return d.toDateString() === h.toDateString() ? `Hoy, ${hm}` : d.toDateString() === ay.toDateString() ? `Ayer, ${hm}` : `${d.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: d.getFullYear() === h.getFullYear() ? undefined : "numeric" })}, ${hm}`; };
-const muroAv = (foto, nombre) => foto ? `<span class="muro-av"><img src="${esc(foto)}" alt=""></span>` : `<span class="muro-av">${esc(String(nombre || "?").trim().charAt(0).toUpperCase() || "?")}</span>`;
+const muroAv = (foto, nombre, cid) => `<span class="muro-av-w">${foto ? `<span class="muro-av"><img src="${esc(foto)}" alt=""></span>` : `<span class="muro-av">${esc(String(nombre || "?").trim().charAt(0).toUpperCase() || "?")}</span>`}${insigniaHTML(cid)}</span>`;
 function muroItemHTML(c, puedeBorrar, puedeEditar) {
   const ed = puedeEditar && MURO.edit === c.id;
   const acc = !puedeBorrar ? "" : MURO.del === c.id ? `<div class="muro-acc"><span class="muted-s">¿Eliminar este comentario?</span><button type="button" class="link" data-act="muro-del-no">No</button><button type="button" class="link peligro" data-act="muro-del-si" data-id="${esc(c.id)}">Eliminar</button></div>`
     : `<div class="muro-acc">${puedeEditar ? `<button type="button" class="link" data-act="muro-edit" data-id="${esc(c.id)}">✏️ Editar</button>` : ""}<button type="button" class="link" data-act="muro-del" data-id="${esc(c.id)}">Eliminar</button></div>`;
-  return `<article class="muro-it" data-mid="${esc(c.id)}">${muroAv(c.foto, c.nombre)}<div class="muro-c"><div class="muro-h"><b>${esc(c.nombre || "Cliente")}</b><time datetime="${new Date(c.en || 0).toISOString()}">${esc(muroCuando(c.en || 0))}${c.editado ? " · editado" : ""}</time></div>
+  return `<article class="muro-it" data-mid="${esc(c.id)}">${muroAv(c.foto, c.nombre, c.clienteId)}<div class="muro-c"><div class="muro-h"><b>${esc(c.nombre || "Cliente")}</b><time datetime="${new Date(c.en || 0).toISOString()}">${esc(muroCuando(c.en || 0))}${c.editado ? " · editado" : ""}</time></div>
     ${ed ? `<textarea id="muro-edit-txt" maxlength="500" rows="3" aria-label="Editar tu comentario">${esc(MURO.editTxt)}</textarea><div class="muro-acc"><button type="button" class="link" data-act="muro-edit-no">Cancelar</button><button type="button" class="btn primario chico" data-act="muro-edit-si" data-id="${esc(c.id)}" ${MURO.guardandoEd ? "disabled" : ""}>${MURO.guardandoEd ? "Guardando…" : "Guardar"}</button></div>`
       : `<p>${esc(c.texto)}</p>${acc}`}</div></article>`;
 }
 function muroCliHTML() {
   const cli = S.ses.cliente || {};
   return `<div class="promo-box muro-box" role="dialog" aria-modal="true" aria-labelledby="muro-t"><div class="pl-h"><b id="muro-t">💬 Muro de comentarios</b><button type="button" class="ap-cerrar" data-act="muro-cerrar" aria-label="Cerrar">×</button></div>
-    <div class="muro-nuevo">${muroAv(fotoDe("cliente") || MURO.miFoto, cli.nombre)}<div class="muro-c"><textarea id="muro-txt" aria-label="Tu comentario" maxlength="500" rows="3" placeholder="Escribe tu comentario para la comunidad…">${esc(MURO.borr)}</textarea>
+    <div class="muro-nuevo">${muroAv(fotoDe("cliente") || MURO.miFoto, cli.nombre, cli.id)}<div class="muro-c"><textarea id="muro-txt" aria-label="Tu comentario" maxlength="500" rows="3" placeholder="Escribe tu comentario para la comunidad…">${esc(MURO.borr)}</textarea>
       <div class="muro-pie"><small class="muted-s">Lo verán todos los clientes con tu nombre y tu foto.</small><button type="button" class="btn primario chico" data-act="muro-pub" ${MURO.enviando ? "disabled" : ""}>${MURO.enviando ? "Publicando…" : "Publicar"}</button></div></div></div>
     <div class="muro-lista">${!MURO.cargado ? `<p class="muted">Cargando comentarios…</p>` : MURO.lista.length ? MURO.lista.map(c => muroItemHTML(c, c.clienteId === cli.id, c.clienteId === cli.id)).join("") : `<p class="muted cmu-vacio">Aún no hay comentarios. ¡Sé el primero en escribir!</p>`}</div></div>`;
 }
@@ -16178,11 +16227,11 @@ function subComunidad() {
   if (!CMU.subsI) {
     const cli = S.ses.cliente;
     if (staff) { CMU.subsI = true; S.db.collection("inscripciones").limit(5000).onSnapshot(sn => { CMU.insc = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.cargadoI = true; renderCmu(); }, () => { CMU.cargadoI = true; }); }
-    else if (cli) { CMU.subsI = cli.id; S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { CMU.mias = new Set(sn.docs.map(d => (d.data() || {}).actividadId)); CMU.cargadoI = true; pintarComunCli(); contarComun(); }, () => { CMU.cargadoI = true; }); }
+    else if (cli) { CMU.subsI = cli.id; S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { const antes = CMU.mias.size > 0; CMU.mias = new Set(sn.docs.map(d => (d.data() || {}).actividadId)); const prim = !CMU.cargadoI; CMU.cargadoI = true; pintarComunCli(); contarComun(); if (prim || antes !== (CMU.mias.size > 0)) insigniasRepintar(); }, () => { CMU.cargadoI = true; }); }
   }
 }
 function contarComun() { const el = $("#cnt-comun"); if (!el) return; const n = S.ses.cliente ? cmuProx().filter(a => !CMU.mias.has(a.id)).length : 0, t = n ? String(n) : ""; if (el.textContent !== t) el.textContent = t; }
-setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db) { subComunidad(); contarComun(); } }, 4000);
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db) { subComunidad(); contarComun(); } if ((S.portal === "cliente" && S.ses.cliente) || (S.portal === "admin" && S.ses.admin)) cargarInsignias(); }, 4000);
 const cmuFechaTxt = a => `${a.fecha ? cap(fmtFecha(a.fecha)) : "Fecha por confirmar"}${a.horario ? ` · ${a.horario}` : ""}`;
 /* Clientes: ventana Comunidad con las actividades próximas para inscribirse. */
 function comunidadCliHTML() {
@@ -17405,7 +17454,9 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     for (const k of ks) { const f = r[k] || ""; if ((FT[k] || {}).f !== f) cambio = true; FT[k] = { f, en: Date.now() }; }
     if (cambio && M.abierto) pintar(true);
   }
-  const avH = (av, fk, cls) => { const f = fotoK(fk); return f ? `<span class="msj-av ft${cls ? " " + cls : ""}" aria-hidden="true"><img src="${f}" alt=""></span>` : `<span class="msj-av${cls ? " " + cls : ""}" aria-hidden="true">${esc(av)}</span>`; };
+  window.__msjRepintar = () => { if (M.abierto) pintar(true); };
+  const avH = (av, fk, cls) => { const f = fotoK(fk), ins = fk && String(fk).startsWith("clientes:") && window.pyaInsignia ? window.pyaInsignia(String(fk).slice(9), "chat") : ""; if (ins) return `<span class="msj-av-w${cls ? " " + cls : ""}">${avH0(av, fk, cls, f)}${ins}</span>`; return avH0(av, fk, cls, f); };
+  const avH0 = (av, fk, cls, f) => { return f ? `<span class="msj-av ft${cls ? " " + cls : ""}" aria-hidden="true"><img src="${f}" alt=""></span>` : `<span class="msj-av${cls ? " " + cls : ""}" aria-hidden="true">${esc(av)}</span>`; };
   /* Mensajes de otros: la foto (o inicial) de quien escribe a la izquierda, solo en el primero de una seguidilla. */
   function envolver(m, mio, prev, sep, html) {
     if (mio) return sep + html;
