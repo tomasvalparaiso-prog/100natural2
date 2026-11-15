@@ -962,8 +962,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .local-btn.l-prov svg{color:var(--papa)}
 .local-btn.l-prov[aria-selected="true"],.local-btn.l-usu[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .usu-tipo.tp-est{display:flex;flex-wrap:wrap;margin-top:4px}.usu-tipo.tp-est button{flex:1 1 auto;padding:0 12px;white-space:nowrap}
-.local-btn.l-red svg,.local-btn.l-est svg,.local-btn.l-usu svg,.local-btn.l-ped svg,.local-btn.l-pag svg,.local-btn.l-pper svg,.local-btn.l-bus svg,.local-btn.l-promo svg,.local-btn.l-precios svg,.local-btn.l-cup svg,.local-btn.l-coment svg,.local-btn.l-comun svg{color:var(--ink)}
-.local-btn.l-pag[aria-selected="true"],.local-btn.l-pper[aria-selected="true"],.local-btn.l-bus[aria-selected="true"],.local-btn.l-promo[aria-selected="true"],.local-btn.l-cup[aria-selected="true"],.local-btn.l-coment[aria-selected="true"],.local-btn.l-comun[aria-selected="true"],.local-btn.l-precios[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.local-btn.l-red svg,.local-btn.l-est svg,.local-btn.l-usu svg,.local-btn.l-ped svg,.local-btn.l-pag svg,.local-btn.l-pper svg,.local-btn.l-bus svg,.local-btn.l-promo svg,.local-btn.l-precios svg,.local-btn.l-cup svg,.local-btn.l-coment svg,.local-btn.l-comun svg,.local-btn.l-muro svg{color:var(--ink)}
+.local-btn.l-pag[aria-selected="true"],.local-btn.l-pper[aria-selected="true"],.local-btn.l-bus[aria-selected="true"],.local-btn.l-promo[aria-selected="true"],.local-btn.l-cup[aria-selected="true"],.local-btn.l-coment[aria-selected="true"],.local-btn.l-comun[aria-selected="true"],.local-btn.l-muro[aria-selected="true"],.local-btn.l-precios[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .local-btn.l-cuentas svg,.local-btn.l-piezas svg,.local-btn.l-posc svg,.local-btn.l-pron svg,.local-btn.l-imp svg,.local-btn.l-reg svg,.local-btn.l-ult svg,.local-btn.l-inv svg,.local-btn.l-ins svg,.local-btn.l-osm svg{color:var(--ink)}
 .local-btn.l-red[aria-selected="true"],.local-btn.l-est[aria-selected="true"],.local-btn.l-ped[aria-selected="true"],.local-btn.l-cuentas[aria-selected="true"],.local-btn.l-piezas[aria-selected="true"],.local-btn.l-posc[aria-selected="true"],.local-btn.l-pron[aria-selected="true"],.local-btn.l-imp[aria-selected="true"],.local-btn.l-reg[aria-selected="true"],.local-btn.l-ult[aria-selected="true"],.local-btn.l-inv[aria-selected="true"],.local-btn.l-ins[aria-selected="true"],.local-btn.l-osm[aria-selected="true"],.local-btn.l-pizz[aria-selected="true"],.local-btn.l-utfsm[aria-selected="true"],.local-btn.l-posad[aria-selected="true"],.local-btn.l-ploc[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .tbl-usu td{vertical-align:top}
@@ -1025,6 +1025,14 @@ main{max-width:960px;margin:0 auto;padding-block:20px 120px}
 .ad-buscar{grid-column:1/-1;margin:0 0 4px}.ad-buscar input{width:100%;min-height:48px;font:inherit;padding:0 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 6px 16px -14px var(--shadow)}
 .ad-q-oculto{display:none!important}.ad-sub-res,.ad-q-vacio{grid-column:1/-1}.ad-sub-res:empty{display:none}.ad-sub-res{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}.ad-sub-res .ad-grp-h{grid-column:1/-1}
 .ad-sub-btn{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.ad-sub-btn small{color:var(--muted);font-size:.78rem}
+.muro-box{max-height:88vh;overflow:auto;display:grid;gap:12px;align-content:start}.muro-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
+.muro-nuevo,.muro-it{display:flex;gap:10px;align-items:flex-start}.muro-nuevo{padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.muro-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:color-mix(in srgb,#7c3aed 14%,var(--surface));color:#6d28d9;font-weight:800}.muro-av img{width:100%;height:100%;object-fit:cover;display:block}
+.muro-c{flex:1;min-width:0;display:grid;gap:4px}.muro-c textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);resize:vertical}
+.muro-pie{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.muro-lista{display:grid;gap:4px}.muro-it{padding:12px 4px;border-bottom:1px solid var(--line)}.muro-it:last-child{border-bottom:0}
+.muro-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}.muro-h b{font-size:1rem}.muro-h time{font-size:.8rem;color:var(--muted)}
+.muro-it p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.4}.muro-acc{display:flex;gap:12px;align-items:center;justify-content:flex-end;font-size:.88rem}.muro-acc .link{border:0;background:none;padding:6px 2px;font:inherit;font-weight:700;color:var(--accent-ink);cursor:pointer;text-decoration:underline}.muro-acc .link.peligro{color:#D93025}
 .cupc-box{max-height:88vh;overflow:auto;display:grid;gap:12px}.cupc-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem}
 .cupc-it{display:grid;grid-template-columns:96px 1fr;border:2px dashed #db2777;border-radius:16px;overflow:hidden;background:var(--surface)}.cupc-it.usado{opacity:.6;border-color:var(--line)}
 .cupc-val{display:grid;place-content:center;text-align:center;background:linear-gradient(160deg,#db2777,#f59e0b);color:#fff;font-weight:900;font-size:1.4rem;line-height:1.1;padding:10px 6px}.cupc-it.usado .cupc-val{background:#94a3b8}.cupc-val small{font-size:.7rem;font-weight:700;opacity:.95}
@@ -4188,6 +4196,7 @@ function vistaCliente() {
     <button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones disponibles</span><span class="cnt" id="cnt-cupcli"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Sugerencias</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Comunidad</span><span class="cnt" id="cnt-comun"></span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-muro"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></span><span class="rep-tt">Muro de comentarios</span><span class="cnt" id="cnt-muro"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
     ${esLocal() ? `<button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
@@ -10627,10 +10636,11 @@ function adPrbHTML() {
   if (!S.ses.prueba && S.ses.admin) { S.ses.prueba = Object.assign({}, S.ses.admin, { src: "usuarios_admin" }); guardarSesion(); }
   return `<div class="ad-prb">${vistaPrueba()}</div>`;
 }
+const MURO_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>';
 const CMU_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg>';
 const COM_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const CUP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 5v2M14 11v2M14 17v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "comun" ? CMU_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
+const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button></div>
@@ -10641,7 +10651,7 @@ function vistaAdmin() {
       ${AD_CERR() ? "" : `<div class="ad-buscar"><input type="search" id="ad-q" placeholder="🔍 Buscar sección (ej.: cupones, combustible)" value="${esc(AD.q || "")}" autocomplete="off" aria-label="Buscar sección"></div><div class="ad-sub-res" id="ad-sub-res"></div><p class="ad-q-vacio muted" id="ad-q-vacio" hidden>No encontramos secciones con ese nombre.</p>`}
       ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
-    ${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
+    ${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : AD.local === "est" ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
@@ -11068,7 +11078,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
   ["Locales", [["posad", "Punto de venta"], ["papas", "Local papas"], ["agua", "Local agua"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["prov", "Proveedores"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
-  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Comentarios de clientes"], ["comun", "Comunidad"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
+  ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Comentarios de clientes"], ["comun", "Comunidad"], ["muro", "Muro de comentarios"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
   ["Delivery", [["rep", "Repartidores"]]], /* «Pagos en efectivo» quedó como pestaña dentro de Repartidores */
   ["Registrados", [["usu", "Usuarios"], ["capt", "Clientes"], ["captados", "Captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
@@ -13127,6 +13137,7 @@ function activarAdmin() {
   if (AD.local === "cup") { subCupones(); renderCup(); return; }
   if (AD.local === "coment") { subComentarios(); renderCom(); return; }
   if (AD.local === "comun") { subComunidad(); renderCmu(); return; }
+  if (AD.local === "muro") { subMuro(); renderMuroAd(); return; }
   if (AD.local === "est") { asegurarTipos(); subUsuarios(); renderEst(); return; }
   if (AD.local === "red") { asegurarTipos(); renderRed(); return; }
   if (AD.local === "cuentas") { subCL(); renderCL(); return; }
@@ -14865,6 +14876,12 @@ document.addEventListener("click", e => {
   else if (a === "cupc-usar") usarCuponCli(id);
   else if (a === "cli-coment") abrirComentario();
   else if (a === "cli-comun") abrirComunidad();
+  else if (a === "cli-muro") abrirMuro();
+  else if (a === "muro-cerrar") cerrarMuro();
+  else if (a === "muro-pub") publicarMuro();
+  else if (a === "muro-del") { MURO.del = id; pintarMuroCli(); renderMuroAd(); }
+  else if (a === "muro-del-no") { MURO.del = ""; pintarMuroCli(); renderMuroAd(); }
+  else if (a === "muro-del-si") { MURO.del = ""; conReintento(() => S.db.doc("muro/" + id).delete()).then(() => toast("Comentario eliminado.")).catch(e => toast(msgError(e))); }
   else if (a === "cmu-cerrar") { const m = $("#cmu-modal"); if (m) m.remove(); }
   else if (a === "cmu-insc") inscribirse(id, false);
   else if (a === "cmu-salir") inscribirse(id, true);
@@ -16035,6 +16052,89 @@ function leerFormPromo() {
   const v = id => (($("#" + id) || {}).value || "").trim();
   if ($("#pr-push-tit")) { PR.pushTit = ($("#pr-push-tit").value || ""); PR.pushTxt = ($("#pr-push-txt").value || ""); }
   if ($("#pr-titulo")) { PR.titulo = v("pr-titulo"); PR.texto = v("pr-texto"); PR.desde = v("pr-desde") || PR.desde; PR.hasta = v("pr-hasta"); PR.prodSel = v("pr-prod"); PR.cantSel = Math.max(1, Math.min(99, Number(v("pr-cant")) || 1)); }
+}
+/* ---------- Muro de comentarios: cada cliente deja un comentario que ven todos los clientes ----------
+   «muro/<id>»: { clienteId, nombre, foto (miniatura 96 px), texto, en }. Los clientes leen todos y solo crean/borran los suyos;
+   el administrador los ve y puede eliminar cualquiera (Administrador › Muro de comentarios). */
+const MURO = { lista: [], subs: false, cargado: false, enviando: false, borr: "", del: "" };
+const MURO_VISTO = "pya_muro_visto";
+function subMuro() {
+  if (MURO.subs || !S.db) return; MURO.subs = true;
+  S.db.collection("muro").orderBy("en", "desc").limit(300).onSnapshot(sn => {
+    MURO.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).filter(c => c.texto && c.clienteId).sort((a, b) => (b.en || 0) - (a.en || 0));
+    MURO.cargado = true; pintarMuroCli(); renderMuroAd(); contarMuro();
+  }, e => { MURO.cargado = true; console.warn("muro", e); pintarMuroCli(); renderMuroAd(); });
+}
+function contarMuro() {
+  const el = $("#cnt-muro"); if (!el) return;
+  let v = 0; try { v = Number(localStorage.getItem(MURO_VISTO)) || 0; } catch (_) {}
+  const yo = (S.ses.cliente || {}).id, n = S.ses.cliente && !$("#muro-modal") ? MURO.lista.filter(c => c.en > v && c.clienteId !== yo).length : 0, t = n ? String(n > 99 ? "99+" : n) : "";
+  if (el.textContent !== t) el.textContent = t;
+}
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db && $("#cnt-muro")) { subMuro(); contarMuro(); } }, 4000);
+const muroCuando = ts => { const d = new Date(ts), h = new Date(), ay = new Date(Date.now() - 864e5), hm = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }); return d.toDateString() === h.toDateString() ? `Hoy, ${hm}` : d.toDateString() === ay.toDateString() ? `Ayer, ${hm}` : `${d.toLocaleDateString("es-CL", { day: "numeric", month: "long", year: d.getFullYear() === h.getFullYear() ? undefined : "numeric" })}, ${hm}`; };
+const muroAv = (foto, nombre) => foto ? `<span class="muro-av"><img src="${esc(foto)}" alt=""></span>` : `<span class="muro-av">${esc(String(nombre || "?").trim().charAt(0).toUpperCase() || "?")}</span>`;
+function muroItemHTML(c, puedeBorrar) {
+  return `<article class="muro-it">${muroAv(c.foto, c.nombre)}<div class="muro-c"><div class="muro-h"><b>${esc(c.nombre || "Cliente")}</b><time datetime="${new Date(c.en || 0).toISOString()}">${esc(muroCuando(c.en || 0))}</time></div><p>${esc(c.texto)}</p>
+    ${puedeBorrar ? (MURO.del === c.id ? `<div class="muro-acc"><span class="muted-s">¿Eliminar este comentario?</span><button type="button" class="link" data-act="muro-del-no">No</button><button type="button" class="link peligro" data-act="muro-del-si" data-id="${esc(c.id)}">Eliminar</button></div>` : `<div class="muro-acc"><button type="button" class="link" data-act="muro-del" data-id="${esc(c.id)}">Eliminar</button></div>`) : ""}</div></article>`;
+}
+function muroCliHTML() {
+  const cli = S.ses.cliente || {};
+  return `<div class="promo-box muro-box" role="dialog" aria-modal="true" aria-labelledby="muro-t"><div class="pl-h"><b id="muro-t">💬 Muro de comentarios</b><button type="button" class="ap-cerrar" data-act="muro-cerrar" aria-label="Cerrar">×</button></div>
+    <div class="muro-nuevo">${muroAv(fotoDe("cliente") || MURO.miFoto, cli.nombre)}<div class="muro-c"><textarea id="muro-txt" aria-label="Tu comentario" maxlength="500" rows="3" placeholder="Escribe tu comentario para la comunidad…">${esc(MURO.borr)}</textarea>
+      <div class="muro-pie"><small class="muted-s">Lo verán todos los clientes con tu nombre y tu foto.</small><button type="button" class="btn primario chico" data-act="muro-pub" ${MURO.enviando ? "disabled" : ""}>${MURO.enviando ? "Publicando…" : "Publicar"}</button></div></div></div>
+    <div class="muro-lista">${!MURO.cargado ? `<p class="muted">Cargando comentarios…</p>` : MURO.lista.length ? MURO.lista.map(c => muroItemHTML(c, c.clienteId === cli.id)).join("") : `<p class="muted cmu-vacio">Aún no hay comentarios. ¡Sé el primero en escribir!</p>`}</div></div>`;
+}
+function pintarMuroCli() {
+  const m = $("#muro-modal"); if (!m) return;
+  const ta = $("#muro-txt"), foco = ta && document.activeElement === ta, pos = foco ? ta.selectionStart : 0;
+  if (ta) MURO.borr = ta.value;
+  const lista = m.querySelector(".muro-lista"), tmp = document.createElement("div"); tmp.innerHTML = muroCliHTML();
+  if (foco && lista) { lista.innerHTML = tmp.querySelector(".muro-lista").innerHTML; return; }
+  m.innerHTML = tmp.innerHTML;
+  if (foco) { const t2 = $("#muro-txt"); if (t2) { t2.focus(); try { t2.setSelectionRange(pos, pos); } catch (_) {} } }
+}
+function abrirMuro() {
+  if (!S.ses.cliente || !S.db) return false;
+  subMuro();
+  let m = $("#muro-modal");
+  if (!m) { m = document.createElement("div"); m.id = "muro-modal"; m.className = "promo-modal"; m.addEventListener("click", e => { if (e.target === m) cerrarMuro(); }); document.body.appendChild(m); }
+  m.innerHTML = muroCliHTML(); contarMuro();
+  if (!fotoDe("cliente") && MURO.miFotoDe !== S.ses.cliente.id) { const cid = MURO.miFotoDe = S.ses.cliente.id; S.db.doc("fotos_perfil/" + cid).get().then(d => { MURO.miFoto = d.exists ? (d.data() || {}).foto || "" : ""; if (MURO.miFoto) pintarMuroCli(); }).catch(() => {}); }
+  return true;
+}
+function cerrarMuro() {
+  const ta = $("#muro-txt"); if (ta) MURO.borr = ta.value;
+  try { localStorage.setItem(MURO_VISTO, String(Math.max(Date.now(), ...MURO.lista.map(c => c.en || 0)))); } catch (_) {}
+  const m = $("#muro-modal"); if (m) m.remove(); contarMuro();
+}
+/* Miniatura de la foto de perfil (96 px) para guardarla junto al comentario: así todos la ven sin leer la foto completa. */
+function muroMini(src) {
+  return new Promise(res => {
+    if (!src) return res("");
+    const im = new Image();
+    im.onload = () => { try { const n = 96, c = document.createElement("canvas"), r = Math.min(im.width, im.height); c.width = c.height = n; c.getContext("2d").drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, n, n); res(c.toDataURL("image/jpeg", 0.78)); } catch (_) { res(""); } };
+    im.onerror = () => res(""); im.src = src;
+  });
+}
+async function publicarMuro() {
+  const cli = S.ses.cliente, ta = $("#muro-txt"); if (!cli || !ta || MURO.enviando) return;
+  const texto = ta.value.trim().slice(0, 500);
+  if (texto.length < 2) { toast("Escribe tu comentario."); ta.focus(); return; }
+  MURO.enviando = true; MURO.borr = ta.value; pintarMuroCli();
+  try {
+    let foto = fotoDe("cliente") || (MURO.miFotoDe === cli.id ? MURO.miFoto : "");
+    if (!foto) try { const d = await S.db.doc("fotos_perfil/" + cli.id).get(); foto = d.exists ? (d.data() || {}).foto || "" : ""; } catch (_) {}
+    const mini = await muroMini(foto), id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await conReintento(() => S.db.doc("muro/" + id).set({ clienteId: cli.id, nombre: String(cli.nombre || "Cliente").slice(0, 60), foto: mini, texto, en: Date.now() }));
+    MURO.borr = ""; toast("💬 ¡Comentario publicado!");
+  } catch (e) { toast(msgError(e)); }
+  MURO.enviando = false; const m = $("#muro-modal"); if (m) m.innerHTML = muroCliHTML();
+}
+function renderMuroAd() {
+  const el = $("#muro-panel"); if (!el || !(S.portal === "admin" && AD.local === "muro")) return;
+  el.innerHTML = `<div class="card ad-card"><h2 class="h2">Muro de comentarios</h2><p class="muted-s">Lo que escriben los clientes en Inicio › Muro de comentarios (todos los clientes lo ven). Puedes eliminar cualquier comentario.</p></div>
+    ${!MURO.cargado ? vacio("Cargando comentarios…", "Un momento.") : MURO.lista.length ? `<div class="card ad-card muro-lista">${MURO.lista.map(c => muroItemHTML(c, true)).join("")}</div>` : vacio("Aún no hay comentarios", "Los clientes pueden escribir desde Inicio › Muro de comentarios.")}`;
 }
 /* ---------- Comunidad: actividades que sube el administrador y a las que se inscriben los clientes ----------
    «actividades/<id>»: { nombre, descripcion, fecha, horario, en, por } (todos los clientes pueden leerlas).
