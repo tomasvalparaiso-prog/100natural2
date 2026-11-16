@@ -941,9 +941,12 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ptsp-res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ptsp-res div{display:grid;justify-items:center;padding:10px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-align:center}.ptsp-res b{font-size:1.2rem}.ptsp-res small{font-size:.72rem;color:var(--muted)}
 .ptsp-como ul{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.ptsp-como li{display:flex;gap:10px;align-items:flex-start}.ptsp-como li>span{font-size:1.4rem}.ptsp-como small{display:block;color:var(--muted)}
 .ptsp-hist{list-style:none;margin:0;padding:0}.ptsp-hist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.ptsp-hi{font-size:1.2rem}.ptsp-ht{flex:1;min-width:0}.ptsp-ht small{display:block;color:var(--muted)}.ptsp-hist .pos{color:#15803d}.ptsp-hist .neg{color:#b91c1c}
+.pts-gana{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f}.pts-gana>span:first-child{font-size:1.4rem}.pts-gana small{display:block;opacity:.85}
+.wz-fin-pts{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px auto 4px;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;text-align:left;max-width:460px}.wfp-n{font-size:1.8rem;font-weight:900}.wz-fin-pts small{display:block;opacity:.9}.wz-fin-pts .link{color:#92400e;font-weight:800}
 .pts-box{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border:2px dashed #f59e0b;border-radius:14px;background:color-mix(in srgb,#f59e0b 8%,var(--surface));cursor:pointer}.pts-box.on{border-style:solid;background:color-mix(in srgb,#f59e0b 18%,var(--surface))}.pts-box input{flex:none;width:22px!important;height:22px!important;min-height:0!important;margin:0;padding:0;accent-color:#d97706}.pts-box>span:last-child{flex:1;min-width:0}.pts-i{font-size:1.4rem}.pts-box b{display:block}.pts-box small{color:var(--muted)}
 .mt-pts{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;margin:6px 0 10px}.mt-pts-n{font-size:1.6rem;font-weight:900;white-space:nowrap}.mt-pts b{display:block}.mt-pts small{opacity:.85}
 .mt-mov{margin:0 0 10px}.mt-mov summary{cursor:pointer;font-weight:800;padding:4px 0}.mt-mov ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}.mt-mov li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}.mt-mov li small{display:block;color:var(--muted)}.mt-mov .pos{color:#15803d}.mt-mov .neg{color:#b91c1c}
+.cmu-form.editando{border:2px solid #2563eb;box-shadow:0 0 0 4px color-mix(in srgb,#2563eb 15%,transparent)}.cmu-form .btn.suave{margin-top:8px}
 .cmu-pts{margin:0;font-size:.92rem;color:#92400e}.cmu-ins-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.cmu-ins-h small{display:block}
 .busq-campo{display:flex;align-items:center;gap:8px;padding:0 14px;min-height:54px;border:2px solid var(--line);border-radius:16px;background:var(--surface);font-size:1.1rem}.busq-campo:focus-within{border-color:#0ea5e9}.busq-campo input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);outline:none;padding:12px 0}
 .busq-sug{display:flex;flex-wrap:wrap;gap:8px}.busq-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}.busq-it{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
@@ -4186,6 +4189,7 @@ function cpwFinHTML() {
   return `<section class="card wz-fin" aria-live="polite"><div class="wz-fin-ic" aria-hidden="true">✅</div>
     <h2>¡Pedido${f.num ? ` N° ${esc(String(f.num))}` : ""} enviado!</h2>
     <p>${f.fecha ? `Entrega el ${esc(fmtFecha(f.fecha, true))}${f.horario ? `, entre ${esc(f.horario)} hrs` : ""}. ` : ""}Lo ves en Mis pedidos › Pendientes.${f.aviso ? esc(f.aviso) : ""}</p>
+    ${f.puntos || f.usados ? `<div class="wz-fin-pts">${f.puntos ? `<span class="wfp-n">+${fmtN(f.puntos)}</span><span><b>¡Acumulaste ${fmtN(f.puntos)} puntos con este pedido!</b><small>${f.usados ? `Usaste ${fmtN(f.usados)} puntos de descuento · ` : ""}Ahora tienes ${fmtN(Math.max(0, puntosSaldo() + (PTS.lista.some(m => m.id === "gan_" + f.id) ? 0 : f.puntos) - (PTS.lista.some(m => m.id === "ped_" + f.id) ? 0 : f.usados)))} puntos</small></span>` : `<span><b>Usaste ${fmtN(f.usados)} puntos de descuento</b></span>`}<button type="button" class="link" data-act="cli-puntos">Ver mis puntos</button></div>` : ""}
     <div class="wz-fin-acc"><button type="button" class="btn primario grande" data-act="cpw-otro">＋ Crear otro pedido</button>${f.id ? `<button type="button" class="btn suave grande" data-act="cpw-ver" data-id="${esc(f.id)}">Ir al pedido</button>` : ""}<button type="button" class="btn suave grande" data-act="cli-inicio">Ir a inicio</button></div></section>`;
 }
 /* Revisa los datos de entrega antes de pasar al último paso (mismas reglas que al enviar). */
@@ -4714,7 +4718,7 @@ function entregaHTML(c) {
         <h2 class="h2">Tu pedido</h2>
         <ul class="resumen" id="resumen"></ul>
         ${verPrecios() ? `<div class="total"><span>Total</span><b id="total">$0</b></div>` : ""}
-        ${verPrecios() && !S.editPedido ? `<div class="cupon-box" id="cupon-box">${cuponBoxHTML()}</div><div id="puntos-box">${puntosBoxHTML()}</div>` : ""}
+        ${verPrecios() && !S.editPedido ? `<div class="pts-gana" id="pts-gana" hidden></div><div class="cupon-box" id="cupon-box">${cuponBoxHTML()}</div><div id="puntos-box">${puntosBoxHTML()}</div>` : ""}
       </div>
       <div data-wz="3 4">
         <h2 class="h2 wz-h-ent">Datos de entrega</h2>
@@ -4874,6 +4878,7 @@ function updateCarritoUI() {
   if (res && descP && lista.length) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">🏅 Puntos usados<small>${fmtN(descP)} puntos</small></span><span class="s">−${clp(descP)}</span></li>`);
   if (res && kgPapas) res.insertAdjacentHTML("beforeend", `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtN(kgPapas)} kg</small></span></li>`);
   const t = $("#total"); if (t) t.textContent = clp(total);
+  { const g = $("#pts-gana"); if (g) { const n = verPrecios() && !S.editPedido && lista.length ? puntosPorTotal(total) : 0; g.hidden = !n; g.innerHTML = n ? `<span aria-hidden="true">🏅</span><span>Con este pedido acumulas <b>${fmtN(n)} puntos</b><small>100 puntos por cada $1.000 de compra</small></span>` : ""; } }
   updateBarra(lista, total);
 }
 function updateBarra(lista, total) {
@@ -4969,7 +4974,7 @@ async function enviarPedido(btn) {
     S.misSub = "pend";
     { const [ra, rb] = rangoPeriodo(S.pendG, S.misRef); if (fecha < ra || fecha > rb) S.misRef = fecha; }
     if (!S.pedidos.some(x => x.id === id)) S.pedidos.unshift(Object.assign({ id }, doc));
-    if (cpwOn()) { CPW.fin = { id, num, fecha, horario, aviso: avisoCorte(fecha0, fecha) }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
+    if (cpwOn()) { CPW.fin = { id, num, fecha, horario, aviso: avisoCorte(fecha0, fecha), puntos: verPrecios() ? puntosPorTotal(doc.total) : 0, usados: Number(doc.puntosUsados) || 0 }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
     cambiarCliTab("mis"); renderListas(); window.scrollTo({ top: 0, behavior: "smooth" });
     toast(`Pedido N° ${num} enviado. Lo ves en Mis pedidos > Pendientes.${avisoCorte(fecha0, fecha)}`);
   } catch (e) { err.textContent = msgError(e); }
@@ -14971,6 +14976,16 @@ document.addEventListener("click", e => {
   else if (a === "cmu-insc") inscribirse(id, false);
   else if (a === "cmu-salir") inscribirse(id, true);
   else if (a === "cmu-subir") subirActividad();
+  else if (a === "cmu-edit") {
+    const x = CMU.lista.find(y => y.id === id); if (x) {
+      const m = String(x.horario || "").match(/(\d{1,2}:\d{2})(?:\D+(\d{1,2}:\d{2}))?/), pad = t => t ? t.padStart(5, "0") : "";
+      CMU.edit = id; CMU.del = "";
+      CMU.f = { nombre: x.nombre || "", descripcion: x.descripcion || "", fecha: x.fecha || "", desde: pad(x.desde || (m && m[1]) || ""), hasta: pad(x.hasta || (m && m[2]) || ""), puntos: x.puntos ? String(x.puntos) : "" };
+      const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML();
+      const fm = $("#cmu-form"); if (fm) fm.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => { const n = $("#cmu-nombre"); if (n) n.focus({ preventScroll: true }); }, 300);
+    }
+  }
+  else if (a === "cmu-edit-no") { CMU.edit = ""; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
   else if (a === "cmu-asis") marcarAsistencia(id, b.dataset.v === "1");
   else if (a === "cmu-ver") { CMU.ver = CMU.ver === id ? "" : id; renderCmu(); }
   else if (a === "cmu-del") { CMU.del = id; renderCmu(); }
@@ -16424,6 +16439,8 @@ function subPuntos() {
   }, () => { PTS.cargado = true; });
 }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente) { subPuntos(); contarPuntos(); } }, 3000);
+/* 100 puntos por cada $1.000 del total pagado del pedido (la base de datos aplica la misma regla). */
+const puntosPorTotal = t => Math.max(0, Math.floor((Number(t) || 0) / 1000) * 100);
 const puntosSaldo = () => Math.max(0, Math.floor(PTS.lista.reduce((t, m) => t + (Number(m.puntos) || 0), 0)));
 /* Descuento por puntos sobre el precio final (después del cupón), sin pasarse del total. */
 const puntosDescuento = totalAntes => PTS.usar && !S.editPedido ? Math.max(0, Math.min(puntosSaldo(), Math.floor(totalAntes))) : 0;
@@ -16439,10 +16456,10 @@ function puntosPagHTML() {
   return `<div class="promo-box ptsp-box"><div class="pl-h"><b>🏅 Puntos</b><button type="button" class="ap-cerrar" data-act="pts-cerrar" aria-label="Volver">×</button></div>
     <div class="ptsp-saldo"><small>Tus puntos disponibles</small><b>${PTS.cargado ? fmtN(n) : "…"}</b><span>= ${clp(n)} de descuento en tus pedidos</span></div>
     <div class="ptsp-res"><div><b>${fmtN(porPed)}</b><small>🛒 por compras</small></div><div><b>${fmtN(porTrab)}</b><small>🤝 por trabajos comunitarios</small></div><div><b>${fmtN(usados)}</b><small>💸 usados</small></div></div>
-    <section class="perf-card ptsp-como"><h3>¿Cómo gano puntos?</h3><ul><li><span>🛒</span><div><b>300 puntos por cada pedido</b><small>Se suman apenas envías tu pedido (si el pedido se cancela, se descuentan).</small></div></li><li><span>🤝</span><div><b>Trabajos comunitarios</b><small>Cada actividad entrega los puntos que indica, cuando participas.</small></div></li></ul>
+    <section class="perf-card ptsp-como"><h3>¿Cómo gano puntos?</h3><ul><li><span>🛒</span><div><b>100 puntos por cada $1.000 de compra</b><small>Se suman apenas envías tu pedido, según su total (si el pedido se cancela, se descuentan).</small></div></li><li><span>🤝</span><div><b>Trabajos comunitarios</b><small>Cada actividad entrega los puntos que indica, cuando participas.</small></div></li></ul>
       <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>
     <section class="perf-card ptsp-como"><h3>¿Cómo los uso?</h3><p class="muted-s">1 punto = $1 de descuento en el precio final. Al enviar tu pedido, marca <b>«🏅 Usar mis puntos»</b>.</p><button type="button" class="btn chico primario" data-act="pts-pedir">🛒 Hacer un pedido</button></section>
-    <section class="perf-card"><h3>Historial</h3>${!PTS.cargado ? `<p class="muted-s">Cargando…</p>` : ms.length ? `<ul class="ptsp-hist">${ms.map(m => `<li><span class="ptsp-hi" aria-hidden="true">${String(m.id).startsWith("act_") ? "🤝" : Number(m.puntos) < 0 ? "💸" : "🛒"}</span><span class="ptsp-ht">${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(cap(fmtFecha(ymd(new Date(m.en))))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul>` : `<p class="muted-s">Aún no tienes puntos. ¡Haz tu primer pedido y gana 300!</p>`}</section></div>`;
+    <section class="perf-card"><h3>Historial</h3>${!PTS.cargado ? `<p class="muted-s">Cargando…</p>` : ms.length ? `<ul class="ptsp-hist">${ms.map(m => `<li><span class="ptsp-hi" aria-hidden="true">${String(m.id).startsWith("act_") ? "🤝" : Number(m.puntos) < 0 ? "💸" : "🛒"}</span><span class="ptsp-ht">${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(cap(fmtFecha(ymd(new Date(m.en))))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul>` : `<p class="muted-s">Aún no tienes puntos. ¡Haz tu primer pedido y gana 100 puntos por cada $1.000!</p>`}</section></div>`;
 }
 function abrirPuntos() {
   if (!S.ses.cliente) return; subPuntos();
@@ -16502,7 +16519,7 @@ async function inscribirse(aid, salir) {
 function leerFormCmu() { if (!$("#cmu-nombre")) return; const v = id => ($("#" + id) || {}).value || ""; Object.assign(CMU.f, { nombre: v("cmu-nombre"), descripcion: v("cmu-desc"), fecha: v("cmu-fecha"), desde: v("cmu-desde"), hasta: v("cmu-hasta"), puntos: v("cmu-pts") }); }
 function comunidadAdHTML() {
   const f = CMU.f;
-  const form = `<div class="card ad-card cmu-form"><h2 class="h2">Nueva actividad</h2>
+  const form = `<div class="card ad-card cmu-form${CMU.edit ? " editando" : ""}" id="cmu-form"><h2 class="h2">${CMU.edit ? "✏️ Editar actividad" : "Nueva actividad"}</h2>
     <div class="campos">
       <label class="campo full"><span>Nombre de la actividad</span><input id="cmu-nombre" maxlength="80" value="${esc(f.nombre)}" placeholder="Ej.: Taller de alimentación saludable"></label>
       <label class="campo full"><span>Descripción</span><textarea id="cmu-desc" maxlength="600" rows="3" placeholder="Qué se hará, dónde, qué llevar…">${esc(f.descripcion)}</textarea></label>
@@ -16511,7 +16528,7 @@ function comunidadAdHTML() {
       <div class="campo"><span>Horario</span><div class="cmu-hora"><input id="cmu-desde" type="time" value="${esc(f.desde)}" aria-label="Desde"><span>a</span><input id="cmu-hasta" type="time" value="${esc(f.hasta)}" aria-label="Hasta"></div></div>
     </div>
     <p class="err" id="cmu-err" role="alert"></p>
-    <button type="button" class="btn primario grande" data-act="cmu-subir" ${CMU.guardando ? "disabled" : ""}>${CMU.guardando ? "Subiendo…" : "📤 Subir actividad"}</button>
+    <button type="button" class="btn primario grande" data-act="cmu-subir" ${CMU.guardando ? "disabled" : ""}>${CMU.guardando ? (CMU.edit ? "Guardando…" : "Subiendo…") : CMU.edit ? "💾 Guardar cambios" : "📤 Subir actividad"}</button>${CMU.edit ? `<button type="button" class="btn suave" data-act="cmu-edit-no">Cancelar edición</button>` : ""}
     <p class="muted-s">Al subirla, todos los clientes la ven en su botón «Trabajos comunitarios» y reciben un aviso en el teléfono (si tienen las notificaciones activas).</p></div>`;
   if (!CMU.cargado) return form + vacio("Cargando actividades…", "Un momento.");
   const xs = [...CMU.lista].sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
@@ -16521,7 +16538,7 @@ function comunidadAdHTML() {
       <p class="cmu-n">👥 ${ins.length} ${ins.length === 1 ? "inscrito" : "inscritos"}${ins.some(i => i.asistio) ? ` · ✓ ${ins.filter(i => i.asistio).length} asistieron` : ""}${Number(a.puntos) ? ` · 🏅 ${fmtN(a.puntos)} puntos` : ""}</p>
       ${CMU.ver === a.id ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${Number(a.puntos) ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${Number(a.puntos) ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
       ${CMU.del === a.id ? `<div class="acciones"><span class="muted-s">¿Eliminar esta actividad?</span><button type="button" class="btn chico suave" data-act="cmu-del-no">No</button><button type="button" class="btn chico peligro" data-act="cmu-del-si" data-id="${esc(a.id)}">Eliminar</button></div>`
-        : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${CMU.ver === a.id ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
+        : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${CMU.ver === a.id ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-edit" data-id="${esc(a.id)}">✏️ Editar</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
     </article>`; }).join("")}</div>` : vacio("Aún no hay actividades", "Sube la primera con el formulario de arriba."));
 }
 function renderCmu() {
@@ -16533,11 +16550,21 @@ async function subirActividad() {
   leerFormCmu(); const f = CMU.f, err = $("#cmu-err"), mal = m => { if (err) err.textContent = m; };
   if (f.nombre.trim().length < 3) return mal("Escribe el nombre de la actividad.");
   if (!f.fecha) return mal("Elige la fecha.");
-  if (f.fecha < hoy()) return mal("La fecha ya pasó.");
   const horario = f.desde ? (f.hasta ? `${f.desde} a ${f.hasta}` : `desde las ${f.desde}`) : "";
+  /* Editar: guarda los cambios en la misma actividad (no vuelve a avisar a todos los clientes). */
+  if (CMU.edit) {
+    const a0 = CMU.lista.find(x => x.id === CMU.edit) || {}, eid = CMU.edit;
+    CMU.guardando = true; el2();
+    try {
+      await conReintento(() => S.db.doc("actividades/" + eid).update(Object.assign({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, desde: f.desde || "", hasta: f.hasta || "", puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "" }, a0.fecha !== f.fecha ? { recordado: "" } : {})));
+      CMU.edit = ""; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("💾 Actividad actualizada.");
+    } catch (e) { toast(msgError(e)); }
+    CMU.guardando = false; el2(); return;
+  }
+  if (f.fecha < hoy()) return mal("La fecha ya pasó.");
   const id = "act" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   CMU.guardando = true; el2(); 
-  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Comunidad."); }
+  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, desde: f.desde || "", hasta: f.hasta || "", puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Trabajos comunitarios."); }
   catch (e) { toast(msgError(e)); }
   CMU.guardando = false; el2();
   function el2() { const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
