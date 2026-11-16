@@ -977,7 +977,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .clin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.clin-btn{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .clin-btn:hover{border-color:var(--accent,#2563eb)}.clin-av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:800;font-size:1.1rem}.clin-tx{min-width:0;display:grid}.clin-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clin-tx small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .adu-bar{gap:8px;flex-wrap:wrap}.adu-n{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:800;margin-left:4px}
-#view.adu-on > .adu-grid ~ *:not(#adu-panel):not(.ad-barra):not(nav):not(.usu-crear-bar){display:none!important}#adu-panel{margin-top:4px}
+#view > .adu-bar ~ #prov-crear{display:none!important}#view.adu-on > .adu-grid ~ *:not(#adu-panel):not(.ad-barra):not(nav):not(.usu-crear-bar){display:none!important}#adu-panel{margin-top:4px}
 .adl-lista{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}.adl-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .adl-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--surface-2);font-weight:800}.adl-av img{width:100%;height:100%;object-fit:cover}.adl-tx{flex:1;min-width:0;display:grid;gap:1px}.adl-tx small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.adl-tx a{font-size:.88rem;font-weight:700;width:max-content}
 .adu-box{max-width:560px;max-height:90vh;overflow:auto}.adu-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem;margin-bottom:8px}.adu-bar{margin-top:4px}
@@ -3182,7 +3182,7 @@ async function registrar(k, f) {
     datos.claveHash = await sha(`pya:${k}:${usuario}:${clave}`);
     if (f.dataset.adm) datos.creadoPorAdmin = (S.ses.admin || {}).nombre || true;
     await conReintento(() => ref.set(datos));
-    if (f.dataset.adm) { if (k === "prov" && f.dataset.adm !== "usu") { PV.crear = false; renderProvCrear(); toast(`Proveedor «${nombre}» creado. Su usuario es «${usuario}».`); return; } US.crear = false; renderUsuCrear(); cerrarAgregarUsu(); toast(`Usuario «${usuario}» creado para ${nombre}.`); return; }
+    if (f.dataset.adm) { if (k === "prov" && f.dataset.adm !== "usu") { PV.crear = false; renderProvCrear(); aduTrasCrear(); toast(`Proveedor «${nombre}» creado. Su usuario es «${usuario}».`); return; } US.crear = false; renderUsuCrear(); cerrarAgregarUsu(); aduTrasCrear(); toast(`Usuario «${usuario}» creado para ${nombre}.`); return; }
     iniciarSesion(k, perfil(usuario, datos));
     toast(`Cuenta creada. Tu usuario es «${usuario}».`);
   } catch (e) { err.textContent = msgError(e); }
@@ -16237,7 +16237,7 @@ const ADU_COL = { papas: "usuarios_papas", agua: "usuarios_agua", repartidor: "r
 const ADU_LISTA = { papas: "Usuarios de Local papas", agua: "Usuarios de Local agua", repartidor: "Repartidores", prov: "Proveedores" };
 const aduUsuarios = t => (((US.data || {})[ADU_COL[t]]) || []).filter(u => u && u.id).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"));
 const aduBarHTML = t => { if (typeof subUsuarios === "function") subUsuarios(); const n = US.cargado && US.cargado[ADU_COL[t]] ? aduUsuarios(t).length : null;
-  void n; return `<div class="usu-crear-bar adu-bar">${t === "prov" ? "" : `<button type="button" class="btn primario" data-act="ad-agregar-usu" data-tipo="${t}">➕ Agregar ${ADU_NOM[t] || "usuario"}</button>`}</div>`; };
+  void n; return `<div class="adu-bar" hidden></div>`; }; /* «Agregar usuario» y «Lista de usuarios» van ahora como botones del menú. */
 /* «Lista de usuarios» como un botón más del menú de Local papas, Local agua, Repartidores y Proveedores (administrador):
    al tocarlo, la lista se muestra debajo del menú, igual que el contenido de los demás botones. */
 const ADU_LOC = { papas: "papas", agua: "agua", rep: "repartidor", prov: "prov" }, ADU_ON = {};
@@ -16254,31 +16254,36 @@ function aduInyectar() {
   if (S.portal !== "admin" || !ADU_LOC[AD.local]) return;
   const g = aduGrid(), v = $("#view"); if (!g || !v) return;
   const t = ADU_LOC[AD.local];
-  let b = g.querySelector(':scope > [data-act="adu-tab"]');
-  if (!b) {
-    b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "tab"); b.dataset.act = "adu-tab"; b.dataset.tipo = t;
-    b.innerHTML = `<span class="rep-ti" aria-hidden="true">${ADU_SVG}</span><span class="rep-tt">${aduTitulo(t)}</span>`;
-    const fin = [...g.children].find(x => /perfil|salir|cerrar|oscuro|carr/i.test((x.dataset.act || "") + " " + (x.dataset.t || "")));
-    if (fin) fin.before(b); else g.appendChild(b);
-  }
-  const on = !!ADU_ON[AD.local];
-  if (b.getAttribute("aria-selected") !== String(on)) b.setAttribute("aria-selected", String(on));
+  const fin = () => [...g.children].find(x => /perfil|salir|cerrar|oscuro|carr/i.test((x.dataset.act || "") + " " + (x.dataset.t || "")));
+  const mk = (act, svg, txt) => { let x = g.querySelector(`:scope > [data-act="${act}"]`); if (!x) { x = document.createElement("button"); x.type = "button"; x.setAttribute("role", "tab"); x.dataset.act = act; x.dataset.tipo = t; x.innerHTML = `<span class="rep-ti" aria-hidden="true">${svg}</span><span class="rep-tt">${txt}</span>`; const f = fin(); if (f) f.before(x); else g.appendChild(x); } return x; };
+  const bAg = mk("aduag-tab", ADUAG_SVG, `Agregar ${t === "prov" ? "proveedor" : t === "repartidor" ? "repartidor" : "usuario"}`), b = mk("adu-tab", ADU_SVG, aduTitulo(t));
+  if (bAg.nextElementSibling !== b) bAg.after(b);
+  const modo = ADU_ON[AD.local] || "", on = !!modo;
+  if (b.getAttribute("aria-selected") !== String(modo === "lista")) b.setAttribute("aria-selected", String(modo === "lista"));
+  if (bAg.getAttribute("aria-selected") !== String(modo === "agregar")) bAg.setAttribute("aria-selected", String(modo === "agregar"));
   let p = $("#adu-panel");
   if (on) {
-    g.querySelectorAll(':scope > [aria-selected="true"]').forEach(x => { if (x !== b) x.setAttribute("aria-selected", "false"); });
+    const sel = modo === "lista" ? b : bAg;
+    g.querySelectorAll(':scope > [aria-selected="true"]').forEach(x => { if (x !== sel) x.setAttribute("aria-selected", "false"); });
     if (!g.classList.contains("adu-grid")) g.classList.add("adu-grid");
     if (!v.classList.contains("adu-on")) v.classList.add("adu-on");
     if (!p || p.previousElementSibling !== g) { if (p) p.remove(); p = document.createElement("div"); p.id = "adu-panel"; g.after(p); }
-    const h = aduPanelHTML(t); if (p._h !== h) { p._h = h; p.innerHTML = h; }
+    if (modo === "agregar") { const k = "form:" + t; if (p._h !== k) { p._h = k; p.innerHTML = `<section class="card ad-card usu-crear-card"><h2 class="h2">➕ Agregar ${ADU_NOM[t] || "usuario"}</h2>${t === "prov" ? formRegistro("prov", true) : formRegistro(t, "usu")}</section>`; setTimeout(() => { const n = p.querySelector("input[name=nombre]"); if (n) n.focus({ preventScroll: true }); }, 60); } }
+    else { const h = aduPanelHTML(t); if (p._h !== h) { p._h = h; p.innerHTML = h; } }
   } else { if (p) p.remove(); if (v.classList.contains("adu-on")) v.classList.remove("adu-on"); }
 }
+const ADUAG_SVG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M19 8v6M16 11h6"/></svg>';
+/* Tras crear un usuario desde «Agregar usuario»: se muestra la lista con el nuevo usuario. */
+function aduTrasCrear() { if (S.portal === "admin" && ADU_LOC[AD.local] && ADU_ON[AD.local] === "agregar") { ADU_ON[AD.local] = "lista"; aduInyectar(); } }
 let ADU_RAF = 0;
 new MutationObserver(() => { if (ADU_RAF || S.portal !== "admin" || !ADU_LOC[AD.local]) return; ADU_RAF = requestAnimationFrame(() => { ADU_RAF = 0; aduInyectar(); }); }).observe(document.body, { childList: true, subtree: true });
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("button[data-act]"); if (!b || S.portal !== "admin" || !ADU_LOC[AD.local]) return;
-  if (b.dataset.act === "adu-tab") { ADU_ON[AD.local] = true; aduInyectar(); return; }
-  if (b.closest(".adu-grid, #view > .tabs.rep-tabs") && /tab$/.test(b.dataset.act || "") && ADU_ON[AD.local]) { ADU_ON[AD.local] = false; setTimeout(aduInyectar, 0); }
-  if (b.dataset.act === "ad-local") Object.keys(ADU_ON).forEach(k => { ADU_ON[k] = false; });
+  if (b.dataset.act === "adu-tab") { ADU_ON[AD.local] = "lista"; aduInyectar(); return; }
+  if (b.dataset.act === "aduag-tab") { ADU_ON[AD.local] = "agregar"; aduInyectar(); return; }
+  if (b.closest(".adu-grid, #view > .tabs.rep-tabs") && /tab$/.test(b.dataset.act || "") && ADU_ON[AD.local]) { ADU_ON[AD.local] = ""; setTimeout(aduInyectar, 0); }
+  if (b.dataset.act === "ad-local") Object.keys(ADU_ON).forEach(k => { ADU_ON[k] = ""; });
+  if ((b.dataset.act === "usu-crear-no" || b.dataset.act === "prov-crear-no") && b.closest("#adu-panel")) { e.stopImmediatePropagation(); e.preventDefault(); ADU_ON[AD.local] = ""; renderView(); }
 }, true);
 /* Ventana con la lista de usuarios de Local papas, Local agua, Repartidores o Proveedores. */
 function aduListaHTML(t) {
