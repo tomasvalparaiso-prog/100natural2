@@ -15009,17 +15009,18 @@ document.addEventListener("click", e => {
   else if (a === "cmu-edit") {
     const x = CMU.lista.find(y => y.id === id); if (x) {
       const m = String(x.horario || "").match(/(\d{1,2}:\d{2})(?:\D+(\d{1,2}:\d{2}))?/), pad = t => t ? t.padStart(5, "0") : "";
-      CMU.edit = id; CMU.del = "";
+      CMU.edit = id; CMU.del = ""; CMU.tab = "crear";
       CMU.f = { nombre: x.nombre || "", descripcion: x.descripcion || "", fecha: x.fecha || "", desde: pad(x.desde || (m && m[1]) || ""), hasta: pad(x.hasta || (m && m[2]) || ""), puntos: x.puntos ? String(x.puntos) : "" };
       const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML();
       const fm = $("#cmu-form"); if (fm) fm.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => { const n = $("#cmu-nombre"); if (n) n.focus({ preventScroll: true }); }, 300);
     }
   }
-  else if (a === "cmu-edit-no") { CMU.edit = ""; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
+  else if (a === "cmu-edit-no") { CMU.edit = ""; CMU.tab = "lista"; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
   else if (a === "ptsad-ver") { PTA.ver = PTA.ver === id ? "" : id; PTA.aj = { pts: "", motivo: "" }; renderPuntosAd(); }
   else if (a === "ptsad-aj") ajustarPuntos(id);
   else if (a === "cmu-asis") marcarAsistencia(id, b.dataset.v === "1");
-  else if (a === "cmu-ver") { CMU.ver = CMU.ver === id ? "" : id; renderCmu(); }
+  else if (a === "cmu-ver") { if (CMU.ocultos.has(id)) CMU.ocultos.delete(id); else CMU.ocultos.add(id); renderCmu(); }
+  else if (a === "cmu-tab") { CMU.tab = b.dataset.t === "crear" ? "crear" : "lista"; if (CMU.tab === "lista" && CMU.edit) { CMU.edit = ""; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; } const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
   else if (a === "cmu-del") { CMU.del = id; renderCmu(); }
   else if (a === "cmu-del-no") { CMU.del = ""; renderCmu(); }
   else if (a === "cmu-del-si") { CMU.del = ""; conReintento(() => S.db.doc("actividades/" + id).delete()).then(() => toast("Actividad eliminada.")).catch(e => toast(msgError(e))); }
@@ -16426,7 +16427,7 @@ function renderMuroAd() {
 /* ---------- Comunidad: actividades que sube el administrador y a las que se inscriben los clientes ----------
    «actividades/<id>»: { nombre, descripcion, fecha, horario, en, por } (todos los clientes pueden leerlas).
    «inscripciones/<actividad>__<cliente>»: { actividadId, clienteId, clienteNombre, telefono, tipo, en } (cada cliente la suya). */
-const CMU = { lista: [], subs: false, cargado: false, insc: [], subsI: false, cargadoI: false, mias: new Set(), ver: "", del: "", guardando: false, f: { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" } };
+const CMU = { tab: "lista", ocultos: new Set(), lista: [], subs: false, cargado: false, insc: [], subsI: false, cargadoI: false, mias: new Set(), ver: "", del: "", guardando: false, f: { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" } };
 const cmuOk = a => a && a.nombre && !a.clienteId;
 const cmuProx = () => CMU.lista.filter(a => cmuOk(a) && (!a.fecha || a.fecha >= hoy())).sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
 const cmuId = (aid, cid) => String(aid).replace(/[^A-Za-z0-9_-]/g, "_") + "__" + String(cid).replace(/[^A-Za-z0-9_-]/g, "_");
@@ -16434,10 +16435,17 @@ function subComunidad() {
   if (!S.db) return;
   if (!CMU.subs) { CMU.subs = true; S.db.collection("actividades").limit(300).onSnapshot(sn => { CMU.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).filter(cmuOk); CMU.cargado = true; renderCmu(); pintarComunCli(); contarComun(); }, e => { CMU.cargado = true; console.warn("actividades", e); renderCmu(); }); }
   const staff = S.portal === "admin";
-  if (!CMU.subsI) {
-    const cli = S.ses.cliente;
-    if (staff) { CMU.subsI = true; S.db.collection("inscripciones").limit(5000).onSnapshot(sn => { CMU.insc = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.cargadoI = true; renderCmu(); }, () => { CMU.cargadoI = true; }); }
-    else if (cli) { CMU.subsI = cli.id; S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { const antes = CMU.mias.size > 0; CMU.misIns = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.mias = new Set(CMU.misIns.map(d => d.actividadId)); const prim = !CMU.cargadoI; CMU.cargadoI = true; pintarComunCli(); contarComun(); if (prim || antes !== (CMU.mias.size > 0)) insigniasRepintar(); else if (S.cliTab === "perf") renderPerfilCli(); }, () => { CMU.cargadoI = true; }); }
+  /* La suscripción a inscripciones depende de quién entró (administrador o cliente): si cambia la sesión, se vuelve a suscribir. */
+  const cli = S.ses.cliente, clave = staff ? "admin:" + ((S.ses.admin || {}).id || "") : cli ? "cli:" + cli.id : "";
+  if (clave && CMU.subsI !== clave) {
+    if (typeof CMU.offI === "function") try { CMU.offI(); } catch (_) {}
+    CMU.subsI = clave; CMU.cargadoI = false; CMU.insc = []; CMU.misIns = []; CMU.mias = new Set();
+    if (staff) {
+      const pintar = sn => { CMU.insc = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.cargadoI = true; renderCmu(); };
+      CMU.offI = S.db.collection("inscripciones").limit(5000).onSnapshot(pintar, e => { console.warn("inscripciones", e); S.db.collection("inscripciones").limit(5000).get().then(pintar).catch(() => { CMU.cargadoI = true; renderCmu(); }); });
+      S.db.collection("inscripciones").limit(5000).get().then(sn => { if (!CMU.insc.length) pintar(sn); }).catch(() => {});
+    }
+    else if (cli) { CMU.offI = S.db.collection("inscripciones").where("clienteId", "==", cli.id).onSnapshot(sn => { const antes = CMU.mias.size > 0; CMU.misIns = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); CMU.mias = new Set(CMU.misIns.map(d => d.actividadId)); const prim = !CMU.cargadoI; CMU.cargadoI = true; pintarComunCli(); contarComun(); if (prim || antes !== (CMU.mias.size > 0)) insigniasRepintar(); else if (S.cliTab === "perf") renderPerfilCli(); }, () => { CMU.cargadoI = true; }); }
   }
 }
 function contarComun() { const el = $("#cnt-comun"); if (!el) return; const n = S.ses.cliente ? cmuProx().filter(a => !CMU.mias.has(a.id)).length : 0, t = n ? String(n) : ""; if (el.textContent !== t) el.textContent = t; }
@@ -16601,16 +16609,20 @@ function comunidadAdHTML() {
     <p class="err" id="cmu-err" role="alert"></p>
     <button type="button" class="btn primario grande" data-act="cmu-subir" ${CMU.guardando ? "disabled" : ""}>${CMU.guardando ? (CMU.edit ? "Guardando…" : "Subiendo…") : CMU.edit ? "💾 Guardar cambios" : "📤 Subir actividad"}</button>${CMU.edit ? `<button type="button" class="btn suave" data-act="cmu-edit-no">Cancelar edición</button>` : ""}
     <p class="muted-s">Al subirla, todos los clientes la ven en su botón «Trabajos comunitarios» y reciben un aviso en el teléfono (si tienen las notificaciones activas).</p></div>`;
-  if (!CMU.cargado) return form + vacio("Cargando actividades…", "Un momento.");
+  /* Organizado en dos pestañas: «Crear actividad» y «Actividades disponibles». */
+  const nDisp = CMU.lista.filter(a => !a.fecha || a.fecha >= hoy()).length;
+  const tabs = `<div class="seg-per com-tipo cmu-tabs" role="group" aria-label="Trabajos comunitarios">${[["crear", CMU.edit ? "✏️ Editar actividad" : "➕ Crear actividad", ""], ["lista", "📋 Actividades disponibles", CMU.cargado ? String(nDisp) : ""]].map(([k, l, n]) => `<button type="button" data-act="cmu-tab" data-t="${k}" aria-pressed="${CMU.tab === k}"><span>${l}${n ? ` <small>${n}</small>` : ""}</span></button>`).join("")}</div>`;
+  if (CMU.tab === "crear") return tabs + form;
+  if (!CMU.cargado) return tabs + vacio("Cargando actividades…", "Un momento.");
   const xs = [...CMU.lista].sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
-  return form + `<h2 class="est-sec">Actividades</h2>` + (xs.length ? `<div class="cmu-lista">${xs.map(a => { const ins = CMU.insc.filter(i => i.actividadId === a.id).sort((x, y) => (x.en || 0) - (y.en || 0)), pasada = a.fecha && a.fecha < hoy();
+  return tabs + (xs.length ? `<div class="cmu-lista">${xs.map(a => { const ins = CMU.insc.filter(i => i.actividadId === a.id).sort((x, y) => (x.en || 0) - (y.en || 0)), pasada = a.fecha && a.fecha < hoy();
     return `<article class="card ad-card cmu-card${pasada ? " pasada" : ""}"><div class="cmu-h"><b>${esc(a.nombre)}</b>${pasada ? `<span class="pr-est pr-fin">Realizada</span>` : `<span class="pr-est pr-pub">Próxima</span>`}</div>
       <p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
       <p class="cmu-n">👥 ${ins.length} ${ins.length === 1 ? "inscrito" : "inscritos"}${ins.some(i => i.asistio) ? ` · ✓ ${ins.filter(i => i.asistio).length} asistieron` : ""}${Number(a.puntos) ? ` · 🏅 ${fmtN(a.puntos)} puntos` : ""}</p>
-      ${CMU.ver === a.id ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${Number(a.puntos) ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${Number(a.puntos) ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
+      ${!CMU.ocultos.has(a.id) ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${Number(a.puntos) ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${Number(a.puntos) ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
       ${CMU.del === a.id ? `<div class="acciones"><span class="muted-s">¿Eliminar esta actividad?</span><button type="button" class="btn chico suave" data-act="cmu-del-no">No</button><button type="button" class="btn chico peligro" data-act="cmu-del-si" data-id="${esc(a.id)}">Eliminar</button></div>`
-        : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${CMU.ver === a.id ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-edit" data-id="${esc(a.id)}">✏️ Editar</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
-    </article>`; }).join("")}</div>` : vacio("Aún no hay actividades", "Sube la primera con el formulario de arriba."));
+        : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${!CMU.ocultos.has(a.id) ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-edit" data-id="${esc(a.id)}">✏️ Editar</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
+    </article>`; }).join("")}</div>` : vacio("Aún no hay actividades", "Créala en la pestaña «➕ Crear actividad»."));
 }
 function renderCmu() {
   const el = $("#cmu-panel"); if (!el || !(S.portal === "admin" && AD.local === "comun")) return;
@@ -16628,14 +16640,14 @@ async function subirActividad() {
     CMU.guardando = true; el2();
     try {
       await conReintento(() => S.db.doc("actividades/" + eid).update(Object.assign({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, desde: f.desde || "", hasta: f.hasta || "", puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "" }, a0.fecha !== f.fecha ? { recordado: "" } : {})));
-      CMU.edit = ""; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("💾 Actividad actualizada.");
+      CMU.edit = ""; CMU.tab = "lista"; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("💾 Actividad actualizada.");
     } catch (e) { toast(msgError(e)); }
     CMU.guardando = false; el2(); return;
   }
   if (f.fecha < hoy()) return mal("La fecha ya pasó.");
   const id = "act" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   CMU.guardando = true; el2(); 
-  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, desde: f.desde || "", hasta: f.hasta || "", puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Trabajos comunitarios."); }
+  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, desde: f.desde || "", hasta: f.hasta || "", puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.tab = "lista"; CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Trabajos comunitarios."); }
   catch (e) { toast(msgError(e)); }
   CMU.guardando = false; el2();
   function el2() { const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
