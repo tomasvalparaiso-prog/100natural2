@@ -4897,7 +4897,7 @@ function updateCarritoUI() {
   if (res && descP && lista.length) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">🏅 Puntos usados<small>${fmtN(descP)} puntos</small></span><span class="s">−${clp(descP)}</span></li>`);
   if (res && kgPapas) res.insertAdjacentHTML("beforeend", `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtN(kgPapas)} kg</small></span></li>`);
   const t = $("#total"); if (t) t.textContent = clp(total);
-  { const g = $("#pts-gana"); if (g) { const n = verPrecios() && !S.editPedido && lista.length ? puntosPorTotal(total) : 0; g.hidden = !n; g.innerHTML = n ? `<span aria-hidden="true">🏅</span><span>Con este pedido acumulas <b>${fmtN(n)} puntos</b><small>100 puntos por cada $1.000 de compra</small></span>` : ""; } }
+  { const g = $("#pts-gana"); if (g) { const n = verPrecios() && !S.editPedido && lista.length && ptsAplica() ? puntosPorTotal(total) : 0; g.hidden = !n; g.innerHTML = n ? `<span aria-hidden="true">🏅</span><span>Con este pedido acumulas <b>${fmtN(n)} puntos</b><small>100 puntos por cada $1.000 de compra</small></span>` : ""; } }
   updateBarra(lista, total);
 }
 function updateBarra(lista, total) {
@@ -4993,7 +4993,7 @@ async function enviarPedido(btn) {
     S.misSub = "pend";
     { const [ra, rb] = rangoPeriodo(S.pendG, S.misRef); if (fecha < ra || fecha > rb) S.misRef = fecha; }
     if (!S.pedidos.some(x => x.id === id)) S.pedidos.unshift(Object.assign({ id }, doc));
-    if (cpwOn()) { CPW.fin = { id, num, fecha, horario, aviso: avisoCorte(fecha0, fecha), puntos: verPrecios() ? puntosPorTotal(doc.total) : 0, usados: Number(doc.puntosUsados) || 0 }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
+    if (cpwOn()) { CPW.fin = { id, num, fecha, horario, aviso: avisoCorte(fecha0, fecha), puntos: verPrecios() && ptsAplica() ? puntosPorTotal(doc.total) : 0, usados: Number(doc.puntosUsados) || 0 }; CPW.grupo = ""; cpwIr(5); renderListas(); return; }
     cambiarCliTab("mis"); renderListas(); window.scrollTo({ top: 0, behavior: "smooth" });
     toast(`Pedido N° ${num} enviado. Lo ves en Mis pedidos > Pendientes.${avisoCorte(fecha0, fecha)}`);
   } catch (e) { err.textContent = msgError(e); }
@@ -5496,7 +5496,7 @@ function entregadosCliHTML(lista) {
 const origenTagHTML = p => p.autoStock ? `<span class="org-tag auto">⚡ Programado automático</span>` : p.programado ? `<span class="org-tag prog">🔁 Programado no automático</span>` : `<span class="org-tag norm">🛒 Pedido normal</span>`;
 /* Pedido del cliente: puntos que acumuló con ese pedido (y los que usó de descuento). */
 function pedPuntosHTML(p) {
-  if (!p || p.estado === "cancelado") return "";
+  if (!p || p.estado === "cancelado" || !ptsAplica()) return "";
   const g = PTS.lista.find(m => m.id === "gan_" + p.id), u = PTS.lista.find(m => m.id === "ped_" + p.id);
   const gan = g ? Number(g.puntos) || 0 : 0, usados = u ? -(Number(u.puntos) || 0) : Number(p.puntosUsados) || 0;
   if (!gan && !usados) return "";
@@ -13233,7 +13233,7 @@ function activarAdmin() {
   if (AD.local === "coment") { subComentarios(); renderCom(); return; }
   if (AD.local === "clin") { subUsuarios(); renderClin(); return; }
   if (AD.local === "pts") { subUsuarios(); subPuntosAd(); renderPuntosAd(); return; }
-  if (AD.local === "comun") { subComunidad(); renderCmu(); return; }
+  if (AD.local === "comun") { subComunidad(); subUsuarios(); renderCmu(); return; }
   if (AD.local === "muro") { subMuro(); renderMuroAd(); return; }
   if ((AD.local === "est" || AD.local === "estpro")) { asegurarTipos(); subUsuarios(); renderEst(); return; }
   if (AD.local === "red") { asegurarTipos(); renderRed(); return; }
@@ -16512,7 +16512,8 @@ const cmuFechaTxt = a => `${a.fecha ? cap(fmtFecha(a.fecha)) : "Fecha por confir
 /* Administrador: marcar asistencia → suma los puntos de la actividad al cliente («puntos_mov/act_<inscripción>»). */
 async function marcarAsistencia(insId, si) {
   const i = CMU.insc.find(x => x.id === insId); if (!i) return;
-  const a = CMU.lista.find(x => x.id === i.actividadId) || {}, pts = Math.max(0, Math.floor(Number(a.puntos) || 0)), mov = S.db.doc("puntos_mov/act_" + insId);
+  const a = CMU.lista.find(x => x.id === i.actividadId) || {}, cl = (((US.data || {}).clientes) || []).find(c => c.id === i.clienteId) || {}, esLoc = (cl.tipo || i.tipo) === "Local comercial";
+  const pts = esLoc ? 0 : Math.max(0, Math.floor(Number(a.puntos) || 0)), mov = S.db.doc("puntos_mov/act_" + insId);
   try {
     if (si) {
       await conReintento(() => S.db.doc("inscripciones/" + insId).update({ asistio: true, asistioEn: Date.now() }));
@@ -16540,7 +16541,7 @@ function puntosAdHTML() {
   const nq = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), pals = nq(PTA.q).split(/\s+/).filter(Boolean);
   const lista = xs.filter(x => !pals.length || pals.every(w => nq(x.nombre).includes(w))).sort((a, b) => b.saldo - a.saldo || a.nombre.localeCompare(b.nombre, "es"));
   const tot = xs.reduce((t, x) => t + Math.max(0, x.saldo), 0), totG = xs.reduce((t, x) => t + x.gan, 0), totU = xs.reduce((t, x) => t + x.usa, 0);
-  return `<div class="card ad-card"><h2 class="h2">🏅 Puntos de clientes</h2><p class="muted-s">Se ganan 100 puntos por cada $1.000 de compra y con los Trabajos comunitarios (al marcar asistencia). 1 punto = $1 de descuento.</p>
+  return `<div class="card ad-card"><h2 class="h2">🏅 Puntos de clientes</h2><p class="muted-s">Solo los clientes <b>Particulares</b> acumulan puntos: 100 por cada $1.000 de compra y con los Trabajos comunitarios (al marcar asistencia). 1 punto = $1 de descuento.</p>
     <div class="ptsp-res"><div><b>${fmtN(tot)}</b><small>disponibles (= ${clp(tot)})</small></div><div><b>${fmtN(totG)}</b><small>entregados</small></div><div><b>${fmtN(totU)}</b><small>canjeados</small></div></div></div>
     <label class="campo"><span class="sr-off" style="position:absolute;width:1px;height:1px;overflow:hidden">Buscar cliente</span><input type="search" id="ptsad-q" value="${esc(PTA.q)}" placeholder="🔍 Buscar cliente" autocomplete="off" aria-label="Buscar cliente"></label>
     ${lista.length ? `<div class="ptsad-lista">${lista.map(x => `<article class="card ad-card ptsad-it"><button type="button" class="ptsad-h" data-act="ptsad-ver" data-id="${esc(x.id)}" aria-expanded="${PTA.ver === x.id}"><span class="adl-av" aria-hidden="true">${x.tipo === "Local comercial" ? "🏪" : esc(String(x.nombre).trim().charAt(0).toUpperCase())}</span><span class="adl-tx"><b>${esc(x.nombre)}</b><small>Ganó ${fmtN(x.gan)} · usó ${fmtN(x.usa)}</small></span><span class="ptsad-s">${fmtN(x.saldo)}<small>pts</small></span></button>
@@ -16576,17 +16577,19 @@ function subPuntos() {
   }, () => { PTS.cargado = true; });
 }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente) { subPuntos(); contarPuntos(); } }, 3000);
+/* Solo los clientes Particulares acumulan y usan puntos (los Locales comerciales no). */
+const ptsAplica = () => { const c = S.ses.cliente; return !!c && c.tipo !== "Local comercial"; };
 /* 100 puntos por cada $1.000 del total pagado del pedido (la base de datos aplica la misma regla). */
 const puntosPorTotal = t => Math.max(0, Math.floor((Number(t) || 0) / 1000) * 100);
 const puntosSaldo = () => Math.max(0, Math.floor(PTS.lista.reduce((t, m) => t + (Number(m.puntos) || 0), 0)));
 /* Descuento por puntos sobre el precio final (después del cupón), sin pasarse del total. */
-const puntosDescuento = totalAntes => PTS.usar && !S.editPedido ? Math.max(0, Math.min(puntosSaldo(), Math.floor(totalAntes))) : 0;
+const puntosDescuento = totalAntes => PTS.usar && !S.editPedido && ptsAplica() ? Math.max(0, Math.min(puntosSaldo(), Math.floor(totalAntes))) : 0;
 function puntosBoxHTML() {
-  const n = puntosSaldo(); if (!PTS.cargado || !n) return "";
+  const n = puntosSaldo(); if (!PTS.cargado || !n || !ptsAplica()) return "";
   return `<label class="pts-box${PTS.usar ? " on" : ""}"><input type="checkbox" id="pts-usar" ${PTS.usar ? "checked" : ""}><span class="pts-i" aria-hidden="true">🏅</span><span><b>Usar mis puntos</b><small>Tienes ${fmtN(n)} puntos = ${clp(n)} de descuento</small></span></label>`;
 }
 /* Clientes › Inicio › Puntos: saldo, cómo se ganan (300 por pedido y Trabajos comunitarios), cómo se usan e historial. */
-function contarPuntos() { const el = $("#cnt-pts"); if (!el) return; const n = PTS.cargado ? puntosSaldo() : 0, t = n ? fmtN(n) : ""; if (el.textContent !== t) el.textContent = t; }
+function contarPuntos() { const el = $("#cnt-pts"); if (!el) return; { const b = el.closest("button"); if (b && b.hidden !== !ptsAplica()) b.hidden = !ptsAplica(); } const n = PTS.cargado ? puntosSaldo() : 0, t = n ? fmtN(n) : ""; if (el.textContent !== t) el.textContent = t; }
 function puntosPagHTML() {
   const n = puntosSaldo(), ms = PTS.lista;
   const gan = ms.filter(m => Number(m.puntos) > 0), porPed = gan.filter(m => String(m.id).startsWith("gan_")).reduce((t, m) => t + Number(m.puntos), 0), porTrab = gan.filter(m => String(m.id).startsWith("act_")).reduce((t, m) => t + Number(m.puntos), 0), usados = -ms.filter(m => Number(m.puntos) < 0).reduce((t, m) => t + Number(m.puntos), 0);
@@ -16616,11 +16619,11 @@ function misTrabajosHTML() {
   const h = hoy(), prox = xs.filter(x => x.fecha && x.fecha >= h).reverse(), hechas = xs.filter(x => !x.fecha || x.fecha < h);
   const it = (x, pas) => `<li class="mt-it${pas ? " pas" : ""}"><span class="mt-i" aria-hidden="true">${pas ? "🏅" : "📅"}</span><div><b>${esc(x.nombre)}</b><small>${esc(x.fecha ? cap(fmtFecha(x.fecha)) : "Fecha por confirmar")}${x.horario ? ` · ${esc(x.horario)}` : ""}</small>${x.desc ? `<p>${esc(x.desc)}</p>` : ""}</div><span class="mt-est">${pas ? "Participaste" : "Inscrito"}</span></li>`;
   subPuntos();
-  const saldo = puntosSaldo(), movs = PTS.lista.slice(0, 12);
+  const saldo = puntosSaldo(), movs = PTS.lista.slice(0, 12), conPts = ptsAplica();
   const ptsHTML = `<div class="mt-pts"><span class="mt-pts-n">🏅 ${fmtN(saldo)}</span><span><b>${saldo === 1 ? "punto" : "puntos"} disponibles</b><small>= ${clp(saldo)} de descuento en tus pedidos · 1 punto = $1</small></span></div>
     ${movs.length ? `<details class="mt-mov"><summary>Historial de puntos</summary><ul>${movs.map(m => `<li><span>${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(fmtFecha(ymd(new Date(m.en)))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul></details>` : ""}`;
   return `<section class="perf-card mis-trab"><h3>🤝 Mis trabajos comunitarios${xs.length ? ` <small>${fmtN(hechas.length)} ${hechas.length === 1 ? "realizado" : "realizados"}${prox.length ? ` · ${fmtN(prox.length)} ${prox.length === 1 ? "próximo" : "próximos"}` : ""}</small>` : ""}</h3>
-    ${ptsHTML}
+    ${conPts ? ptsHTML : ""}
     ${!CMU.cargadoI ? `<p class="muted-s">Cargando…</p>` : xs.length ? `${prox.length ? `<p class="mt-sub">Próximos</p><ul class="mt-lista">${prox.map(x => it(x, false)).join("")}</ul>` : ""}${hechas.length ? `<p class="mt-sub">Realizados</p><ul class="mt-lista">${hechas.map(x => it(x, true)).join("")}</ul>` : ""}`
       : `<p class="muted-s">Aún no participas en trabajos comunitarios.</p>`}
     <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>`;
@@ -16630,7 +16633,7 @@ function comunidadCliHTML() {
   const xs = cmuProx();
   return `<div class="promo-box cmu-box" role="dialog" aria-modal="true" aria-labelledby="cmu-t"><div class="pl-h"><b id="cmu-t">👥 Trabajos comunitarios</b><button type="button" class="ap-cerrar" data-act="cmu-cerrar" aria-label="Cerrar">×</button></div>
     <p class="com-sub">Actividades de 100% Natural. Inscríbete en las que te interesen.</p>
-    ${!CMU.cargado ? `<p class="muted">Cargando actividades…</p>` : xs.length ? xs.map(a => { const ins = CMU.mias.has(a.id); return `<article class="cmu-act${ins ? " ins" : ""}"><h3>${esc(a.nombre)}</h3><p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${Number(a.puntos) ? `<p class="cmu-pts">🏅 Ganas <b>${fmtN(a.puntos)} puntos</b> al participar (= ${clp(a.puntos)} de descuento)</p>` : ""}${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
+    ${!CMU.cargado ? `<p class="muted">Cargando actividades…</p>` : xs.length ? xs.map(a => { const ins = CMU.mias.has(a.id); return `<article class="cmu-act${ins ? " ins" : ""}"><h3>${esc(a.nombre)}</h3><p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${Number(a.puntos) && ptsAplica() ? `<p class="cmu-pts">🏅 Ganas <b>${fmtN(a.puntos)} puntos</b> al participar (= ${clp(a.puntos)} de descuento)</p>` : ""}${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
       ${ins ? `<div class="cmu-acc"><span class="cmu-ok">✅ Estás inscrito</span><button type="button" class="link" data-act="cmu-salir" data-id="${esc(a.id)}">Cancelar inscripción</button></div>` : `<button type="button" class="btn primario" data-act="cmu-insc" data-id="${esc(a.id)}">Inscribirme</button>`}</article>`; }).join("") : `<p class="muted cmu-vacio">Por ahora no hay actividades. Te avisaremos cuando haya una nueva.</p>`}
   </div>`;
 }
@@ -16677,7 +16680,7 @@ function comunidadAdHTML() {
     return `<article class="card ad-card cmu-card${pasada ? " pasada" : ""}"><div class="cmu-h"><b>${esc(a.nombre)}</b>${pasada ? `<span class="pr-est pr-fin">Realizada</span>` : `<span class="pr-est pr-pub">Próxima</span>`}</div>
       <p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
       <p class="cmu-n">👥 ${ins.length} ${ins.length === 1 ? "inscrito" : "inscritos"}${ins.some(i => i.asistio) ? ` · ✓ ${ins.filter(i => i.asistio).length} asistieron` : ""}${Number(a.puntos) ? ` · 🏅 ${fmtN(a.puntos)} puntos` : ""}</p>
-      ${!CMU.ocultos.has(a.id) ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${Number(a.puntos) ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${Number(a.puntos) ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
+      ${!CMU.ocultos.has(a.id) ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${(() => { const loc = ((((US.data || {}).clientes) || []).find(c => c.id === i.clienteId) || {}).tipo === "Local comercial" || i.tipo === "Local comercial", pp = !loc && Number(a.puntos); return i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${pp ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${pp ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`; })()}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
       ${CMU.del === a.id ? `<div class="acciones"><span class="muted-s">¿Eliminar esta actividad?</span><button type="button" class="btn chico suave" data-act="cmu-del-no">No</button><button type="button" class="btn chico peligro" data-act="cmu-del-si" data-id="${esc(a.id)}">Eliminar</button></div>`
         : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${!CMU.ocultos.has(a.id) ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-edit" data-id="${esc(a.id)}">✏️ Editar</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
     </article>`; }).join("")}</div>` : vacio("Aún no hay actividades", "Créala en la pestaña «➕ Crear actividad»."));
