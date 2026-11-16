@@ -485,6 +485,20 @@ body[data-portal="cfd"][data-cfdv="mn"] #barra .btn.primario{background:#fff;col
 .local-switch > .local-btn .red-cnt{top:5px;right:6px}
 @media(max-width:430px){.local-switch.local-switch{gap:5px}.local-switch > .local-btn.local-btn{font-size:.72rem;padding:10px 1px 9px;letter-spacing:-.01em}}
 @media(min-width:900px){.local-switch > .local-btn.local-btn{font-size:.9rem}}
+/* Inicio del administrador: botones un poco más grandes (3 por fila en el teléfono). */
+.local-switch.local-switch:not(.ls-uno){grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media(min-width:600px){.local-switch.local-switch:not(.ls-uno){grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+.local-switch:not(.ls-uno) > .local-btn.local-btn{min-height:96px;padding:14px 6px 12px;border-radius:16px;font-size:.86rem;gap:8px}
+.local-switch:not(.ls-uno) > .local-btn.local-btn > svg{width:32px;height:32px}.local-switch:not(.ls-uno) > .local-btn.local-btn > .apz-ico{font-size:1.6rem;line-height:32px;height:32px}
+@media(max-width:430px){.local-switch:not(.ls-uno) > .local-btn.local-btn{font-size:.82rem;padding:13px 4px 11px}}
+/* Todas las páginas: los menús de botones tienen el mismo tamaño que los del Inicio del administrador (3 por fila en el teléfono). */
+.tabs.rep-tabs:not(.cli-tabs):not(.cv-uno):not(.cat-nav3){grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+@media(min-width:600px){.tabs.rep-tabs:not(.cli-tabs):not(.cv-uno):not(.cat-nav3){grid-template-columns:repeat(auto-fill,minmax(140px,1fr))!important}}
+.tabs.rep-tabs:not(.cli-tabs):not(.cat-nav3) > button{min-height:96px!important;padding:14px 6px 12px!important;border-radius:16px!important;font-size:.86rem!important;gap:8px!important}
+.tabs.rep-tabs:not(.cli-tabs):not(.cat-nav3) > button .rep-ti{height:32px!important}.tabs.rep-tabs:not(.cli-tabs):not(.cat-nav3) > button .rep-ti svg{width:32px!important;height:32px!important}
+@media(max-width:430px){.tabs.rep-tabs:not(.cli-tabs):not(.cat-nav3) > button{font-size:.82rem!important;padding:13px 4px 11px!important}}
+.cli-ini-grid>.cli-ini-tile{min-height:96px;border-radius:16px;font-size:.86rem}.cli-ini-grid>.cli-ini-tile svg{width:32px;height:32px}
+.portales > button{min-height:96px;border-radius:16px}.portales > button .pt-i{height:32px}.portales > button .pt-i svg{width:32px;height:32px}
 .vloc-lista{display:grid;gap:8px;margin-top:12px}
 .vloc-loc{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .vloc-loc>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
