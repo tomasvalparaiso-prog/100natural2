@@ -936,6 +936,10 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mt-lista{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.mt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,#22c55e 7%,var(--surface))}.mt-it.pas{background:color-mix(in srgb,#f59e0b 9%,var(--surface))}
 .mt-i{font-size:1.4rem;line-height:1.1}.mt-it>div{flex:1;min-width:0}.mt-it b{display:block}.mt-it small{display:block;color:var(--muted)}.mt-it p{margin:4px 0 0;font-size:.88rem;white-space:pre-wrap}
 .mt-est{flex:none;font-size:.75rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534}.mt-it.pas .mt-est{background:#fef3c7;color:#92400e}
+.busq-campo{display:flex;align-items:center;gap:8px;padding:0 14px;min-height:54px;border:2px solid var(--line);border-radius:16px;background:var(--surface);font-size:1.1rem}.busq-campo:focus-within{border-color:#0ea5e9}.busq-campo input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);outline:none;padding:12px 0}
+.busq-sug{display:flex;flex-wrap:wrap;gap:8px}.busq-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}.busq-it{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.busq-it:hover{border-color:#0ea5e9}.busq-e{font-size:1.6rem;line-height:1}.busq-tx{flex:1;min-width:0;display:grid}.busq-tx small{color:var(--muted)}.busq-pr{font-weight:800;white-space:nowrap}.busq-tag{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;white-space:nowrap}.busq-fl{color:var(--muted);font-size:1.4rem}
+.prod.busq-flash{animation:busqF 2s ease}@keyframes busqF{0%,60%{box-shadow:0 0 0 3px #0ea5e9;background:color-mix(in srgb,#0ea5e9 12%,transparent)}100%{box-shadow:none}}
 .clin-top{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:0 0 12px}.clin-q{flex:1 1 100%;min-width:0;margin:0}.clin-top>.btn{flex:1 1 auto}.clin-q .sr-off{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .clin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.clin-btn{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .clin-btn:hover{border-color:var(--accent,#2563eb)}.clin-av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:800;font-size:1.1rem}.clin-tx{min-width:0;display:grid}.clin-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clin-tx small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -4212,6 +4216,7 @@ function vistaCliente() {
     <button type="button" class="cli-favs" data-act="cli-favs"><span class="rep-ti" aria-hidden="true" style="color:#e11d48!important">${FAV_SVG.replace('<svg ', '<svg width="26" height="26" fill="currentColor" ')}</span><span class="rep-tt">Mis favoritos</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-promos"><span class="rep-ti" aria-hidden="true" style="color:#f59e0b!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span class="rep-tt">Promociones</span><span class="cnt" id="cnt-promos"></span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-buscar"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></svg></span><span class="rep-tt">Buscador</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones disponibles</span><span class="cnt" id="cnt-cupcli"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Sugerencias</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Trabajos comunitarios</span><span class="cnt" id="cnt-comun"></span></button>
@@ -9261,7 +9266,7 @@ function navEntrada(b) {
   const a = b.dataset.act, k = S.portal; if (!a) return null;
   if (a === "ini-portal" || a === "pv-inicio" || a === "cli-inicio" || (a === "ad-local" && b.dataset.l === "inicio")) return { key: "inicio", sel: NAV_INICIO[k] };
   if (a === "usu-bar") return ["admin", "papas", "cliente", "cfd"].includes(k) ? { key: "perfil", sel: "#usu-bar" } : null;
-  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
+  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro", "cli-buscar"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
   if (!(/tab$/.test(a) || a === "ad-local")) return null;
   let key = `[data-act="${a}"]`; ["t", "l"].forEach(d => { if (b.dataset[d]) key += `[data-${d}="${b.dataset[d]}"]`; });
   const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
@@ -11107,7 +11112,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Administrador › Punto de venta: se elige Local agua o Local papas y adentro van las mismas pestañas que el punto de venta de ese local. */
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
-  ["100% Natural", [["clin", "Clientes"], ["papas", "Local papas"], ["agua", "Local agua"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["posad", "Punto de venta"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
+  ["100% Natural", [["clin", "Clientes"], ["papas", "Local papas"], ["agua", "Local agua"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"]]],
   ["Pedidos", [["ult", "Últimos pedidos"], ["pag", "Ventas / pedidos"], ["red", "Pedidos redundantes"], ["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["comun", "Trabajos comunitarios"], ["muro", "Muro de comentarios"], ["precios", "Precios especiales"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"], ["pron", "Pronóstico de la demanda"], ["ploc", "Pagos clientes"], ["est", "Estadísticas"]]],
   /* Repartidores pasó a «100% Natural» («Pagos en efectivo» quedó como pestaña dentro de Repartidores). */
   ["Registrados", [["usu", "Usuarios"], ["capt", "Lista clientes"], ["captados", "Captados"]]],
@@ -14915,6 +14920,10 @@ document.addEventListener("click", e => {
   else if (a === "cli-coment") abrirComentario();
   else if (a === "cli-comun") abrirComunidad();
   else if (a === "cli-muro") abrirMuro();
+  else if (a === "cli-buscar") abrirBuscador();
+  else if (a === "busq-cerrar") { const m = $("#busq-modal"); if (m) m.remove(); }
+  else if (a === "busq-sug") { BUSQ.q = b.dataset.q; const q = $("#busq-q"); if (q) q.value = BUSQ.q; pintarBusq(); }
+  else if (a === "busq-ir") busqIr(b.dataset.tipo, id, b.dataset.g);
   else if (a === "muro-cerrar") cerrarMuro();
   else if (a === "muro-pub") publicarMuro();
   else if (a === "muro-edit") { const c = MURO.lista.find(x => x.id === id); if (c) { MURO.edit = id; MURO.del = ""; MURO.editTxt = c.texto || ""; pintarMuroCli(); const t = $("#muro-edit-txt"); if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } } }
@@ -16137,6 +16146,45 @@ function abrirAgregarUsu(tipo, ct) {
   const n = m.querySelector("input[name=nombre]"); if (n) setTimeout(() => n.focus(), 50);
 }
 function cerrarAgregarUsu() { const m = $("#adu-modal"); if (m) m.remove(); }
+/* ---------- Clientes › Buscador de productos (agua, papas y los que vienen pronto: plátanos, helados…) ----------
+   Al tocar un producto se abre Nuevo pedido en su grupo y se marca el producto; los «Próximamente» muestran su afiche. */
+const BUSQ = { q: "" };
+const busqNorm = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+function busqIndice() {
+  const r = [];
+  for (const { c, items } of catsCliente()) {
+    if (PROXIMO.has(c.key)) continue;
+    for (const p of items) r.push({ tipo: "prod", id: p.id, g: p.fam, t: `${c.titulo}`, s: `${p.nombre} · ${p.medida}`, precio: verPrecios() ? precioMio(p.id) : 0, e: p.fam === "papa" ? "🥔" : "💧", txt: busqNorm([c.titulo, c.tag, p.nombre, p.medida, p.fam === "papa" ? "papas papa" : "agua"].join(" ")) });
+  }
+  for (const [k, e, l, sub, , keys] of cpwProx()) {
+    const cs = CATALOGO.filter(c => keys.includes(c.key)).map(c => c.titulo).join(" ");
+    r.push({ tipo: "prox", id: k, g: k, t: l, s: "Próximamente", e, txt: busqNorm([l, sub, cs, k.replace(/^fr_/, "")].join(" ")) });
+  }
+  return r;
+}
+function busqResHTML() {
+  const pals = busqNorm(BUSQ.q).split(/\s+/).filter(Boolean), idx = busqIndice();
+  const sug = ["Agua purificada", "Agua alcalina", "Papas", "Bidón 20 L", "Plátanos", "Helados"].filter(x => idx.some(r => busqNorm(x).split(" ").every(w => r.txt.includes(w))));
+  if (!pals.length) return `<p class="muted-s">Escribe el nombre de un producto o toca una sugerencia:</p><div class="busq-sug">${sug.map(x => `<button type="button" class="chip" data-act="busq-sug" data-q="${esc(x)}">${esc(x)}</button>`).join("")}</div>`;
+  const xs = idx.filter(r => pals.every(w => r.txt.includes(w)));
+  if (!xs.length) return `<p class="muted cmu-vacio">No encontramos «${esc(BUSQ.q)}». Prueba con otra palabra, o cuéntanos qué te gustaría en <button type="button" class="link" data-act="cli-coment">Sugerencias</button>.</p>`;
+  return `<p class="muted-s">${xs.length} ${xs.length === 1 ? "resultado" : "resultados"}</p><ul class="busq-lista">${xs.slice(0, 60).map(r => `<li><button type="button" class="busq-it${r.tipo === "prox" ? " prox" : ""}" data-act="busq-ir" data-tipo="${r.tipo}" data-id="${esc(r.id)}" data-g="${esc(r.g)}"><span class="busq-e" aria-hidden="true">${r.e}</span><span class="busq-tx"><b>${esc(r.t)}</b><small>${esc(r.s)}</small></span>${r.tipo === "prox" ? `<span class="busq-tag">Próximamente</span>` : r.precio ? `<span class="busq-pr">${clp(r.precio)}</span>` : ""}<span class="busq-fl" aria-hidden="true">›</span></button></li>`).join("")}</ul>`;
+}
+function abrirBuscador() {
+  if (!S.ses.cliente) return;
+  let m = $("#busq-modal");
+  if (!m) { m = document.createElement("div"); m.id = "busq-modal"; m.className = "promo-modal pagina-cli"; m.innerHTML = `<div class="promo-box busq-box"><div class="pl-h"><b>🔍 Buscador</b><button type="button" class="ap-cerrar" data-act="busq-cerrar" aria-label="Volver">×</button></div>
+    <label class="busq-campo"><span aria-hidden="true">🔍</span><input type="search" id="busq-q" placeholder="Buscar productos: papas, agua, plátanos…" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"></label><div id="busq-res"></div></div>`; montarPaginaCli(m); }
+  const q = $("#busq-q"); if (q) { q.value = BUSQ.q; setTimeout(() => q.focus(), 60); }
+  pintarBusq();
+}
+function pintarBusq() { const r = $("#busq-res"); if (r) r.innerHTML = busqResHTML(); }
+document.addEventListener("input", e => { if (e.target && e.target.id === "busq-q") { BUSQ.q = e.target.value; pintarBusq(); } });
+function busqIr(tipo, id, g) {
+  const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click();
+  CPW.grupo = g; cpwIr(2); if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); }
+  if (tipo === "prod") setTimeout(() => { const el = document.getElementById("row-" + id); if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.classList.add("busq-flash"); setTimeout(() => el.classList.remove("busq-flash"), 2200); } }, 250);
+}
 /* ---------- Insignia de Trabajos comunitarios: los clientes inscritos en alguna actividad llevan un 🤝 junto a su foto ----------
    RPC «insignias_comunitarias» → { clienteId: n° de inscripciones }. Para el propio cliente se usa lo que ya sabe la app (CMU.mias). */
 const COMI = { map: {}, en: 0, cargando: false };
@@ -16619,7 +16667,7 @@ function cerrarPromoModal() { const m = $("#promo-modal"); if (m) m.remove(); }
    de la página (con el banner, el nombre de la sección arriba y la barra inferior), igual que Inicio o Mis pedidos.
    Se muestran en «#panel-sec» (S.cliTab = "sec"); el botón Atrás del teléfono vuelve a Inicio. */
 let PAG_N = 0, PAG_EL = null;
-const PAG_ACT = { "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+const PAG_ACT = { "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
 function montarPaginaCli(m) {
   const ps = $("#panel-sec");
   if (!ps || S.portal !== "cliente") { document.body.appendChild(m); return; }
