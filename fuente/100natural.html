@@ -941,6 +941,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ptsp-res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ptsp-res div{display:grid;justify-items:center;padding:10px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-align:center}.ptsp-res b{font-size:1.2rem}.ptsp-res small{font-size:.72rem;color:var(--muted)}
 .ptsp-como ul{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.ptsp-como li{display:flex;gap:10px;align-items:flex-start}.ptsp-como li>span{font-size:1.4rem}.ptsp-como small{display:block;color:var(--muted)}
 .ptsp-hist{list-style:none;margin:0;padding:0}.ptsp-hist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.ptsp-hi{font-size:1.2rem}.ptsp-ht{flex:1;min-width:0}.ptsp-ht small{display:block;color:var(--muted)}.ptsp-hist .pos{color:#15803d}.ptsp-hist .neg{color:#b91c1c}
+.ped-pts{display:flex;align-items:center;gap:8px;margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;font-size:.9rem}.ped-pts>span:first-child{font-size:1.2rem}
 .pts-gana{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f}.pts-gana>span:first-child{font-size:1.4rem}.pts-gana small{display:block;opacity:.85}
 .wz-fin-pts{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px auto 4px;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;text-align:left;max-width:460px}.wfp-n{font-size:1.8rem;font-weight:900}.wz-fin-pts small{display:block;opacity:.9}.wz-fin-pts .link{color:#92400e;font-weight:800}
 .pts-box{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border:2px dashed #f59e0b;border-radius:14px;background:color-mix(in srgb,#f59e0b 8%,var(--surface));cursor:pointer}.pts-box.on{border-style:solid;background:color-mix(in srgb,#f59e0b 18%,var(--surface))}.pts-box input{flex:none;width:22px!important;height:22px!important;min-height:0!important;margin:0;padding:0;accent-color:#d97706}.pts-box>span:last-child{flex:1;min-width:0}.pts-i{font-size:1.4rem}.pts-box b{display:block}.pts-box small{color:var(--muted)}
@@ -5475,6 +5476,14 @@ function entregadosCliHTML(lista) {
     `<p class="dia-h">${esc(g.et)} · ${g.ps.length} ${g.ps.length === 1 ? "pedido" : "pedidos"}${verPrecios() ? " · " + clp(g.tot) : ""}</p>${g.ps.sort((a, b) => (b.entregado || 0) - (a.entregado || 0) || (b.creado || 0) - (a.creado || 0)).map(pedidoClienteHTML).join("")}`).join("") : vacio("Sin pedidos entregados en este período", "Usa las flechas o el botón Hoy para ver otras fechas.")}`;
 }
 const origenTagHTML = p => p.autoStock ? `<span class="org-tag auto">⚡ Programado automático</span>` : p.programado ? `<span class="org-tag prog">🔁 Programado no automático</span>` : `<span class="org-tag norm">🛒 Pedido normal</span>`;
+/* Pedido del cliente: puntos que acumuló con ese pedido (y los que usó de descuento). */
+function pedPuntosHTML(p) {
+  if (!p || p.estado === "cancelado") return "";
+  const g = PTS.lista.find(m => m.id === "gan_" + p.id), u = PTS.lista.find(m => m.id === "ped_" + p.id);
+  const gan = g ? Number(g.puntos) || 0 : 0, usados = u ? -(Number(u.puntos) || 0) : Number(p.puntosUsados) || 0;
+  if (!gan && !usados) return "";
+  return `<div class="ped-pts"><span aria-hidden="true">🏅</span><span>${gan ? `Acumulaste <b>${fmtN(gan)} puntos</b> con este pedido` : ""}${gan && usados ? " · " : ""}${usados ? `Usaste ${fmtN(usados)} puntos (−${clp(usados)})` : ""}</span></div>`;
+}
 function pedidoClienteHTML(p) {
   let pie = "";
   /* Un pedido confirmado ya no se puede editar ni cancelar desde la página de clientes. */
@@ -5490,6 +5499,7 @@ function pedidoClienteHTML(p) {
     ${itemsHTML(items(p), !verPrecios())}
     ${pedKgHTML(p)}
     ${bidonesPedidoHTML(p, false, sinMontoBid())}
+    ${pedPuntosHTML(p)}
     <div class="ped-f"><span class="tot">${verPrecios() ? `Total <b>${clp(p.total)}</b>` : `${items(p).reduce((a, i) => a + (Number(i.cant) || 0), 0)} productos`}</span>${pie}</div>${verPrecios() ? ivaLineHTML(p, itSub(items(p))) : ""}
     ${items(p).some(i => PROD[i.id] && Number(i.cant) > 0) ? `<div class="acciones ped-rep-cli"><button type="button" class="btn chico rep-ped-btn" data-act="repetir-pedido-cli" data-id="${esc(p.id)}">🔁 Repetir pedido</button></div>` : ""}
     ${pagoPedidoCliHTML(p)}
@@ -16435,7 +16445,7 @@ function subPuntos() {
   S.db.collection("puntos_mov").where("clienteId", "==", cli.id).onSnapshot(sn => {
     PTS.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.en || 0) - (a.en || 0)); PTS.cargado = true;
     if (PTS.usar && !puntosSaldo()) PTS.usar = false;
-    pintarPuntosBox(); pintarPuntosPag(); contarPuntos(); try { updateCarritoUI(); } catch (_) {} if (S.cliTab === "perf") renderPerfilCli();
+    pintarPuntosBox(); pintarPuntosPag(); contarPuntos(); try { updateCarritoUI(); } catch (_) {} if (S.cliTab === "perf") renderPerfilCli(); try { renderListas(); } catch (_) {}
   }, () => { PTS.cargado = true; });
 }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente) { subPuntos(); contarPuntos(); } }, 3000);

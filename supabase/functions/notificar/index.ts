@@ -62,7 +62,7 @@ function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null
 }
 
 // Pedido nuevo: aviso detallado (productos, dirección, cuándo, nota) con botones «Ver pedido» y «Cómo llegar».
-// El administrador ve además el total y el tipo de pago; los repartidores reciben el mismo aviso sin precio.
+// Solo le llega al administrador (con el total y el tipo de pago).
 const hoyCL = (dias = 0) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago" }).format(new Date(Date.now() + dias * 864e5));
 const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 function cuandoTxt(f: string, horario: string) {
@@ -100,11 +100,10 @@ function paraPedido(id: string, d: Record<string, any>, subs: Sub[]): [Sub[], Av
   });
   const creador = d.origen === "admin" && d.creadoPor ? `usuarios_admin:${d.creadoPor}` : "";
   const admins = subs.filter((s) => s.portal === "admin" && llave(s) !== creador);
-  const reps = subs.filter((s) => s.portal === "repartidor");
   const txt = (xs: string[]) => { const t = xs.filter(Boolean).join("\n"); return t.length > 400 ? t.slice(0, 399) + "…" : t; };
   return [
+    // Solo al administrador: los repartidores ya no reciben aviso de pedidos nuevos.
     [admins, base(txt([...lineas, pago ? `💰 ${pago}` : "", ...fin]))],
-    [reps, base(txt([...lineas, ...fin]))],
   ];
 }
 
