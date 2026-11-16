@@ -936,6 +936,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mt-lista{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.mt-it{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,#22c55e 7%,var(--surface))}.mt-it.pas{background:color-mix(in srgb,#f59e0b 9%,var(--surface))}
 .mt-i{font-size:1.4rem;line-height:1.1}.mt-it>div{flex:1;min-width:0}.mt-it b{display:block}.mt-it small{display:block;color:var(--muted)}.mt-it p{margin:4px 0 0;font-size:.88rem;white-space:pre-wrap}
 .mt-est{flex:none;font-size:.75rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534}.mt-it.pas .mt-est{background:#fef3c7;color:#92400e}
+.cnt.pts-cnt{background:#f59e0b!important;color:#fff!important}
+.ptsp-saldo{display:grid;justify-items:center;gap:2px;padding:18px;border-radius:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-align:center;box-shadow:0 6px 18px rgba(217,119,6,.3)}.ptsp-saldo b{font-size:2.6rem;line-height:1.1}.ptsp-saldo small{opacity:.9;font-weight:700}
+.ptsp-res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ptsp-res div{display:grid;justify-items:center;padding:10px 6px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-align:center}.ptsp-res b{font-size:1.2rem}.ptsp-res small{font-size:.72rem;color:var(--muted)}
+.ptsp-como ul{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.ptsp-como li{display:flex;gap:10px;align-items:flex-start}.ptsp-como li>span{font-size:1.4rem}.ptsp-como small{display:block;color:var(--muted)}
+.ptsp-hist{list-style:none;margin:0;padding:0}.ptsp-hist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.ptsp-hi{font-size:1.2rem}.ptsp-ht{flex:1;min-width:0}.ptsp-ht small{display:block;color:var(--muted)}.ptsp-hist .pos{color:#15803d}.ptsp-hist .neg{color:#b91c1c}
+.pts-box{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border:2px dashed #f59e0b;border-radius:14px;background:color-mix(in srgb,#f59e0b 8%,var(--surface));cursor:pointer}.pts-box.on{border-style:solid;background:color-mix(in srgb,#f59e0b 18%,var(--surface))}.pts-box input{flex:none;width:22px!important;height:22px!important;min-height:0!important;margin:0;padding:0;accent-color:#d97706}.pts-box>span:last-child{flex:1;min-width:0}.pts-i{font-size:1.4rem}.pts-box b{display:block}.pts-box small{color:var(--muted)}
+.mt-pts{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;margin:6px 0 10px}.mt-pts-n{font-size:1.6rem;font-weight:900;white-space:nowrap}.mt-pts b{display:block}.mt-pts small{opacity:.85}
+.mt-mov{margin:0 0 10px}.mt-mov summary{cursor:pointer;font-weight:800;padding:4px 0}.mt-mov ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}.mt-mov li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}.mt-mov li small{display:block;color:var(--muted)}.mt-mov .pos{color:#15803d}.mt-mov .neg{color:#b91c1c}
+.cmu-pts{margin:0;font-size:.92rem;color:#92400e}.cmu-ins-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.cmu-ins-h small{display:block}
 .busq-campo{display:flex;align-items:center;gap:8px;padding:0 14px;min-height:54px;border:2px solid var(--line);border-radius:16px;background:var(--surface);font-size:1.1rem}.busq-campo:focus-within{border-color:#0ea5e9}.busq-campo input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);outline:none;padding:12px 0}
 .busq-sug{display:flex;flex-wrap:wrap;gap:8px}.busq-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}.busq-it{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .busq-it:hover{border-color:#0ea5e9}.busq-e{font-size:1.6rem;line-height:1}.busq-tx{flex:1;min-width:0;display:grid}.busq-tx small{color:var(--muted)}.busq-pr{font-weight:800;white-space:nowrap}.busq-tag{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;white-space:nowrap}.busq-fl{color:var(--muted);font-size:1.4rem}
@@ -2834,6 +2843,7 @@ function msgError(e) {
   if (c === "invalid_argument") { S.sinPermiso = true; renderAviso(); return "Tu cuenta de claude.ai no tiene permiso para guardar datos aquí. Pide al dueño de la página que te invite como editor."; }
   if (c === "quota_exceeded") return "Se llenó el espacio de la base de datos. Avísale al administrador.";
   if (c === "usuario_existe" || c === "modo_prueba") return e.message;
+  if (/puntos insuficientes/i.test(String((e && (e.message || e.details)) || ""))) { PTS.usar = false; try { pintarPuntosBox(); updateCarritoUI(); } catch (_) {} return "No tienes puntos suficientes. Revisa tu saldo e intenta de nuevo."; }
   if (c === "busy") return "Otra persona está guardando en este momento. Intenta de nuevo en unos segundos.";
   if (c === "unavailable") return "No hay conexión con la base de datos. Intenta de nuevo en unos segundos.";
   if (c === "revoked" || c === "not_granted" || c === "capability_disabled" || c === "capability_removed") return "Esta página perdió el acceso a la base de datos. Recárgala.";
@@ -4223,10 +4233,11 @@ function vistaCliente() {
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-promos"><span class="rep-ti" aria-hidden="true" style="color:#f59e0b!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span class="rep-tt">Promociones</span><span class="cnt" id="cnt-promos"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-buscar"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></svg></span><span class="rep-tt">Buscador de productos</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-puntos"><span class="rep-ti" aria-hidden="true" style="color:#d97706!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m12 6 1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5L11 8z"/><path d="M8.5 14 7 21l5-2.5L17 21l-1.5-7"/></svg></span><span class="rep-tt">Puntos</span><span class="cnt pts-cnt" id="cnt-pts"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones disponibles</span><span class="cnt" id="cnt-cupcli"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-coment"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span><span class="rep-tt">Sugerencias</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Trabajos comunitarios</span><span class="cnt" id="cnt-comun"></span></button>
-    <button type="button" class="cli-solo-ini" data-act="cli-muro"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></span><span class="rep-tt">Muro de comentarios</span><span class="cnt" id="cnt-muro"></span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-muro" hidden><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></span><span class="rep-tt">Muro de comentarios</span><span class="cnt" id="cnt-muro"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
     ${esLocal() ? `<button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
@@ -4703,7 +4714,7 @@ function entregaHTML(c) {
         <h2 class="h2">Tu pedido</h2>
         <ul class="resumen" id="resumen"></ul>
         ${verPrecios() ? `<div class="total"><span>Total</span><b id="total">$0</b></div>` : ""}
-        ${verPrecios() && !S.editPedido ? `<div class="cupon-box" id="cupon-box">${cuponBoxHTML()}</div>` : ""}
+        ${verPrecios() && !S.editPedido ? `<div class="cupon-box" id="cupon-box">${cuponBoxHTML()}</div><div id="puntos-box">${puntosBoxHTML()}</div>` : ""}
       </div>
       <div data-wz="3 4">
         <h2 class="h2 wz-h-ent">Datos de entrega</h2>
@@ -4851,7 +4862,8 @@ function updateCarritoUI() {
   const cargo = cargoCarrito();
   const netoC = lista.reduce((a, x) => a + precioMio(x.p.id) * x.q, 0), ivaC = carritoConIva() ? ivaIncDe(netoC) : 0;
   const descC = S.editPedido ? 0 : cuponDescuento(netoC);
-  const total = Math.max(0, netoC + cargo - descC);
+  const descP = verPrecios() ? puntosDescuento(Math.max(0, netoC + cargo - descC)) : 0;
+  const total = Math.max(0, netoC + cargo - descC - descP);
   const res = $("#resumen");
   if (res) res.innerHTML = lista.length
     ? lista.map(x => `<li><span class="q">${x.q}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}</small></span>${verPrecios() ? `<span class="s">${clp(precioMio(x.p.id) * x.q)}</span>` : ""}</li>`).join("")
@@ -4859,6 +4871,7 @@ function updateCarritoUI() {
   if (res && cargo && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
   if (res && ivaC && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="iva-res-li"><span class="q"></span><span class="n">IVA 19% incluido<small>neto ${clp(netoC - ivaC)}</small></span><span class="s">${clp(ivaC)}</span></li>`);
   if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
+  if (res && descP && lista.length) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">🏅 Puntos usados<small>${fmtN(descP)} puntos</small></span><span class="s">−${clp(descP)}</span></li>`);
   if (res && kgPapas) res.insertAdjacentHTML("beforeend", `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtN(kgPapas)} kg</small></span></li>`);
   const t = $("#total"); if (t) t.textContent = clp(total);
   updateBarra(lista, total);
@@ -4937,8 +4950,9 @@ async function enviarPedido(btn) {
     const doc = {
       clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
-      total: Math.max(0, itSub(its) + 0 + cargoCarrito() - cuponDescuento(itSub(its))), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
+      total: Math.max(0, itSub(its) + 0 + cargoCarrito() - cuponDescuento(itSub(its)) - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its))))), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
+      ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)))); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
       estado: "pendiente", repartidorId: "", repartidorNombre: "",
       creado: Date.now(), tomado: 0, entregado: 0
     };
@@ -4948,7 +4962,7 @@ async function enviarPedido(btn) {
     if (dir !== cli.direccion || depto !== (cli.depto || "") || comuna !== cli.comuna || tel !== cli.telefono) {
       try { await S.db.doc("clientes/" + cli.id).update({ direccion: dir, depto, comuna, telefono: tel }); Object.assign(cli, { direccion: dir, depto, comuna, telefono: tel }); guardarSesion(); } catch (_) {}
     }
-    S.carrito = {}; S.dev = {}; S.devTocado = {}; S.repCli = null; S.cupon = null; pintarCupon(); { const av = document.querySelector(".rep-cli-aviso"); if (av) av.remove(); }
+    S.carrito = {}; S.dev = {}; S.devTocado = {}; S.repCli = null; S.cupon = null; pintarCupon(); PTS.usar = false; pintarPuntosBox(); { const av = document.querySelector(".rep-cli-aviso"); if (av) av.remove(); }
     $("#e-nota").value = "";
     const eq = $("#e-quien"); if (eq) eq.value = "";
     updateCarritoUI();
@@ -5353,7 +5367,7 @@ function cliIniPintar() {
   if (tit.dataset.h !== h) { tit.dataset.h = h; tit.innerHTML = h; }
   document.querySelectorAll(".cli-tabs .bar-inicio").forEach(b => { if (b.getAttribute("aria-selected") !== String(ini)) b.setAttribute("aria-selected", String(ini)); });
   if (pi && ini) {
-    const src = [...bar.children].filter(b => b.tagName === "BUTTON" && !b.classList.contains("bar-inicio"));
+    const src = [...bar.children].filter(b => b.tagName === "BUTTON" && !b.hidden && !b.classList.contains("bar-inicio")); /* «Muro de comentarios» está oculto (hidden) por ahora */
     const firma = src.map(b => (b.dataset.act || "") + (b.dataset.t || "") + b.textContent).join("|");
     if (pi.dataset.f !== firma) {
       pi.dataset.f = firma;
@@ -9273,7 +9287,7 @@ function navEntrada(b) {
   const a = b.dataset.act, k = S.portal; if (!a) return null;
   if (a === "ini-portal" || a === "pv-inicio" || a === "cli-inicio" || (a === "ad-local" && b.dataset.l === "inicio")) return { key: "inicio", sel: NAV_INICIO[k] };
   if (a === "usu-bar") return ["admin", "papas", "cliente", "cfd"].includes(k) ? { key: "perfil", sel: "#usu-bar" } : null;
-  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro", "cli-buscar"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
+  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro", "cli-buscar", "cli-puntos"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
   if (!(/tab$/.test(a) || a === "ad-local")) return null;
   let key = `[data-act="${a}"]`; ["t", "l"].forEach(d => { if (b.dataset[d]) key += `[data-${d}="${b.dataset[d]}"]`; });
   const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
@@ -14939,6 +14953,9 @@ document.addEventListener("click", e => {
   else if (a === "cli-comun") abrirComunidad();
   else if (a === "cli-muro") abrirMuro();
   else if (a === "cli-buscar") abrirBuscador();
+  else if (a === "cli-puntos") abrirPuntos();
+  else if (a === "pts-cerrar") { const m = $("#pts-modal"); if (m) m.remove(); }
+  else if (a === "pts-pedir") { const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click(); }
   else if (a === "busq-cerrar") { const m = $("#busq-modal"); if (m) m.remove(); }
   else if (a === "busq-sug") { BUSQ.q = b.dataset.q; const q = $("#busq-q"); if (q) q.value = BUSQ.q; pintarBusq(); }
   else if (a === "busq-ir") busqIr(b.dataset.tipo, id, b.dataset.g);
@@ -14954,6 +14971,7 @@ document.addEventListener("click", e => {
   else if (a === "cmu-insc") inscribirse(id, false);
   else if (a === "cmu-salir") inscribirse(id, true);
   else if (a === "cmu-subir") subirActividad();
+  else if (a === "cmu-asis") marcarAsistencia(id, b.dataset.v === "1");
   else if (a === "cmu-ver") { CMU.ver = CMU.ver === id ? "" : id; renderCmu(); }
   else if (a === "cmu-del") { CMU.del = id; renderCmu(); }
   else if (a === "cmu-del-no") { CMU.del = ""; renderCmu(); }
@@ -16361,7 +16379,7 @@ function renderMuroAd() {
 /* ---------- Comunidad: actividades que sube el administrador y a las que se inscriben los clientes ----------
    «actividades/<id>»: { nombre, descripcion, fecha, horario, en, por } (todos los clientes pueden leerlas).
    «inscripciones/<actividad>__<cliente>»: { actividadId, clienteId, clienteNombre, telefono, tipo, en } (cada cliente la suya). */
-const CMU = { lista: [], subs: false, cargado: false, insc: [], subsI: false, cargadoI: false, mias: new Set(), ver: "", del: "", guardando: false, f: { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "" } };
+const CMU = { lista: [], subs: false, cargado: false, insc: [], subsI: false, cargadoI: false, mias: new Set(), ver: "", del: "", guardando: false, f: { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" } };
 const cmuOk = a => a && a.nombre && !a.clienteId;
 const cmuProx = () => CMU.lista.filter(a => cmuOk(a) && (!a.fecha || a.fecha >= hoy())).sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
 const cmuId = (aid, cid) => String(aid).replace(/[^A-Za-z0-9_-]/g, "_") + "__" + String(cid).replace(/[^A-Za-z0-9_-]/g, "_");
@@ -16378,6 +16396,63 @@ function subComunidad() {
 function contarComun() { const el = $("#cnt-comun"); if (!el) return; const n = S.ses.cliente ? cmuProx().filter(a => !CMU.mias.has(a.id)).length : 0, t = n ? String(n) : ""; if (el.textContent !== t) el.textContent = t; }
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && S.db) { subComunidad(); contarComun(); } if ((S.portal === "cliente" && S.ses.cliente) || (S.portal === "admin" && S.ses.admin)) cargarInsignias(); }, 4000);
 const cmuFechaTxt = a => `${a.fecha ? cap(fmtFecha(a.fecha)) : "Fecha por confirmar"}${a.horario ? ` · ${a.horario}` : ""}`;
+/* Administrador: marcar asistencia → suma los puntos de la actividad al cliente («puntos_mov/act_<inscripción>»). */
+async function marcarAsistencia(insId, si) {
+  const i = CMU.insc.find(x => x.id === insId); if (!i) return;
+  const a = CMU.lista.find(x => x.id === i.actividadId) || {}, pts = Math.max(0, Math.floor(Number(a.puntos) || 0)), mov = S.db.doc("puntos_mov/act_" + insId);
+  try {
+    if (si) {
+      await conReintento(() => S.db.doc("inscripciones/" + insId).update({ asistio: true, asistioEn: Date.now() }));
+      if (pts) await conReintento(() => mov.set({ clienteId: i.clienteId, puntos: pts, motivo: `Trabajo comunitario: ${a.nombre || i.actividad || ""}`, actividadId: i.actividadId, en: Date.now(), por: (S.ses.admin || {}).nombre || "" }));
+      toast(pts ? `✓ Asistencia marcada · ${i.clienteNombre || "El cliente"} recibe ${fmtN(pts)} puntos.` : "✓ Asistencia marcada.");
+    } else {
+      await conReintento(() => S.db.doc("inscripciones/" + insId).update({ asistio: false }));
+      await conReintento(() => mov.delete()).catch(() => {});
+      toast("Asistencia desmarcada · se quitaron los puntos.");
+    }
+  } catch (e) { toast(msgError(e)); }
+}
+/* Clientes: puntos (movimientos en «puntos_mov»; solo el equipo y la base de datos los crean). 1 punto = $1 de descuento. */
+const PTS = { lista: [], subs: "", cargado: false, usar: false };
+function subPuntos() {
+  const cli = S.ses.cliente; if (!cli || !S.db || PTS.subs === cli.id) return;
+  PTS.subs = cli.id;
+  S.db.collection("puntos_mov").where("clienteId", "==", cli.id).onSnapshot(sn => {
+    PTS.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.en || 0) - (a.en || 0)); PTS.cargado = true;
+    if (PTS.usar && !puntosSaldo()) PTS.usar = false;
+    pintarPuntosBox(); pintarPuntosPag(); contarPuntos(); try { updateCarritoUI(); } catch (_) {} if (S.cliTab === "perf") renderPerfilCli();
+  }, () => { PTS.cargado = true; });
+}
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente) { subPuntos(); contarPuntos(); } }, 3000);
+const puntosSaldo = () => Math.max(0, Math.floor(PTS.lista.reduce((t, m) => t + (Number(m.puntos) || 0), 0)));
+/* Descuento por puntos sobre el precio final (después del cupón), sin pasarse del total. */
+const puntosDescuento = totalAntes => PTS.usar && !S.editPedido ? Math.max(0, Math.min(puntosSaldo(), Math.floor(totalAntes))) : 0;
+function puntosBoxHTML() {
+  const n = puntosSaldo(); if (!PTS.cargado || !n) return "";
+  return `<label class="pts-box${PTS.usar ? " on" : ""}"><input type="checkbox" id="pts-usar" ${PTS.usar ? "checked" : ""}><span class="pts-i" aria-hidden="true">🏅</span><span><b>Usar mis puntos</b><small>Tienes ${fmtN(n)} puntos = ${clp(n)} de descuento</small></span></label>`;
+}
+/* Clientes › Inicio › Puntos: saldo, cómo se ganan (300 por pedido y Trabajos comunitarios), cómo se usan e historial. */
+function contarPuntos() { const el = $("#cnt-pts"); if (!el) return; const n = PTS.cargado ? puntosSaldo() : 0, t = n ? fmtN(n) : ""; if (el.textContent !== t) el.textContent = t; }
+function puntosPagHTML() {
+  const n = puntosSaldo(), ms = PTS.lista;
+  const gan = ms.filter(m => Number(m.puntos) > 0), porPed = gan.filter(m => String(m.id).startsWith("gan_")).reduce((t, m) => t + Number(m.puntos), 0), porTrab = gan.filter(m => String(m.id).startsWith("act_")).reduce((t, m) => t + Number(m.puntos), 0), usados = -ms.filter(m => Number(m.puntos) < 0).reduce((t, m) => t + Number(m.puntos), 0);
+  return `<div class="promo-box ptsp-box"><div class="pl-h"><b>🏅 Puntos</b><button type="button" class="ap-cerrar" data-act="pts-cerrar" aria-label="Volver">×</button></div>
+    <div class="ptsp-saldo"><small>Tus puntos disponibles</small><b>${PTS.cargado ? fmtN(n) : "…"}</b><span>= ${clp(n)} de descuento en tus pedidos</span></div>
+    <div class="ptsp-res"><div><b>${fmtN(porPed)}</b><small>🛒 por compras</small></div><div><b>${fmtN(porTrab)}</b><small>🤝 por trabajos comunitarios</small></div><div><b>${fmtN(usados)}</b><small>💸 usados</small></div></div>
+    <section class="perf-card ptsp-como"><h3>¿Cómo gano puntos?</h3><ul><li><span>🛒</span><div><b>300 puntos por cada pedido</b><small>Se suman apenas envías tu pedido (si el pedido se cancela, se descuentan).</small></div></li><li><span>🤝</span><div><b>Trabajos comunitarios</b><small>Cada actividad entrega los puntos que indica, cuando participas.</small></div></li></ul>
+      <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>
+    <section class="perf-card ptsp-como"><h3>¿Cómo los uso?</h3><p class="muted-s">1 punto = $1 de descuento en el precio final. Al enviar tu pedido, marca <b>«🏅 Usar mis puntos»</b>.</p><button type="button" class="btn chico primario" data-act="pts-pedir">🛒 Hacer un pedido</button></section>
+    <section class="perf-card"><h3>Historial</h3>${!PTS.cargado ? `<p class="muted-s">Cargando…</p>` : ms.length ? `<ul class="ptsp-hist">${ms.map(m => `<li><span class="ptsp-hi" aria-hidden="true">${String(m.id).startsWith("act_") ? "🤝" : Number(m.puntos) < 0 ? "💸" : "🛒"}</span><span class="ptsp-ht">${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(cap(fmtFecha(ymd(new Date(m.en))))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul>` : `<p class="muted-s">Aún no tienes puntos. ¡Haz tu primer pedido y gana 300!</p>`}</section></div>`;
+}
+function abrirPuntos() {
+  if (!S.ses.cliente) return; subPuntos();
+  let m = $("#pts-modal");
+  if (!m) { m = document.createElement("div"); m.id = "pts-modal"; m.className = "promo-modal pagina-cli"; m.innerHTML = puntosPagHTML(); montarPaginaCli(m); }
+  else m.innerHTML = puntosPagHTML();
+}
+function pintarPuntosPag() { const m = $("#pts-modal"); if (m) m.innerHTML = puntosPagHTML(); }
+function pintarPuntosBox() { const b = $("#puntos-box"); if (b) b.innerHTML = puntosBoxHTML(); }
+document.addEventListener("change", e => { if (e.target && e.target.id === "pts-usar") { PTS.usar = e.target.checked; pintarPuntosBox(); updateCarritoUI(); } });
 /* Clientes › Perfil: «Mis trabajos comunitarios» (las actividades en que se inscribió; los datos quedan guardados en su inscripción). */
 function misTrabajosHTML() {
   if (S.portal !== "cliente" || !S.ses.cliente) return "";
@@ -16386,7 +16461,12 @@ function misTrabajosHTML() {
     .sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
   const h = hoy(), prox = xs.filter(x => x.fecha && x.fecha >= h).reverse(), hechas = xs.filter(x => !x.fecha || x.fecha < h);
   const it = (x, pas) => `<li class="mt-it${pas ? " pas" : ""}"><span class="mt-i" aria-hidden="true">${pas ? "🏅" : "📅"}</span><div><b>${esc(x.nombre)}</b><small>${esc(x.fecha ? cap(fmtFecha(x.fecha)) : "Fecha por confirmar")}${x.horario ? ` · ${esc(x.horario)}` : ""}</small>${x.desc ? `<p>${esc(x.desc)}</p>` : ""}</div><span class="mt-est">${pas ? "Participaste" : "Inscrito"}</span></li>`;
+  subPuntos();
+  const saldo = puntosSaldo(), movs = PTS.lista.slice(0, 12);
+  const ptsHTML = `<div class="mt-pts"><span class="mt-pts-n">🏅 ${fmtN(saldo)}</span><span><b>${saldo === 1 ? "punto" : "puntos"} disponibles</b><small>= ${clp(saldo)} de descuento en tus pedidos · 1 punto = $1</small></span></div>
+    ${movs.length ? `<details class="mt-mov"><summary>Historial de puntos</summary><ul>${movs.map(m => `<li><span>${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(fmtFecha(ymd(new Date(m.en)))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul></details>` : ""}`;
   return `<section class="perf-card mis-trab"><h3>🤝 Mis trabajos comunitarios${xs.length ? ` <small>${fmtN(hechas.length)} ${hechas.length === 1 ? "realizado" : "realizados"}${prox.length ? ` · ${fmtN(prox.length)} ${prox.length === 1 ? "próximo" : "próximos"}` : ""}</small>` : ""}</h3>
+    ${ptsHTML}
     ${!CMU.cargadoI ? `<p class="muted-s">Cargando…</p>` : xs.length ? `${prox.length ? `<p class="mt-sub">Próximos</p><ul class="mt-lista">${prox.map(x => it(x, false)).join("")}</ul>` : ""}${hechas.length ? `<p class="mt-sub">Realizados</p><ul class="mt-lista">${hechas.map(x => it(x, true)).join("")}</ul>` : ""}`
       : `<p class="muted-s">Aún no participas en trabajos comunitarios.</p>`}
     <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>`;
@@ -16396,7 +16476,7 @@ function comunidadCliHTML() {
   const xs = cmuProx();
   return `<div class="promo-box cmu-box" role="dialog" aria-modal="true" aria-labelledby="cmu-t"><div class="pl-h"><b id="cmu-t">👥 Trabajos comunitarios</b><button type="button" class="ap-cerrar" data-act="cmu-cerrar" aria-label="Cerrar">×</button></div>
     <p class="com-sub">Actividades de 100% Natural. Inscríbete en las que te interesen.</p>
-    ${!CMU.cargado ? `<p class="muted">Cargando actividades…</p>` : xs.length ? xs.map(a => { const ins = CMU.mias.has(a.id); return `<article class="cmu-act${ins ? " ins" : ""}"><h3>${esc(a.nombre)}</h3><p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
+    ${!CMU.cargado ? `<p class="muted">Cargando actividades…</p>` : xs.length ? xs.map(a => { const ins = CMU.mias.has(a.id); return `<article class="cmu-act${ins ? " ins" : ""}"><h3>${esc(a.nombre)}</h3><p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${Number(a.puntos) ? `<p class="cmu-pts">🏅 Ganas <b>${fmtN(a.puntos)} puntos</b> al participar (= ${clp(a.puntos)} de descuento)</p>` : ""}${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
       ${ins ? `<div class="cmu-acc"><span class="cmu-ok">✅ Estás inscrito</span><button type="button" class="link" data-act="cmu-salir" data-id="${esc(a.id)}">Cancelar inscripción</button></div>` : `<button type="button" class="btn primario" data-act="cmu-insc" data-id="${esc(a.id)}">Inscribirme</button>`}</article>`; }).join("") : `<p class="muted cmu-vacio">Por ahora no hay actividades. Te avisaremos cuando haya una nueva.</p>`}
   </div>`;
 }
@@ -16419,7 +16499,7 @@ async function inscribirse(aid, salir) {
   pintarComunCli(); contarComun();
 }
 /* Administrador: subir actividades y ver los inscritos. */
-function leerFormCmu() { if (!$("#cmu-nombre")) return; const v = id => ($("#" + id) || {}).value || ""; Object.assign(CMU.f, { nombre: v("cmu-nombre"), descripcion: v("cmu-desc"), fecha: v("cmu-fecha"), desde: v("cmu-desde"), hasta: v("cmu-hasta") }); }
+function leerFormCmu() { if (!$("#cmu-nombre")) return; const v = id => ($("#" + id) || {}).value || ""; Object.assign(CMU.f, { nombre: v("cmu-nombre"), descripcion: v("cmu-desc"), fecha: v("cmu-fecha"), desde: v("cmu-desde"), hasta: v("cmu-hasta"), puntos: v("cmu-pts") }); }
 function comunidadAdHTML() {
   const f = CMU.f;
   const form = `<div class="card ad-card cmu-form"><h2 class="h2">Nueva actividad</h2>
@@ -16427,6 +16507,7 @@ function comunidadAdHTML() {
       <label class="campo full"><span>Nombre de la actividad</span><input id="cmu-nombre" maxlength="80" value="${esc(f.nombre)}" placeholder="Ej.: Taller de alimentación saludable"></label>
       <label class="campo full"><span>Descripción</span><textarea id="cmu-desc" maxlength="600" rows="3" placeholder="Qué se hará, dónde, qué llevar…">${esc(f.descripcion)}</textarea></label>
       <label class="campo"><span>Fecha</span><input id="cmu-fecha" type="date" value="${esc(f.fecha)}" min="${hoy()}"></label>
+      <label class="campo"><span>🏅 Puntos por participar</span><input id="cmu-pts" type="number" min="0" step="1" inputmode="numeric" value="${esc(f.puntos)}" placeholder="0"><small class="muted-s">1 punto = $1 de descuento para el cliente</small></label>
       <div class="campo"><span>Horario</span><div class="cmu-hora"><input id="cmu-desde" type="time" value="${esc(f.desde)}" aria-label="Desde"><span>a</span><input id="cmu-hasta" type="time" value="${esc(f.hasta)}" aria-label="Hasta"></div></div>
     </div>
     <p class="err" id="cmu-err" role="alert"></p>
@@ -16437,8 +16518,8 @@ function comunidadAdHTML() {
   return form + `<h2 class="est-sec">Actividades</h2>` + (xs.length ? `<div class="cmu-lista">${xs.map(a => { const ins = CMU.insc.filter(i => i.actividadId === a.id).sort((x, y) => (x.en || 0) - (y.en || 0)), pasada = a.fecha && a.fecha < hoy();
     return `<article class="card ad-card cmu-card${pasada ? " pasada" : ""}"><div class="cmu-h"><b>${esc(a.nombre)}</b>${pasada ? `<span class="pr-est pr-fin">Realizada</span>` : `<span class="pr-est pr-pub">Próxima</span>`}</div>
       <p class="cmu-cuando">📅 ${esc(cmuFechaTxt(a))}</p>${a.descripcion ? `<p class="cmu-desc">${esc(a.descripcion)}</p>` : ""}
-      <p class="cmu-n">👥 ${ins.length} ${ins.length === 1 ? "inscrito" : "inscritos"}</p>
-      ${CMU.ver === a.id ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
+      <p class="cmu-n">👥 ${ins.length} ${ins.length === 1 ? "inscrito" : "inscritos"}${ins.some(i => i.asistio) ? ` · ✓ ${ins.filter(i => i.asistio).length} asistieron` : ""}${Number(a.puntos) ? ` · 🏅 ${fmtN(a.puntos)} puntos` : ""}</p>
+      ${CMU.ver === a.id ? (ins.length ? `<ol class="cmu-ins">${ins.map(i => `<li><div class="cmu-ins-h"><span><b>${esc(i.clienteNombre || "Cliente")}</b>${i.telefono ? ` · <a href="tel:${esc(i.telefono)}">${esc(i.telefono)}</a>` : ""}<small>${esc([i.tipo, i.comuna].filter(Boolean).join(" · "))}</small></span>${i.asistio ? `<button type="button" class="btn chico ok" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="0" title="Toca para deshacer">✓ Asistió${Number(a.puntos) ? ` · +${fmtN(a.puntos)} pts` : ""}</button>` : `<button type="button" class="btn chico suave" data-act="cmu-asis" data-id="${esc(i.id)}" data-v="1">Marcar asistencia${Number(a.puntos) ? ` (+${fmtN(a.puntos)} pts)` : ""}</button>`}</div></li>`).join("")}</ol>` : `<p class="muted-s">Aún no hay inscritos.</p>`) : ""}
       ${CMU.del === a.id ? `<div class="acciones"><span class="muted-s">¿Eliminar esta actividad?</span><button type="button" class="btn chico suave" data-act="cmu-del-no">No</button><button type="button" class="btn chico peligro" data-act="cmu-del-si" data-id="${esc(a.id)}">Eliminar</button></div>`
         : `<div class="acciones"><button type="button" class="btn chico suave" data-act="cmu-ver" data-id="${esc(a.id)}">${CMU.ver === a.id ? "Ocultar inscritos" : "Ver inscritos"}</button><button type="button" class="btn chico suave" data-act="cmu-del" data-id="${esc(a.id)}">Eliminar</button></div>`}
     </article>`; }).join("")}</div>` : vacio("Aún no hay actividades", "Sube la primera con el formulario de arriba."));
@@ -16456,7 +16537,7 @@ async function subirActividad() {
   const horario = f.desde ? (f.hasta ? `${f.desde} a ${f.hasta}` : `desde las ${f.desde}`) : "";
   const id = "act" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   CMU.guardando = true; el2(); 
-  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Comunidad."); }
+  try { await conReintento(() => S.db.doc("actividades/" + id).set({ nombre: f.nombre.trim().slice(0, 80), descripcion: f.descripcion.trim().slice(0, 600), fecha: f.fecha, horario, puntos: Math.max(0, Math.floor(Number(f.puntos) || 0)), en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); CMU.f = { nombre: "", descripcion: "", fecha: "", desde: "", hasta: "", puntos: "" }; toast("📤 Actividad subida. Ya la ven todos los clientes en Comunidad."); }
   catch (e) { toast(msgError(e)); }
   CMU.guardando = false; el2();
   function el2() { const el = $("#cmu-panel"); if (el) el.innerHTML = comunidadAdHTML(); }
@@ -16709,7 +16790,7 @@ function cerrarPromoModal() { const m = $("#promo-modal"); if (m) m.remove(); }
    de la página (con el banner, el nombre de la sección arriba y la barra inferior), igual que Inicio o Mis pedidos.
    Se muestran en «#panel-sec» (S.cliTab = "sec"); el botón Atrás del teléfono vuelve a Inicio. */
 let PAG_N = 0, PAG_EL = null;
-const PAG_ACT = { "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+const PAG_ACT = { "pts-modal": "cli-puntos", "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
 function montarPaginaCli(m) {
   const ps = $("#panel-sec");
   if (!ps || S.portal !== "cliente") { document.body.appendChild(m); return; }
