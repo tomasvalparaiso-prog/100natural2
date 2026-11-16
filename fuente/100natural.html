@@ -977,6 +977,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .clin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.clin-btn{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .clin-btn:hover{border-color:var(--accent,#2563eb)}.clin-av{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:800;font-size:1.1rem}.clin-tx{min-width:0;display:grid}.clin-tx b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clin-tx small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .adu-bar{gap:8px;flex-wrap:wrap}.adu-n{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:800;margin-left:4px}
+#view.adu-on > .adu-grid ~ *:not(#adu-panel):not(.ad-barra):not(nav):not(.usu-crear-bar){display:none!important}#adu-panel{margin-top:4px}
 .adl-lista{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}.adl-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .adl-av{flex:none;width:42px;height:42px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--surface-2);font-weight:800}.adl-av img{width:100%;height:100%;object-fit:cover}.adl-tx{flex:1;min-width:0;display:grid;gap:1px}.adl-tx small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.adl-tx a{font-size:.88rem;font-weight:700;width:max-content}
 .adu-box{max-width:560px;max-height:90vh;overflow:auto}.adu-box .pl-h{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.15rem;margin-bottom:8px}.adu-bar{margin-top:4px}
@@ -6506,6 +6507,7 @@ function usuPosLocHTML() {
 function renderUsuarios(desdeDatos) {
   if ($("#clin-panel")) renderClin();
   if ($("#ptsad-panel")) renderPuntosAd();
+  try { aduInyectar(); } catch (_) {}
   { const m = $("#adl-modal"); if (m) m.innerHTML = aduListaHTML(m.dataset.tipo); document.querySelectorAll('.adu-bar [data-act="ad-lista-usu"]').forEach(b => { const n = aduUsuarios(b.dataset.tipo).length, sp = b.querySelector(".adu-n"); if (sp) sp.textContent = n; else b.insertAdjacentHTML("beforeend", ` <span class="adu-n">${n}</span>`); }); }
   { const uc = $("#usu-crear"); if (uc && !uc.children.length) renderUsuCrear(); }
   const el = $("#usu-panel");
@@ -16235,7 +16237,49 @@ const ADU_COL = { papas: "usuarios_papas", agua: "usuarios_agua", repartidor: "r
 const ADU_LISTA = { papas: "Usuarios de Local papas", agua: "Usuarios de Local agua", repartidor: "Repartidores", prov: "Proveedores" };
 const aduUsuarios = t => (((US.data || {})[ADU_COL[t]]) || []).filter(u => u && u.id).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es"));
 const aduBarHTML = t => { if (typeof subUsuarios === "function") subUsuarios(); const n = US.cargado && US.cargado[ADU_COL[t]] ? aduUsuarios(t).length : null;
-  return `<div class="usu-crear-bar adu-bar"><button type="button" class="btn suave" data-act="ad-lista-usu" data-tipo="${t}">👥 ${t === "prov" ? "Lista de proveedores" : t === "repartidor" ? "Lista de repartidores" : "Lista de usuarios"}${n !== null ? ` <span class="adu-n">${n}</span>` : ""}</button>${t === "prov" ? "" : `<button type="button" class="btn primario" data-act="ad-agregar-usu" data-tipo="${t}">➕ Agregar ${ADU_NOM[t] || "usuario"}</button>`}</div>`; };
+  void n; return `<div class="usu-crear-bar adu-bar">${t === "prov" ? "" : `<button type="button" class="btn primario" data-act="ad-agregar-usu" data-tipo="${t}">➕ Agregar ${ADU_NOM[t] || "usuario"}</button>`}</div>`; };
+/* «Lista de usuarios» como un botón más del menú de Local papas, Local agua, Repartidores y Proveedores (administrador):
+   al tocarlo, la lista se muestra debajo del menú, igual que el contenido de los demás botones. */
+const ADU_LOC = { papas: "papas", agua: "agua", rep: "repartidor", prov: "prov" }, ADU_ON = {};
+const ADU_SVG = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 0 1 0 6M18 14.5c1.9.7 3 2.6 3 5"/></svg>';
+const aduTitulo = t => t === "prov" ? "Lista de proveedores" : t === "repartidor" ? "Lista de repartidores" : "Lista de usuarios";
+function aduGrid() { const bar = $("#view > .adu-bar"); if (!bar) return null; let g = bar.nextElementSibling; while (g && !(g.classList.contains("tabs") && g.classList.contains("rep-tabs"))) g = g.nextElementSibling; return g; }
+function aduPanelHTML(t) {
+  const xs = aduUsuarios(t), cargado = US.cargado && US.cargado[ADU_COL[t]];
+  return `<section class="card ad-card adu-pag"><h2 class="h2">👥 ${ADU_LISTA[t]} ${cargado ? `<small class="muted-s">${xs.length}</small>` : ""}</h2>
+    ${!cargado ? `<p class="muted">Cargando…</p>` : xs.length ? `<ul class="adl-lista">${xs.map(u => `<li class="adl-it"><span class="adl-av" aria-hidden="true">${u.foto ? `<img src="${esc(u.foto)}" alt="">` : esc(String(u.nombre || "?").trim().charAt(0).toUpperCase())}</span><div class="adl-tx"><b>${esc(u.nombre || u.id)}</b><small>${esc(["usuario: " + (u.usuario || u.id), u.empresa, u.comuna].filter(Boolean).join(" · "))}</small>${u.telefono ? `<a href="tel:${esc(String(u.telefono).replace(/\s/g, ""))}">${esc(u.telefono)}</a>` : ""}</div><button type="button" class="btn chico suave" data-act="adl-ver" data-tipo="${t}" data-id="${esc(u.id)}">Ver / editar</button></li>`).join("")}</ul>`
+      : `<p class="muted cmu-vacio">Aún no hay ${t === "prov" ? "proveedores" : t === "repartidor" ? "repartidores" : "usuarios"}.</p>`}</section>`;
+}
+function aduInyectar() {
+  if (S.portal !== "admin" || !ADU_LOC[AD.local]) return;
+  const g = aduGrid(), v = $("#view"); if (!g || !v) return;
+  const t = ADU_LOC[AD.local];
+  let b = g.querySelector(':scope > [data-act="adu-tab"]');
+  if (!b) {
+    b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "tab"); b.dataset.act = "adu-tab"; b.dataset.tipo = t;
+    b.innerHTML = `<span class="rep-ti" aria-hidden="true">${ADU_SVG}</span><span class="rep-tt">${aduTitulo(t)}</span>`;
+    const fin = [...g.children].find(x => /perfil|salir|cerrar|oscuro|carr/i.test((x.dataset.act || "") + " " + (x.dataset.t || "")));
+    if (fin) fin.before(b); else g.appendChild(b);
+  }
+  const on = !!ADU_ON[AD.local];
+  if (b.getAttribute("aria-selected") !== String(on)) b.setAttribute("aria-selected", String(on));
+  let p = $("#adu-panel");
+  if (on) {
+    g.querySelectorAll(':scope > [aria-selected="true"]').forEach(x => { if (x !== b) x.setAttribute("aria-selected", "false"); });
+    if (!g.classList.contains("adu-grid")) g.classList.add("adu-grid");
+    if (!v.classList.contains("adu-on")) v.classList.add("adu-on");
+    if (!p || p.previousElementSibling !== g) { if (p) p.remove(); p = document.createElement("div"); p.id = "adu-panel"; g.after(p); }
+    const h = aduPanelHTML(t); if (p._h !== h) { p._h = h; p.innerHTML = h; }
+  } else { if (p) p.remove(); if (v.classList.contains("adu-on")) v.classList.remove("adu-on"); }
+}
+let ADU_RAF = 0;
+new MutationObserver(() => { if (ADU_RAF || S.portal !== "admin" || !ADU_LOC[AD.local]) return; ADU_RAF = requestAnimationFrame(() => { ADU_RAF = 0; aduInyectar(); }); }).observe(document.body, { childList: true, subtree: true });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("button[data-act]"); if (!b || S.portal !== "admin" || !ADU_LOC[AD.local]) return;
+  if (b.dataset.act === "adu-tab") { ADU_ON[AD.local] = true; aduInyectar(); return; }
+  if (b.closest(".adu-grid, #view > .tabs.rep-tabs") && /tab$/.test(b.dataset.act || "") && ADU_ON[AD.local]) { ADU_ON[AD.local] = false; setTimeout(aduInyectar, 0); }
+  if (b.dataset.act === "ad-local") Object.keys(ADU_ON).forEach(k => { ADU_ON[k] = false; });
+}, true);
 /* Ventana con la lista de usuarios de Local papas, Local agua, Repartidores o Proveedores. */
 function aduListaHTML(t) {
   const xs = aduUsuarios(t), cargado = US.cargado && US.cargado[ADU_COL[t]];
