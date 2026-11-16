@@ -13318,11 +13318,19 @@ function adCliFiltrados() {
   return base.filter(c => { const t = normQ([c.nombre, c.telefono, String(c.telefono || "").replace(/\D/g, ""), c.direccion, c.depto, c.comuna, c.tipo].join(" ")); return ws.every(w => t.includes(w)); });
 }
 /* Crear pedido › Buscar cliente: los últimos 6 clientes ingresados, para elegirlos con un toque. */
+/* Crear pedido › Elige al cliente: los 6 clientes más buscados (los que más se eligen en Crear pedido: pedidos creados por el
+   administrador o repartidores + las veces que se eligieron en este equipo), para elegirlos con un toque. */
+const AD_BUSC_K = "pya_cli_buscados";
+function adBuscadosCont() { try { return JSON.parse(localStorage.getItem(AD_BUSC_K) || "{}") || {}; } catch (_) { return {}; } }
+function adBuscadoSumar(id) { if (!id) return; try { const m = adBuscadosCont(); m[id] = (Number(m[id]) || 0) + 1; localStorage.setItem(AD_BUSC_K, JSON.stringify(m)); } catch (_) {} }
 function adRecientesHTML() {
   if (!AD.cargadoC || AD.nuevo) return "";
-  const xs = AD.clientes.filter(c => c.creado && (!crearEnRep() || c.tipo !== "Local comercial")).sort((a, b) => b.creado - a.creado).slice(0, 6);
+  const cnt = new Map(), loc = adBuscadosCont();
+  for (const p of S.pedidos || []) if (p.clienteId && (p.origen === "admin" || p.origen === "repartidor")) cnt.set(p.clienteId, (cnt.get(p.clienteId) || 0) + 1);
+  for (const [id, n] of Object.entries(loc)) cnt.set(id, (cnt.get(id) || 0) + (Number(n) || 0));
+  const xs = AD.clientes.filter(c => cnt.get(c.id) && (!crearEnRep() || c.tipo !== "Local comercial")).sort((a, b) => cnt.get(b.id) - cnt.get(a.id) || a.nombre.localeCompare(b.nombre, "es")).slice(0, 6);
   if (!xs.length) return "";
-  return `<div class="ad-rec"><small class="ad-rec-t">🕒 Últimos clientes ingresados</small><div class="ad-rec-l">${xs.map(c => `<button type="button" class="ad-rec-b" data-act="ad-cli-reciente" data-id="${esc(c.id)}" aria-pressed="${AD.clienteId === c.id}"><b>${esc(c.nombre)}</b><small>${esc([c.tipo === "Local comercial" ? "🏪 Local" : "👤 Particular", c.comuna, fmtFecha(ymd(new Date(c.creado)))].filter(Boolean).join(" · "))}</small></button>`).join("")}</div></div>`;
+  return `<div class="ad-rec"><small class="ad-rec-t">⭐ Clientes más buscados</small><div class="ad-rec-l">${xs.map(c => `<button type="button" class="ad-rec-b" data-act="ad-cli-reciente" data-id="${esc(c.id)}" aria-pressed="${AD.clienteId === c.id}"><b>${esc(c.nombre)}</b><small>${esc([c.tipo === "Local comercial" ? "🏪 Local" : "👤 Particular", c.comuna].filter(Boolean).join(" · "))}</small></button>`).join("")}</div></div>`;
 }
 function adOpcionesCli() {
   const lista = adCliFiltrados().slice(), selC = AD.clienteId && AD.clientes.find(c => c.id === AD.clienteId);
@@ -15832,6 +15840,7 @@ document.addEventListener("change", e => {
     else if ((c.rut || "") !== v) { c.rut = v; e.target.blur(); S.db.doc("clientes/" + cid).update({ rut: v }).then(() => { toast(v ? `RUT ${rutFmt(v)} guardado en el cliente.` : "RUT quitado del cliente."); refrescarDelPed(); }, er => toast(msgError(er))); }
   }
   if (e.target.id === "ad-cli") {
+    if (e.target.value && e.target.value !== "__nuevo") adBuscadoSumar(e.target.value);
     const v = e.target.value;
     AD.nuevo = v === "__nuevo"; AD.clienteId = AD.nuevo ? "" : v;
     { const bt = document.querySelector('.ad-card [data-act="ad-agregar-cli"]'); if (bt) bt.hidden = AD.nuevo; }
