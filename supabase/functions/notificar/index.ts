@@ -134,6 +134,35 @@ function paraActividad(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | nu
   return [subs.filter((s) => s.portal === "cliente"), { titulo: `📅 Trabajos comunitarios · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
 }
 
+// Recordatorio del día: a las 8:00 (lo pide la base de datos cada hora) avisa a los inscritos en los Trabajos comunitarios de hoy.
+// Cada actividad queda marcada con «recordado» para no repetir el aviso.
+async function recordatorios(subs: Sub[]) {
+  const hora = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "America/Santiago", hour: "2-digit", hour12: false }).format(new Date()));
+  if (hora < 8 || hora >= 21) return 0;
+  const hoy = hoyCL();
+  const { data: acts } = await adm.from("documentos").select("id,data").eq("coleccion", "actividades").eq("data->>fecha", hoy);
+  let enviados = 0;
+  for (const a of acts ?? []) {
+    const d = a.data || {};
+    if (d.clienteId || !d.nombre || d.recordado === hoy) continue;
+    const { data: ins } = await adm.from("documentos").select("data").eq("coleccion", "inscripciones").eq("data->>actividadId", a.id);
+    const cids = new Set((ins ?? []).map((x: any) => String(x.data?.clienteId || "")).filter(Boolean));
+    const dest = subs.filter((s) => s.portal === "cliente" && cids.has(s.cuenta));
+    const pts = Number(d.puntos) || 0;
+    const carga = JSON.stringify({
+      titulo: `⏰ Hoy: ${corto(d.nombre, 60)}`,
+      cuerpo: corto(`${d.horario ? `${d.horario} · ` : ""}¡Te esperamos en este Trabajo comunitario!${pts ? ` Ganas ${pts} puntos al participar.` : ""}`, 180),
+      tag: "rec-" + a.id, url: "/?comunidad=1", vibrar: [200, 100, 200],
+    } as Aviso);
+    await Promise.all(dest.map(async (s) => {
+      try { await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, carga, { TTL: 43200, urgency: "high" }); enviados++; }
+      catch (e: any) { if (e && (e.statusCode === 404 || e.statusCode === 410)) await adm.from("push_subs").delete().eq("endpoint", s.endpoint); }
+    }));
+    await adm.from("documentos").update({ data: { ...d, recordado: hoy } }).eq("coleccion", "actividades").eq("id", a.id);
+  }
+  return enviados;
+}
+
 // Deja anotado en el aviso y en la promoción a cuántos teléfonos llegó (el administrador lo ve en la tarjeta).
 async function anotarPromo(id: string, d: Record<string, any>, enviados: number, total: number) {
   const res = { en: Date.now(), enviados, total };
@@ -148,6 +177,11 @@ Deno.serve(async (req) => {
     const c = await config();
     if (!c.secreto || req.headers.get("x-push-secreto") !== c.secreto) return new Response("no autorizado", { status: 401 });
     const { coleccion, id } = await req.json();
+    if (coleccion === "recordatorio") {
+      const { data: subsR } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
+      const n = await recordatorios((subsR ?? []) as Sub[]);
+      return new Response(JSON.stringify({ enviados: n }), { headers: { "Content-Type": "application/json" } });
+    }
     if (!["mensajes", "pedidos", "avisos_push", "actividades"].includes(coleccion) || !id) return new Response("ok");
     const { data: doc } = await adm.from("documentos").select("data").eq("coleccion", coleccion).eq("id", id).maybeSingle();
     if (!doc) return new Response("ok");
