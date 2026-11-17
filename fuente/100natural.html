@@ -12345,7 +12345,7 @@ function posVentasHTML() {
 /* Tarjeta de una venta en «Detalle de pedidos» del punto de venta. */
 function posVentaLi(d, adm, yo) {
   const its = d.items || [], cargo = cargoBid(d), verC = !!(POS.verCli || {})[d.id];
-  const cuando = POS.per === "dia" ? fmtHora(d.en) : `${cap(fmtFecha(d.fecha))} · ${fmtHora(d.en)}`;
+  const cuando = `${cap(fmtFecha(d.fecha))} · ${fmtHora(d.en)}`; /* Siempre con la fecha del pedido. */
   const nU = its.reduce((a, i) => a + (Number(i.cant) || 0), 0);
   const bid = d.bidones || {}, devTxt = TAM_BIDON.filter(t => bid[t]).map(t => `Bidón ${t} L: devolvió ${fmtN(bid[t].devueltos || 0)} de ${fmtN(bid[t].pedidos || 0)}`).join(" · ");
   return `<li class="pv-card${POS.nueva === d.id ? " pv-nueva" : ""}">
