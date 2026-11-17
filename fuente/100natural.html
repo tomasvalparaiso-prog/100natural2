@@ -13778,7 +13778,7 @@ function pedAdmCardHTML(p, o) {
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
       ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-pago">${prioBtnHTML(p)}${pagado(p) ? `<span class="ult-pagado">✅ Pagado${p.pagoAdminPor ? ` · ${esc(p.pagoAdminPor)}` : ""}</span>${p.pagoMarcadoAdm ? `<button type="button" class="link" data-act="ult-despagar" data-id="${esc(p.id)}">Deshacer</button>` : ""}` : `<button type="button" class="btn chico ult-pagar" data-act="ult-pagar" data-id="${esc(p.id)}">💰 Marcar como pagado</button>`}</div>` : ""}
-      ${o.rep && S.ses.admin ? (S.repPed === p.id && S.repF ? repPedHTML(p) : S.repHoy === p.id ? repHoyHTML(p) : `<div class="acciones rep-ped-acc"><button type="button" class="btn chico rep-ped-btn" data-act="rep-hoy" data-id="${esc(p.id)}">🔁 Repetir pedido hoy</button><button type="button" class="btn chico suave" data-msj="ped" data-id="${esc(p.id)}" data-cod="${esc(codigo(p.id))}">💬 Mensaje sobre este pedido</button></div>`) : ""}
+      ${o.rep && S.ses.admin ? (S.repPed === p.id && S.repF ? repPedHTML(p) : S.repHoy === p.id ? repHoyHTML(p) : `<div class="acciones rep-ped-acc"><button type="button" class="btn chico rep-ped-btn" data-act="rep-hoy" data-id="${esc(p.id)}">🔁 Repetir pedido hoy</button></div>`) : ""}
       ${facturaHTML(p)}${delPedHTML(p)}
     </article>`;
   }
