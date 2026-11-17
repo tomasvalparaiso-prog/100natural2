@@ -959,6 +959,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ptsad-lista{display:grid;gap:8px}.ptsad-it{padding:0!important;overflow:hidden}.ptsad-h{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;background:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
 .ptsad-s{display:grid;justify-items:end;font-size:1.25rem;font-weight:900;color:#b45309;line-height:1}.ptsad-s small{font-size:.7rem;color:var(--muted);font-weight:700}.ptsad-det{padding:0 14px 14px;border-top:1px solid var(--line)}
 .ptsad-aj{margin-top:10px;display:grid;gap:6px}.ptsad-ajf{display:flex;gap:6px;flex-wrap:wrap}.ptsad-ajf input{flex:1 1 120px;min-width:0;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink)}
+.pp-lado{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}.pp-lado>*{min-width:0;margin:0!important}.pp-lado .per-list li{display:grid!important;grid-template-columns:1fr!important;gap:4px}.pp-lado .per-list li .n{justify-self:start;font-size:.95rem}.pp-lado .ped-h{flex-direction:column;align-items:flex-start;gap:2px}.pp-lado .per-list b{font-size:.9rem}.pp-lado .per-list small{overflow-wrap:anywhere}.pp-lado .sem-acc .btn{width:100%;white-space:normal}
 .pts-gana{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f}.pts-gana>span:first-child{font-size:1.4rem}.pts-gana small{display:block;opacity:.85}
 .wz-fin-pts{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin:12px auto 4px;padding:12px 14px;border-radius:16px;background:linear-gradient(135deg,#fef3c7,#fde68a);color:#78350f;text-align:left;max-width:460px}.wfp-n{font-size:1.8rem;font-weight:900}.wz-fin-pts small{display:block;opacity:.9}.wz-fin-pts .link{color:#92400e;font-weight:800}
 .pts-box{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:10px 12px;border:2px dashed #f59e0b;border-radius:14px;background:color-mix(in srgb,#f59e0b 8%,var(--surface));cursor:pointer}.pts-box.on{border-style:solid;background:color-mix(in srgb,#f59e0b 18%,var(--surface))}.pts-box input{flex:none;width:22px!important;height:22px!important;min-height:0!important;margin:0;padding:0;accent-color:#d97706}.pts-box>span:last-child{flex:1;min-width:0}.pts-i{font-size:1.4rem}.pts-box b{display:block}.pts-box small{color:var(--muted)}
@@ -9640,7 +9641,8 @@ function contadorHoyHTML(base, nombres, dia) {
 }
 function papasSacosHTML() {
   const esAdmin = !!(S.portal === "admin" && S.ses.admin), yo = usuarioProd("papas");
-  const visibles = esAdmin ? PP.prod : PP.prod.filter(r => yo && usrKey(r) === yo.id);
+  /* Local papas: Juan Hernández y Gonzalo Allende (todo el equipo de Local papas) ven los registros de ambos, uno al lado del otro. */
+  const visibles = esAdmin ? PP.prod : yo ? PP.prod.filter(r => !String(usrKey(r)).startsWith("admin:")) : [];
   const nombres = new Map();
   for (const r of visibles) if (!nombres.has(usrKey(r))) nombres.set(usrKey(r), r.usuarioNombre || "Sin usuario");
   PP.sPer = "semana";
@@ -9688,7 +9690,7 @@ function pagoPersonasHTML(base, nombres, a, b, per) {
 }
 function semExtrasHTML(base, nombres, lunes) {
   const fin = addDias(lunes, 6), admin = S.portal === "admin" && S.ses.admin;
-  const filas = extrasSemana(base, lunes).sort((a, b) => b.extras - a.extras);
+  const filas = extrasSemana(base, lunes).sort((a, b) => admin ? b.extras - a.extras : String(a.nombre || "").localeCompare(String(b.nombre || ""), "es"));
   const otras = new Map();
   for (const f of [...new Set(base.filter(r => r.fecha).map(r => lunesDe(r.fecha)))]) {
     if (f === lunes) continue;
@@ -9715,7 +9717,7 @@ function semExtrasHTML(base, nombres, lunes) {
   return `<section class="pago-sacos sem-extras">
       <div class="ps-h"><span class="eyebrow-s">Recuento semanal · sacos extras</span><p class="muted">Meta semanal: ${META_SEMANA} sacos por persona. Se pagan ${clp(PAGO_SACO)} por cada saco sobre la meta. ${esc(reglaDiasTxt())}. Queda pagado cuando lo marcan el usuario y el administrador.</p></div>
       <p class="sem-lbl-h"><b>${esc(etiquetaPeriodo("semana", lunes, fin))}</b></p>
-      ${cuerpo || `<p class="muted">${PP.cargadoP ? `Nadie pasó la meta de ${META_SEMANA} sacos esta semana.` : "Cargando producción…"}</p>`}
+      ${cuerpo ? (admin ? cuerpo : `<div class="pp-lado">${cuerpo}</div>`) : `<p class="muted">${PP.cargadoP ? `Nadie pasó la meta de ${META_SEMANA} sacos esta semana.` : "Cargando producción…"}</p>`}
       ${filas.length ? `<p class="sem-tot">Total semana: <b>${clp(tot)}</b> · pagado ${clp(pag)} · pendiente ${clp(tot - pag)}</p>` : ""}
     </section>`;
 }
@@ -9753,7 +9755,8 @@ function reglaSacosHTML(lun) {
 }
 function papasHistHTML() {
   const esAdmin = !!(S.portal === "admin" && S.ses.admin), yo = usuarioProd("papas");
-  const visibles = esAdmin ? PP.prod : PP.prod.filter(r => yo && usrKey(r) === yo.id);
+  /* Local papas: Juan Hernández y Gonzalo Allende (todo el equipo de Local papas) ven los registros de ambos, uno al lado del otro. */
+  const visibles = esAdmin ? PP.prod : yo ? PP.prod.filter(r => !String(usrKey(r)).startsWith("admin:")) : [];
   const nombres = new Map();
   for (const r of visibles) if (!nombres.has(usrKey(r))) nombres.set(usrKey(r), r.usuarioNombre || "Sin usuario");
   if (!esAdmin || (PP.histUsr && !nombres.has(PP.histUsr))) PP.histUsr = "";
@@ -9802,9 +9805,9 @@ function papasHistHTML() {
       ${todosBtn("pph-hoy")}
     </div>
     <p class="rango-lbl">${esc(etiquetaPeriodo(PP.gHist, hA, hB))}</p>
-    <div class="resumen-top"><p class="big-num"><b>${fmtN(tot)}</b><span>sacos producidos · ${fmtN(tot * KG_SACO)} kg</span></p><p class="muted">${PP.histUsr ? esc(nombres.get(PP.histUsr)) : esAdmin ? "Todos los usuarios" : "Tu producción"}</p></div>
+    <div class="resumen-top"><p class="big-num"><b>${fmtN(tot)}</b><span>sacos producidos · ${fmtN(tot * KG_SACO)} kg</span></p><p class="muted">${PP.histUsr ? esc(nombres.get(PP.histUsr)) : esAdmin ? "Todos los usuarios" : nombres.size > 1 ? [...nombres.values()].join(" y ") : "Tu producción"}</p></div>
     <div class="tiles4">${CORTES.map(([k, l]) => `<div><span>${l}</span><b>${fmtN(corteVal(k, tc[k]))}</b><small>${corteUdTxt(k)}</small></div>`).join("")}</div>
-    <div class="lista">${usuarios.length ? usuarios.map(tarjeta).join("") : vacio(PP.cargadoP ? "Aún no hay sacos registrados" : "Cargando producción…", "Confirma sacos en la pestaña Ingresar producción y aparecerán aquí.")}</div>
+    <div class="lista${esAdmin ? "" : " pp-lado"}">${usuarios.length ? usuarios.sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), "es")).map(tarjeta).join("") : vacio(PP.cargadoP ? "Aún no hay sacos registrados" : "Cargando producción…", "Confirma sacos en la pestaña Ingresar producción y aparecerán aquí.")}</div>
 `;
 }
 function ingPorHTML(r) {
