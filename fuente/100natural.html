@@ -13754,6 +13754,15 @@ function tpPapasHTML(lista, tarjeta) {
     <div class="lista"${!TP.corte ? " hidden" : ""}>${!TP.corte ? "" : sel.map(([k, l]) => g[k].ps.length ? `<p class="dia-h tp-corte-h">${esc(l)} · ${g[k].ps.length} ${g[k].ps.length === 1 ? "pedido" : "pedidos"} · ${fmtN(g[k].kg)} kg · ${clp(g[k].m)}</p>${g[k].ps.sort((x, y) => String(x.fechaEntrega).localeCompare(String(y.fechaEntrega))).map(p => tarjeta(p, i => esP(i) && corteTP(i.id) === k)).join("")}` : (TP.corte ? vacio("Sin pedidos de este corte", "") : "")).join("")}</div>`;
 }
 /* Tarjeta de pedido (Buscador de pedidos y Últimos pedidos del administrador). */
+/* Administrador: puntos que el cliente acumuló (y usó) con cada pedido. */
+function pedPuntosAdHTML(p) {
+  if (!p || p.estado === "cancelado" || S.portal !== "admin") return "";
+  subPuntosAd();
+  const g = PTA.lista.find(m => m.id === "gan_" + p.id), u = PTA.lista.find(m => m.id === "ped_" + p.id);
+  const gan = g ? Number(g.puntos) || 0 : 0, usados = u ? -(Number(u.puntos) || 0) : Number(p.puntosUsados) || 0;
+  if (!gan && !usados) return "";
+  return `<div class="ped-pts"><span aria-hidden="true">🏅</span><span>${gan ? `El cliente acumuló <b>${fmtN(gan)} puntos</b>` : ""}${gan && usados ? " · " : ""}${usados ? `Usó ${fmtN(usados)} puntos (−${clp(usados)})` : ""}</span></div>`;
+}
 function pedAdmCardHTML(p, o) {
   const q = o.q || "", enRep = !!o.enRep, cliAct = o.cliAct || (() => ({})), norm = o.norm || (t => String(t || "").toLowerCase());
     const its = items(p), sub = itSub(its) + ivaPed(p, itSub(its)) + cargoBid(p);
@@ -13765,7 +13774,7 @@ function pedAdmCardHTML(p, o) {
       ${bidonesPedidoHTML(p, false)}
       ${p.nota ? `<p class="nota"><b>Nota</b>${esc(p.nota)}</p>` : ""}
       ${pagoEstadoHTML(p)}
-      ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}`}
+      ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}${pedPuntosAdHTML(p)}`}
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
       ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-pago">${prioBtnHTML(p)}${pagado(p) ? `<span class="ult-pagado">✅ Pagado${p.pagoAdminPor ? ` · ${esc(p.pagoAdminPor)}` : ""}</span>${p.pagoMarcadoAdm ? `<button type="button" class="link" data-act="ult-despagar" data-id="${esc(p.id)}">Deshacer</button>` : ""}` : `<button type="button" class="btn chico ult-pagar" data-act="ult-pagar" data-id="${esc(p.id)}">💰 Marcar como pagado</button>`}</div>` : ""}
@@ -16530,7 +16539,7 @@ async function marcarAsistencia(insId, si) {
 const PTA = { lista: [], subs: false, cargado: false, q: "", ver: "", aj: { pts: "", motivo: "" }, guardando: false };
 function subPuntosAd() {
   if (PTA.subs || !S.db) return; PTA.subs = true;
-  S.db.collection("puntos_mov").limit(20000).onSnapshot(sn => { PTA.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); PTA.cargado = true; renderPuntosAd(); }, e => { PTA.cargado = true; console.warn("puntos_mov", e); renderPuntosAd(); });
+  S.db.collection("puntos_mov").limit(20000).onSnapshot(sn => { const prim = !PTA.cargado; PTA.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); PTA.cargado = true; renderPuntosAd(); clearTimeout(PTA.t); PTA.t = setTimeout(() => { try { renderListas(); if ($("#ult-panel")) renderUlt(); } catch (_) {} }, prim ? 0 : 400); }, e => { PTA.cargado = true; console.warn("puntos_mov", e); renderPuntosAd(); });
 }
 function puntosAdHTML() {
   if (!PTA.cargado) return vacio("Cargando puntos…", "Un momento.");
