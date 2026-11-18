@@ -2814,7 +2814,7 @@ const S = {
   db: null, conectando: true, sinDb: false, sinPermiso: false,
   ses: Object.fromEntries(PORTALES.map(k => [k, guardado[k] && guardado[k].id ? guardado[k] : null])),
   authTab: { cliente: "entrar", repartidor: "entrar", agua: "entrar", papas: "entrar", prov: "entrar", pos: "entrar", utfsm: "entrar", pizzas: "entrar", prueba: "entrar", admin: "entrar" },
-  cliTab: "nuevo", repTab: "ultimos", repFecha: hoy(), mePer: "dia", meRef: hoy(), mpPer: "dia", mpRef: hoy(), repFiltro: "", repSub: "pend", rtPer: "dia", rtRef: hoy(), rtRep: "",
+  cliTab: "inicio", repTab: "ultimos", repFecha: hoy(), mePer: "dia", meRef: hoy(), mpPer: "dia", mpRef: hoy(), repFiltro: "", repSub: "pend", rtPer: "dia", rtRef: hoy(), rtRep: "",
   carrito: {}, pedidos: [], cargado: false, vistos: null, recientes: new Set(),
   confirmar: null, entregaVisible: false, editando: false, editPedido: null,
   pagoPer: "dia", pagoRef: hoy(), pagoEst: "pend", entG: "dia", pendG: "dia", misSub: "pend", misRef: hoy()
@@ -2931,7 +2931,7 @@ const bannerH = () => { const b = document.querySelector(".banner-flot"); return
 const UB_ICO = {"promos": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 12v9H4v-9\"/><path d=\"M2 7h20v5H2z\"/><path d=\"M12 21V7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/></svg>", "puntos": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"m12 6 1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5L11 8z\"/><path d=\"M8.5 14 7 21l5-2.5L17 21l-1.5-7\"/></svg>", "cupones": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z\"/><path d=\"M9 9h.01M15 15h.01M15.5 8.5l-7 7\"/></svg>", "comun": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.6\"/><path d=\"M15.5 14.3A5 5 0 0 1 21 19\"/></svg>"};
 function pintarNotisUB() {
   const el = document.getElementById("ub-notis"); if (!el) return;
-  const c = S.portal === "cliente" && S.ses.cliente; let xs = [];
+  const c = S.portal === "cliente" && S.ses.cliente && S.cliTab === "inicio"; let xs = [];
   if (c) {
     const n = f => { try { return f() || 0; } catch (_) { return 0; } };
     xs = [
@@ -2941,7 +2941,7 @@ function pintarNotisUB() {
       ["comun", "cli-comun", "#16a34a", n(() => cmuProx().filter(a => !CMU.mias.has(a.id)).length), k => `${k} ${k === 1 ? "trabajo comunitario" : "trabajos comunitarios"}`],
     ].filter(x => x[3] > 0);
   }
-  const h = xs.map(([k, act, col, v, t]) => `<button type="button" class="ub-ni" data-act="${act}" style="--c:${col}"><span class="ub-ni-i" aria-hidden="true">${UB_ICO[k]}</span><span>${esc(t(v))}</span></button>`).join("");
+  const h = xs.map(([k, act, col, v, t]) => `<button type="button" class="ub-ni" data-act="${act}" style="--c:${col}" title="${esc(t(v))}" aria-label="${esc(t(v))}"><span class="ub-ni-i" aria-hidden="true">${UB_ICO[k]}</span></button>`).join("");
   if (el.innerHTML !== h) el.innerHTML = h;
   if (el.hidden !== !h) el.hidden = !h;
 }
@@ -3263,7 +3263,7 @@ document.addEventListener("click", e => {
 function iniciarSesion(k, p) {
   S.ses[k] = p; guardarSesion(); regSesion(k, p);
   if (S.authTab && S.authTab[k]) S.authTab[k] = "entrar";
-  if (k === "cliente") S.cliTab = "nuevo";
+  if (k === "cliente") S.cliTab = "inicio";
   else if (k === "repartidor") S.repTab = "tdisp";
   else if (k === "agua") { AG.tab = "agregar"; AG.pdpFecha = hoy(); AG.pdpEst = false; }
   else if (k === "papas") PP.tab = "prod";
@@ -5397,7 +5397,7 @@ function cambiarCliTab(t) {
   if (t === "con") { asegurarConsumo(); renderConsumo(); }
   if (t === "stk") { asegurarConsumo(); renderStockCli(); }
   updateBarra();
-  cliIniPintar();
+  cliIniPintar(); pintarNotisUB();
   window.scrollTo(0, 0);
 }
 /* Clientes: botón con el nombre de la sección arriba; «Inicio» muestra todos los íconos de la barra inferior. */
@@ -14989,7 +14989,7 @@ document.addEventListener("click", e => {
   if (a === "portal") {
     S.verPortales = false;
     S.portal = b.dataset.p; S.confirmar = null; if (S.portal === "pos") POS.loc = "papas"; if (S.portal === "admin" || (S.portal === "cliente" && S.ses.admin)) AD.ocultarPortales = true;
-    if (S.portal === "cliente" || S.portal === "cfd") { S.cliTab = "nuevo"; S.misSub = "pend"; }
+    if (S.portal === "cliente" || S.portal === "cfd") { S.cliTab = S.portal === "cliente" ? "inicio" : "nuevo"; S.misSub = "pend"; }
     else if (S.portal === "repartidor") S.repTab = "tdisp";
     else if (S.portal === "agua") { AG.tab = "agregar"; AG.pdpFecha = hoy(); AG.pdpEst = false; }
     else if (S.portal === "papas") PP.tab = "prod";
@@ -17073,6 +17073,8 @@ function guardarNav() {
   if (S.portal === "repartidor") S.repTab = "tdisp";
   if (S.portal === "agua") AG.tab = "agregar";
   if (S.portal === "papas") PP.tab = "prod";
+  /* Clientes entra siempre a Inicio. */
+  if (S.portal === "cliente") S.cliTab = "inicio";
 })();
 document.addEventListener("click", () => setTimeout(guardarNav, 0));
 document.addEventListener("change", () => setTimeout(guardarNav, 0));
@@ -17081,7 +17083,8 @@ window.addEventListener("pagehide", guardarNav);
 /* ---------- Inicio ---------- */
 $("#comunas").innerHTML = COMUNAS.map(c => `<option value="${c}"></option>`).join("");
 renderAll();
-if (S.ses.cliente && !document.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`)) cambiarCliTab("nuevo");
+if (S.ses.cliente && S.cliTab !== "inicio" && !document.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`)) cambiarCliTab("nuevo");
+if (S.ses.cliente && S.portal === "cliente" && S.cliTab === "inicio") cambiarCliTab("inicio");
 if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${S.repTab}"]`)) { S.repTab = "ultimos"; renderAll(); }
 (async () => {
   const use = window.claude && typeof window.claude.use === "function" ? n => window.claude.use(n) : async () => null;
@@ -17836,8 +17839,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-notis:empty{display:none}
-.ub-ni{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:4px 12px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:999px;background:var(--surface);color:var(--c)}.ub-ni-i svg{display:block;width:20px;height:20px}
+.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-notis:empty{display:none}
+.ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
