@@ -2955,7 +2955,7 @@ function renderUsuBar() {
   const ini = String(u.nombre).trim().split(/\s+/).slice(0, 2).map(x => x[0] || "").join("").toUpperCase();
   if (PERF_COL[S.portal]) subPerfil(S.portal);
   const fotoU = PERF_COL[S.portal] ? fotoDe(S.portal) : "";
-  document.getElementById("usu-bar").innerHTML = `<span class="ub-av-w"><span class="ub-av" aria-hidden="true">${fotoU ? `<img src="${fotoU}" alt="">` : esc(ini)}</span>${S.portal === "cliente" && S.ses.cliente ? insigniaHTML(S.ses.cliente.id, "ub") : ""}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}${S.portal === "cliente" ? `<span id="ub-notis" class="ub-notis"></span>` : ""}</b></span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
+  document.getElementById("usu-bar").innerHTML = `<span class="ub-av-w"><span class="ub-av" aria-hidden="true">${fotoU ? `<img src="${fotoU}" alt="">` : esc(ini)}</span>${S.portal === "cliente" && S.ses.cliente ? insigniaHTML(S.ses.cliente.id, "ub") : ""}</span><span class="ub-t"><small>Usuario</small><b>${esc(u.nombre)}</b>${S.portal === "cliente" ? `<span id="ub-notis" class="ub-notis"></span>` : ""}</span>${nomP ? `<span class="ub-p">${ico ? ico.outerHTML : ""}<span>${esc(nomP)}</span></span>` : ""}`;
   w.hidden = false; pintarNotisUB();
 }
 function renderHeader() {
@@ -17835,8 +17835,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:inline-flex;align-items:center;gap:4px;margin-left:8px;vertical-align:middle}.ub-notis:empty{display:none}
-.ub-ni{display:inline-grid;place-items:center;width:26px;height:26px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni svg{display:block}
+.ub-notis{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}.ub-notis:empty{display:none}
+.ub-ni{display:inline-grid;place-items:center;width:32px;height:32px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni svg{display:block;width:20px;height:20px}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
