@@ -2940,8 +2940,8 @@ function pintarNotisUB() {
       ["puntos", "cli-puntos", "#d97706", n(() => ptsAplica() && PTS.cargado ? puntosSaldo() : 0), k => `${fmtN(k)} puntos`],
       ["cupones", "cli-cupones", "#db2777", n(() => CUPC.lista ? CUPC.lista.filter(x => !x.agotado).length : 0), k => `${k} ${k === 1 ? "cupón disponible" : "cupones disponibles"}`],
       ["comun", "cli-comun", "#16a34a", n(() => cmuProx().filter(a => !CMU.mias.has(a.id)).length), k => `${k} ${k === 1 ? "trabajo comunitario" : "trabajos comunitarios"}`],
-      ["buscar", "cli-buscar", "#0ea5e9", 1, () => "Buscador de productos"],
       ["coment", "cli-coment", "#0ea5e9", 1, () => "Sugerencias"],
+      ["buscar", "cli-buscar", "#0ea5e9", 1, () => "Buscador de productos"],
     ].filter(x => x[3] > 0);
   }
   const h = xs.map(([k, act, col, v, t]) => `<button type="button" class="ub-ni" data-act="${act}" style="--c:${col}" title="${esc(t(v))}" aria-label="${esc(t(v))}"><span class="ub-ni-i" aria-hidden="true">${UB_ICO[k]}</span></button>`).join("");
@@ -17843,7 +17843,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-notis:empty{display:none}
+.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:empty{display:none}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
