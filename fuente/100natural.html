@@ -5519,6 +5519,7 @@ function pedidoClienteHTML(p) {
     ${pedKgHTML(p)}
     ${bidonesPedidoHTML(p, false, sinMontoBid())}
     ${pedPuntosHTML(p)}
+    ${p.estado === "pendiente" || p.estado === "en_camino" ? (() => { const n = window.__rpNoLeidos ? window.__rpNoLeidos(p.id) : 0; return `<button type="button" class="btn chico rp-cli-btn" data-msj="rep-ped" data-id="${esc(p.id)}">💬 Preguntar al repartidor${n ? ` <span class="msj-fn">${n}</span>` : ""}</button>`; })() : ""}
     <div class="ped-f"><span class="tot">${verPrecios() ? `Total <b>${clp(p.total)}</b>` : `${items(p).reduce((a, i) => a + (Number(i.cant) || 0), 0)} productos`}</span>${pie}</div>${verPrecios() ? ivaLineHTML(p, itSub(items(p))) : ""}
     ${items(p).some(i => PROD[i.id] && Number(i.cant) > 0) ? `<div class="acciones ped-rep-cli"><button type="button" class="btn chico rep-ped-btn" data-act="repetir-pedido-cli" data-id="${esc(p.id)}">🔁 Repetir pedido</button></div>` : ""}
     ${pagoPedidoCliHTML(p)}
@@ -17815,6 +17816,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-fil{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:16px 12px 10px;margin-top:6px}.msj-fil::-webkit-scrollbar{display:none}
 .msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
+.rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
@@ -17852,9 +17854,16 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   };
   const enGrupo = (g, me) => !esCli(me) && (!g[3] || me.col === g[3] || me.col === "usuarios_admin");
   const chatPriv = (a, b) => "p-" + [a, b].sort().join("~");
+  /* Consultas de un pedido entre el cliente y el repartidor: chat «r-<pedido>» (cada mensaje lleva clienteId y pedidoId).
+     Lo ven el cliente dueño del pedido, el repartidor que lo lleva (o todos los repartidores si aún no lo toma nadie) y la administración. */
+  const esRP = chat => String(chat || "").startsWith("r-");
+  const pedRP = chat => (S.pedidos || []).find(p => p.id === String(chat).slice(2)) || null;
+  const cliRP = chat => { const m = M.docs.find(x => x.chat === chat && x.clienteId); if (m) return m.clienteId; const p = pedRP(chat); return p ? p.clienteId || "" : ""; };
+  const codRP = chat => { const p = pedRP(chat); if (p && Number(p.numCliente)) return "N° " + Number(p.numCliente); return "#" + String(chat).slice(2).slice(-5).toUpperCase(); };
+  const rpMio = (chat, me) => { if (me.col === "usuarios_admin") return true; if (me.col === "clientes") return cliRP(chat) === me.id; if (me.col !== "repartidores") return false; const p = pedRP(chat); return !!p && (p.repartidorId ? p.repartidorId === me.id : true); };
   const otroDe = (chat, me) => { const ks = chat.slice(2).split("~"); return ks[0] === me.key ? ks[1] : ks[0]; };
   const misChats = me => new Set([...GRUPOS.filter(g => enGrupo(g, me)).map(g => g[0])]);
-  const esMio = (m, me) => esExt(m.chat) ? (me.col === "usuarios_admin" || m.chat === chatPropio(me)) : esCli(me) ? false : m.chat.startsWith("p-") ? m.chat.slice(2).split("~").includes(me.key) : misChats(me).has(m.chat);
+  const esMio = (m, me) => esRP(m.chat) ? rpMio(m.chat, me) : esExt(m.chat) ? (me.col === "usuarios_admin" || m.chat === chatPropio(me)) : esCli(me) ? false : m.chat.startsWith("p-") ? m.chat.slice(2).split("~").includes(me.key) : misChats(me).has(m.chat);
   const todosClientes = () => { const m = new Map(); for (const c of [...(((US.data || {}).clientes) || []), ...((window.AD && AD.clientes) || [])]) if (c && c.id && c.activo !== false) m.set(c.id, Object.assign({}, m.get(c.id) || {}, c)); return [...m.values()]; };
   const cliDe = id => todosClientes().find(c => c.id === id) || null;
   const cliCoincide = (c, q) => { if (!c) return false; const dig = q.replace(/\D/g, ""); return [c.nombre, c.id, c.direccion, c.comuna, c.email].some(v => String(v || "").toLowerCase().includes(q)) || (dig.length >= 4 && String(c.telefono || "").replace(/\D/g, "").includes(dig)); };
@@ -17864,6 +17873,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   const nomKey = k => { const p = personas().find(x => x.key === k); if (p) return p.nombre; const m = M.docs.find(x => x.deKey === k); return m ? String(m.deNom || "Persona") : "Persona"; };
   const tituloChat = (chat, me) => {
     if (ajeno(chat, me)) { const [a, b] = chat.slice(2).split("~"); return { t: `${nomKey(a)} ↔ ${nomKey(b)}`, s: "Conversación privada · solo lectura", av: "👁" }; }
+    if (esRP(chat)) { const p = pedRP(chat); if (esCli(me)) return { t: p && p.repartidorNombre ? String(p.repartidorNombre) : "Repartidor", s: `Consulta sobre tu pedido ${codRP(chat)}`, av: "🛵" }; const n = nomCliente(cliRP(chat)); return { t: n, s: `Consulta pedido ${codRP(chat)}${p && p.repartidorNombre ? " · " + p.repartidorNombre : " · sin repartidor"}`, av: n.trim().charAt(0).toUpperCase() || "?" }; }
     if (esExt(chat)) { if (esCli(me)) return { t: "Administración 100% Natural", s: "Escríbenos tus consultas", av: "🌿" }; const pv = chat.charAt(0) === "v", n = pv ? nomProv(chat.slice(2)) : nomCliente(chat.slice(2)); return { t: n, s: pv ? "Proveedor" : "Cliente", av: n.trim().charAt(0).toUpperCase() || "?" }; }
     const g = GRUPOS.find(x => x[0] === chat); if (g) return { t: g[2], s: g[3] ? `${ROL[g[3]]} y administración` : "Todos", av: g[1] };
     const k = otroDe(chat, me), p = personas().find(x => x.key === k), nom = p ? p.nombre : "Persona";
@@ -17954,6 +17964,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     return out;
   }
   const nomVisto = k => k === "usuarios_admin:*" ? "Administración" : k.startsWith("clientes:") ? nomCliente(k.slice(9)) : k.startsWith("proveedores:") ? nomProv(k.slice(12)) : nomKey(k);
+  window.__rpNoLeidos = pid => { const me = yo(); return me && M.cargado ? noLeidos("r-" + pid, me) : 0; };
   function avisar(m) {
     try { if (navigator.vibrate) navigator.vibrate(120); } catch (_) {}
     const g = GRUPOS.find(x => x[0] === m.chat);
@@ -17992,7 +18003,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
   document.body.appendChild(pan);
   function abrir(chat) {
     const me = yo(); if (!me) return;
-    M.abierto = true; M.chat = esCli(me) ? chatPropio(me) : chat || ""; pan.hidden = false; document.documentElement.style.overflow = "hidden";
+    if (esCli(me) && !chat) { const rp = [...new Set(M.docs.filter(m => esRP(m.chat) && esMio(m, me) && noLeidos(m.chat, me)).map(m => m.chat))]; if (rp.length) chat = rp[rp.length - 1]; }
+    M.abierto = true; M.chat = esCli(me) && !(esRP(chat) && me.col === "clientes") ? chatPropio(me) : chat || ""; pan.hidden = false; document.documentElement.style.overflow = "hidden";
     suscribir(); pintarBtn(); pintar(true);
     if (M.chat) marcarLeido(M.chat);
   }
@@ -18032,17 +18044,21 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
         .sort((a, b) => ((b.u || {}).en || 0) - ((a.u || {}).en || 0) || a.n.localeCompare(b.n, "es"))
         .map(x => fila(x.chat, x.n.trim().charAt(0).toUpperCase() || "?", x.n, "Proveedor", "proveedores:" + x.id));
     })();
-    const nlDe = f => { let n = 0; for (const chat of new Set(M.docs.map(m => m.chat))) { if (!esMio({ chat }, me) || ajeno(chat, me)) continue; const k = chat.startsWith("c-") ? (esLocalC(cliDe(chat.slice(2))) ? "local" : "part") : "equipo"; if (k === f) n += noLeidos(chat, me); } return n; };
+    /* Consultas de pedidos (cliente ↔ repartidor). */
+    const rpChats = !(me.col === "usuarios_admin" || me.col === "repartidores") ? [] : [...new Set(M.docs.filter(m => esRP(m.chat) && esMio(m, me)).map(m => m.chat))]
+      .map(chat => ({ chat, t: tituloChat(chat, me), u: ult(chat), c: cliDe(cliRP(chat)) })).filter(x => (!q || x.t.t.toLowerCase().includes(q) || x.t.s.toLowerCase().includes(q)) && cliFiltro(x.c))
+      .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, x.t.av, x.t.t, x.t.s, "clientes:" + cliRP(x.chat)));
+    const nlDe = f => { let n = 0; for (const chat of new Set(M.docs.map(m => m.chat))) { if (!esMio({ chat }, me) || ajeno(chat, me)) continue; const k = chat.startsWith("c-") ? (esLocalC(cliDe(chat.slice(2))) ? "local" : "part") : esRP(chat) ? (esLocalC(cliDe(cliRP(chat))) ? "local" : "part") : "equipo"; if (k === f) n += noLeidos(chat, me); } return n; };
     const filtros = me.col !== "usuarios_admin" ? "" : `<div class="msj-fil" role="group" aria-label="Filtrar mensajes">${[["", "Todos"], ["part", "👤 Particular"], ["local", "🏪 Local comercial"], ["equipo", "🌿 100 natural"]].map(([k, l]) => { const n = k ? nlDe(k) : 0; return `<button type="button" data-msj="fil" data-f="${k}" aria-pressed="${fil === k}">${l}${n ? `<span class="msj-fn">${n > 99 ? "99+" : n}</span>` : ""}</button>`; }).join("")}</div>`;
     const otros = me.col !== "usuarios_admin" || !verEq ? [] : [...new Set(M.docs.filter(m => ajeno(m.chat, me)).map(m => m.chat))]
       .map(chat => ({ chat, t: tituloChat(chat, me), u: ult(chat) })).filter(x => !q || x.t.t.toLowerCase().includes(q))
       .sort((a, b) => (b.u.en || 0) - (a.u.en || 0)).map(x => fila(x.chat, "👁", x.t.t, "Conversación privada"));
     return `<div class="msj-top"><b>Mensajes${M.ped ? `<small>Elige a quién enviar el pedido</small>` : ""}</b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
       <div class="msj-cuerpo">${M.ped ? `<div class="msj-buscar">${adjuntosHTML()}</div>` : ""}<div class="msj-buscar"><input type="search" id="msj-q" placeholder="${me.col === "usuarios_admin" ? "Buscar persona, grupo, cliente o proveedor" : "Buscar persona o grupo"}" value="${esc(M.q)}" autocomplete="off"></div>${filtros}
-      <ul class="msj-lista">${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : verEq && (!US.cargado || !Object.keys(US.cargado).length) ? `<li class="msj-vacio">Cargando personas…</li>` : ""}${provs.length ? `<li class="msj-sec">Proveedores</li>${provs.join("")}` : ""}${fil && fil !== "equipo" && !cliChats.length && !cliNuevos.length ? `<li class="msj-vacio">${fil === "local" ? "No hay conversaciones con locales comerciales." : "No hay conversaciones con clientes particulares."} Busca un cliente para escribirle.</li>` : ""}${otros.length ? `<li class="msj-sec">Conversaciones de otros usuarios</li>${otros.join("")}` : ""}</ul></div>`;
+      <ul class="msj-lista">${rpChats.length ? `<li class="msj-sec">🛵 Consultas de pedidos</li>${rpChats.join("")}` : ""}${cliChats.length || cliNuevos.length ? `<li class="msj-sec">Clientes</li>${cliChats.join("")}${cliNuevos.join("")}` : ""}${grupos.length ? `<li class="msj-sec">Grupos</li>${grupos.join("")}` : ""}${gente.length ? `<li class="msj-sec">Personas</li>${gente.join("")}` : verEq && (!US.cargado || !Object.keys(US.cargado).length) ? `<li class="msj-vacio">Cargando personas…</li>` : ""}${provs.length ? `<li class="msj-sec">Proveedores</li>${provs.join("")}` : ""}${fil && fil !== "equipo" && !cliChats.length && !cliNuevos.length ? `<li class="msj-vacio">${fil === "local" ? "No hay conversaciones con locales comerciales." : "No hay conversaciones con clientes particulares."} Busca un cliente para escribirle.</li>` : ""}${otros.length ? `<li class="msj-sec">Conversaciones de otros usuarios</li>${otros.join("")}` : ""}</ul></div>`;
   }
   function hiloHTML(me) {
-    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || (esExt(M.chat) && !esCli(me)) || ajeno(M.chat, me);
+    const t = tituloChat(M.chat, me), ms = M.docs.filter(m => m.chat === M.chat), grupo = M.chat.startsWith("g-") || ((esExt(M.chat) || esRP(M.chat)) && !esCli(me)) || ajeno(M.chat, me);
     let dia = "";
     const propios = ms.filter(m => m.deKey === me.key && !m.borrado), ultPropio = propios.length ? propios[propios.length - 1].id : "";
     const lector = !ajeno(M.chat, me);
@@ -18052,8 +18068,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
       if (m.borrado) return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m borrado${mio ? " yo" : ""}">${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}<span class="t">🚫 ${mio ? "Eliminaste este mensaje" : "Mensaje eliminado"}</span><time>${hm(m.en)}</time></div>`);
       return envolver(m, mio, ms[i - 1], sep, `<div class="msj-m${mio ? " yo" : ""}"${mio ? ` data-mid="${esc(m.id)}" tabindex="0" aria-label="Tu mensaje. Mantén apretado para editar o eliminar"` : ""}>${grupo && !mio ? `<span class="de">${esc(m.deNom || "")}</span>` : ""}${m.pedido ? `<span class="msj-ped">📦 ${pedTxt(m.pedido)}</span>` : ""}${m.fotoId ? `<img data-msj="ver-foto" data-f="${esc(m.fotoId)}" alt="Foto" ${M.fotos[m.fotoId] ? `src="${M.fotos[m.fotoId]}"` : ""}>` : ""}${m.texto ? `<span class="t">${esc(m.texto)}</span>` : ""}<time>${m.editado ? `<span class="ed">editado</span>` : ""}${hm(m.en)}${mio && lector ? (() => { const v = vistoPor(m, me); return v.length ? `<span class="msj-tick visto" aria-label="Visto">✓✓</span>` : `<span class="msj-tick" aria-label="Enviado">✓</span>`; })() : ""}</time></div>${mio && lector && m.id === ultPropio ? (() => { const v = vistoPor(m, me); if (!v.length) return ""; const g = M.chat.startsWith("g-"); const ns = v.map(nomVisto); return `<div class="msj-visto">👁 ${g ? `Visto por ${esc(ns.length > 3 ? ns.slice(0, 3).join(", ") + ` y ${ns.length - 3} más` : ns.join(", "))}` : "Visto"}</div>`; })() : ""}`);
     }).join("");
-    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}${avH(t.av, ajeno(M.chat, me) ? "" : M.chat.startsWith("p-") ? otroDe(M.chat, me) : esExt(M.chat) && !esCli(me) ? keyExt(M.chat) : "", "cab")}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
-      <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
+    return `<div class="msj-top">${esCli(me) ? "" : `<button type="button" class="msj-x" data-msj="volver" aria-label="Volver">‹</button>`}${avH(t.av, ajeno(M.chat, me) ? "" : M.chat.startsWith("p-") ? otroDe(M.chat, me) : esRP(M.chat) && !esCli(me) ? "clientes:" + cliRP(M.chat) : esExt(M.chat) && !esCli(me) ? keyExt(M.chat) : "", "cab")}<b>${esc(t.t)}<small>${esc(t.s)}</small></b><button type="button" class="msj-x" data-msj="cerrar" aria-label="Cerrar">✕</button></div>
+      <div class="msj-cuerpo" id="msj-cuerpo"><div class="msj-hilo">${hilo || `<p class="msj-vacio">${esRP(M.chat) && esCli(me) ? "Pregúntale a tu repartidor por el estado de tu pedido. Te responderá aquí." : esCli(me) ? "¿Tienes una consulta sobre tu pedido? Escríbenos y te respondemos aquí." : "Aún no hay mensajes. Escribe el primero."}</p>`}</div></div>
       ${ajeno(M.chat, me) ? `<div class="msj-comp msj-solo">👁 Solo lectura: puedes ver esta conversación, pero no escribir en ella.</div>` : `<div class="msj-comp">${M.edit ? `<div class="msj-edit">✏️ <span>Editando mensaje</span><button type="button" data-msj="edit-x" aria-label="Cancelar edición">✕</button></div>` : adjuntosHTML()}<div class="msj-fila">${M.edit ? "" : `<button type="button" class="msj-cam" data-msj="foto" aria-label="Adjuntar foto">📷</button>`}<textarea id="msj-texto" rows="1" placeholder="Escribe un mensaje" maxlength="1000">${esc(M.borr || "")}</textarea><button type="button" class="msj-env" data-msj="enviar" aria-label="${M.edit ? "Guardar cambio" : "Enviar"}" ${M.enviando ? "disabled" : ""}>${M.edit ? "✓" : "➤"}</button></div>
       <input type="file" id="msj-file" accept="image/*" hidden></div>`}`;
   }
@@ -18091,6 +18107,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const x = { chat: M.chat, deKey: me.key, deNom: me.nombre, dePortal: S.portal, en: Date.now() };
     if (esExt(M.chat)) x[campoExt(M.chat)] = M.chat.slice(2);
+    if (esRP(M.chat)) { const cid = me.col === "clientes" ? me.id : cliRP(M.chat); if (!cid) { toast("No se encontró el cliente de este pedido."); M.enviando = false; pintar(true); return; } x.clienteId = cid; x.pedidoId = M.chat.slice(2); }
     if (texto) x.texto = texto.slice(0, 1000);
     if (M.ped) x.pedido = M.ped;
     try {
@@ -18166,6 +18183,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
     else if (a === "edit-x") salirEdicion();
     else if (a === "quitar-ped") { M.ped = null; pintar(true); }
     else if (a === "ver-foto") { if (!b.src) return; const v = document.createElement("div"); v.className = "msj-ver"; v.innerHTML = `<img src="${b.src}" alt="Foto">`; v.addEventListener("click", () => v.remove()); document.body.appendChild(v); }
+    else if (a === "rep-ped") { e.preventDefault(); e.stopPropagation(); M.ped = null; M.borr = ""; abrir("r-" + b.dataset.id); }
     else if (a === "ped") {
       /* «💬 Mensaje» en un pedido: abre Mensajes con el pedido adjunto para elegir a quién enviarlo. */
       e.preventDefault(); e.stopPropagation();

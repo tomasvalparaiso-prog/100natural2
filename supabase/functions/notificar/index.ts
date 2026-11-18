@@ -36,7 +36,7 @@ const llave = (s: Sub) => `${COL[s.portal]}:${s.cuenta}`;
 const corto = (t: unknown, n = 120) => { const s = String(t ?? "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
 const clp = (n: number) => "$" + Math.round(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null {
+async function paraMensaje(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
   const chat = String(d.chat || ""), de = String(d.deKey || "");
   if (!chat || d.borrado) return null;
   const contenido = d.texto ? corto(d.texto) : d.fotoId ? "📷 Foto" : d.pedido ? `📦 Pedido #${d.pedido.cod || ""}` : "Mensaje nuevo";
@@ -51,6 +51,15 @@ function paraMensaje(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null
     const cli = chat.slice(2);
     if (de.startsWith("clientes:")) { dest = subs.filter((s) => s.portal === "admin"); titulo = `${titulo} (cliente)`; }
     else { dest = subs.filter((s) => s.portal === "cliente" && s.cuenta === cli); titulo = "100% Natural"; }
+  } else if (chat.startsWith("r-")) {
+    // Consulta de un pedido entre el cliente y el repartidor (la administración también la ve).
+    const cli = String(d.clienteId || "");
+    if (de.startsWith("clientes:")) {
+      const { data: pe } = await adm.from("documentos").select("data").eq("coleccion", "pedidos").eq("id", chat.slice(2)).maybeSingle();
+      const rid = String(pe?.data?.repartidorId || "");
+      dest = subs.filter((s) => s.portal === "admin" || (s.portal === "repartidor" && (!rid || s.cuenta === rid)));
+      titulo = `${titulo} (consulta de pedido)`;
+    } else { dest = subs.filter((s) => s.portal === "cliente" && s.cuenta === cli); titulo = `${titulo} · tu pedido`; }
   } else if (chat.startsWith("v-")) {
     // Proveedores: conversan solo con la administración.
     const pv = chat.slice(2);
@@ -186,7 +195,7 @@ Deno.serve(async (req) => {
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const uno = coleccion === "mensajes" ? paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
+    const uno = coleccion === "mensajes" ? await paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
     const grupos: [Sub[], Aviso][] | null = coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : uno ? [uno] : null;
     const envios = (grupos ?? []).flatMap(([ds, av]) => ds.map((s) => [s, JSON.stringify(av)] as [Sub, string]));
     if (!envios.length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
