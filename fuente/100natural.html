@@ -13792,7 +13792,7 @@ function pedPuntosAdHTML(p) {
 function pedAdmCardHTML(p, o) {
   const q = o.q || "", enRep = !!o.enRep, cliAct = o.cliAct || (() => ({})), norm = o.norm || (t => String(t || "").toLowerCase());
     const its = items(p), sub = itSub(its) + ivaPed(p, itSub(its)) + cargoBid(p);
-    return `<article class="ped ${codigo(p.id) === q ? "bus-exacto" : ""}${S.repNuevo === p.id ? " ped-recien" : ""}" data-pid="${esc(p.id)}">
+    return `<article class="ped ${codigo(p.id) === q ? "bus-exacto" : ""}${S.repNuevo === p.id ? " ped-recien" : ""}${o && o.sinFac ? " ped-ult" : ""}" data-pid="${esc(p.id)}">
       <div class="ped-h"><span class="cod">#${esc(codigo(p.id))}</span><b class="t">${esc(cliAct(p).nombre || p.clienteNombre || "Cliente")}${cliAct(p).nombre && p.clienteNombre && norm(cliAct(p).nombre) !== norm(p.clienteNombre) ? `<small class="bus-antes"> (en el pedido: ${esc(p.clienteNombre)})</small>` : ""}<br>${tipoChip(tipoCli(p) || "Sin tipo")}</b>${pill(p.estado)}</div>
     ${creadoHTML(p)}
       <p class="meta">${esc(dirTxt(p))}, ${esc(p.comuna || "")}${p.telefono ? " · " + waA(p.telefono) : ""}${p.origen === "admin" ? " · Creado por administrador" : p.origen === "repartidor" ? " · Creado por repartidor" : ""}${p.repartidorNombre ? " · Repartidor: " + esc(p.repartidorNombre) : ""}</p>
@@ -13803,9 +13803,10 @@ function pedAdmCardHTML(p, o) {
       ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}${pedPuntosAdHTML(p)}`}
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
-      ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-pago">${prioBtnHTML(p)}${pagado(p) ? `<span class="ult-pagado">✅ Pagado${p.pagoAdminPor ? ` · ${esc(p.pagoAdminPor)}` : ""}</span>${p.pagoMarcadoAdm ? `<button type="button" class="link" data-act="ult-despagar" data-id="${esc(p.id)}">Deshacer</button>` : ""}` : `<button type="button" class="btn chico ult-pagar" data-act="ult-pagar" data-id="${esc(p.id)}">💰 Marcar como pagado</button>`}</div>` : ""}
+      ${o && o.sinFac ? "" : facturaHTML(p)}${o && o.sinFac ? `<div class="ult-acc">` : ""}${delPedHTML(p)}
+      ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-prio">${prioBtnHTML(p)}</div>` : ""}
       ${o.rep && S.ses.admin ? (S.repPed === p.id && S.repF ? repPedHTML(p) : S.repHoy === p.id ? repHoyHTML(p) : `<div class="acciones rep-ped-acc"><button type="button" class="btn chico rep-ped-btn" data-act="rep-hoy" data-id="${esc(p.id)}">🔁 Repetir pedido hoy</button></div>`) : ""}
-      ${facturaHTML(p)}${delPedHTML(p)}
+      ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-pago">${pagado(p) ? `<span class="ult-pagado">✅ Pagado${p.pagoAdminPor ? ` · ${esc(p.pagoAdminPor)}` : ""}</span>${p.pagoMarcadoAdm ? `<button type="button" class="link" data-act="ult-despagar" data-id="${esc(p.id)}">Deshacer</button>` : ""}` : `<button type="button" class="btn chico ult-pagar" data-act="ult-pagar" data-id="${esc(p.id)}">💰 Marcar como pagado</button>`}</div>` : ""}${o && o.sinFac ? `</div>` : ""}
     </article>`;
   }
 /* ---------- Administrador · Repetir pedido (mismo cliente y productos, con fecha nueva y cantidades editables) ---------- */
@@ -13933,7 +13934,7 @@ function ultHTML() {
   return `<p class="lead-sm">Los ${ULT_N} pedidos más nuevos, organizados por día, del más nuevo al más antiguo.</p>
     <div class="seg-per ult-fam" role="group" aria-label="Productos">${[["", "Todos"], ["agua", "💧 Agua"], ["papa", "🥔 Papas"]].map(([k, l]) => `<button type="button" data-act="ult-fam" data-g="${k}" aria-pressed="${ULT.fam === k}">${l} <small>${fmtN(cnt[k])}</small></button>`).join("")}</div>
     ${vis.length ? dias.map(g => `<h3 class="sec ult-dia">${esc(cap(g.d ? parse(g.d).toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "Sin fecha"))} <small>${fmtN(g.ps.length)} ${g.ps.length === 1 ? "pedido" : "pedidos"}</small></h3>
-      <div class="lista">${g.ps.map(p => ultPagoAvisoHTML(p) ? `<div class="ult-w">${ultPagoAvisoHTML(p)}${pedAdmCardHTML(p, { rep: true })}</div>` : pedAdmCardHTML(p, { rep: true })).join("")}</div>`).join("") : vacio("Aún no hay pedidos", "Cuando entren pedidos, aquí verás los más nuevos.")}`;
+      <div class="lista">${g.ps.map(p => ultPagoAvisoHTML(p) ? `<div class="ult-w">${ultPagoAvisoHTML(p)}${pedAdmCardHTML(p, { rep: true, sinFac: true })}</div>` : pedAdmCardHTML(p, { rep: true, sinFac: true })).join("")}</div>`).join("") : vacio("Aún no hay pedidos", "Cuando entren pedidos, aquí verás los más nuevos.")}`;
 }
 /* Últimos pedidos: aviso cuando el cliente ya marcó el pedido como pagado (con o sin comprobante). */
 function ultPagoAvisoHTML(p) {
@@ -17842,6 +17843,14 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .msj-fil{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:16px 12px 10px;margin-top:6px}.msj-fil::-webkit-scrollbar{display:none}
 .msj-fil button{min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .msj-fil button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}.msj-fn{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#D93025;color:#fff;font-size:.72rem;display:inline-grid;place-items:center}
+.ult-acc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.ult-acc>.acciones{display:contents}.ult-acc>:not(.acciones),.ult-acc .estado-txt{grid-column:1/-1}
+.ult-acc [data-act="ed-ped"]{background:#dbeafe!important;border-color:#bfdbfe!important;color:#1e40af!important}
+.ult-acc [data-act="ped-del"]{background:#fee2e2!important;border-color:#fecaca!important;color:#b91c1c!important}
+.ult-acc [data-act="prio-on"],.ult-acc [data-act="prio-off"],.ult-acc .prio-btn{background:#fef3c7!important;border-color:#fde68a!important;color:#92400e!important}
+.ult-acc [data-act="rep-hoy"]{background:#ede9fe!important;border-color:#ddd6fe!important;color:#5b21b6!important}
+.ult-acc [data-act="ult-pagar"],.ult-acc .ult-pagado{background:#dcfce7!important;border-color:#bbf7d0!important;color:#166534!important;grid-column:1/-1}
+.ult-acc .ult-pagado{border-radius:12px;font-weight:800}.ult-acc .ult-pagado~.link{grid-column:1/-1}
+.ult-acc .acciones>.btn,.ult-acc .ult-pagado{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
 .ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:empty{display:none}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
