@@ -5118,7 +5118,8 @@ function pgFormNuevo(g) {
 }
 function pgFormHTML() {
   const f = PG.form, c = S.ses.cliente, oc = new Set(ocultos());
-  const prods = ORDEN.filter(id => PROD[id] && (!oc.has(id) || f.items[id]));
+  for (const id of Object.keys(f.items)) if (PROX_IDS.has(id)) delete f.items[id];
+  const prods = ORDEN.filter(id => PROD[id] && !PROX_IDS.has(id) && (!oc.has(id) || f.items[id]));
   const grupos = CATALOGO.map(cat => ({ cat, ids: cat.items.map(([id]) => id).filter(id => prods.includes(id)) })).filter(x => x.ids.length);
   const nSel = Object.values(f.items).reduce((a, q) => a + (Number(q) || 0), 0);
   const prox = nSel && (f.frec !== "semanal" && f.frec !== "quincenal" || f.dias.length) ? pgProximas(Object.assign({}, f, { activo: true, desde: f.frec === "una" ? f.fecha : f.desde, hasta: f.frec === "una" ? f.fecha : f.hasta }), 3) : [];
@@ -5352,7 +5353,7 @@ async function pgCrearPedido(g, f, extra) {
     const cs = await conReintento(() => S.db.doc("clientes/" + g.clienteId).get());
     if (!cs.exists) return false;
     const cd = cs.data() || {}, local = (cd.tipo || g.clienteTipo) === "Local comercial";
-    const its = Object.entries(g.items || {}).filter(([id, q]) => PROD[id] && q > 0).map(([id, q]) => ({ id, nombre: etiqueta(PROD[id]), detalle: detalle(PROD[id]), precio: precioCli(id, cd.precios || {}, !!cd.sinIva, cd.tipo || g.clienteTipo || ""), cant: Number(q) }));
+    const its = Object.entries(g.items || {}).filter(([id, q]) => PROD[id] && !PROX_IDS.has(id) && q > 0).map(([id, q]) => ({ id, nombre: etiqueta(PROD[id]), detalle: detalle(PROD[id]), precio: precioCli(id, cd.precios || {}, !!cd.sinIva, cd.tipo || g.clienteTipo || ""), cant: Number(q) }));
     if (!its.length) return false;
     const bid = {}, nb = pgBidPed(g.items); let cargo = 0;
     for (const t of TAM_BIDON) if (nb[t]) { const d = pgDev(g, t, nb[t]); bid[t] = { pedidos: nb[t], devueltos: d, pendientes: nb[t] - d }; cargo += (nb[t] - d) * VALOR_BIDON; }
@@ -7257,6 +7258,8 @@ async function cambiarPrio(id, btn) {
   try {
     await conReintento(() => S.db.doc("pedidos/" + id).update({ prioridad: v, prioridadPor: v ? (S.ses.admin.nombre || "Administrador") : null, prioridadEn: v ? Date.now() : null }));
     if (p) p.prioridad = v;
+    /* Aviso push a los repartidores (al que lo lleva o, si nadie lo ha tomado, a todos). */
+    if (v) conReintento(() => S.db.doc("avisos_push/prio_" + id + "_" + Date.now().toString(36)).set({ tipo: "prioridad", pedido: id, por: S.ses.admin.nombre || "Administrador", en: Date.now() })).catch(() => {});
     renderListas();
     if ($("#ult-panel")) { const y = window.scrollY; renderUlt(); window.scrollTo(0, y); } else if ($("#bus-res")) { const y = window.scrollY; renderBus(); window.scrollTo(0, y); }
     toast(v ? `Pedido #${codigo(id)} marcado con prioridad de entrega.` : `Prioridad quitada al pedido #${codigo(id)}.`);
@@ -7860,7 +7863,7 @@ const TI = {
 };
 const TAB_ICO = {
   "agua-tab": { pv: "tienda", pdped: "cal", agregar: "mas", stock: "cajas", pedidos: "baja", pdiaria: "barras", pago: "plata", pcapt: "persMas", insumos: "llave", ainv: "lista", acons: "listaMenos", belim: "basura", bidpend: "vuelta", sueldo: "plata", lavado: "lavar", lavpago: "plata", osm: "gota" },
-  "papas-tab": { pv: "tienda", ped: "cal", mprod: "fabrica", prod: "mas", disp: "cajas", cped: "baja", hist: "barras", sacos: "plata", prv: "camion", ing: "entra", stock: "cajas", csac: "menos", lav: "lavar", lavpago: "plata", piezas: "llave", pinv: "lista", pcons: "listaMenos", vac: "sol", sueldo: "plata" },
+  "papas-tab": { pv: "tienda", ped: "cal", mprod: "fabrica", prod: "mas", disp: "cajas", cped: "baja", hist: "barras", sacos: "plata", prv: "camion", ing: "entra", stock: "cajas", csac: "menos", merma: "baja", lav: "lavar", lavpago: "plata", piezas: "llave", pinv: "lista", pcons: "listaMenos", vac: "sol", sueldo: "plata" },
   "pv-adtab": { ing: "entra", ingreso: "mas", pedidos: "boleta", pagos: "plata" },
   "ad-vtab": { pag: "plata", ped: "cajas", vloc: "tienda", graf: "barras" },
   "pos-tab": { capt: "persMas", captados: "pers", vender: "carro", ventas: "boleta", insumos: "llave", inv: "lista", cons: "listaMenos", pcli: "pers" }
@@ -9096,8 +9099,8 @@ const KG_SACO = 25;
 const PROVEEDORES = ["Sra Josefina", "Angelo"];
 /* Local papas: secciones que van en la barra inferior (no en la página de inicio). */
 const PA_BARRA = ["ped", "prod", "ing"];
-const TABS_PAPAS = [["pv", "Punto de venta"], ["ped", "Pedidos diarios"], ["mprod", "Modo producción"], ["prod", "Ingresar producción"], ["disp", "Inventario producción"], ["cped", "Consumo producción"], ["hist", "Producción diaria"], ["sacos", "Pago sacos extras"], ["ing", "Ingresar sacos"], ["stock", "Inventario sacos"], ["csac", "Consumo sacos"], ["lav", "Ingresar lavado cajas"], ["lavpago", "Pago lavado cajas"], ["piezas", "Ingresar insumos"], ["pinv", "Inventario insumos"], ["pcons", "Consumo de insumos"], ["vac", "Vacaciones"], ["sueldo", "Mi sueldo"]];
-const PP = { tab: "ped", pend: {}, fecha: hoy(), prov: "", bq: 0, bfecha: hoy(), prod: [], bodega: [], cargadoP: false, cargadoB: false, subs: false, gStock: "dia", gPrv: "dia", prvSel: PROVEEDORES[0], guardando: false, gHist: "dia", histUsr: "", confDel: null, pagos: {}, cargadoPag: false, pagosSem: {}, cargadoPS: false, semRef: lunesDe(hoy()) };
+const TABS_PAPAS = [["pv", "Punto de venta"], ["ped", "Pedidos diarios"], ["mprod", "Modo producción"], ["prod", "Ingresar producción"], ["disp", "Inventario producción"], ["cped", "Consumo producción"], ["hist", "Producción diaria"], ["sacos", "Pago sacos extras"], ["ing", "Ingresar sacos"], ["stock", "Inventario sacos"], ["csac", "Consumo sacos"], ["merma", "Ingresar merma"], ["lav", "Ingresar lavado cajas"], ["lavpago", "Pago lavado cajas"], ["piezas", "Ingresar insumos"], ["pinv", "Inventario insumos"], ["pcons", "Consumo de insumos"], ["vac", "Vacaciones"], ["sueldo", "Mi sueldo"]];
+const PP = { merma: [], cargadoM: false, mForm: { sacos: "", tipo: "grande", motivo: "Podrida", nota: "", fecha: "" }, tab: "ped", pend: {}, fecha: hoy(), prov: "", bq: 0, bfecha: hoy(), prod: [], bodega: [], cargadoP: false, cargadoB: false, subs: false, gStock: "dia", gPrv: "dia", prvSel: PROVEEDORES[0], guardando: false, gHist: "dia", histUsr: "", confDel: null, pagos: {}, cargadoPag: false, pagosSem: {}, cargadoPS: false, semRef: lunesDe(hoy()) };
 CORTES.forEach(([k]) => { PP.pend[k] = 0; });
 /* Sacos de pedidos a proveedores ya entregados (Proveedores) que no vienen de Ingresar sacos: también suman al inventario. */
 const provEntregaOk = p => !!(p.entAdm || p.entProv);
@@ -9122,6 +9125,8 @@ const saldoSacos = () => {
     for (const [k] of CORTES) { const v = Number((r.tipos || {})[k]) || 0; if (v && CORTE_TIPO[k]) { t[CORTE_TIPO[k]].uso += v; det += v; } }
     if (n - det > 1e-6) t.sin.uso += n - det;
   }
+  /* Merma (sacos perdidos: podridos, dañados…): también sale del inventario de sacos. */
+  for (const m of PP.merma || []) { const n = Number(m.sacos) || 0; uso += n; t[m.tipoPapa === "grande" || m.tipoPapa === "chica" ? m.tipoPapa : "sin"].uso += n; }
   for (const k of Object.keys(t)) t[k].saldo = t[k].ing - t[k].uso;
   return { ing, uso, saldo: ing - uso, tipos: t };
 };
@@ -9163,10 +9168,60 @@ function asegurarPapas() {
   S.db.collection("papas_produccion").limit(1000).onSnapshot(s => { PP.prod = s.docs.map(d => Object.assign({ id: d.id }, d.data())); PP.cargadoP = true; refrescarPapas(); }, e => console.warn("papas_produccion", e));
   S.db.collection("papas_pagos").limit(1000).onSnapshot(s => { const o = {}; s.docs.forEach(d => { o[d.id] = d.data() || {}; }); PP.pagos = o; PP.cargadoPag = true; refrescarPapas(); }, e => console.warn("papas_pagos", e));
   S.db.collection("prov_pedidos").limit(1000).onSnapshot(s => { PP.provPed = s.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); refrescarPapas(); }, e => console.warn("prov_pedidos (papas)", e));
+  S.db.collection("papas_merma").limit(2000).onSnapshot(s => { PP.merma = s.docs.map(d => Object.assign({ id: d.id }, d.data())); PP.cargadoM = true; refrescarPapas(); }, e => { PP.cargadoM = true; console.warn("papas_merma", e); });
   S.db.collection("papas_bodega").limit(1000).onSnapshot(s => { PP.bodega = s.docs.map(d => Object.assign({ id: d.id }, d.data())); PP.cargadoB = true; refrescarPapas(); }, e => console.warn("papas_bodega", e));
   S.db.collection("papas_pagos_sem").limit(1000).onSnapshot(s => { const o = {}; s.docs.forEach(d => { o[d.id] = d.data() || {}; }); PP.pagosSem = o; PP.cargadoPS = true; refrescarPapas(); }, e => { PP.cargadoPS = true; console.warn("papas_pagos_sem", e); refrescarPapas(); });
   subLavado("cajas");
 }
+
+/* Local papas › Ingresar merma: sacos de papa que se pierden (podridos, dañados, brotados…). Se descuentan de Inventario sacos. */
+const MERMA_MOT = ["Podrida", "Dañada / golpeada", "Brotada", "Verde", "Otro"];
+function papasMermaHTML() {
+  const f = PP.mForm, l = (PP.merma || []).slice().sort((a, b) => (String(b.fecha) + String(b.creado)).localeCompare(String(a.fecha) + String(a.creado)));
+  const mes = hoy().slice(0, 7), delMes = l.filter(m => String(m.fecha || "").startsWith(mes)).reduce((t, m) => t + (Number(m.sacos) || 0), 0);
+  const tot = l.reduce((t, m) => t + (Number(m.sacos) || 0), 0), { saldo } = saldoSacos();
+  const puedeBorrar = m => (S.portal === "admin" && S.ses.admin) || m.usuario === (usuarioProd("papas") || {}).id;
+  return `<p class="lead-sm">Registra los sacos de papa que se pierden en la producción (podridos, dañados, brotados…). Se descuentan de <b>Inventario sacos</b>.</p>
+    <div class="tiles3 pinv-t"><div><span>Merma del mes</span><b>${PP.cargadoM ? fmtL(delMes) : "…"}</b><small>${delMes === 1 ? "saco" : "sacos"}</small></div><div><span>Merma total</span><b>${PP.cargadoM ? fmtL(tot) : "…"}</b><small>sacos</small></div><div class="${saldo < 0 ? "neg" : ""}"><span>Sacos en bodega</span><b>${PP.cargadoB && PP.cargadoP ? fmtS(saldo) : "…"}</b><small>después de la merma</small></div></div>
+    <div class="card form merma-form">
+      <label class="campo"><span>Sacos perdidos</span><input id="mer-sacos" type="number" min="0.5" step="0.5" inputmode="decimal" value="${esc(f.sacos)}" placeholder="Ej.: 1"></label>
+      <fieldset class="campo"><legend>Tipo de papa</legend><div class="seg-per merma-seg">${[["grande", "Papa grande"], ["chica", "Papa chica"]].map(([k, n]) => `<button type="button" data-act="mer-tipo" data-v="${k}" aria-pressed="${f.tipo === k}">${n}</button>`).join("")}</div></fieldset>
+      <fieldset class="campo"><legend>Motivo</legend><div class="chips">${MERMA_MOT.map(m => `<button type="button" class="chip" data-act="mer-mot" data-v="${esc(m)}" aria-pressed="${f.motivo === m}">${esc(m)}</button>`).join("")}</div></fieldset>
+      <label class="campo"><span>Nota <em>opcional</em></span><input id="mer-nota" value="${esc(f.nota)}" maxlength="140" placeholder="Ej.: saco del proveedor X venía húmedo"></label>
+      <label class="campo"><span>Fecha</span><input id="mer-fecha" type="date" max="${hoy()}" value="${esc(f.fecha || hoy())}"></label>
+      <button type="button" class="btn primario" data-act="mer-guardar">Ingresar merma</button>
+    </div>
+    <h3 class="sec">Historial de merma <small>${fmtN(l.length)}</small></h3>
+    <ul class="log">${!PP.cargadoM ? `<li class="vacio-li">Cargando…</li>` : l.length ? l.slice(0, 300).map(m => `<li><time>${esc(cap(fmtFecha(m.fecha)))}</time><div><p class="who"><b>−${fmtL(Number(m.sacos) || 0)}</b> ${(Number(m.sacos) || 0) === 1 ? "saco" : "sacos"} de <b>${tipoSacoTxt(m.tipoPapa)}</b> · ${esc(m.motivo || "")}</p><p class="what">${esc([m.nota, m.usuarioNombre ? "por " + m.usuarioNombre : ""].filter(Boolean).join(" · "))}</p></div>${puedeBorrar(m) ? `<button type="button" class="btn chico suave" data-act="mer-borrar" data-id="${esc(m.id)}" aria-label="Eliminar merma">Eliminar</button>` : ""}</li>`).join("") : `<li class="vacio-li">Aún no hay merma registrada.</li>`}</ul>`;
+}
+function merLeer() { const f = PP.mForm, v = id => (document.getElementById(id) || {}).value; if (v("mer-sacos") !== undefined) f.sacos = v("mer-sacos"); if (v("mer-nota") !== undefined) f.nota = v("mer-nota"); if (v("mer-fecha") !== undefined) f.fecha = v("mer-fecha"); }
+async function guardarMerma(btn) {
+  merLeer(); const f = PP.mForm, n = Math.round(Number(String(f.sacos).replace(",", ".")) * 2) / 2, fecha = f.fecha || hoy();
+  if (!(n > 0)) { toast("Escribe cuántos sacos se perdieron."); return; }
+  if (fecha > hoy()) { toast("La fecha no puede ser futura."); return; }
+  const u = usuarioProd("papas") || {};
+  ocupar(btn, true, "Guardando…");
+  try {
+    const id = "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await conReintento(() => S.db.collection("papas_merma").doc(id).set({ fecha, sacos: n, tipoPapa: f.tipo, motivo: f.motivo, nota: String(f.nota || "").trim(), usuario: u.id || "", usuarioNombre: u.nombre || "", creado: new Date().toISOString() }));
+    PP.mForm = { sacos: "", tipo: f.tipo, motivo: f.motivo, nota: "", fecha: "" };
+    toast(`Merma ingresada: ${fmtL(n)} ${n === 1 ? "saco" : "sacos"} de ${tipoSacoTxt(f.tipo)} descontados del inventario.`);
+  } catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); refrescarPapas(); }
+}
+async function borrarMerma(id) {
+  if (!confirm("¿Eliminar este registro de merma? Los sacos vuelven al inventario.")) return;
+  try { await conReintento(() => S.db.doc("papas_merma/" + id).delete()); toast("Merma eliminada."); } catch (e) { toast(msgError(e)); }
+}
+document.addEventListener("input", e => { const t = e.target; if (t && /^mer-(sacos|nota|fecha)$/.test(t.id)) merLeer(); });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act^="mer-"]'); if (!b) return;
+  const a = b.dataset.act;
+  if (a === "mer-tipo") { merLeer(); PP.mForm.tipo = b.dataset.v; refrescarPapas(); }
+  else if (a === "mer-mot") { merLeer(); PP.mForm.motivo = b.dataset.v; refrescarPapas(); }
+  else if (a === "mer-guardar") guardarMerma(b);
+  else if (a === "mer-borrar") borrarMerma(b.dataset.id);
+});
 function refrescarPapas() {
   renderTPG();
   posStockPintar();
@@ -9180,6 +9235,8 @@ function refrescarPapas() {
     const h = $("#pp-hoy"), ae = document.activeElement; if (h && !(PP.edF && ae && (ae.classList.contains("ppe-in") || ae.id === "ppe-fecha"))) { if (PP.edF) ppLeer(); h.innerHTML = papasDiaHTML(); }
   } else if (PP.tab === "ing") {
     const el = $("#bod-ult"), ae = document.activeElement; if (el && !(PP.edBF && ae && ae.closest && ae.closest(".agi-edit"))) el.innerHTML = papasUltIngHTML();
+  } else if (PP.tab === "merma") {
+    const ae = document.activeElement; if (!(ae && ae.closest && ae.closest(".merma-form") && /INPUT/.test(ae.tagName))) renderPapasPanel();
   } else if (PP.tab === "lav") {
     if (!$("#lav-cajas-res")) renderPapasPanel();
   } else if (PP.tab === "lavpago") {
@@ -9541,7 +9598,7 @@ function renderPapasPanel() {
   if (t === "perfil") { el.innerHTML = perfilHTML("papas"); window.scrollTo(0, 0); return; }
   if (t === "sueldo") { const n = (S.ses.papas || {}).nombre || ""; el.innerHTML = `<div id="suel-perfil" data-nombre="${esc(n)}">${suelPerfilHTML(n)}</div>`; return; }
   if (t === "vac") { VAC_G = "papas"; subUsuarios(); subVac("papas"); const a = document.activeElement, keep = a && a.closest && a.closest("#vac-form") ? a.id : ""; el.innerHTML = `<div id="vac-panel" data-g="papas">${vacHTML()}</div>`; if (keep) { const n = document.getElementById(keep); if (n) n.focus(); } return; }
-  el.innerHTML = t === "piezas" || t === "pinv" || t === "pcons" ? `<div id="pz-panel">${piezasHTML()}</div>` : t === "prod" ? papasProdHTML() : t === "hist" ? papasHistHTML() : t === "ped" ? papasPedidosHTML() : t === "sacos" ? papasSacosHTML() : t === "disp" ? papasDispHTML() : t === "mprod" ? papasModoProdHTML() : t === "cped" ? papasConsPedHTML() : t === "csac" ? papasConsSacHTML() : t === "ing" ? papasIngHTML() : t === "stock" ? papasStockHTML() : t === "lav" ? lavHTML("cajas") : t === "lavpago" ? lavPagoHTML("cajas") : papasPrvHTML();
+  el.innerHTML = t === "piezas" || t === "pinv" || t === "pcons" ? `<div id="pz-panel">${piezasHTML()}</div>` : t === "prod" ? papasProdHTML() : t === "hist" ? papasHistHTML() : t === "ped" ? papasPedidosHTML() : t === "sacos" ? papasSacosHTML() : t === "disp" ? papasDispHTML() : t === "mprod" ? papasModoProdHTML() : t === "cped" ? papasConsPedHTML() : t === "csac" ? papasConsSacHTML() : t === "merma" ? papasMermaHTML() : t === "ing" ? papasIngHTML() : t === "stock" ? papasStockHTML() : t === "lav" ? lavHTML("cajas") : t === "lavpago" ? lavPagoHTML("cajas") : papasPrvHTML();
   if (t === "prod") barraPapas();
 }
 function ppUsrOpts() {
@@ -15046,6 +15103,7 @@ document.addEventListener("click", e => {
     else if (a === "pg-modo") { PG.modo = b.dataset.v; PG.form = null; PA.form = null; PA.sucio = false; renderProgramados(); }
     else if (a === "pg-cancelar") { PG.form = null; renderProgramados(); }
     else if (a === "pg-guardar") pgGuardar(b);
+    else if (a === "pg-q" && PROX_IDS.has(id)) toast("Este producto estará disponible próximamente.");
     else if (a === "pg-q") { pgLeerCampos(); const f = PG.form; f.items[id] = Math.max(0, Math.min(99, (Number(f.items[id]) || 0) + Number(b.dataset.d))); if (!f.items[id]) delete f.items[id]; const y = window.scrollY; renderProgramados(); window.scrollTo(0, y); }
     else if (a === "pg-dev") { pgLeerCampos(); const f = PG.form, t = b.dataset.t, n = pgBidPed(f.items)[t] || 0; f.dev = f.dev || {}; f.dev[t] = Math.max(0, Math.min(n, pgDev(f, t, n) + Number(b.dataset.d))); const y = window.scrollY; renderProgramados(); window.scrollTo(0, y); }
     else if (a === "pg-frec") { pgLeerCampos(); PG.form.frec = b.dataset.v; const y = window.scrollY; renderProgramados(); window.scrollTo(0, y); }
@@ -17227,6 +17285,14 @@ function abrirReferidos() {
   refCargar();
 }
 document.addEventListener("input", e => { if (e.target && e.target.id === "ref-cod-in") REF.cod = e.target.value; });
+/* Primera vez que un cliente entra: se abre la ventana de música para que elija una radio. */
+setInterval(() => {
+  const c = S.ses.cliente; if (S.portal !== "cliente" || !c || S.cliTab !== "inicio" || !window.pyaRadio) return;
+  const k = "pya.radioIni." + c.id; try { if (localStorage.getItem(k)) return; } catch (_) { return; }
+  if (document.querySelector(".promo-modal:not(.pagina-cli), .pagina-cli, .rad-panel:not([hidden])")) return;
+  try { localStorage.setItem(k, "1"); } catch (_) {}
+  window.pyaRadio.abrir("cl");
+}, 2500);
 /* Al entrar como cliente: si trae un código guardado (registro o enlace), aplicarlo. */
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && refGuardado() && !REF.cargando && !REF.usando && (!REF.info || REF.info.puedeIngresar)) refCargar(); }, 4000);
 /* Administrador › Referidos: quién invitó a quién y si ya ganaron sus puntos. */
@@ -18288,7 +18354,7 @@ html:has(#rad-pan:not([hidden])) #respaldo-btn,html:has(#rad-pan:not([hidden])) 
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !pan.hidden) cerrar(); });
 
   /* «Mi música» (botón en Inicio de Clientes) abre el panel en una pestaña. */
-  window.pyaRadio = { abrir(tab) { if (tab) R.tab = tab; abrir(); if (R.tab === "fav" && !cfg.favs.length && cfg.rec.length) { R.tab = "rec"; pintar(); } } };
+  window.pyaRadio = { abrir(tab) { if (tab) R.tab = tab; abrir(); if (R.tab === "cl") cargar("cl", rutaCL); if (R.tab === "fav" && !cfg.favs.length && cfg.rec.length) { R.tab = "rec"; pintar(); } } };
 
   /* Clientes: al entrar suena la última radio que escucharon (se puede apagar en el panel).
      Los navegadores no dejan sonar sin un toque: si se bloquea, suena con el primer toque en la página. */
@@ -18429,6 +18495,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chips .chip[aria-pressed="true"]{background:#0d9488;border-color:#0d9488;color:#fff}
 
 .pl-fotos{display:grid;gap:12px}.pl-foto{display:block;width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:var(--surface-2);cursor:pointer;box-shadow:0 10px 24px -18px var(--shadow)}.pl-foto img{display:block;width:100%;height:auto}
+.merma-form{display:grid;gap:12px;padding:14px}.merma-seg{grid-template-columns:1fr 1fr!important}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>

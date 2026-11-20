@@ -171,6 +171,29 @@ async function recordatorios(subs: Sub[]) {
   return enviados;
 }
 
+// Pedido marcado con prioridad (lo crea el administrador en «avisos_push» con tipo «prioridad»):
+// aviso a los repartidores (al que lo lleva, o a todos si nadie lo ha tomado). Se comprueba en la base que el pedido tenga prioridad.
+async function paraPrioridad(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
+  if (!d || d.clienteId || !d.pedido) return null;
+  const { data: pe } = await adm.from("documentos").select("data").eq("coleccion", "pedidos").eq("id", String(d.pedido)).maybeSingle();
+  const p = pe?.data;
+  if (!p || !p.prioridad || p.estado === "entregado" || p.estado === "cancelado") return null;
+  const rid = String(p.repartidorId || "");
+  const dest = subs.filter((s) => s.portal === "repartidor" && (!rid || s.cuenta === rid));
+  const items = Array.isArray(p.items) ? p.items : [];
+  const prods = items.slice(0, 4).map((x: any) => `${x.cant}× ${x.nombre}`).join(", ") + (items.length > 4 ? ` y ${items.length - 4} más` : "");
+  const dir = [[p.direccion, p.depto].filter(Boolean).join(" "), p.comuna].filter(Boolean).join(", ");
+  const cod = String(d.pedido).slice(-5).toUpperCase();
+  const lugar = [p.direccion, p.comuna].filter(Boolean).join(", ");
+  const mapa = p.direccion ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(lugar) : "";
+  return [dest, {
+    titulo: `⚡ Pedido prioritario #${cod} · ${corto(p.clienteNombre || "Cliente", 40)}`,
+    cuerpo: [prods ? `📦 ${prods}` : "", dir ? `📍 ${dir}` : "", cuandoTxt(String(p.fechaEntrega || ""), String(p.horario || "")) ? `🕒 ${cuandoTxt(String(p.fechaEntrega || ""), String(p.horario || ""))}` : ""].filter(Boolean).join("\n") || "Entrégalo primero.",
+    tag: "prio-" + d.pedido, url: "/?pedido=" + encodeURIComponent(String(d.pedido)), badge: "/badge-96.png", vibrar: [300, 100, 300, 100, 300], fijo: true,
+    acciones: [{ id: "ver", titulo: "📋 Ver pedido", url: "/?pedido=" + encodeURIComponent(String(d.pedido)) }, ...(mapa ? [{ id: "mapa", titulo: "🗺️ Cómo llegar", url: mapa }] : [])],
+  }];
+}
+
 // Deja anotado en el aviso y en la promoción a cuántos teléfonos llegó (el administrador lo ve en la tarjeta).
 async function anotarPromo(id: string, d: Record<string, any>, enviados: number, total: number) {
   const res = { en: Date.now(), enviados, total };
@@ -195,10 +218,10 @@ Deno.serve(async (req) => {
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const uno = coleccion === "mensajes" ? await paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? await paraPromo(doc.data, subs as Sub[]) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
+    const uno = coleccion === "mensajes" ? await paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? (doc.data?.tipo === "prioridad" ? await paraPrioridad(doc.data, subs as Sub[]) : await paraPromo(doc.data, subs as Sub[])) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
     const grupos: [Sub[], Aviso][] | null = coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : uno ? [uno] : null;
     const envios = (grupos ?? []).flatMap(([ds, av]) => ds.map((s) => [s, JSON.stringify(av)] as [Sub, string]));
-    if (!envios.length) { if (coleccion === "avisos_push") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
+    if (!envios.length) { if (coleccion === "avisos_push" && doc.data?.tipo !== "prioridad") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
     const dest = envios.map((e) => e[0]);
     let enviados = 0;
     await Promise.all(envios.map(async ([s, carga]) => {
@@ -210,7 +233,7 @@ Deno.serve(async (req) => {
         else console.warn("push", e?.statusCode, e?.body || e?.message);
       }
     }));
-    if (coleccion === "avisos_push") await anotarPromo(id, doc.data, enviados, dest.length);
+    if (coleccion === "avisos_push" && doc.data?.tipo !== "prioridad") await anotarPromo(id, doc.data, enviados, dest.length);
     return new Response(JSON.stringify({ enviados }), { headers: { "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
