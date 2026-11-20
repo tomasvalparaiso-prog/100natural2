@@ -17072,7 +17072,7 @@ function abrirPromosCli() {
   const m = document.createElement("div");
   m.id = "promo-pag"; m.className = "promo-modal pagina-cli"; m.setAttribute("role", "dialog"); m.setAttribute("aria-modal", "true"); m.setAttribute("aria-label", "Promociones");
   m.innerHTML = `<div class="promo-box promo-lista"><div class="pl-h"><b>🎁 Promociones</b><button type="button" class="ap-cerrar" data-act="promo-pag-cerrar" aria-label="Volver">×</button></div>
-    ${ps.length ? ps.map(p => `<button type="button" class="pl-it" data-act="promo-ver" data-id="${esc(p.id)}"><img src="${p.foto}" alt=""><span><b>${esc(p.titulo || "Promoción")}</b>${(p.items || []).length ? `<small>${esc(promoItemsTxt(p.items))}</small>` : ""}${p.hasta ? `<small>Hasta el ${esc(fmtFecha(p.hasta))}</small>` : ""}</span><i aria-hidden="true">›</i></button>`).join("") : `<p class="muted cmu-vacio">${PR.cargado ? "No hay promociones activas en este momento. Te avisaremos cuando haya una nueva." : "Cargando promociones…"}</p>`}</div>`;
+    ${ps.length ? `<div class="pl-fotos">${ps.map(p => `<button type="button" class="pl-foto" data-act="promo-ver" data-id="${esc(p.id)}" aria-label="${esc(p.titulo || "Promoción")}"><img src="${p.foto}" alt="${esc(p.titulo || "Promoción")}" loading="lazy"></button>`).join("")}</div>` : `<p class="muted cmu-vacio">${PR.cargado ? "No hay promociones activas en este momento. Te avisaremos cuando haya una nueva." : "Cargando promociones…"}</p>`}</div>`;
   montarPaginaCli(m);
 }
 function promoParaCliente() {
@@ -18428,6 +18428,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .of-vig{padding:8px 12px;border-radius:12px;background:#ecfdf5;color:#065f46}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chips .chip[aria-pressed="true"]{background:#0d9488;border-color:#0d9488;color:#fff}
 
+.pl-fotos{display:grid;gap:12px}.pl-foto{display:block;width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:var(--surface-2);cursor:pointer;box-shadow:0 10px 24px -18px var(--shadow)}.pl-foto img{display:block;width:100%;height:auto}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
