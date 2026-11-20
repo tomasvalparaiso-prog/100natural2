@@ -10244,7 +10244,7 @@ function papasUltIngHTML() {
   const ult = PP.bodega.filter(b => !(S.portal === "prov" && S.ses.prov) || b.proveedorId === S.ses.prov.id).slice().sort((a, b) => (String(b.fecha || "") + String(b.creado || "")).localeCompare(String(a.fecha || "") + String(a.creado || "")));
   if (!ult.length) return `<li class="vacio-li">${PP.cargadoB ? "Aún no hay sacos ingresados." : "Cargando ingresos…"}</li>`;
   const adm = !!(S.portal === "admin" && S.ses.admin);
-  return ult.map(b => adm && PP.edB === b.id && PP.edBF ? edBodHTML(b) : `<li><time>${esc(cap(fmtFecha(b.fecha)))}</time><div><p class="who">${sacosTxt(Number(b.sacos) || 0)}${b.tipoPapa ? ` de <b>${tipoSacoTxt(b.tipoPapa)}</b>` : ""} · ${esc(b.proveedor || "Sin proveedor")}</p>${Number(b.precioSaco) > 0 || b.calidad ? `<p class="what">${Number(b.precioSaco) > 0 ? `${clp(b.precioSaco)} por saco · total <b>${clp(Number(b.precioSaco) * (Number(b.sacos) || 0))}</b>` : ""}${Number(b.precioSaco) > 0 && b.calidad ? " · " : ""}${b.calidad ? `Calidad: <span class="cal-tag cal-${esc(b.calidad)}">${esc(calSacoTxt(b.calidad))}</span>` : ""}</p>` : ""}<p class="what">Ingresó ${esc(b.usuarioNombre || "alguien")}${b.editado ? ` · ✏️ editado${b.editadoPor ? " por " + esc(b.editadoPor) : ""}` : ""}</p>${b.nota ? `<p class="ped-nota">📝 <b>Nota:</b> ${esc(b.nota)}</p>` : ""}${adm ? `<div class="acciones del-acc">${PP.confDelB === b.id
+  return ult.map(b => adm && PP.edB === b.id && PP.edBF ? edBodHTML(b) : `<li><time>${esc(cap(fmtFecha(b.fecha)))}</time><div><p class="who">${sacosTxt(Number(b.sacos) || 0)}${b.tipoPapa ? ` de <b>${tipoSacoTxt(b.tipoPapa)}</b>` : ""} · ${esc(b.proveedor || "Sin proveedor")}</p>${(verPrecioSaco() && Number(b.precioSaco) > 0) || b.calidad ? `<p class="what">${verPrecioSaco() && Number(b.precioSaco) > 0 ? `${clp(b.precioSaco)} por saco · total <b>${clp(Number(b.precioSaco) * (Number(b.sacos) || 0))}</b>` : ""}${verPrecioSaco() && Number(b.precioSaco) > 0 && b.calidad ? " · " : ""}${b.calidad ? `Calidad: <span class="cal-tag cal-${esc(b.calidad)}">${esc(calSacoTxt(b.calidad))}</span>` : ""}</p>` : ""}<p class="what">Ingresó ${esc(b.usuarioNombre || "alguien")}${b.editado ? ` · ✏️ editado${b.editadoPor ? " por " + esc(b.editadoPor) : ""}` : ""}</p>${b.nota ? `<p class="ped-nota">📝 <b>Nota:</b> ${esc(b.nota)}</p>` : ""}${adm ? `<div class="acciones del-acc">${PP.confDelB === b.id
       ? `<span class="estado-txt">¿Eliminar este ingreso? Se descuenta del stock de sacos.</span><button type="button" class="btn chico" data-act="bod-del-si" data-id="${esc(b.id)}" style="background:#b91c1c;border-color:#b91c1c;color:#fff">Sí, eliminar</button><button type="button" class="btn chico suave" data-act="bod-del-no">No</button>`
       : `<button type="button" class="btn chico" data-act="bod-ed" data-id="${esc(b.id)}">✏️ Editar ingreso</button><button type="button" class="btn chico btn-del" data-act="bod-del" data-id="${esc(b.id)}">🗑 Eliminar ingreso</button>`}</div>` : ""}</div></li>`).join("");
 }
@@ -10295,7 +10295,7 @@ function papasIngHTML() {
         <fieldset class="campo full"><legend>Tipo de papa</legend>
           <div class="seg-per bod-tipo" role="group" aria-label="Tipo de papa">${TIPOS_SACO.map(([k, l]) => `<button type="button" data-act="bod-tipo" data-v="${k}" aria-pressed="${PP.btipo === k}">${l}</button>`).join("")}</div>
         </fieldset>
-        <label class="campo full"><span>Precio por saco <em>opcional</em></span><input type="text" id="bod-precio" inputmode="numeric" autocomplete="off" placeholder="Ej.: 12.000" value="${esc(PP.bprecio ? fmtN(numPrecio(PP.bprecio)) : "")}"><small class="bod-ptot" id="bod-ptot">${bodPrecioTot()}</small></label>
+        ${verPrecioSaco() ? `<label class="campo full"><span>Precio por saco <em>opcional</em></span><input type="text" id="bod-precio" inputmode="numeric" autocomplete="off" placeholder="Ej.: 12.000" value="${esc(PP.bprecio ? fmtN(numPrecio(PP.bprecio)) : "")}"><small class="bod-ptot" id="bod-ptot">${bodPrecioTot()}</small></label>` : ""}
         <fieldset class="campo full"><legend>Calidad de la papa <em>opcional</em></legend>
           <div class="seg-per bod-cal" role="group" aria-label="Calidad de la papa">${CAL_SACO.map(([k, l]) => `<button type="button" class="cal-${k}" data-act="bod-cal" data-v="${k}" aria-pressed="${PP.bcal === k}">${l}</button>`).join("")}</div>
         </fieldset>
@@ -10318,6 +10318,8 @@ const CAL_SACO = [["mala", "Mala"], ["normal", "Normal"], ["excelente", "Excelen
 const calSacoTxt = k => (CAL_SACO.find(c => c[0] === k) || [k, k])[1];
 const calAProv = k => k === "normal" ? "buena" : k || "";
 const numPrecio = v => Math.max(0, Math.round(Number(String(v || "").replace(/\D/g, "")) || 0));
+/* El precio de los sacos solo lo ingresa y lo ve el administrador (y el proveedor, en su propio portal). */
+const verPrecioSaco = () => (S.portal === "admin" && !!S.ses.admin) || S.portal === "prov";
 const bodPrecioTot = () => { const p = numPrecio(PP.bprecio); return p && PP.bq ? `${clp(p)} × ${sacosTxt(PP.bq)} = <b>${clp(p * PP.bq)}</b>` : ""; };
 function pintarBod() {
   { const t = $("#bod-ptot"); if (t) t.innerHTML = bodPrecioTot(); }
@@ -10337,7 +10339,7 @@ async function confirmarBodega() {
   if (!(PP.bq > 0)) return;
   const fecha = PP.bfecha || hoy();
   if (fecha > hoy()) { if (err) err.textContent = "La fecha no puede ser futura."; return; }
-  const u = (S.portal === "prov" ? S.ses.prov : usuarioProd("papas")) || {}, n = PP.bq, prov = PP.prov, tipo = PP.btipo, nota = String(PP.bnota || "").trim(), precioSaco = numPrecio(PP.bprecio), calidad = PP.bcal || "";
+  const u = (S.portal === "prov" ? S.ses.prov : usuarioProd("papas")) || {}, n = PP.bq, prov = PP.prov, tipo = PP.btipo, nota = String(PP.bnota || "").trim(), precioSaco = verPrecioSaco() ? numPrecio(PP.bprecio) : 0, calidad = PP.bcal || "";
   PP.guardando = true; pintarBod();
   try {
     const id = "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -10611,7 +10613,7 @@ function papasStockHTML() {
 function invSacosHTML() {
   const l = bodegaTodo().sort((a, b) => (String(b.fecha || "") + String(b.creado || "")).localeCompare(String(a.fecha || "") + String(a.creado || "")));
   if (!l.length) return `<li class="vacio-li">${PP.cargadoB ? "Aún no hay sacos ingresados. Se registran en la pestaña Ingresar sacos." : "Cargando ingresos…"}</li>`;
-  return l.map(b => `<li><time>${esc(cap(fmtFecha(b.fecha)))}</time><div><p class="who">${sacosTxt(Number(b.sacos) || 0)}${b.tipoPapa ? ` de <b>${tipoSacoTxt(b.tipoPapa)}</b>` : ""} · ${esc(b.proveedor || "Sin proveedor")}</p>${Number(b.precioSaco) > 0 || b.calidad ? `<p class="what">${Number(b.precioSaco) > 0 ? `${clp(b.precioSaco)} por saco · total <b>${clp(Number(b.precioSaco) * (Number(b.sacos) || 0))}</b>` : ""}${Number(b.precioSaco) > 0 && b.calidad ? " · " : ""}${b.calidad ? `Calidad: <span class="cal-tag cal-${esc(b.calidad)}">${esc(calSacoTxt(b.calidad))}</span>` : ""}</p>` : ""}<p class="what">${b.deProv ? `<span class="cal-tag">Desde Proveedores</span> · pedido entregado` : `Ingresó ${esc(b.usuarioNombre || "alguien")}`} · ${fmtN((Number(b.sacos) || 0) * KG_SACO)} kg</p>${b.nota ? `<p class="ped-nota">📝 ${esc(b.nota)}</p>` : ""}</div></li>`).join("");
+  return l.map(b => `<li><time>${esc(cap(fmtFecha(b.fecha)))}</time><div><p class="who">${sacosTxt(Number(b.sacos) || 0)}${b.tipoPapa ? ` de <b>${tipoSacoTxt(b.tipoPapa)}</b>` : ""} · ${esc(b.proveedor || "Sin proveedor")}</p>${(verPrecioSaco() && Number(b.precioSaco) > 0) || b.calidad ? `<p class="what">${verPrecioSaco() && Number(b.precioSaco) > 0 ? `${clp(b.precioSaco)} por saco · total <b>${clp(Number(b.precioSaco) * (Number(b.sacos) || 0))}</b>` : ""}${verPrecioSaco() && Number(b.precioSaco) > 0 && b.calidad ? " · " : ""}${b.calidad ? `Calidad: <span class="cal-tag cal-${esc(b.calidad)}">${esc(calSacoTxt(b.calidad))}</span>` : ""}</p>` : ""}<p class="what">${b.deProv ? `<span class="cal-tag">Desde Proveedores</span> · pedido entregado` : `Ingresó ${esc(b.usuarioNombre || "alguien")}`} · ${fmtN((Number(b.sacos) || 0) * KG_SACO)} kg</p>${b.nota ? `<p class="ped-nota">📝 ${esc(b.nota)}</p>` : ""}</div></li>`).join("");
 }
 function papasPrvHTML() {
   const ref = PP.prvRef || hoy(), [ra, rb] = rangoPeriodo(PP.gPrv, ref), enR = b => b.fecha && b.fecha >= ra && b.fecha <= rb;
