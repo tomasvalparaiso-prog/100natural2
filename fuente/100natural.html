@@ -10621,7 +10621,7 @@ function agpFichaHTML() {
   const pie = `<div class="acciones agp-ficha-acc"><button type="button" class="btn primario" data-act="agp-nuevo">＋ Crear otro pedido</button><button type="button" class="btn suave" data-act="ad-local" data-l="inicio">Ir a inicio</button><button type="button" class="btn suave" data-act="ad-local" data-l="rep">Ver en Repartidores</button></div>`;
   if (!p) return `<div id="agp-ficha">${vacio("Abriendo la ficha del pedido…", "Un momento.")}${pie}</div>`;
   return `<div id="agp-ficha"><p class="agp-ficha-ok">✅ Pedido${p.numCliente ? ` N° ${fmtN(p.numCliente)}` : ""} creado · #${esc(codigo(p.id))}</p>
-    <div class="lista">${pedAdmCardHTML(p, { rep: true })}</div>${pie}</div>`;
+    <div class="lista">${pedAdmCardHTML(p, { rep: true, sinFac: true })}</div>${pie}</div>`;
 }
 /* ---------- Administrador › Crear pedido en pasos (carrusel): 1 Agua o papas · 2 Cliente · 3 Productos · 4 Entrega · Listo ---------- */
 const ADW = { paso: 1, fin: null };
