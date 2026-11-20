@@ -1,7 +1,7 @@
 // Titulares del día de Chile, con foto, para la página de Clientes (Inicio).
 // Lee los RSS de La Tercera y Cooperativa (traen la foto de cada noticia); si fallan, usa Google Noticias Chile (sin fotos).
 // Con ?lugar=<clave> busca noticias de esa comuna en Bing Noticias (trae foto); respaldo: Google Noticias.
-// Guarda cada resultado 20 minutos.
+// Devuelve hasta 31 noticias (1 principal + 30 secundarias). Guarda cada resultado 20 minutos.
 const FUENTES = [
   { src: "La Tercera", url: "https://www.latercera.com/arc/outboundfeeds/rss/?outputType=xml" },
   { src: "Cooperativa", url: "https://www.cooperativa.cl/noticias/site/tax/port/all/rss_3___1.xml" },
@@ -50,25 +50,25 @@ async function porLugar(q: string) {
   if (recientes.length >= 3) items = recientes;
   // Primero las que traen foto (más nuevas arriba), luego las demás.
   items.sort((x, y) => (y.img ? 1 : 0) - (x.img ? 1 : 0) || y.en - x.en);
-  return { en: Date.now(), items: items.slice(0, 8) };
+  return { en: Date.now(), items: items.slice(0, 31) };
 }
 
 async function leer() {
   const listas = await Promise.all(FUENTES.map(async (f) => {
     try {
-      return (await rss(f.url)).slice(0, 10).map((x): Item => ({ t: tag(x, "title"), url: tag(x, "link"), src: f.src, en: Date.parse(tag(x, "pubDate")) || 0, img: foto(x) }))
+      return (await rss(f.url)).slice(0, 30).map((x): Item => ({ t: tag(x, "title"), url: tag(x, "link"), src: f.src, en: Date.parse(tag(x, "pubDate")) || 0, img: foto(x) }))
         .filter((x) => x.t && /^https?:\/\//.test(x.url));
     } catch (e) { console.warn(String(e)); return [] as Item[]; }
   }));
   let items = listas.flat().filter((x) => x.img).sort((a, b) => b.en - a.en);
   if (!items.length) {
-    items = (await rss(RESPALDO)).slice(0, 10).map((x) => {
+    items = (await rss(RESPALDO)).slice(0, 31).map((x) => {
       const src = tag(x, "source"); let t = tag(x, "title");
       if (src && t.endsWith(" - " + src)) t = t.slice(0, -(src.length + 3));
       return { t, url: tag(x, "link"), src, en: Date.parse(tag(x, "pubDate")) || 0, img: "" };
     }).filter((x) => x.t && /^https?:\/\//.test(x.url));
   }
-  return { en: Date.now(), items: items.slice(0, 8) };
+  return { en: Date.now(), items: items.slice(0, 31) };
 }
 
 Deno.serve(async (req) => {
