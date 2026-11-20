@@ -1017,7 +1017,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .local-btn.l-prov svg{color:var(--papa)}
 .local-btn.l-prov[aria-selected="true"],.local-btn.l-usu[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .usu-tipo.tp-est{display:flex;flex-wrap:wrap;margin-top:4px}.usu-tipo.tp-est button{flex:1 1 auto;padding:0 12px;white-space:nowrap}
-.local-btn.l-clin svg,.local-btn.l-pts svg,.local-btn.l-estpro svg,.local-btn.l-red svg,.local-btn.l-est svg,.local-btn.l-usu svg,.local-btn.l-ped svg,.local-btn.l-pag svg,.local-btn.l-pper svg,.local-btn.l-bus svg,.local-btn.l-promo svg,.local-btn.l-precios svg,.local-btn.l-cup svg,.local-btn.l-coment svg,.local-btn.l-comun svg,.local-btn.l-muro svg{color:var(--ink)}
+.local-btn.l-clin svg,.local-btn.l-pts svg,.local-btn.l-sus svg,.local-btn.l-refad svg,.local-btn.l-combo svg,.local-btn.l-oferta svg,.local-btn.l-rec svg,.local-btn.l-calif svg,.local-btn.l-estpro svg,.local-btn.l-red svg,.local-btn.l-est svg,.local-btn.l-usu svg,.local-btn.l-ped svg,.local-btn.l-pag svg,.local-btn.l-pper svg,.local-btn.l-bus svg,.local-btn.l-promo svg,.local-btn.l-precios svg,.local-btn.l-cup svg,.local-btn.l-coment svg,.local-btn.l-comun svg,.local-btn.l-muro svg{color:var(--ink)}
 .local-btn.l-pag[aria-selected="true"],.local-btn.l-pper[aria-selected="true"],.local-btn.l-bus[aria-selected="true"],.local-btn.l-promo[aria-selected="true"],.local-btn.l-cup[aria-selected="true"],.local-btn.l-coment[aria-selected="true"],.local-btn.l-comun[aria-selected="true"],.local-btn.l-muro[aria-selected="true"],.local-btn.l-precios[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .local-btn.l-cuentas svg,.local-btn.l-piezas svg,.local-btn.l-posc svg,.local-btn.l-pron svg,.local-btn.l-imp svg,.local-btn.l-reg svg,.local-btn.l-ult svg,.local-btn.l-inv svg,.local-btn.l-ins svg,.local-btn.l-osm svg{color:var(--ink)}
 .local-btn.l-red[aria-selected="true"],.local-btn.l-est[aria-selected="true"],.local-btn.l-ped[aria-selected="true"],.local-btn.l-cuentas[aria-selected="true"],.local-btn.l-piezas[aria-selected="true"],.local-btn.l-posc[aria-selected="true"],.local-btn.l-pron[aria-selected="true"],.local-btn.l-imp[aria-selected="true"],.local-btn.l-reg[aria-selected="true"],.local-btn.l-ult[aria-selected="true"],.local-btn.l-inv[aria-selected="true"],.local-btn.l-ins[aria-selected="true"],.local-btn.l-osm[aria-selected="true"],.local-btn.l-pizz[aria-selected="true"],.local-btn.l-utfsm[aria-selected="true"],.local-btn.l-posad[aria-selected="true"],.local-btn.l-ploc[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
@@ -3113,7 +3113,8 @@ function formRegistro(k, adm) {
       <label class="campo"><span>Comuna</span><input id="${pre}-r-comuna" name="comuna" autocomplete="off"></label>
       <label class="campo full"><span>Dirección</span><input id="${pre}-r-direccion" name="direccion" autocomplete="address-line1" placeholder="Calle y número"></label>
       <label class="campo full"><span>Casa / Depto <em>opcional</em></span><input id="${pre}-r-depto" name="depto" autocomplete="address-line2" placeholder="Ej.: Casa 12 o Depto 304, Torre B"></label>
-      <label class="campo full"><span>Correo <em>opcional</em></span><input id="${pre}-r-email" name="email" type="email" autocomplete="email"></label>` : `
+      <label class="campo full"><span>Correo <em>opcional</em></span><input id="${pre}-r-email" name="email" type="email" autocomplete="email"></label>
+      ${adm ? "" : `<label class="campo full"><span>Código de invitación <em>opcional</em></span><input id="${pre}-r-refcod" name="refcod" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ej.: MAR1234" value="${esc(refGuardado())}"></label>`}` : `
       ${k === "pizzas" ? `<label class="campo full"><span>Dirección de despacho <em>opcional</em></span><input id="${pre}-r-direccion" name="direccion" autocomplete="address-line1" placeholder="Calle, número, depto"></label>
       <label class="campo full"><span>Comuna <em>opcional</em></span><input id="${pre}-r-comuna" name="comuna" autocomplete="address-level2"></label>` : ""}
       ${adm || k === "utfsm" || k === "pizzas" ? "" : `<label class="campo full"><span>${k === "repartidor" ? "Código de reparto" : k === "admin" ? "Código de administrador" : k === "prov" ? "Código de proveedor" : k === "pos" ? "Código de punto de venta" : k === "prueba" ? "Clave de acceso" : "Código de producción"}</span><input id="${pre}-r-codigo" name="codigo" autocapitalize="none" spellcheck="false" placeholder="${k === "prueba" ? "Clave para probar interfaces" : "Te lo entrega la empresa"}"></label>`}`}
@@ -3175,6 +3176,7 @@ async function registrar(k, f) {
     datos.tipo = tipo; datos.comuna = v("comuna"); datos.direccion = v("direccion"); datos.depto = v("depto"); datos.email = v("email");
     if (!datos.direccion) { err.textContent = "Escribe tu dirección para que podamos llevarte el pedido."; return; }
     if (!datos.comuna) { err.textContent = "Escribe tu comuna."; return; }
+    if (!f.dataset.adm) { const rc = v("refcod").toUpperCase().replace(/\s+/g, ""); try { if (rc) localStorage.setItem("pya.ref", rc); else localStorage.removeItem("pya.ref"); } catch (_) {} }
   } else if (k === "pizzas") {
     datos.direccion = v("direccion"); datos.comuna = v("comuna");
   } else if (f.dataset.adm || k === "utfsm") {
@@ -4289,17 +4291,21 @@ function vistaCliente() {
     <button type="button" class="cli-solo-ini" data-act="cli-comun"><span class="rep-ti" aria-hidden="true" style="color:#16a34a!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg></span><span class="rep-tt">Trabajos comunitarios</span><span class="cnt" id="cnt-comun"></span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-muro" hidden><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg></span><span class="rep-tt">Muro de comentarios</span><span class="cnt" id="cnt-muro"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="canc" aria-selected="${S.cliTab === "canc"}"><span class="rep-ti" aria-hidden="true">${TI.cancel}</span><span class="rep-tt">Pedidos cancelados</span><span class="cnt" id="cnt-canc"></span></button>
-    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Programar pedidos</span></button>
+    <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="prog" aria-selected="${S.cliTab === "prog"}"><span class="rep-ti" aria-hidden="true">${TI.cal}</span><span class="rep-tt">Suscripción</span></button>
     ${esLocal() ? `<button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="con" aria-selected="${S.cliTab === "con"}"><span class="rep-ti" aria-hidden="true">${TI.baja}</span><span class="rep-tt">Consumo de stock</span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="stk" aria-selected="${S.cliTab === "stk"}"><span class="rep-ti" aria-hidden="true">${TI.cajas}</span><span class="rep-tt">Stock disponible</span></button>` : ""}
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="pag" aria-selected="${S.cliTab === "pag"}"><span class="rep-ti" aria-hidden="true">${TI.plata}</span><span class="rep-tt">${cliParticular() ? "Mis pagos" : "Pagos"}</span><span class="cnt" id="cnt-pag"></span></button>
     <button role="tab" class="cli-solo-ini" data-act="cli-tab" data-t="perf" aria-selected="${S.cliTab === "perf"}"><span class="rep-ti" aria-hidden="true">${CLI2_ICO.user}</span><span class="rep-tt">Perfil</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-combos"><span class="rep-ti" aria-hidden="true" style="color:#9333ea!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span><span class="rep-tt">Combos y packs</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-recetas"><span class="rep-ti" aria-hidden="true" style="color:#b45309!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.9A4 4 0 0 1 7 6.1a5 5 0 0 1 10 0 4 4 0 0 1 1 7.8V21H6z"/><path d="M6 17h12"/></svg></span><span class="rep-tt">Recetas</span></button>
+    <button type="button" class="cli-solo-ini" data-act="cli-referidos"><span class="rep-ti" aria-hidden="true" style="color:#ea580c!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M19 8v6M16 11h6"/></svg></span><span class="rep-tt">Invita y gana</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-compartir"><span class="rep-ti" aria-hidden="true" style="color:#0d9488!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></span><span class="rep-tt">Compartir página</span></button>
     <button type="button" class="cli-tab-salir" data-act="salir" data-k="cliente"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>
   </div>
   <div id="cli-cats-fija" class="cat-tools cat-fija" ${S.cliTab === "nuevo" ? "hidden" : ""}>${catChipsHTML()}</div>
   <div id="cli-sec-tit"></div>
   <div id="panel-ini" class="cli-ini-grid" ${S.cliTab !== "inicio" ? "hidden" : ""}></div>
+  <section id="cli-oferta" class="cli-of" aria-label="Oferta del día" hidden></section>
   <section id="cli-noticias" class="cli-not" aria-label="Noticias del día" hidden></section>
   <div id="panel-nuevo" ${cpwOn() ? `class="cpw" data-wzp="${CPW.paso}"` : ""} ${S.cliTab !== "nuevo" ? "hidden" : ""}>
     ${!S.editPedido && S.repCli ? `<div class="edit-pedido rep-cli-aviso"><span>🔁 Estás repitiendo el <b>pedido N° ${esc(S.repCli.num)}</b>. Ajusta las cantidades de cada producto con − y +, revisa la fecha de entrega y envía el pedido.</span><button class="btn suave chico" data-act="cancelar-repetir">Cancelar</button></div>` : ""}
@@ -4921,7 +4927,8 @@ function updateCarritoUI() {
   pintarVacios();
   const cargo = cargoCarrito();
   const netoC = lista.reduce((a, x) => a + precioMio(x.p.id) * x.q, 0), ivaC = carritoConIva() ? ivaIncDe(netoC) : 0;
-  const descC = S.editPedido ? 0 : cuponDescuento(netoC);
+  const dx = S.editPedido ? { total: 0, lineas: [] } : descExtra();
+  const descC = (S.editPedido ? 0 : cuponDescuento(netoC)) + dx.total;
   const descP = verPrecios() ? puntosDescuento(Math.max(0, netoC + cargo - descC)) : 0;
   const total = Math.max(0, netoC + cargo - descC - descP);
   const res = $("#resumen");
@@ -4930,7 +4937,8 @@ function updateCarritoUI() {
     : `<li class="vacio">Aún no agregas productos. Usa el botón + de cada producto.</li>`;
   if (res && cargo && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
   if (res && ivaC && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="iva-res-li"><span class="q"></span><span class="n">IVA 19% incluido<small>neto ${clp(netoC - ivaC)}</small></span><span class="s">${clp(ivaC)}</span></li>`);
-  if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
+  if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC - dx.total ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC - dx.total)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
+  if (res && verPrecios() && lista.length) for (const l of dx.lineas) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">${esc(l.t)}</span><span class="s">−${clp(l.m)}</span></li>`);
   if (res && descP && lista.length) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">🏅 Puntos usados<small>${fmtN(descP)} puntos</small></span><span class="s">−${clp(descP)}</span></li>`);
   if (res && kgPapas) res.insertAdjacentHTML("beforeend", `<li class="kg-res"><span class="q"></span><span class="n">Total papas<small>${fmtN(kgPapas)} kg</small></span></li>`);
   const t = $("#total"); if (t) t.textContent = clp(total);
@@ -5011,9 +5019,10 @@ async function enviarPedido(btn) {
     const doc = {
       clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
-      total: Math.max(0, itSub(its) + 0 + cargoCarrito() - cuponDescuento(itSub(its)) - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its))))), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
+      total: Math.max(0, itSub(its) + 0 + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total))),
+      ...descExtraDoc(), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
-      ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)))); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
+      ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total)); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
       estado: "pendiente", repartidorId: "", repartidorNombre: "",
       creado: Date.now(), tomado: 0, entregado: 0, origen: "cliente"
     };
@@ -5023,7 +5032,7 @@ async function enviarPedido(btn) {
     if (dir !== cli.direccion || depto !== (cli.depto || "") || comuna !== cli.comuna || tel !== cli.telefono) {
       try { await S.db.doc("clientes/" + cli.id).update({ direccion: dir, depto, comuna, telefono: tel }); Object.assign(cli, { direccion: dir, depto, comuna, telefono: tel }); guardarSesion(); } catch (_) {}
     }
-    S.carrito = {}; S.dev = {}; S.devTocado = {}; S.repCli = null; S.cupon = null; pintarCupon(); PTS.usar = false; pintarPuntosBox(); { const av = document.querySelector(".rep-cli-aviso"); if (av) av.remove(); }
+    S.carrito = {}; S.dev = {}; S.devTocado = {}; S.repCli = null; S.cupon = null; FID.enCarro = {}; pintarCupon(); PTS.usar = false; pintarPuntosBox(); { const av = document.querySelector(".rep-cli-aviso"); if (av) av.remove(); }
     $("#e-nota").value = "";
     const eq = $("#e-quien"); if (eq) eq.value = "";
     updateCarritoUI();
@@ -5281,7 +5290,8 @@ function renderProgramados() {
   const sw = esLocal() ? `<div class="sec-switch mis-sw pg-modo" role="tablist" aria-label="Tipo de programación"><button type="button" role="tab" data-act="pg-modo" data-v="man" aria-selected="${PG.modo !== "auto"}">No automático</button><button type="button" role="tab" data-act="pg-modo" data-v="auto" aria-selected="${PG.modo === "auto"}">Automático</button></div>` : "";
   if (PG.modo === "auto") { subAuto(); asegurarConsumo(); el.innerHTML = sw + paHTML(); return; }
   if (PG.form) { el.innerHTML = sw + pgFormHTML(); return; }
-  el.innerHTML = sw + `<div class="pg-intro"><p class="muted">Programa pedidos que se repiten (por ejemplo, todos los lunes) o un pedido para una fecha futura. Cada pedido se crea solo ${PG_ANTICIPO} días antes de la entrega y aparece en <b>Mis pedidos</b>.</p>
+  subSus();
+  el.innerHTML = sw + susBannerHTML() + `<div class="pg-intro"><p class="muted">Programa pedidos que se repiten (por ejemplo, todos los lunes) o un pedido para una fecha futura. Cada pedido se crea solo ${PG_ANTICIPO} días antes de la entrega y aparece en <b>Mis pedidos</b>.</p>
     <button type="button" class="btn primario" data-act="pg-nuevo">+ Programar pedido</button></div>
     <div class="lista">${!PG.cargado ? vacio("Cargando…", "Un momento.") : PG.lista.length ? PG.lista.map(pgCardHTML).join("") : vacio("No tienes pedidos programados", "Toca Programar pedido para crear el primero.")}</div>`;
 }
@@ -5349,10 +5359,11 @@ async function pgCrearPedido(g, f, extra) {
     if (Object.keys(bid).length) bid.cargo = cargo;
     const mios = await conReintento(() => S.db.collection("pedidos").where("clienteId", "==", g.clienteId).get());
     const num = mios.docs.reduce((m, d) => Math.max(m, Number((d.data() || {}).numCliente) || 0), 0) + 1;
+    const susPct = await susPctActual(), susDesc = Math.round(itSub(its) * susPct / 100);
     await conReintento(() => ref.set({
       clienteId: g.clienteId, clienteNombre: cd.nombre || g.clienteNombre, clienteTipo: cd.tipo || g.clienteTipo || "", solicitante: g.solicitante || "", telefono: cd.telefono || "", direccion: cd.direccion || "", depto: cd.depto || "", comuna: cd.comuna || "",
       fechaEntrega: f, horario: `${g.hDesde || "10:00"}–${g.hHasta || "18:00"}`, pago: PAGO_FIJOS.includes(cd.pagoFijo) ? cd.pagoFijo : local ? "Transferencia" : (g.pago || "Transferencia"), nota: g.nota || "", items: its, bidones: bid,
-      total: itSub(its) + 0 + cargo, ...(ivaAplicaCli({ tipo: cd.tipo || g.clienteTipo, sinIva: cd.sinIva }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num, estado: "pendiente", repartidorId: "", repartidorNombre: "",
+      total: Math.max(0, itSub(its) - susDesc) + cargo, ...(susDesc ? { suscripcionPct: susPct, descuentoSus: susDesc } : {}), ...(ivaAplicaCli({ tipo: cd.tipo || g.clienteTipo, sinIva: cd.sinIva }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num, estado: "pendiente", repartidorId: "", repartidorNombre: "",
       creado: Date.now(), tomado: 0, entregado: 0, ...(extra.marca || { programado: g.id })
     }));
   }
@@ -5419,31 +5430,38 @@ function cambiarCliTab(t) {
 }
 /* Clientes: botón con el nombre de la sección arriba; «Inicio» muestra todos los íconos de la barra inferior. */
 /* Inicio de Clientes: titulares del día de Chile (función «noticias» de Supabase, lee Google Noticias Chile). */
-const NOT = { items: null, en: 0, cargando: false, err: false };
+const NOT = { lugar: "", por: {}, cargando: {} };
 const NOT_URL = "https://zfbytqxlyuhqgrplgbre.supabase.co/functions/v1/noticias";
-async function cargarNoticias() {
-  if (NOT.cargando || (NOT.items && Date.now() - NOT.en < 20 * 60 * 1000)) return;
-  NOT.cargando = true;
-  try { const r = await fetch(NOT_URL); const d = await r.json(); NOT.items = (d.items || []).slice(0, 8); NOT.err = false; }
-  catch (e) { NOT.err = true; if (!NOT.items) NOT.items = []; }
-  finally { NOT.en = Date.now(); NOT.cargando = false; pintarNoticias(); }
+const NOT_LUG = [["", "Chile"], ["vina", "Viña del Mar"], ["renaca", "Reñaca"], ["valpo", "Valparaíso"], ["concon", "Concón"], ["curauma", "Curauma"], ["santiago", "Santiago"]];
+async function cargarNoticias(k) {
+  const c = NOT.por[k];
+  if (NOT.cargando[k] || (c && Date.now() - c.en < 20 * 60 * 1000)) return;
+  NOT.cargando[k] = true;
+  try { const r = await fetch(NOT_URL + (k ? "?lugar=" + k : "")); const d = await r.json(); NOT.por[k] = { items: (d.items || []).slice(0, 8), en: Date.now() }; }
+  catch (e) { NOT.por[k] = { items: (c && c.items) || [], en: Date.now(), err: true }; }
+  finally { NOT.cargando[k] = false; pintarNoticias(); }
 }
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-not-lug]"); if (!b) return; NOT.lugar = b.dataset.notLug; pintarNoticias(); });
 function pintarNoticias() {
   const el = document.getElementById("cli-noticias"); if (!el) return;
   const ver = S.portal === "cliente" && S.cliTab === "inicio";
   if (!ver) { if (!el.hidden) el.hidden = true; return; }
-  if (!NOT.items || Date.now() - NOT.en > 20 * 60 * 1000) cargarNoticias();
-  const its = NOT.items || [];
-  if (NOT.items && !its.length) { el.hidden = true; return; }
+  const k = NOT.lugar, c = NOT.por[k];
+  if (!c || Date.now() - c.en > 20 * 60 * 1000) cargarNoticias(k);
+  const gen = NOT.por[""];
+  if (!k && gen && !gen.items.length) { el.hidden = true; return; }
+  const its = c ? c.items : [];
   const hora = t => { if (!t) return ""; const d = new Date(t), m = Math.round((Date.now() - t) / 60000); return m < 60 ? `hace ${Math.max(1, m)} min` : m < 24 * 60 ? `hace ${Math.round(m / 60)} h` : d.toLocaleDateString("es-CL", { day: "numeric", month: "short" }); };
-  const h = `<div class="cli-not-h"><span aria-hidden="true">📰</span><b>Noticias del día</b><small>Chile</small></div>`
-    + (NOT.items ? `<ul class="cli-not-l">${its.map((x, i) => `<li class="${i === 0 && x.img ? "cli-not-1" : ""}"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${x.img ? `<img class="cli-not-f" src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="cli-not-tx"><span class="cli-not-t">${esc(x.t)}</span><small>${esc([x.src, hora(x.en)].filter(Boolean).join(" · "))}</small></span></a></li>`).join("")}</ul>` : `<p class="muted-s cli-not-c">Cargando noticias…</p>`);
+  const chips = `<div class="cli-not-fil" role="group" aria-label="Filtrar noticias por lugar">${NOT_LUG.map(([v, n]) => `<button type="button" class="cli-not-chip" data-not-lug="${v}" aria-pressed="${v === k}">${esc(v ? n : "Todas")}</button>`).join("")}</div>`;
+  const cuerpo = !c ? `<p class="muted-s cli-not-c">Cargando noticias…</p>` : !its.length ? `<p class="muted-s cli-not-c">No encontramos noticias recientes de ${esc((NOT_LUG.find(x => x[0] === k) || [, ""])[1])}.</p>`
+    : `<ul class="cli-not-l">${its.map((x, i) => `<li class="${i === 0 && x.img ? "cli-not-1" : ""}"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${x.img ? `<img class="cli-not-f" src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="cli-not-tx"><span class="cli-not-t">${esc(x.t)}</span><small>${esc([x.src, hora(x.en)].filter(Boolean).join(" · "))}</small></span></a></li>`).join("")}</ul>`;
+  const h = `<div class="cli-not-h"><span aria-hidden="true">📰</span><b>Noticias del día</b><small>${esc((NOT_LUG.find(x => x[0] === k) || [, "Chile"])[1])}</small></div>` + chips + cuerpo;
   if (el.dataset.h !== h) { el.dataset.h = h; el.innerHTML = h; }
   if (el.hidden) el.hidden = false;
 }
 function cliIniPintar() {
   if (S.portal !== "cliente" && S.portal !== "cfd") return;
-  pintarNoticias();
+  pintarNoticias(); pintarOferta();
   const bar = document.querySelector(".cli-tabs"), tit = $("#cli-sec-tit"), pi = $("#panel-ini"); if (!bar || !tit) return;
   const ini = S.cliTab === "inicio";
   const cur = ini ? bar.querySelector(".bar-inicio") : S.cliTab === "sec" ? (S.cliSec ? bar.querySelector(`[data-act="${S.cliSec}"]`) : null) : bar.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`);
@@ -5582,6 +5600,8 @@ function pedidoClienteHTML(p) {
     ${p.estado === "pendiente" || p.estado === "en_camino" ? (() => { const n = window.__rpNoLeidos ? window.__rpNoLeidos(p.id) : 0; return `<button type="button" class="btn chico rp-cli-btn" data-msj="rep-ped" data-id="${esc(p.id)}">💬 Preguntar al repartidor${n ? ` <span class="msj-fn">${n}</span>` : ""}</button>`; })() : ""}
     <div class="ped-f"><span class="tot">${verPrecios() ? `Total <b>${clp(p.total)}</b>` : `${items(p).reduce((a, i) => a + (Number(i.cant) || 0), 0)} productos`}</span>${pie}</div>${verPrecios() ? ivaLineHTML(p, itSub(items(p))) : ""}
     ${items(p).some(i => PROD[i.id] && Number(i.cant) > 0) ? `<div class="acciones ped-rep-cli"><button type="button" class="btn chico rep-ped-btn" data-act="repetir-pedido-cli" data-id="${esc(p.id)}">🔁 Repetir pedido</button></div>` : ""}
+    ${p.estado === "en_camino" ? `<div class="acciones"><button type="button" class="btn chico trk-btn" data-act="trk-ver" data-id="${esc(p.id)}">📍 Ver dónde va mi pedido</button></div>` : ""}
+    ${p.estado === "entregado" ? `<div class="cal-box" id="cal-${esc(p.id)}">${califHTML(p)}</div>` : ""}
     ${pagoPedidoCliHTML(p)}
   </article>`;
 }
@@ -6119,7 +6139,10 @@ const ivaDe = n => Math.round((Number(n) || 0) * IVA);
 const ivaIncDe = t => { const v = Math.round(Number(t) || 0); return v - Math.round(v / (1 + IVA)); };
 const ivaPed = (p, neto) => 0; /* El IVA va incluido en el precio: nunca se suma aparte. */
 function ivaLineHTML(p, neto) {
-  const cup = p && p.cupon && Number(p.descuento) ? `<p class="cup-ped">🎟️ Cupón <b>${esc(p.cupon)}</b> · descuento −${clp(p.descuento)}</p>` : "";
+  const cup = (p && p.cupon && Number(p.descuento) ? `<p class="cup-ped">🎟️ Cupón <b>${esc(p.cupon)}</b> · descuento −${clp(p.descuento)}</p>` : "")
+    + (p && Number(p.descuentoSus) ? `<p class="cup-ped">🔁 Suscripción · descuento ${fmtN(p.suscripcionPct)}% −${clp(p.descuentoSus)}</p>` : "")
+    + (p && Number(p.descuentoCombo) ? `<p class="cup-ped">📦 ${esc(p.combosTxt || "Combos")} · −${clp(p.descuentoCombo)}</p>` : "")
+    + (p && Number(p.descuentoOferta) ? `<p class="cup-ped">⏰ Oferta del día · −${clp(p.descuentoOferta)}</p>` : "");
   if (!p || !p.conIva) return cup;
   const n = Math.round(Number(neto) || 0); if (!n) return cup;
   return cup + `<p class="iva-des"><span>Neto <b>${clp(n - ivaIncDe(n))}</b></span><span>IVA 19% incluido <b>${clp(ivaIncDe(n))}</b></span><span class="iva-t">Productos con IVA <b>${clp(n)}</b></span></p>`;
@@ -10797,7 +10820,7 @@ const MURO_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke
 const CMU_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg>';
 const COM_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const CUP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 5v2M14 11v2M14 17v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
+const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "sus" ? SUS_SVG : k === "refad" ? REF_SVG : k === "combo" ? COMBO_SVG : k === "oferta" ? OFERTA_SVG : k === "rec" ? REC_SVG : k === "calif" ? CALIF_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button></div>
@@ -10807,7 +10830,7 @@ function vistaAdmin() {
       ${AD_CERR() ? `<button type="button" class="local-btn ls-volver nav-volver" data-act="nav-volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Volver</button>` : ""}
       ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
-    ${["papas", "agua", "rep", "prov"].includes(AD.local) ? aduBarHTML(AD.local === "rep" ? "repartidor" : AD.local) : ""}${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : (AD.local === "est" || AD.local === "estpro") ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "clin" ? `<div id="clin-panel"></div>` : AD.local === "pts" ? `<div id="ptsad-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
+    ${["papas", "agua", "rep", "prov"].includes(AD.local) ? aduBarHTML(AD.local === "rep" ? "repartidor" : AD.local) : ""}${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : (AD.local === "est" || AD.local === "estpro") ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "clin" ? `<div id="clin-panel"></div>` : AD.local === "pts" ? `<div id="ptsad-panel"></div>` : AD.local === "sus" ? `<div id="susad-panel"></div>` : AD.local === "combo" ? `<div id="cbad-panel"></div>` : AD.local === "oferta" ? `<div id="ofad-panel"></div>` : AD.local === "rec" ? `<div id="recad-panel"></div>` : AD.local === "calif" ? `<div id="calad-panel"></div>` : AD.local === "refad" ? `<div id="refad-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
@@ -11235,7 +11258,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 const AD_GRUPOS = [
   ["100% Natural", [["clin", "Clientes"], ["papas", "Local papas"], ["agua", "Local agua"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"], ["perfil", "Perfil"]]],
   ["Pedidos", [["ult", "Últimos pedidos"], ["red", "Pedidos redundantes"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"]]],
-  ["Fidelización", [["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["muro", "Muro de comentarios"], ["comun", "Trabajos comunitarios"], ["pts", "Puntos"], ["precios", "Precios especiales"]]],
+  ["Fidelización", [["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["muro", "Muro de comentarios"], ["comun", "Trabajos comunitarios"], ["pts", "Puntos"], ["sus", "Suscripción"], ["refad", "Referidos"], ["combo", "Combos y packs"], ["oferta", "Oferta del día"], ["rec", "Recetas"], ["calif", "Calificaciones"], ["precios", "Precios especiales"]]],
   ["Caja (pagos y ventas)", [["pag", "Ventas"], ["ploc", "Pagos clientes"]]],
   ["Estadísticas", [["pron", "Estimación de pedidos"], ["est", "Ventas del periodo"], ["estpro", "Promociones"]]],
   /* Repartidores pasó a «100% Natural» («Pagos en efectivo» quedó como pestaña dentro de Repartidores). */
@@ -13297,6 +13320,12 @@ function activarAdmin() {
   if (AD.local === "coment") { subComentarios(); renderCom(); return; }
   if (AD.local === "clin") { subUsuarios(); renderClin(); return; }
   if (AD.local === "pts") { subUsuarios(); subPuntosAd(); renderPuntosAd(); return; }
+  if (AD.local === "sus") { subUsuarios(); subSus(); subSusAd(); renderSusAd(); return; }
+  if (AD.local === "combo") { subFid(); renderCombosAd(); return; }
+  if (AD.local === "oferta") { subFid(); renderOfertaAd(); return; }
+  if (AD.local === "rec") { subFid(); renderRecetasAd(); return; }
+  if (AD.local === "calif") { subUsuarios(); renderCalifAd(); return; }
+  if (AD.local === "refad") { subUsuarios(); subPuntosAd(); renderRefAd(); return; }
   if (AD.local === "comun") { subComunidad(); subUsuarios(); renderCmu(); return; }
   if (AD.local === "muro") { subMuro(); renderMuroAd(); return; }
   if ((AD.local === "est" || AD.local === "estpro")) { asegurarTipos(); subUsuarios(); renderEst(); return; }
@@ -13841,6 +13870,7 @@ function pedAdmCardHTML(p, o) {
       ${pagoEstadoHTML(p)}
       ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}${pedPuntosAdHTML(p)}`}
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
+      ${p.calificacion && p.calificacion.e ? `<p class="cal-adm">${"★".repeat(p.calificacion.e)}${"☆".repeat(5 - p.calificacion.e)} <small>Calificación del cliente${p.calificacion.c ? `: «${esc(p.calificacion.c)}»` : ""}</small></p>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
       ${o && o.sinFac ? "" : facturaHTML(p)}${o && o.sinFac ? `<div class="ult-acc">` : ""}${delPedHTML(p)}
       ${o.rep && S.ses.admin && p.estado !== "cancelado" ? `<div class="acciones ult-prio">${prioBtnHTML(p)}</div>` : ""}
@@ -15075,6 +15105,39 @@ document.addEventListener("click", e => {
   else if (a === "cli-buscar") abrirBuscador();
   else if (a === "cli-compartir") compartirPagina();
   else if (a === "cli-puntos") abrirPuntos();
+  else if (a === "cli-referidos") abrirReferidos();
+  else if (a === "cli-combos") abrirCombos();
+  else if (a === "cli-recetas") abrirRecetas();
+  else if (a === "fid-cerrar") { const m = b.closest(".pagina-cli"); if (m) m.remove(); }
+  else if (a === "combo-agregar") comboAgregar(b.dataset.id);
+  else if (a === "oferta-agregar") ofertaAgregar();
+  else if (a === "rec-ver") { FID.recVer = b.dataset.id; pintarRecetas(); window.scrollTo(0, 0); }
+  else if (a === "rec-volver") { FID.recVer = ""; pintarRecetas(); }
+  else if (a === "rec-agregar") recetaAgregar(b.dataset.id);
+  else if (a === "trk-ver") abrirSeguimiento(b.dataset.id);
+  else if (a === "trk-cerrar") { const m = $("#trk-modal"); if (m) m.remove(); }
+  else if (a === "cal-est") { CAL.e[b.dataset.id] = Number(b.dataset.v); pintarCalif(b.dataset.id); }
+  else if (a === "cal-enviar") enviarCalif(b.dataset.id, b);
+  else if (a === "cbad-nuevo") { FID.cbEd = { id: "", nombre: "", desc: "", precio: "", items: {} }; renderCombosAd(); }
+  else if (a === "cbad-editar") { const c = FID.combos.find(x => x.id === b.dataset.id); if (c) { FID.cbEd = { id: c.id, nombre: c.nombre || "", desc: c.desc || "", precio: String(c.precio || ""), items: Object.assign({}, c.items) }; renderCombosAd(); } }
+  else if (a === "cbad-q") { cbLeer(); const it = FID.cbEd.items, id = b.dataset.id; it[id] = Math.max(0, (Number(it[id]) || 0) + Number(b.dataset.d)); if (!it[id]) delete it[id]; renderCombosAd(); }
+  else if (a === "cbad-guardar") guardarCombo(b);
+  else if (a === "cbad-cancelar") { FID.cbEd = null; renderCombosAd(); }
+  else if (a === "cbad-borrar") borrarDocFid("combos", b.dataset.id, "Combo eliminado.");
+  else if (a === "cbad-act") toggleCombo(b.dataset.id);
+  else if (a === "ofad-guardar") guardarOferta(b);
+  else if (a === "ofad-quitar") quitarOferta();
+  else if (a === "recad-nuevo") { FID.recEd = { id: "", titulo: "", emoji: "🥔", foto: "", tiempo: "", porciones: "", ingredientes: "", pasos: "", prods: [] }; renderRecetasAd(); }
+  else if (a === "recad-editar") { const r = FID.recetas.find(x => x.id === b.dataset.id); if (r) { FID.recEd = Object.assign({ prods: [] }, r, { ingredientes: (r.ingredientes || []).join("\n"), pasos: (r.pasos || []).join("\n") }); renderRecetasAd(); } }
+  else if (a === "recad-prod") { recLeer(); const ps = FID.recEd.prods, id = b.dataset.id; FID.recEd.prods = ps.includes(id) ? ps.filter(x => x !== id) : ps.concat(id); renderRecetasAd(); }
+  else if (a === "recad-guardar") guardarReceta(b);
+  else if (a === "recad-cancelar") { FID.recEd = null; renderRecetasAd(); }
+  else if (a === "recad-borrar") borrarDocFid("recetas", b.dataset.id, "Receta eliminada.");
+  else if (a === "recad-base") cargarRecetasBase(b);
+  else if (a === "ref-cerrar") { const m = $("#ref-modal"); if (m) m.remove(); }
+  else if (a === "ref-compartir") compartirReferido();
+  else if (a === "ref-usar") usarReferido(b);
+  else if (a === "sus-guardar") guardarSusPct(b);
   else if (a === "pts-cerrar") { const m = $("#pts-modal"); if (m) m.remove(); }
   else if (a === "pts-pedir") { const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click(); }
   else if (a === "busq-cerrar") { const m = $("#busq-modal"); if (m) m.remove(); }
@@ -16675,7 +16738,7 @@ function puntosPagHTML() {
     <section class="perf-card ptsp-como"><h3>¿Cómo gano puntos?</h3><ul><li><span>🛒</span><div><b>100 puntos por cada $1.000 de compra</b><small>En los pedidos que haces tú mismo desde la app. Se suman apenas envías tu pedido, según su total (si el pedido se cancela, se descuentan).</small></div></li><li><span>🤝</span><div><b>Trabajos comunitarios</b><small>Cada actividad entrega los puntos que indica, cuando participas.</small></div></li></ul>
       <button type="button" class="btn chico suave" data-act="cli-comun">Ver Trabajos comunitarios</button></section>
     <section class="perf-card ptsp-como"><h3>¿Cómo los uso?</h3><p class="muted-s">1 punto = $1 de descuento en el precio final. Al enviar tu pedido, marca <b>«🏅 Usar mis puntos»</b>.</p><button type="button" class="btn chico primario" data-act="pts-pedir">🛒 Hacer un pedido</button></section>
-    <section class="perf-card"><h3>Historial</h3>${!PTS.cargado ? `<p class="muted-s">Cargando…</p>` : ms.length ? `<ul class="ptsp-hist">${ms.map(m => `<li><span class="ptsp-hi" aria-hidden="true">${String(m.id).startsWith("act_") ? "🤝" : Number(m.puntos) < 0 ? "💸" : "🛒"}</span><span class="ptsp-ht">${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(cap(fmtFecha(ymd(new Date(m.en))))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul>` : `<p class="muted-s">Aún no tienes puntos. ¡Haz tu primer pedido y gana 100 puntos por cada $1.000!</p>`}</section></div>`;
+    <section class="perf-card"><h3>Historial</h3>${!PTS.cargado ? `<p class="muted-s">Cargando…</p>` : ms.length ? `<ul class="ptsp-hist">${ms.map(m => `<li><span class="ptsp-hi" aria-hidden="true">${String(m.id).startsWith("act_") ? "🤝" : /^ref[ip]_/.test(String(m.id)) ? "🎁" : Number(m.puntos) < 0 ? "💸" : "🛒"}</span><span class="ptsp-ht">${esc(m.motivo || "Movimiento")}<small>${m.en ? esc(cap(fmtFecha(ymd(new Date(m.en))))) : ""}</small></span><b class="${Number(m.puntos) < 0 ? "neg" : "pos"}">${Number(m.puntos) > 0 ? "+" : ""}${fmtN(m.puntos)}</b></li>`).join("")}</ul>` : `<p class="muted-s">Aún no tienes puntos. ¡Haz tu primer pedido y gana 100 puntos por cada $1.000!</p>`}</section></div>`;
 }
 function abrirPuntos() {
   if (!S.ses.cliente) return; subPuntos();
@@ -17038,7 +17101,439 @@ function cerrarPromoModal() { const m = $("#promo-modal"); if (m) m.remove(); }
    de la página (con el banner, el nombre de la sección arriba y la barra inferior), igual que Inicio o Mis pedidos.
    Se muestran en «#panel-sec» (S.cliTab = "sec"); el botón Atrás del teléfono vuelve a Inicio. */
 let PAG_N = 0, PAG_EL = null;
-const PAG_ACT = { "pts-modal": "cli-puntos", "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+const PAG_ACT = { "combos-modal": "cli-combos", "rec-modal": "cli-recetas", "trk-modal": "cli-tab-mis", "ref-modal": "cli-referidos", "pts-modal": "cli-puntos", "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+
+/* ---------- Suscripción: los pedidos programados (que se crean solos) llevan un % de descuento que define el administrador (config/suscripcion). ---------- */
+const SUS = { pct: 0, subs: false, cargado: false, lista: [], subsAd: false, cargadoAd: false, edit: "" };
+const SUS_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>';
+const REF_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M19 8v6M16 11h6"/></svg>';
+function subSus() {
+  if (SUS.subs || !S.db) return; SUS.subs = true;
+  S.db.doc("config/suscripcion").onSnapshot(d => { SUS.pct = Math.min(90, Math.max(0, Number(((d.exists && d.data()) || {}).pct) || 0)); SUS.cargado = true; try { renderProgramados(); } catch (_) {} renderSusAd(); }, () => { SUS.cargado = true; });
+}
+async function susPctActual() {
+  try { const d = await conReintento(() => S.db.doc("config/suscripcion").get()); return Math.min(90, Math.max(0, Number(((d.exists && d.data()) || {}).pct) || 0)); } catch (_) { return SUS.pct || 0; }
+}
+function susBannerHTML() {
+  if (!SUS.pct) return "";
+  return `<div class="sus-ban"><span aria-hidden="true">🔁</span><div><b>Suscríbete y ahorra ${fmtN(SUS.pct)}%</b><small>Programa tus pedidos y cada pedido que se crea solo lleva ${fmtN(SUS.pct)}% de descuento en los productos.</small></div></div>`;
+}
+function subSusAd() {
+  if (SUS.subsAd || !S.db) return; SUS.subsAd = true;
+  S.db.collection("programados").limit(2000).onSnapshot(sn => { SUS.lista = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})); SUS.cargadoAd = true; renderSusAd(); }, () => { SUS.cargadoAd = true; renderSusAd(); });
+}
+function susAdHTML() {
+  const clis = ((US.data || {}).clientes) || [], nom = id => (clis.find(c => c.id === id) || {}).nombre || "Cliente";
+  const hoyS = hoy(), act = SUS.lista.filter(g => g.activo !== false && (!g.hasta || g.hasta >= hoyS));
+  const FREC = { una: "Una vez", semanal: "Semanal", quincenal: "Quincenal", mensual: "Mensual" };
+  const descTot = (S.pedidos || []).filter(p => Number(p.descuentoSus) && p.estado !== "cancelado").reduce((t, p) => t + Number(p.descuentoSus), 0);
+  const val = SUS.edit !== "" ? SUS.edit : String(SUS.pct || "");
+  return `<div class="card ad-card"><h2 class="h2">🔁 Suscripción</h2>
+    <p class="muted-s">Los clientes se suscriben programando pedidos en <b>Suscripción</b> (antes «Programar pedidos»). Cada pedido que se crea solo desde una programación lleva este descuento sobre los productos.</p>
+    <div class="sus-pct"><label for="sus-pct-in"><b>Descuento por suscripción</b><small>0 = sin descuento</small></label><span class="sus-pct-in"><input id="sus-pct-in" type="number" min="0" max="90" step="1" inputmode="numeric" value="${esc(val)}"><b>%</b></span><button type="button" class="btn primario" data-act="sus-guardar">Guardar</button></div>
+    <p class="muted-s">Actual: <b>${SUS.cargado ? fmtN(SUS.pct) + "%" : "…"}</b>. El cambio vale para los pedidos que se creen desde ahora; los ya creados no cambian.</p>
+    <div class="ptsp-res"><div><b>${fmtN(act.length)}</b><small>suscripciones activas</small></div><div><b>${fmtN(new Set(act.map(g => g.clienteId)).size)}</b><small>clientes suscritos</small></div><div><b>${clp(descTot)}</b><small>descontado</small></div></div></div>
+    ${!SUS.cargadoAd ? vacio("Cargando…", "Un momento.") : act.length ? `<div class="lista">${act.sort((a, b) => nom(a.clienteId).localeCompare(nom(b.clienteId), "es")).map(g => `<article class="card ad-card sus-it"><b>${esc(nom(g.clienteId))}</b><small>${esc(FREC[g.frec] || g.frec || "")}${g.desde ? ` · desde ${esc(fmtFecha(g.desde))}` : ""}${g.hasta ? ` · hasta ${esc(fmtFecha(g.hasta))}` : ""}</small><p class="muted-s">${esc(Object.entries(g.items || {}).filter(([id, q]) => PROD[id] && q > 0).map(([id, q]) => `${q}× ${etiqueta(PROD[id])}`).join(", "))}</p></article>`).join("")}</div>`
+      : vacio("Aún no hay suscripciones", "Cuando un cliente programe pedidos aparecerá aquí.")}`;
+}
+function renderSusAd() {
+  const el = $("#susad-panel"); if (!el || !(S.portal === "admin" && AD.local === "sus")) return;
+  const a = document.activeElement; if (a && a.id === "sus-pct-in" && el.contains(a)) return;
+  el.innerHTML = susAdHTML();
+}
+document.addEventListener("input", e => { if (e.target && e.target.id === "sus-pct-in") SUS.edit = e.target.value; });
+async function guardarSusPct(btn) {
+  const n = Math.round(Number(String(SUS.edit !== "" ? SUS.edit : SUS.pct).replace(",", ".")));
+  if (!Number.isFinite(n) || n < 0 || n > 90) { toast("Escribe un descuento entre 0 y 90%."); return; }
+  ocupar(btn, true, "Guardando…");
+  try { await conReintento(() => S.db.doc("config/suscripcion").set({ pct: n, actualizado: Date.now(), por: (S.ses.admin || {}).nombre || "" })); SUS.pct = n; SUS.edit = ""; toast(n ? `Descuento por suscripción: ${n}%.` : "Descuento por suscripción desactivado."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); if (document.activeElement && document.activeElement.id === "sus-pct-in") document.activeElement.blur(); renderSusAd(); }
+}
+
+/* ---------- Referidos («Invita y gana»): cada cliente tiene un código; quien se registra con él gana 1.000 puntos con su primer pedido, y quien invitó también. ---------- */
+const REF = { info: null, cargando: false, err: "", usando: false, cod: "" };
+const REF_PTS = 1000;
+function refGuardado() { try { return localStorage.getItem("pya.ref") || ""; } catch (_) { return ""; } }
+(function () { try { const r = new URLSearchParams(location.search).get("ref"); if (r && /^[A-Za-z0-9]{3,12}$/.test(r)) localStorage.setItem("pya.ref", r.toUpperCase()); } catch (_) {} })();
+async function refCargar() {
+  const c = S.ses.cliente; if (!c || REF.cargando) return;
+  REF.cargando = true;
+  try {
+    if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("mi_referido"); if (x.error) throw x.error; REF.info = x.data || null; }
+    else {
+      const ref = S.db.doc("clientes/" + c.id), d = ((await ref.get()).data()) || {};
+      let cod = d.codigoRef; if (!cod) { cod = (String(c.nombre || "cli").normalize("NFD").replace(/[^A-Za-z]/g, "").slice(0, 3) + "xxx").slice(0, 3).toUpperCase() + String(Math.floor(Math.random() * 1e4)).padStart(4, "0"); await ref.update({ codigoRef: cod }); }
+      const tiene = (S.pedidos || []).some(p => p.clienteId === c.id && p.estado !== "cancelado");
+      REF.info = { codigo: cod, invitados: 0, lista: [], puedeIngresar: !d.referidoPor && !tiene, invitadoPor: d.referidoPor || null };
+    }
+    REF.err = "";
+  } catch (e) { REF.err = msgError(e); }
+  finally { REF.cargando = false; pintarReferidos(); refAutoUsar(); }
+}
+/* Si se registró con un código (o entró por un enlace de invitación), se aplica solo antes de su primer pedido. */
+async function refAutoUsar() {
+  const cod = refGuardado(); if (!cod || !REF.info) return;
+  if (!REF.info.puedeIngresar || cod === REF.info.codigo) { try { localStorage.removeItem("pya.ref"); } catch (_) {} return; }
+  try { localStorage.removeItem("pya.ref"); } catch (_) {}
+  REF.cod = cod; await usarReferido(null, true);
+}
+function urlReferido() { const u = urlPagina(); return u && REF.info ? `${u}${u.includes("?") ? "&" : "?"}ref=${encodeURIComponent(REF.info.codigo)}` : u; }
+function compartirReferido() {
+  if (!REF.info) return;
+  const url = urlReferido();
+  compartirHoja("Invita y gana", `Tu código: ${REF.info.codigo}`, { titulo: "100% Natural", texto: `Te invito a 100% Natural: papas naturales y agua purificada a domicilio. Regístrate con mi código ${REF.info.codigo} y ganamos ${fmtN(REF_PTS)} puntos ($${fmtN(REF_PTS)} de descuento) cada uno con tu primer pedido.${url ? ` ${url}` : ""}`, url });
+}
+async function usarReferido(btn, auto) {
+  const cod = String(REF.cod || "").toUpperCase().replace(/\s+/g, "");
+  if (!cod) { toast("Escribe el código de quien te invitó."); return; }
+  REF.usando = true; pintarReferidos();
+  try {
+    let r = null;
+    if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("usar_referido", { p_codigo: cod }); if (x.error) throw x.error; r = x.data || {}; }
+    else {
+      const sn = await S.db.collection("clientes").where("codigoRef", "==", cod).limit(1).get();
+      if (!sn.docs.length) throw new Error("Ese código de invitación no existe. Revísalo e intenta de nuevo.");
+      if (sn.docs[0].id === S.ses.cliente.id) throw new Error("No puedes usar tu propio código.");
+      await S.db.doc("clientes/" + S.ses.cliente.id).update({ referidoPor: sn.docs[0].id, referidoCod: cod, referidoEn: Date.now() });
+      r = { nombre: String((sn.docs[0].data() || {}).nombre || "").split(" ")[0] };
+    }
+    REF.cod = "";
+    toast(`¡Listo! Te invitó ${r.nombre || "un cliente"}. Con tu primer pedido ganan ${fmtN(REF_PTS)} puntos cada uno.`);
+    REF.usando = false; await refCargar();
+  } catch (e) { REF.usando = false; if (!auto) toast(msgError(e)); pintarReferidos(); }
+}
+function referidosPagHTML() {
+  const i = REF.info;
+  const cab = `<div class="pl-h"><b>🎁 Invita y gana</b><button type="button" class="ap-cerrar" data-act="ref-cerrar" aria-label="Volver">×</button></div>`;
+  if (!i) return `<div class="promo-box ref-box">${cab}${REF.err ? `<p class="err">${esc(REF.err)}</p>` : `<p class="muted-s">Cargando…</p>`}</div>`;
+  const local = !ptsAplica();
+  return `<div class="promo-box ref-box">${cab}
+    <div class="ref-hero"><small>Tu código de invitación</small><b class="ref-cod">${esc(i.codigo)}</b><span>Comparte tu código: cuando tu invitado haga su primer pedido, <b>ganan ${fmtN(REF_PTS)} puntos cada uno</b> ($${fmtN(REF_PTS)} de descuento).</span>
+      <button type="button" class="btn primario" data-act="ref-compartir">📤 Compartir mi código</button></div>
+    ${local ? `<p class="muted-s ref-nota">Los puntos son para clientes Particulares: tus invitados Particulares igual ganan sus ${fmtN(REF_PTS)} puntos de bienvenida.</p>` : ""}
+    <section class="perf-card ptsp-como"><h3>¿Cómo funciona?</h3><ul><li><span>1️⃣</span><div><b>Comparte tu código</b><small>Por WhatsApp, correo o como quieras.</small></div></li><li><span>2️⃣</span><div><b>Tu invitado se registra</b><small>Escribe tu código al crear su cuenta (o entra con tu enlace).</small></div></li><li><span>3️⃣</span><div><b>Hace su primer pedido</b><small>Ese mismo momento ganan ${fmtN(REF_PTS)} puntos cada uno.</small></div></li></ul></section>
+    <section class="perf-card"><h3>Tus invitados (${fmtN(i.invitados || 0)})</h3>${(i.lista || []).length ? `<ul class="ref-lista">${i.lista.map(x => `<li><span>👤 ${esc(x.nombre)}</span><small>${x.premiado ? "✅ Ganaste " + fmtN(REF_PTS) + " puntos" : "⏳ Esperando su primer pedido"}</small></li>`).join("")}</ul>` : `<p class="muted-s">Aún no has invitado a nadie.</p>`}</section>
+    ${i.invitadoPor ? `<section class="perf-card"><h3>Te invitó</h3><p>👤 ${esc(String(i.invitadoPor).split(" ")[0])}</p></section>`
+      : i.puedeIngresar ? `<section class="perf-card"><h3>¿Te invitó alguien?</h3><p class="muted-s">Escribe su código antes de tu primer pedido.</p><div class="ref-usar"><input id="ref-cod-in" value="${esc(REF.cod)}" placeholder="Ej.: MAR1234" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Código de quien te invitó"><button type="button" class="btn primario" data-act="ref-usar" ${REF.usando ? "disabled" : ""}>${REF.usando ? "Revisando…" : "Usar código"}</button></div></section>` : ""}
+  </div>`;
+}
+function pintarReferidos() { const m = $("#ref-modal"); if (!m) return; const a = document.activeElement; if (a && a.id === "ref-cod-in" && m.contains(a)) { const b = m.querySelector('[data-act="ref-usar"]'); if (b) { b.disabled = REF.usando; b.textContent = REF.usando ? "Revisando…" : "Usar código"; } return; } m.innerHTML = referidosPagHTML(); }
+function abrirReferidos() {
+  if (!S.ses.cliente) return;
+  let m = $("#ref-modal");
+  if (!m) { m = document.createElement("div"); m.id = "ref-modal"; m.className = "promo-modal pagina-cli"; m.innerHTML = referidosPagHTML(); montarPaginaCli(m); }
+  else m.innerHTML = referidosPagHTML();
+  refCargar();
+}
+document.addEventListener("input", e => { if (e.target && e.target.id === "ref-cod-in") REF.cod = e.target.value; });
+/* Al entrar como cliente: si trae un código guardado (registro o enlace), aplicarlo. */
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && refGuardado() && !REF.cargando && !REF.usando && (!REF.info || REF.info.puedeIngresar)) refCargar(); }, 4000);
+/* Administrador › Referidos: quién invitó a quién y si ya ganaron sus puntos. */
+function refAdHTML() {
+  const clis = ((US.data || {}).clientes) || [], byId = new Map(clis.map(c => [c.id, c]));
+  const refs = clis.filter(c => c.referidoPor).sort((a, b) => (b.referidoEn || 0) - (a.referidoEn || 0));
+  const prem = new Set((PTA.lista || []).filter(m => /^refi_/.test(m.id)).map(m => m.id.slice(5)));
+  const porQuien = new Map(); for (const c of refs) porQuien.set(c.referidoPor, (porQuien.get(c.referidoPor) || 0) + 1);
+  const top = [...porQuien.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  return `<div class="card ad-card"><h2 class="h2">🎁 Referidos</h2><p class="muted-s">Cada cliente tiene un código en <b>Invita y gana</b>. Cuando un cliente nuevo usa ese código y hace su primer pedido (desde su cuenta), ganan <b>${fmtN(REF_PTS)} puntos cada uno</b>.</p>
+    <div class="ptsp-res"><div><b>${fmtN(refs.length)}</b><small>clientes invitados</small></div><div><b>${fmtN(prem.size)}</b><small>ya hicieron su pedido</small></div><div><b>${fmtN(porQuien.size)}</b><small>clientes que invitan</small></div></div>
+    ${top.length ? `<p class="muted-s"><b>Los que más invitan:</b> ${top.map(([id, n]) => `${esc((byId.get(id) || {}).nombre || id)} (${n})`).join(" · ")}</p>` : ""}</div>
+    ${refs.length ? `<div class="lista">${refs.map(c => `<article class="card ad-card sus-it"><b>${esc(c.nombre || c.id)}</b><small>Invitado por <b>${esc((byId.get(c.referidoPor) || {}).nombre || c.referidoPor)}</b>${c.referidoEn ? ` · ${esc(fmtFecha(new Date(c.referidoEn).toISOString().slice(0, 10)))}` : ""}</small><p class="muted-s">${prem.has(c.id) ? `✅ Primer pedido hecho: ${fmtN(REF_PTS)} puntos para cada uno` : "⏳ Aún sin pedido"}</p></article>`).join("")}</div>`
+      : vacio("Aún no hay referidos", "Cuando un cliente use el código de otro aparecerá aquí.")}`;
+}
+function renderRefAd() { const el = $("#refad-panel"); if (el && S.portal === "admin" && AD.local === "refad") el.innerHTML = refAdHTML(); }
+setInterval(() => { if (S.portal === "admin" && AD.local === "refad") renderRefAd(); }, 5000);
+
+/* ---------- Fidelización II: combos y packs, oferta del día (con cuenta regresiva), recetas, seguimiento del repartidor y calificación de la entrega. ---------- */
+const COMBO_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>';
+const OFERTA_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>';
+const REC_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.9A4 4 0 0 1 7 6.1a5 5 0 0 1 10 0 4 4 0 0 1 1 7.8V21H6z"/><path d="M6 17h12"/></svg>';
+const CALIF_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+const FID = { subs: false, combos: [], oferta: null, recetas: [], cargado: false, enCarro: {}, recVer: "", cbEd: null, recEd: null, ofEd: null };
+function subFid() {
+  if (FID.subs || !S.db) return; FID.subs = true;
+  const listo = () => { FID.cargado = true; pintarOferta(); pintarCombos(); pintarRecetas(); renderCombosAd(); renderOfertaAd(); renderRecetasAd(); try { updateCarritoUI(); } catch (_) {} };
+  S.db.collection("combos").limit(200).onSnapshot(sn => { FID.combos = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (a.orden || a.creado || 0) - (b.orden || b.creado || 0)); listo(); }, () => listo());
+  S.db.doc("ofertas/actual").onSnapshot(d => { FID.oferta = d.exists ? d.data() || null : null; listo(); }, () => listo());
+  S.db.collection("recetas").limit(200).onSnapshot(sn => { FID.recetas = sn.docs.map(d => Object.assign({ id: d.id }, d.data() || {})).sort((a, b) => (b.creado || 0) - (a.creado || 0)); listo(); }, () => listo());
+}
+setInterval(() => { if (S.db && (S.portal === "cliente" || S.portal === "admin")) subFid(); }, 3000);
+const ofertaVigente = () => { const o = FID.oferta; return o && o.prod && PROD[o.prod] && Number(o.precio) > 0 && Number(o.hasta) > Date.now() ? o : null; };
+const comboRegular = c => Object.entries(c.items || {}).reduce((t, [id, q]) => t + (PROD[id] ? precioMio(id) * (Number(q) || 0) : 0), 0);
+const comboValido = c => c && c.activo !== false && Object.keys(c.items || {}).some(id => PROD[id]) && Number(c.precio) > 0;
+/* Descuentos extra del carrito: combos agregados (si los productos siguen en el carrito) y la oferta del día. */
+function descExtra() {
+  const r = { total: 0, lineas: [], combo: 0, oferta: 0, combosTxt: "" };
+  if (!S.ses.cliente) return r;
+  const resto = Object.assign({}, S.carrito), nombres = [];
+  for (const [cid, n0] of Object.entries(FID.enCarro || {})) {
+    const c = FID.combos.find(x => x.id === cid); if (!comboValido(c) || !n0) continue;
+    let n = n0; for (const [id, q] of Object.entries(c.items)) if (PROD[id] && q > 0) n = Math.min(n, Math.floor((resto[id] || 0) / q));
+    if (n <= 0) continue;
+    for (const [id, q] of Object.entries(c.items)) if (PROD[id]) resto[id] -= q * n;
+    const d = Math.max(0, comboRegular(c) - Number(c.precio)) * n;
+    if (d > 0) { r.combo += d; nombres.push(`${n > 1 ? n + "× " : ""}${c.nombre}`); r.lineas.push({ t: `📦 ${n > 1 ? n + "× " : ""}${c.nombre}`, m: d }); }
+  }
+  r.combosTxt = nombres.join(", ");
+  const o = ofertaVigente();
+  if (o && (resto[o.prod] || 0) > 0) {
+    const q = Math.min(resto[o.prod], Number(o.max) || 99), d = Math.max(0, precioMio(o.prod) - Number(o.precio)) * q;
+    if (d > 0) { r.oferta = d; r.lineas.push({ t: `⏰ Oferta del día · ${q}× ${etiqueta(PROD[o.prod])}`, m: d }); }
+  }
+  r.total = r.combo + r.oferta;
+  return r;
+}
+function descExtraDoc() { const d = descExtra(); return Object.assign({}, d.combo ? { descuentoCombo: d.combo, combosTxt: d.combosTxt } : {}, d.oferta ? { descuentoOferta: d.oferta, ofertaProd: (ofertaVigente() || {}).prod } : {}); }
+function irAlCarrito() {
+  ["combos-modal", "rec-modal"].forEach(id => { const m = $("#" + id); if (m) m.remove(); });
+  setTimeout(() => { const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click(); setTimeout(() => { try { if (cpwOn() && carritoLista().length) cpwIr(3); } catch (_) {} updateCarritoUI(); }, 120); }, 60);
+}
+function comboAgregar(cid) {
+  const c = FID.combos.find(x => x.id === cid); if (!comboValido(c)) return;
+  for (const [id, q] of Object.entries(c.items)) if (PROD[id] && q > 0) S.carrito[id] = (S.carrito[id] || 0) + Number(q);
+  FID.enCarro[cid] = (FID.enCarro[cid] || 0) + 1;
+  toast(`📦 ${c.nombre} agregado a tu pedido.`); irAlCarrito();
+}
+function ofertaAgregar() {
+  const o = ofertaVigente(); if (!o) { toast("Esta oferta ya terminó."); return; }
+  S.carrito[o.prod] = Math.max(S.carrito[o.prod] || 0, 1);
+  toast(`⏰ ${etiqueta(PROD[o.prod])} agregado con precio de oferta.`); irAlCarrito();
+}
+/* Inicio: tarjeta de la oferta del día con cuenta regresiva. */
+function restaTxt(ms) { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${h ? String(h).padStart(2, "0") + ":" : ""}${String(m).padStart(2, "0")}:${String(x).padStart(2, "0")}`; }
+function pintarOferta() {
+  const el = document.getElementById("cli-oferta"); if (!el) return;
+  const o = S.portal === "cliente" && S.cliTab === "inicio" ? ofertaVigente() : null;
+  if (!o) { if (!el.hidden) { el.hidden = true; el.innerHTML = ""; el.dataset.h = ""; } return; }
+  const p = PROD[o.prod], antes = precioMio(o.prod), pct = antes > 0 ? Math.round((1 - Number(o.precio) / antes) * 100) : 0;
+  const h = `<div class="cli-of-h"><span aria-hidden="true">⏰</span><b>Oferta del día</b><span class="cli-of-t" id="cli-of-t">${restaTxt(Number(o.hasta) - Date.now())}</span></div>
+    <div class="cli-of-b"><span class="cli-of-e" aria-hidden="true">${p.fam === "papa" ? "🥔" : "💧"}</span><div><b>${esc(o.titulo || etiqueta(p))}</b><small>${esc(detalle(p))}${o.max ? ` · máx. ${o.max} por pedido` : ""}</small>
+      <p class="cli-of-p">${antes > Number(o.precio) ? `<s>${clp(antes)}</s> ` : ""}<b>${clp(o.precio)}</b>${pct > 0 ? ` <em>−${pct}%</em>` : ""}</p></div></div>
+    <button type="button" class="btn primario cli-of-btn" data-act="oferta-agregar">🛒 Aprovechar oferta</button><small class="cli-of-fin">Termina en <span>${restaTxt(Number(o.hasta) - Date.now())}</span></small>`;
+  const firma = o.prod + o.precio + o.hasta + (o.titulo || "") + antes;
+  if (el.dataset.h !== firma) { el.dataset.h = firma; el.innerHTML = h; }
+  if (el.hidden) el.hidden = false;
+}
+setInterval(() => {
+  const el = document.getElementById("cli-oferta"); if (!el || el.hidden) { if (S.portal === "cliente" && S.cliTab === "inicio" && ofertaVigente()) pintarOferta(); return; }
+  const o = ofertaVigente(); if (!o) { pintarOferta(); try { updateCarritoUI(); } catch (_) {} return; }
+  const t = restaTxt(Number(o.hasta) - Date.now()); const a = document.getElementById("cli-of-t"); if (a) a.textContent = t; const b = el.querySelector(".cli-of-fin span"); if (b) b.textContent = t;
+}, 1000);
+/* Páginas de cliente: combos y recetas. */
+function paginaFid(id, html) {
+  let m = $("#" + id);
+  if (!m) { m = document.createElement("div"); m.id = id; m.className = "promo-modal pagina-cli"; m.innerHTML = html; montarPaginaCli(m); }
+  else m.innerHTML = html;
+}
+function combosPagHTML() {
+  const cs = FID.combos.filter(comboValido);
+  return `<div class="promo-box fid-box"><div class="pl-h"><b>📦 Combos y packs</b><button type="button" class="ap-cerrar" data-act="fid-cerrar" aria-label="Volver">×</button></div>
+    ${!FID.cargado ? `<p class="muted-s">Cargando…</p>` : cs.length ? `<div class="cb-lista">${cs.map(c => { const reg = comboRegular(c), ah = reg - Number(c.precio); return `<article class="cb-card">
+      <div class="cb-h"><span class="cb-e" aria-hidden="true">${esc(c.emoji || "📦")}</span><div><b>${esc(c.nombre)}</b>${c.desc ? `<small>${esc(c.desc)}</small>` : ""}</div></div>
+      <ul class="cb-its">${Object.entries(c.items).filter(([id]) => PROD[id]).map(([id, q]) => `<li><span>${q}×</span> ${esc(etiqueta(PROD[id]))} <small>${esc(detalle(PROD[id]))}</small></li>`).join("")}</ul>
+      <div class="cb-pie"><p>${ah > 0 ? `<s>${clp(reg)}</s> ` : ""}<b>${clp(c.precio)}</b>${ah > 0 ? ` <em>Ahorras ${clp(ah)}</em>` : ""}</p><button type="button" class="btn primario" data-act="combo-agregar" data-id="${esc(c.id)}">🛒 Agregar</button></div></article>`; }).join("")}</div>`
+      : vacio("Aún no hay combos", "Pronto tendremos packs con precio especial.")}</div>`;
+}
+function pintarCombos() { if ($("#combos-modal")) paginaFid("combos-modal", combosPagHTML()); }
+function abrirCombos() { if (!S.ses.cliente) return; subFid(); paginaFid("combos-modal", combosPagHTML()); }
+const RECETAS_BASE = [
+  { id: "base-papas-fritas", titulo: "Papas fritas caseras crujientes", emoji: "🍟", tiempo: "25 min", porciones: "4", prods: ["p1b12"], ingredientes: ["1 kg de papas bastón 100% Natural", "Aceite vegetal para freír", "Sal fina a gusto"], pasos: ["Seca bien las papas con papel absorbente.", "Calienta el aceite a fuego medio (unos 150 °C) y fríe las papas 5 minutos sin que se doren. Sácalas y deja reposar 5 minutos.", "Sube el fuego (unos 180 °C) y fríe de nuevo 2 a 3 minutos hasta que estén doradas y crujientes.", "Escurre sobre papel absorbente y sala al momento."] },
+  { id: "base-gajo-horno", titulo: "Papas gajo al horno con romero", emoji: "🥔", tiempo: "40 min", porciones: "4", prods: ["p1g"], ingredientes: ["1 kg de papas gajo 100% Natural", "3 cucharadas de aceite de oliva", "2 ramitas de romero", "2 dientes de ajo machacados", "Sal y pimienta"], pasos: ["Precalienta el horno a 220 °C.", "Mezcla las papas con el aceite, el ajo, el romero, sal y pimienta.", "Repártelas en una bandeja en una sola capa, con la piel hacia abajo.", "Hornea 30 a 35 minutos, dándolas vuelta a la mitad, hasta que estén doradas."] },
+  { id: "base-pure", titulo: "Puré de papas cremoso", emoji: "🥣", tiempo: "30 min", porciones: "4", prods: [], ingredientes: ["1 kg de papas 100% Natural", "1 taza de leche caliente", "3 cucharadas de mantequilla", "Sal y nuez moscada"], pasos: ["Cuece las papas en agua con sal unos 15 minutos, hasta que estén blandas.", "Escúrrelas bien y muélelas en caliente.", "Agrega la mantequilla y luego la leche de a poco, revolviendo.", "Sazona con sal y una pizca de nuez moscada."] },
+  { id: "base-papas-chorrillana", titulo: "Chorrillana para compartir", emoji: "🍳", tiempo: "35 min", porciones: "4", prods: ["p1b12"], ingredientes: ["1 kg de papas bastón 100% Natural", "400 g de carne en tiritas", "2 cebollas en pluma", "4 huevos", "Sal, pimienta y comino"], pasos: ["Fríe las papas como papas fritas y resérvalas calientes.", "Saltea la carne a fuego alto con sal, pimienta y comino; reserva.", "En la misma sartén cocina la cebolla hasta que esté dorada.", "Fríe los huevos o revuélvelos.", "Arma una fuente con las papas, la carne, la cebolla y los huevos encima."] },
+  { id: "base-tortilla", titulo: "Tortilla de papas", emoji: "🥘", tiempo: "40 min", porciones: "6", prods: [], ingredientes: ["600 g de papas en láminas finas", "1 cebolla en pluma", "6 huevos", "Aceite de oliva", "Sal"], pasos: ["Cocina las papas y la cebolla en abundante aceite a fuego bajo 15 a 20 minutos, sin dorar.", "Escúrrelas y mézclalas con los huevos batidos y sal.", "Vierte en una sartén con un poco de aceite y cocina a fuego medio-bajo 5 minutos.", "Da vuelta con un plato y cocina 3 a 4 minutos más."] },
+];
+const recetasTodas = () => { const ids = new Set(FID.recetas.map(r => r.id)); return FID.recetas.concat(RECETAS_BASE.filter(r => !ids.has(r.id))); };
+const recProds = r => (r.prods || []).filter(id => PROD[id]);
+function recetasPagHTML() {
+  const rs = recetasTodas(), r = FID.recVer ? rs.find(x => x.id === FID.recVer) : null;
+  const cab = `<div class="pl-h"><b>🍽️ Recetas con papas naturales</b><button type="button" class="ap-cerrar" data-act="fid-cerrar" aria-label="Volver">×</button></div>`;
+  if (r) {
+    const ps = recProds(r);
+    return `<div class="promo-box fid-box">${cab}<button type="button" class="btn chico suave" data-act="rec-volver">‹ Todas las recetas</button>
+      <article class="rec-det">${r.foto ? `<img class="rec-foto" src="${esc(r.foto)}" alt="" loading="lazy" onerror="this.remove()">` : `<div class="rec-emo" aria-hidden="true">${esc(r.emoji || "🥔")}</div>`}
+        <h2>${esc(r.titulo)}</h2><p class="rec-meta">${r.tiempo ? `⏱️ ${esc(r.tiempo)}` : ""}${r.porciones ? ` · 🍽️ ${esc(r.porciones)} porciones` : ""}</p>
+        <section class="perf-card"><h3>Ingredientes</h3><ul class="rec-ing">${(r.ingredientes || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>
+        <section class="perf-card"><h3>Preparación</h3><ol class="rec-pasos">${(r.pasos || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></section>
+        ${ps.length ? `<button type="button" class="btn primario rec-btn" data-act="rec-agregar" data-id="${esc(r.id)}">🛒 Agregar ${ps.length === 1 ? esc(etiqueta(PROD[ps[0]])) : "los productos"} a mi pedido</button>` : `<button type="button" class="btn primario rec-btn" data-act="pts-pedir">🛒 Pedir papas</button>`}
+      </article></div>`;
+  }
+  return `<div class="promo-box fid-box">${cab}<p class="muted-s">Ideas fáciles para cocinar con nuestras papas.</p>
+    <div class="rec-lista">${rs.map(x => `<button type="button" class="rec-card" data-act="rec-ver" data-id="${esc(x.id)}">${x.foto ? `<img src="${esc(x.foto)}" alt="" loading="lazy" onerror="this.remove()">` : `<span class="rec-e" aria-hidden="true">${esc(x.emoji || "🥔")}</span>`}<span><b>${esc(x.titulo)}</b><small>${[x.tiempo ? "⏱️ " + x.tiempo : "", x.porciones ? x.porciones + " porciones" : ""].filter(Boolean).map(esc).join(" · ")}</small></span></button>`).join("")}</div></div>`;
+}
+function pintarRecetas() { if ($("#rec-modal")) paginaFid("rec-modal", recetasPagHTML()); }
+function abrirRecetas() { if (!S.ses.cliente) return; subFid(); FID.recVer = ""; paginaFid("rec-modal", recetasPagHTML()); }
+function recetaAgregar(rid) {
+  const r = recetasTodas().find(x => x.id === rid); if (!r) return;
+  const ps = recProds(r); if (!ps.length) return;
+  for (const id of ps) S.carrito[id] = Math.max(S.carrito[id] || 0, 1);
+  toast("Productos de la receta agregados a tu pedido."); irAlCarrito();
+}
+/* Seguimiento del repartidor: el repartidor comparte su ubicación mientras lleva pedidos en camino. */
+const UBI = { watch: null, ult: 0, err: false };
+function repUbicacion() {
+  const r = S.ses.repartidor, act = S.portal === "repartidor" && r && S.db && (S.pedidos || []).some(p => p.estado === "en_camino" && p.repartidorId === r.id);
+  if (!act) { if (UBI.watch !== null) { try { navigator.geolocation.clearWatch(UBI.watch); } catch (_) {} UBI.watch = null; } return; }
+  if (UBI.watch !== null || !navigator.geolocation || UBI.err) return;
+  UBI.watch = navigator.geolocation.watchPosition(pos => {
+    if (Date.now() - UBI.ult < 20000) return; UBI.ult = Date.now();
+    S.db.doc("rep_ubicacion/" + r.id).set({ lat: +pos.coords.latitude.toFixed(5), lng: +pos.coords.longitude.toFixed(5), en: Date.now(), nombre: r.nombre || "" }).catch(() => {});
+  }, () => { UBI.err = true; UBI.watch = null; }, { enableHighAccuracy: true, maximumAge: 15000, timeout: 30000 });
+}
+setInterval(repUbicacion, 10000);
+const TRK = { id: "", info: null, t: null };
+async function trkCargar() {
+  if (!TRK.id) return;
+  try {
+    if (window.__pya && window.__pya.cliente) { const x = await window.__pya.cliente.rpc("ubicacion_pedido", { p_pedido: TRK.id }); if (x.error) throw x.error; TRK.info = x.data || null; }
+    else { const p = (S.pedidos || []).find(x => x.id === TRK.id) || {}; const u = p.repartidorId ? ((await S.db.doc("rep_ubicacion/" + p.repartidorId).get()).data() || {}) : {}; TRK.info = { estado: p.estado, repartidor: String(p.repartidorNombre || "").split(" ")[0], lat: u.lat, lng: u.lng, en: u.en, destino: [p.direccion, p.comuna].filter(Boolean).join(", ") }; }
+  } catch (e) { TRK.info = TRK.info || { err: msgError(e) }; }
+  const m = $("#trk-modal"); if (m) m.innerHTML = trkHTML(); else { clearInterval(TRK.t); TRK.t = null; }
+}
+function trkHTML() {
+  const i = TRK.info, cab = `<div class="pl-h"><b>📍 Dónde va mi pedido</b><button type="button" class="ap-cerrar" data-act="trk-cerrar" aria-label="Volver">×</button></div>`;
+  if (!i) return `<div class="promo-box fid-box">${cab}<p class="muted-s">Buscando a tu repartidor…</p></div>`;
+  if (i.estado && i.estado !== "en_camino") return `<div class="promo-box fid-box">${cab}${vacio(i.estado === "entregado" ? "¡Tu pedido ya fue entregado!" : "Tu pedido aún no sale a reparto", "Cuando el repartidor salga con tu pedido podrás verlo aquí.")}</div>`;
+  if (i.lat == null || i.lng == null) return `<div class="promo-box fid-box">${cab}${vacio(`${i.repartidor || "Tu repartidor"} va en camino`, "Su ubicación aparecerá aquí cuando su teléfono la comparta. Revisa en unos minutos.")}</div>`;
+  const lat = Number(i.lat), lng = Number(i.lng), d = 0.012, bbox = [lng - d, lat - d * 0.7, lng + d, lat + d * 0.7].join(",");
+  const hace = i.en ? Math.max(0, Math.round((Date.now() - Number(i.en)) / 60000)) : null;
+  return `<div class="promo-box fid-box">${cab}
+    <p class="trk-txt">🛵 <b>${esc(i.repartidor || "Tu repartidor")}</b> va en camino${i.destino ? ` a <b>${esc(i.destino)}</b>` : ""}.</p>
+    <iframe class="trk-mapa" title="Ubicación del repartidor" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${lat},${lng}"></iframe>
+    <p class="muted-s">${hace === null ? "" : hace < 1 ? "Ubicación actualizada recién." : `Ubicación de hace ${hace} min.`} Se actualiza sola cada 30 segundos.</p>
+    <a class="btn chico suave" href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" rel="noopener">Abrir en Google Maps</a></div>`;
+}
+function abrirSeguimiento(id) {
+  TRK.id = id; TRK.info = null;
+  paginaFid("trk-modal", trkHTML()); trkCargar();
+  clearInterval(TRK.t); TRK.t = setInterval(trkCargar, 30000);
+}
+/* Calificación de la entrega (pedidos entregados). */
+const CAL = { e: {}, c: {}, env: {} };
+function califHTML(p) {
+  const k = p.calificacion;
+  if (k && k.e) return `<p class="cal-ok">Tu calificación: <span class="cal-st">${"★".repeat(k.e)}${"☆".repeat(5 - k.e)}</span>${k.c ? `<small>«${esc(k.c)}»</small>` : ""}</p>`;
+  const e = CAL.e[p.id] || 0;
+  return `<p class="cal-t">⭐ ¿Cómo estuvo tu entrega?</p><div class="cal-est" role="radiogroup" aria-label="Calificación">${[1, 2, 3, 4, 5].map(v => `<button type="button" class="${v <= e ? "on" : ""}" data-act="cal-est" data-id="${esc(p.id)}" data-v="${v}" role="radio" aria-checked="${v === e}" aria-label="${v} ${v === 1 ? "estrella" : "estrellas"}">★</button>`).join("")}</div>
+    ${e ? `<textarea class="cal-com" data-cal="${esc(p.id)}" maxlength="300" rows="2" placeholder="Cuéntanos más (opcional)">${esc(CAL.c[p.id] || "")}</textarea><button type="button" class="btn chico primario" data-act="cal-enviar" data-id="${esc(p.id)}" ${CAL.env[p.id] ? "disabled" : ""}>${CAL.env[p.id] ? "Enviando…" : "Enviar calificación"}</button>` : ""}`;
+}
+function pintarCalif(id) { const el = document.getElementById("cal-" + id), p = (S.pedidos || []).find(x => x.id === id); if (el && p) el.innerHTML = califHTML(p); }
+document.addEventListener("input", e => { const t = e.target; if (t && t.dataset && t.dataset.cal) CAL.c[t.dataset.cal] = t.value; });
+async function enviarCalif(id, btn) {
+  const e = CAL.e[id]; if (!e) return;
+  CAL.env[id] = true; pintarCalif(id);
+  const cal = { e, c: String(CAL.c[id] || "").trim().slice(0, 300), en: Date.now() };
+  try { await conReintento(() => S.db.doc("pedidos/" + id).update({ calificacion: cal })); const p = (S.pedidos || []).find(x => x.id === id); if (p) p.calificacion = cal; toast("¡Gracias por calificar tu entrega!"); }
+  catch (err) { toast(msgError(err)); }
+  CAL.env[id] = false; pintarCalif(id);
+}
+/* ---------- Administrador: combos, oferta del día, recetas y calificaciones ---------- */
+function borrarDocFid(col, id, msg) { if (!confirm("¿Eliminar? No se puede deshacer.")) return; conReintento(() => S.db.doc(col + "/" + id).delete()).then(() => toast(msg)).catch(e => toast(msgError(e))); }
+const prodsAd = () => ORDEN.filter(id => PROD[id]);
+function cbLeer() { const f = FID.cbEd; if (!f) return; for (const n of ["nombre", "desc", "precio", "emoji"]) { const i = document.getElementById("cbad-" + n); if (i) f[n] = i.value; } }
+function combosAdHTML() {
+  const f = FID.cbEd;
+  if (f) {
+    const reg = Object.entries(f.items).reduce((t, [id, q]) => t + (PROD[id] ? PROD[id].precio * q : 0), 0);
+    return `<div class="card ad-card"><h2 class="h2">${f.id ? "Editar combo" : "Nuevo combo o pack"}</h2>
+      <div class="form"><label class="campo"><span>Nombre</span><input id="cbad-nombre" value="${esc(f.nombre)}" maxlength="60" placeholder="Ej.: Pack parrillero"></label>
+      <label class="campo"><span>Emoji <em>opcional</em></span><input id="cbad-emoji" value="${esc(f.emoji || "")}" maxlength="4" placeholder="📦"></label>
+      <label class="campo"><span>Descripción <em>opcional</em></span><input id="cbad-desc" value="${esc(f.desc)}" maxlength="140"></label>
+      <fieldset class="campo"><legend>Productos del combo</legend>${prodsAd().map(id => { const q = Number(f.items[id]) || 0; return `<div class="bid-fila pg-fila ${q ? "on" : ""}"><span class="bid-tit">${esc(etiqueta(PROD[id]))}<small>${esc(detalle(PROD[id]))} · ${clp(PROD[id].precio)}</small></span><div class="bid-step"><button type="button" data-act="cbad-q" data-id="${id}" data-d="-1" aria-label="Uno menos">−</button><b>${q}</b><button type="button" data-act="cbad-q" data-id="${id}" data-d="1" aria-label="Uno más">+</button></div></div>`; }).join("")}</fieldset>
+      <p class="muted-s">Precio normal (lista): <b>${clp(reg)}</b></p>
+      <label class="campo"><span>Precio del combo</span><input id="cbad-precio" type="number" min="1" step="1" inputmode="numeric" value="${esc(f.precio)}"></label>
+      <div class="acciones"><button type="button" class="btn suave" data-act="cbad-cancelar">Cancelar</button><button type="button" class="btn primario" data-act="cbad-guardar">Guardar combo</button></div></div></div>`;
+  }
+  return `<div class="card ad-card"><h2 class="h2">📦 Combos y packs</h2><p class="muted-s">Los clientes los ven en <b>Combos y packs</b> y los agregan a su pedido con un toque. El descuento es la diferencia entre el precio normal de los productos y el precio del combo.</p><button type="button" class="btn primario" data-act="cbad-nuevo">+ Nuevo combo</button></div>
+    ${!FID.cargado ? vacio("Cargando…", "Un momento.") : FID.combos.length ? `<div class="lista">${FID.combos.map(c => { const reg = Object.entries(c.items || {}).reduce((t, [id, q]) => t + (PROD[id] ? PROD[id].precio * q : 0), 0); return `<article class="card ad-card sus-it"><b>${esc(c.emoji || "📦")} ${esc(c.nombre)}${c.activo === false ? " <small>(oculto)</small>" : ""}</b><small>${esc(Object.entries(c.items || {}).filter(([id]) => PROD[id]).map(([id, q]) => `${q}× ${etiqueta(PROD[id])}`).join(", "))}</small><p class="muted-s">Precio <b>${clp(c.precio)}</b> · normal ${clp(reg)}</p><div class="acciones"><button type="button" class="btn chico suave" data-act="cbad-editar" data-id="${esc(c.id)}">Editar</button><button type="button" class="btn chico suave" data-act="cbad-act" data-id="${esc(c.id)}">${c.activo === false ? "Mostrar" : "Ocultar"}</button><button type="button" class="btn chico peligro" data-act="cbad-borrar" data-id="${esc(c.id)}">Eliminar</button></div></article>`; }).join("")}</div>` : vacio("Aún no hay combos", "Crea el primero con + Nuevo combo.")}`;
+}
+function renderCombosAd() { const el = $("#cbad-panel"); if (!el || AD.local !== "combo") return; const a = document.activeElement; if (a && el.contains(a) && a.tagName === "INPUT") return; el.innerHTML = combosAdHTML(); }
+async function guardarCombo(btn) {
+  cbLeer(); const f = FID.cbEd, precio = Math.round(Number(f.precio));
+  if (String(f.nombre).trim().length < 2) { toast("Escribe el nombre del combo."); return; }
+  if (!Object.keys(f.items).length) { toast("Agrega al menos un producto con +."); return; }
+  if (!(precio > 0)) { toast("Escribe el precio del combo."); return; }
+  const id = f.id || "cb" + Date.now().toString(36);
+  ocupar(btn, true, "Guardando…");
+  try { const { id: _i, ...prev } = FID.combos.find(x => x.id === id) || {}; await conReintento(() => S.db.doc("combos/" + id).set(Object.assign({}, prev, { nombre: f.nombre.trim(), emoji: (f.emoji || "").trim(), desc: f.desc.trim(), precio, items: f.items, activo: prev.activo !== false, creado: prev.creado || Date.now(), actualizado: Date.now() }))); FID.cbEd = null; toast("Combo guardado."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); renderCombosAd(); }
+}
+function toggleCombo(id) { const c = FID.combos.find(x => x.id === id); if (c) conReintento(() => S.db.doc("combos/" + id).update({ activo: c.activo === false })).catch(e => toast(msgError(e))); }
+function ofertaAdHTML() {
+  const o = FID.oferta, vig = ofertaVigente(), f = FID.ofEd || (FID.ofEd = { prod: (o && o.prod) || "", precio: o ? String(o.precio || "") : "", hasta: "", max: o && o.max ? String(o.max) : "", titulo: (o && o.titulo) || "" });
+  const finHoy = `${hoy()}T23:59`;
+  return `<div class="card ad-card"><h2 class="h2">⏰ Oferta del día</h2><p class="muted-s">Aparece en Inicio de Clientes con una cuenta regresiva hasta la hora de término. El precio de oferta se aplica al producto en el pedido.</p>
+    ${vig ? `<p class="of-vig">✅ Vigente: <b>${esc(etiqueta(PROD[vig.prod]))}</b> a <b>${clp(vig.precio)}</b> hasta ${esc(new Date(Number(vig.hasta)).toLocaleString("es-CL", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }))}</p>` : `<p class="muted-s">No hay una oferta vigente.</p>`}
+    <div class="form"><label class="campo"><span>Producto</span><select id="ofad-prod"><option value="">Elige un producto</option>${prodsAd().map(id => `<option value="${id}" ${f.prod === id ? "selected" : ""}>${esc(etiqueta(PROD[id]))} · ${esc(detalle(PROD[id]))} (${clp(PROD[id].precio)})</option>`).join("")}</select></label>
+      <label class="campo"><span>Título <em>opcional</em></span><input id="ofad-titulo" value="${esc(f.titulo)}" maxlength="60" placeholder="Ej.: ¡Papas bastón a precio de locura!"></label>
+      <label class="campo"><span>Precio de oferta</span><input id="ofad-precio" type="number" min="1" step="1" inputmode="numeric" value="${esc(f.precio)}"></label>
+      <label class="campo"><span>Máximo por pedido <em>opcional</em></span><input id="ofad-max" type="number" min="1" step="1" inputmode="numeric" value="${esc(f.max)}"></label>
+      <label class="campo"><span>Termina</span><input id="ofad-hasta" type="datetime-local" value="${esc(f.hasta || finHoy)}"></label>
+      <div class="acciones">${o ? `<button type="button" class="btn suave" data-act="ofad-quitar">Quitar oferta</button>` : ""}<button type="button" class="btn primario" data-act="ofad-guardar">Publicar oferta</button></div></div></div>`;
+}
+function renderOfertaAd() { const el = $("#ofad-panel"); if (!el || AD.local !== "oferta") return; const a = document.activeElement; if (a && el.contains(a) && /INPUT|SELECT/.test(a.tagName)) return; el.innerHTML = ofertaAdHTML(); }
+async function guardarOferta(btn) {
+  const v = id => (document.getElementById(id) || {}).value || "";
+  const prod = v("ofad-prod"), precio = Math.round(Number(v("ofad-precio"))), hasta = new Date(v("ofad-hasta")).getTime(), max = Math.round(Number(v("ofad-max"))) || 0;
+  FID.ofEd = { prod, precio: v("ofad-precio"), hasta: v("ofad-hasta"), max: v("ofad-max"), titulo: v("ofad-titulo") };
+  if (!PROD[prod]) { toast("Elige el producto en oferta."); return; }
+  if (!(precio > 0)) { toast("Escribe el precio de oferta."); return; }
+  if (!(hasta > Date.now())) { toast("La hora de término debe ser en el futuro."); return; }
+  ocupar(btn, true, "Publicando…");
+  try { await conReintento(() => S.db.doc("ofertas/actual").set({ prod, precio, hasta, max, titulo: v("ofad-titulo").trim(), creado: Date.now(), por: (S.ses.admin || {}).nombre || "" })); FID.ofEd = null; toast("Oferta del día publicada."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); renderOfertaAd(); }
+}
+function quitarOferta() { conReintento(() => S.db.doc("ofertas/actual").delete()).then(() => { FID.ofEd = null; toast("Oferta quitada."); renderOfertaAd(); }).catch(e => toast(msgError(e))); }
+function recLeer() { const f = FID.recEd; if (!f) return; for (const n of ["titulo", "emoji", "foto", "tiempo", "porciones", "ingredientes", "pasos"]) { const i = document.getElementById("recad-" + n); if (i) f[n] = i.value; } }
+function recetasAdHTML() {
+  const f = FID.recEd;
+  if (f) return `<div class="card ad-card"><h2 class="h2">${f.id ? "Editar receta" : "Nueva receta"}</h2><div class="form">
+    <label class="campo"><span>Título</span><input id="recad-titulo" value="${esc(f.titulo)}" maxlength="80"></label>
+    <div class="pg-2"><label class="campo"><span>Emoji</span><input id="recad-emoji" value="${esc(f.emoji || "")}" maxlength="4"></label><label class="campo"><span>Tiempo</span><input id="recad-tiempo" value="${esc(f.tiempo || "")}" maxlength="20" placeholder="30 min"></label></div>
+    <label class="campo"><span>Porciones <em>opcional</em></span><input id="recad-porciones" value="${esc(f.porciones || "")}" maxlength="10"></label>
+    <label class="campo"><span>Foto (enlace) <em>opcional</em></span><input id="recad-foto" value="${esc(f.foto || "")}" placeholder="https://…" inputmode="url"></label>
+    <label class="campo"><span>Ingredientes <em>(uno por línea)</em></span><textarea id="recad-ingredientes" rows="5">${esc(f.ingredientes || "")}</textarea></label>
+    <label class="campo"><span>Preparación <em>(un paso por línea)</em></span><textarea id="recad-pasos" rows="6">${esc(f.pasos || "")}</textarea></label>
+    <fieldset class="campo"><legend>Productos para el botón «Agregar a mi pedido»</legend><div class="chips">${prodsAd().map(id => `<button type="button" class="chip" data-act="recad-prod" data-id="${id}" aria-pressed="${f.prods.includes(id)}">${esc(etiqueta(PROD[id]))}</button>`).join("")}</div></fieldset>
+    <div class="acciones"><button type="button" class="btn suave" data-act="recad-cancelar">Cancelar</button><button type="button" class="btn primario" data-act="recad-guardar">Guardar receta</button></div></div></div>`;
+  const propias = FID.recetas, faltan = RECETAS_BASE.filter(r => !propias.some(x => x.id === r.id)).length;
+  return `<div class="card ad-card"><h2 class="h2">🍽️ Recetas</h2><p class="muted-s">Los clientes las ven en <b>Recetas</b>, con un botón para agregar los productos a su pedido.${faltan ? ` Hay ${faltan} recetas de ejemplo que se muestran mientras tanto.` : ""}</p>
+    <div class="acciones"><button type="button" class="btn primario" data-act="recad-nuevo">+ Nueva receta</button>${faltan ? `<button type="button" class="btn suave" data-act="recad-base">Guardar recetas de ejemplo para editarlas</button>` : ""}</div></div>
+    <div class="lista">${recetasTodas().map(r => `<article class="card ad-card sus-it"><b>${esc(r.emoji || "🥔")} ${esc(r.titulo)}</b><small>${esc([r.tiempo, r.porciones ? r.porciones + " porciones" : ""].filter(Boolean).join(" · "))}${propias.some(x => x.id === r.id) ? "" : " · ejemplo"}</small>${propias.some(x => x.id === r.id) ? `<div class="acciones"><button type="button" class="btn chico suave" data-act="recad-editar" data-id="${esc(r.id)}">Editar</button><button type="button" class="btn chico peligro" data-act="recad-borrar" data-id="${esc(r.id)}">Eliminar</button></div>` : ""}</article>`).join("")}</div>`;
+}
+function renderRecetasAd() { const el = $("#recad-panel"); if (!el || AD.local !== "rec") return; const a = document.activeElement; if (a && el.contains(a) && /INPUT|TEXTAREA/.test(a.tagName)) return; el.innerHTML = recetasAdHTML(); }
+async function guardarReceta(btn) {
+  recLeer(); const f = FID.recEd, lin = t => String(t || "").split("\n").map(x => x.trim()).filter(Boolean);
+  if (String(f.titulo).trim().length < 3) { toast("Escribe el título de la receta."); return; }
+  if (!lin(f.ingredientes).length || !lin(f.pasos).length) { toast("Escribe los ingredientes y la preparación."); return; }
+  const id = f.id || "rc" + Date.now().toString(36);
+  ocupar(btn, true, "Guardando…");
+  try { await conReintento(() => S.db.doc("recetas/" + id).set({ titulo: f.titulo.trim(), emoji: (f.emoji || "").trim(), foto: /^https:\/\//.test(f.foto || "") ? f.foto.trim() : "", tiempo: (f.tiempo || "").trim(), porciones: (f.porciones || "").trim(), ingredientes: lin(f.ingredientes), pasos: lin(f.pasos), prods: f.prods.filter(x => PROD[x]), creado: f.creado || Date.now(), actualizado: Date.now() })); FID.recEd = null; toast("Receta guardada."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); renderRecetasAd(); }
+}
+async function cargarRecetasBase(btn) {
+  ocupar(btn, true, "Guardando…");
+  try { let i = 0; for (const r of RECETAS_BASE) { if (FID.recetas.some(x => x.id === r.id)) continue; const d = Object.assign({}, r, { prods: r.prods.filter(x => PROD[x]), creado: Date.now() - (i++) * 1000 }); delete d.id; await conReintento(() => S.db.doc("recetas/" + r.id).set(d)); } toast("Recetas de ejemplo guardadas: ahora puedes editarlas."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); renderRecetasAd(); }
+}
+function califAdHTML() {
+  const clis = ((US.data || {}).clientes) || [], nom = id => (clis.find(c => c.id === id) || {}).nombre || "";
+  const ps = (S.pedidos || []).filter(p => p.calificacion && p.calificacion.e).sort((a, b) => (b.calificacion.en || 0) - (a.calificacion.en || 0));
+  const prom = ps.length ? ps.reduce((t, p) => t + p.calificacion.e, 0) / ps.length : 0;
+  const porRep = new Map(); for (const p of ps) { const k = p.repartidorNombre || "Sin repartidor", x = porRep.get(k) || { n: 0, s: 0 }; x.n++; x.s += p.calificacion.e; porRep.set(k, x); }
+  const dist = [5, 4, 3, 2, 1].map(v => [v, ps.filter(p => p.calificacion.e === v).length]);
+  return `<div class="card ad-card"><h2 class="h2">⭐ Calificaciones de entregas</h2><p class="muted-s">Los clientes califican cada pedido entregado (1 a 5 estrellas y un comentario).</p>
+    <div class="ptsp-res"><div><b>${ps.length ? prom.toFixed(1) : "–"}</b><small>promedio</small></div><div><b>${fmtN(ps.length)}</b><small>calificaciones</small></div><div><b>${ps.length ? Math.round(ps.filter(p => p.calificacion.e >= 4).length / ps.length * 100) + "%" : "–"}</b><small>4 o 5 estrellas</small></div></div>
+    ${ps.length ? `<ul class="cal-dist">${dist.map(([v, n]) => `<li><span>${v}★</span><i style="--w:${ps.length ? Math.round(n / ps.length * 100) : 0}%"></i><b>${n}</b></li>`).join("")}</ul>` : ""}
+    ${porRep.size ? `<p class="muted-s"><b>Por repartidor:</b> ${[...porRep.entries()].map(([k, x]) => `${esc(k)} ${(x.s / x.n).toFixed(1)}★ (${x.n})`).join(" · ")}</p>` : ""}</div>
+    ${ps.length ? `<div class="lista">${ps.slice(0, 200).map(p => `<article class="card ad-card sus-it"><b><span class="cal-st">${"★".repeat(p.calificacion.e)}${"☆".repeat(5 - p.calificacion.e)}</span> ${esc(nom(p.clienteId) || p.clienteNombre || "Cliente")}</b><small>Pedido #${esc(codigo(p.id))} · ${esc(p.repartidorNombre || "")} · ${esc(fmtFecha(p.fechaEntrega || ""))}</small>${p.calificacion.c ? `<p>«${esc(p.calificacion.c)}»</p>` : ""}</article>`).join("")}</div>` : vacio("Aún no hay calificaciones", "Aparecerán cuando los clientes califiquen sus pedidos entregados.")}`;
+}
+function renderCalifAd() { const el = $("#calad-panel"); if (el && AD.local === "calif") el.innerHTML = califAdHTML(); }
 function montarPaginaCli(m) {
   const ps = $("#panel-sec");
   if (!ps || S.portal !== "cliente") { document.body.appendChild(m); return; }
@@ -17896,10 +18391,41 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .cli-not{margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}
 .cli-not-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.cli-not-h b{font-size:1rem}.cli-not-h small{margin-left:auto;color:var(--muted);font-weight:600}
+.cli-not-fil{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 8px}.cli-not-fil::-webkit-scrollbar{display:none}
+.cli-not-chip{flex:0 0 auto;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.cli-not-chip[aria-pressed="true"]{background:#0d9488;border-color:#0d9488;color:#fff}
 .cli-not-l{list-style:none;margin:0;padding:0}.cli-not-l li+li{border-top:1px solid var(--line)}
 .cli-not-l a{display:flex;align-items:flex-start;gap:12px;padding:10px 2px;color:var(--ink);text-decoration:none}.cli-not-tx{display:grid;gap:3px;min-width:0}
 .cli-not-f{flex:0 0 96px;width:96px;height:68px;object-fit:cover;border-radius:10px;background:var(--surface-2)}
 .cli-not-1 a{flex-direction:column;gap:8px}.cli-not-1 .cli-not-f{flex:none;width:100%;height:auto;aspect-ratio:16/9;border-radius:14px}.cli-not-1 .cli-not-t{font-size:1.02rem}.cli-not-t{font-weight:700;font-size:.92rem;line-height:1.3}.cli-not-l small{color:var(--muted);font-size:.76rem}
+.sus-ban{display:flex;gap:12px;align-items:center;margin:0 0 12px;padding:12px 14px;border-radius:16px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46}.sus-ban>span{font-size:1.6rem}.sus-ban b{display:block}.sus-ban small{display:block;color:#047857}
+.sus-pct{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 6px}.sus-pct label{display:grid;flex:1 1 160px}.sus-pct small{color:var(--muted)}.sus-pct-in{display:inline-flex;align-items:center;gap:6px}.sus-pct-in input{width:90px;font:inherit;font-weight:800;font-size:1.1rem;text-align:right;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink)}
+.sus-it{display:grid;gap:2px}.sus-it small{color:var(--muted)}
+.ref-hero{display:grid;gap:8px;justify-items:center;text-align:center;margin:6px 0 12px;padding:18px 14px;border-radius:18px;background:linear-gradient(160deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;color:#7c2d12}.ref-hero small{font-weight:700;color:#9a3412}
+.ref-cod{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:2rem;letter-spacing:.12em;padding:4px 16px;border-radius:12px;background:#fff;border:2px dashed #fb923c;color:#c2410c}
+.ref-lista{list-style:none;margin:0;padding:0}.ref-lista li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid var(--line)}.ref-lista li:first-child{border-top:0}.ref-lista small{color:var(--muted)}
+.ref-usar{display:flex;gap:8px}.ref-usar input{flex:1;min-width:0;font:inherit;font-weight:700;text-transform:uppercase;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink)}.ref-nota{margin:0 0 10px}
+.cli-of{margin:14px 0 6px;padding:14px;border-radius:20px;background:linear-gradient(160deg,#fff1f2,#ffe4e6);border:1px solid #fecdd3;color:#881337;display:grid;gap:10px}
+.cli-of-h{display:flex;align-items:center;gap:8px}.cli-of-h b{font-size:1.05rem}.cli-of-t{margin-left:auto;font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:800;background:#e11d48;color:#fff;padding:4px 10px;border-radius:999px}
+.cli-of-b{display:flex;gap:12px;align-items:center}.cli-of-e{font-size:2.6rem;width:64px;height:64px;display:grid;place-items:center;background:#fff;border-radius:16px}.cli-of-b small{display:block;color:#9f1239}
+.cli-of-p{margin:4px 0 0;font-size:1.25rem}.cli-of-p s{color:#9f1239;font-size:.9rem}.cli-of-p em{font-style:normal;font-size:.8rem;font-weight:800;background:#16a34a;color:#fff;padding:2px 8px;border-radius:999px;vertical-align:middle}
+.cli-of-btn{width:100%}.cli-of-fin{text-align:center;color:#9f1239}
+.cb-lista,.rec-lista{display:grid;gap:12px}.cb-card{border:1px solid var(--line);border-radius:18px;padding:14px;background:var(--surface);display:grid;gap:8px}
+.cb-h{display:flex;gap:10px;align-items:center}.cb-e{font-size:2rem}.cb-h small{display:block;color:var(--muted)}.cb-its{list-style:none;margin:0;padding:0;display:grid;gap:4px}.cb-its span{font-weight:800;color:#9333ea}.cb-its small{color:var(--muted)}
+.cb-pie{display:flex;align-items:center;justify-content:space-between;gap:10px}.cb-pie p{margin:0;font-size:1.15rem}.cb-pie s{color:var(--muted);font-size:.85rem}.cb-pie em{display:block;font-style:normal;font-size:.8rem;font-weight:800;color:#16a34a}
+.rec-card{display:flex;gap:12px;align-items:center;text-align:left;width:100%;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}.rec-card img{width:72px;height:56px;object-fit:cover;border-radius:10px}
+.rec-e{font-size:2rem;width:56px;height:56px;display:grid;place-items:center;background:var(--surface-2);border-radius:14px;flex:none}.rec-card small{display:block;color:var(--muted)}
+.rec-det h2{margin:10px 0 2px}.rec-meta{color:var(--muted);margin:0 0 10px}.rec-emo{font-size:4rem;text-align:center;padding:14px;background:var(--surface-2);border-radius:18px}.rec-foto{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:18px}
+.rec-ing,.rec-pasos{margin:0;padding-left:20px;display:grid;gap:6px}.rec-btn{width:100%;margin-top:10px}
+.trk-txt{margin:4px 0 10px}.trk-mapa{width:100%;height:340px;border:0;border-radius:16px;background:var(--surface-2)}
+.cal-box{margin-top:10px;padding:10px 12px;border:1px dashed var(--line);border-radius:14px;display:grid;gap:8px}.cal-t{margin:0;font-weight:700}
+.cal-est{display:flex;gap:4px}.cal-est button{font-size:1.9rem;line-height:1;background:none;border:0;padding:2px 4px;color:#d1d5db;cursor:pointer}.cal-est button.on{color:#f59e0b}
+.cal-com{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);resize:vertical}
+.cal-ok{margin:0}.cal-ok small{display:block;color:var(--muted)}.cal-st{color:#f59e0b;letter-spacing:1px}.cal-adm{margin:6px 0;color:#f59e0b}.cal-adm small{color:var(--muted)}
+.cal-dist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:4px}.cal-dist li{display:grid;grid-template-columns:34px 1fr 30px;align-items:center;gap:8px}.cal-dist i{display:block;height:10px;border-radius:99px;background:linear-gradient(90deg,#f59e0b var(--w),var(--surface-2) var(--w))}
+.of-vig{padding:8px 12px;border-radius:12px;background:#ecfdf5;color:#065f46}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips .chip[aria-pressed="true"]{background:#0d9488;border-color:#0d9488;color:#fff}
+
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
