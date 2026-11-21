@@ -14153,8 +14153,8 @@ function ultResHTML(vis, full) {
     </article>`;
   return `<div class="ures-grid${full ? " ures-full" : ""}">${vis.map(card).join("")}</div>`;
 }
-/* Administrador › Últimos pedidos: los 30 pedidos más nuevos, agrupados por día (del más nuevo al más antiguo). */
-const ULT_N = 30;
+/* Administrador › Últimos pedidos: los 60 pedidos más nuevos, agrupados por día (del más nuevo al más antiguo). */
+const ULT_N = 60;
 function ultHTML() {
   if (!S.cargado) return vacio("Cargando pedidos…", "Un momento.");
   const tiene = (p, f) => items(p).some(i => famDe(i) === f);
