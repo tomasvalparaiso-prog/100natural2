@@ -6724,6 +6724,8 @@ function usuariosHTML() {
     secciones.push(["pagadores", "Pagos", US.data.pagadores || []]);
   /* Lista usuarios muestra solo usuarios (sin clientes Particular / Local comercial); los clientes van en Lista clientes. */
   if (!(S.portal === "admin" && AD.local === "capt")) for (let i = secciones.length - 1; i >= 0; i--) if (secciones[i][0] === "clientes") secciones.splice(i, 1);
+  /* Lista clientes › Todos: una sola lista (Local comercial y Particular juntos) del más reciente al más antiguo. */
+  if (S.portal === "admin" && AD.local === "capt" && !US.tipo) { const i = secciones.findIndex(x => x[0] === "clientes"); secciones.splice(i, 2, ["clientes", "Todos los clientes · más recientes primero", cli.slice()]); }
   /* Buscador: nombre, usuario, teléfono, email, dirección o comuna (sin importar tildes ni mayúsculas). */
   const nq = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const pals = nq(US.q).split(/\s+/).filter(Boolean);
