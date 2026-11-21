@@ -17336,6 +17336,19 @@ async function guardarSusPct(btn) {
 const REF = { info: null, cargando: false, err: "", usando: false, cod: "" };
 const REF_PTS = 1000;
 function refGuardado() { try { return localStorage.getItem("pya.ref") || ""; } catch (_) { return ""; } }
+/* Al abrir la página desde un aviso push (?promo=, ?cupones=1, ?combos=1, ?comunidad=1): abrir esa sección del cliente. */
+(function () {
+  let q; try { q = new URLSearchParams(location.search); } catch (_) { return; }
+  const act = q.get("promo") ? "cli-promos" : q.get("cupones") ? "cli-cupones" : q.get("combos") ? "cli-combos" : q.get("comunidad") ? "cli-comun" : "";
+  if (!act) return;
+  let n = 0; const t = setInterval(() => {
+    if (++n > 40) return clearInterval(t);
+    if (S.portal !== "cliente" || !S.ses.cliente) return;
+    const b = document.querySelector(`[data-act="${act}"]`); if (!b) return;
+    clearInterval(t); b.click();
+    try { history.replaceState(null, "", location.pathname); } catch (_) {}
+  }, 500);
+})();
 (function () { try { const r = new URLSearchParams(location.search).get("ref"); if (r && /^[A-Za-z0-9]{3,12}$/.test(r)) localStorage.setItem("pya.ref", r.toUpperCase()); } catch (_) {} })();
 async function refCargar() {
   const c = S.ses.cliente; if (!c || REF.cargando) return;
