@@ -134,12 +134,43 @@ async function paraPromo(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], A
   return [dest, { titulo: `🎉 ${titulo}`, cuerpo: corto(d.cuerpo || "Toca para ver la promoción de 100% Natural.", 180), tag: "promo-" + d.promoId, url: "/?promo=" + encodeURIComponent(String(d.promoId)) }];
 }
 
-// Actividad nueva de la Comunidad: aviso a todos los clientes (las sube el administrador; un documento con clienteId se ignora).
-function paraActividad(d: Record<string, any>, subs: Sub[]): [Sub[], Aviso] | null {
+// Teléfonos de clientes Particulares (los Locales comerciales no reciben los avisos de fidelización).
+async function particulares(subs: Sub[]): Promise<Sub[]> {
+  const cli = subs.filter((s) => s.portal === "cliente");
+  const ids = [...new Set(cli.map((s) => s.cuenta))];
+  if (!ids.length) return [];
+  const { data: cs } = await adm.from("documentos").select("id,data").eq("coleccion", "clientes").in("id", ids);
+  const local = new Set((cs ?? []).filter((c: any) => c.data?.tipo === "Local comercial").map((c: any) => c.id));
+  return cli.filter((s) => !local.has(s.cuenta));
+}
+const hoyTxt = () => hoyCL();
+const vigente = (d: Record<string, any>) => !(d.desde && String(d.desde) > hoyTxt()) && !(d.hasta && String(d.hasta) < hoyTxt());
+
+// Promoción nueva publicada: aviso automático a los clientes Particulares (si no es solo para locales y ya está vigente).
+async function paraPromoNueva(id: string, d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
+  if (!d || d.clienteId || d.activa === false || d.aud === "local" || !vigente(d)) return null;
+  return [await particulares(subs), { titulo: `🎉 ${corto(d.titulo || "Nueva promoción", 70)}`, cuerpo: "Toca para ver la nueva promoción de 100% Natural.", tag: "promo-" + id, url: "/?promo=" + encodeURIComponent(id) }];
+}
+// Cupón nuevo: aviso a los clientes Particulares (si está activo, vigente y no es solo para locales).
+async function paraCupon(id: string, d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
+  if (!d || d.clienteId || d.activo === false || d.aud === "local" || !vigente(d)) return null;
+  const v = Number(d.valor) || 0;
+  const desc = (d.tipo || "monto") === "porc" ? `${v}% de descuento` : `${clp(v)} de descuento`;
+  const cond = [Number(d.minimo) ? `compra mínima ${clp(Number(d.minimo))}` : "", d.hasta ? `válido hasta el ${String(d.hasta).split("-").reverse().slice(0, 2).join("/")}` : ""].filter(Boolean).join(" · ");
+  return [await particulares(subs), { titulo: `🎟️ Nuevo cupón: ${corto(id, 30)}`, cuerpo: corto(`Usa el código ${id} y obtén ${desc}${cond ? ` (${cond})` : ""}.`, 180), tag: "cupon-" + id, url: "/?cupones=1" }];
+}
+// Combo o pack nuevo: aviso a los clientes Particulares.
+async function paraCombo(id: string, d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
+  if (!d || d.clienteId || d.activo === false || !d.nombre) return null;
+  return [await particulares(subs), { titulo: `📦 Nuevo pack: ${corto(d.nombre, 60)}`, cuerpo: corto(`${d.desc ? d.desc + " · " : ""}A solo ${clp(Number(d.precio) || 0)}. Toca para verlo.`, 180), tag: "combo-" + id, url: "/?combos=1" }];
+}
+
+// Actividad nueva de la Comunidad: aviso a los clientes Particulares (las sube el administrador; un documento con clienteId se ignora).
+async function paraActividad(d: Record<string, any>, subs: Sub[]): Promise<[Sub[], Aviso] | null> {
   if (!d || d.clienteId || !d.nombre) return null;
   const f = String(d.fecha || "");
   const fecha = f ? f.split("-").reverse().slice(0, 2).join("/") : "";
-  return [subs.filter((s) => s.portal === "cliente"), { titulo: `📅 Trabajos comunitarios · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
+  return [await particulares(subs), { titulo: `📅 Trabajos comunitarios · ${corto(d.nombre, 60)}`, cuerpo: corto([fecha, d.horario].filter(Boolean).join(" · ") + (d.descripcion ? ` — ${d.descripcion}` : ""), 180) || "Nueva actividad. ¡Inscríbete!", tag: "act-" + f + corto(d.nombre, 20), url: "/?comunidad=1" }];
 }
 
 // Recordatorio del día: a las 8:00 (lo pide la base de datos cada hora) avisa a los inscritos en los Trabajos comunitarios de hoy.
@@ -213,12 +244,13 @@ Deno.serve(async (req) => {
       const n = await recordatorios((subsR ?? []) as Sub[]);
       return new Response(JSON.stringify({ enviados: n }), { headers: { "Content-Type": "application/json" } });
     }
-    if (!["mensajes", "pedidos", "avisos_push", "actividades"].includes(coleccion) || !id) return new Response("ok");
+    if (!["mensajes", "pedidos", "avisos_push", "actividades", "promociones", "cupones", "combos"].includes(coleccion) || !id) return new Response("ok");
     const { data: doc } = await adm.from("documentos").select("data").eq("coleccion", coleccion).eq("id", id).maybeSingle();
     if (!doc) return new Response("ok");
     const { data: subs, error } = await adm.from("push_subs").select("endpoint,p256dh,auth,portal,cuenta");
     if (error) throw error;
-    const uno = coleccion === "mensajes" ? await paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? (doc.data?.tipo === "prioridad" ? await paraPrioridad(doc.data, subs as Sub[]) : await paraPromo(doc.data, subs as Sub[])) : coleccion === "actividades" ? paraActividad(doc.data, subs as Sub[]) : null;
+    const uno = coleccion === "mensajes" ? await paraMensaje(doc.data, subs as Sub[]) : coleccion === "avisos_push" ? (doc.data?.tipo === "prioridad" ? await paraPrioridad(doc.data, subs as Sub[]) : await paraPromo(doc.data, subs as Sub[])) : coleccion === "actividades" ? await paraActividad(doc.data, subs as Sub[])
+      : coleccion === "promociones" ? await paraPromoNueva(id, doc.data, subs as Sub[]) : coleccion === "cupones" ? await paraCupon(id, doc.data, subs as Sub[]) : coleccion === "combos" ? await paraCombo(id, doc.data, subs as Sub[]) : null;
     const grupos: [Sub[], Aviso][] | null = coleccion === "pedidos" ? paraPedido(id, doc.data, subs as Sub[]) : uno ? [uno] : null;
     const envios = (grupos ?? []).flatMap(([ds, av]) => ds.map((s) => [s, JSON.stringify(av)] as [Sub, string]));
     if (!envios.length) { if (coleccion === "avisos_push" && doc.data?.tipo !== "prioridad") await anotarPromo(id, doc.data, 0, grupos ? 0 : -1); return new Response("ok"); }
