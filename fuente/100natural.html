@@ -4926,17 +4926,18 @@ function updateCarritoUI() {
   document.querySelectorAll("#catalogo .cat.fam-papa .cat-h").forEach(hd => { let s = hd.querySelector(".kg-cat"); if (!s) { s = document.createElement("span"); s.className = "kg-cat"; hd.appendChild(s); } s.textContent = kgPapas ? `Total papas: ${fmtN(kgPapas)} kg` : ""; });
   const lista = carritoLista();
   pintarVacios();
-  const cargo = cargoCarrito();
+  const cargo = cargoCarrito(), rDist = recargoDist(); distRevisar();
   const netoC = lista.reduce((a, x) => a + precioMio(x.p.id) * x.q, 0), ivaC = carritoConIva() ? ivaIncDe(netoC) : 0;
   const dx = S.editPedido ? { total: 0, lineas: [] } : descExtra();
   const descC = (S.editPedido ? 0 : cuponDescuento(netoC)) + dx.total;
   const descP = verPrecios() ? puntosDescuento(Math.max(0, netoC + cargo - descC)) : 0;
-  const total = Math.max(0, netoC + cargo - descC - descP);
+  const total = Math.max(0, netoC + cargo + rDist - descC - descP);
   const res = $("#resumen");
   if (res) res.innerHTML = lista.length
     ? lista.map(x => `<li><span class="q">${x.q}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}</small></span>${verPrecios() ? `<span class="s">${clp(precioMio(x.p.id) * x.q)}</span>` : ""}</li>`).join("")
     : `<li class="vacio">Aún no agregas productos. Usa el botón + de cada producto.</li>`;
   if (res && cargo && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
+  if (res && rDist && verPrecios() && lista.length) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li"><span class="q"></span><span class="n">🚚 Recargo por distancia<small>${fmtL(DIST.km)} km desde el local (más de ${DIST_MAX} km)</small></span><span class="s">+${clp(rDist)}</span></li>`);
   if (res && ivaC && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="iva-res-li"><span class="q"></span><span class="n">IVA 19% incluido<small>neto ${clp(netoC - ivaC)}</small></span><span class="s">${clp(ivaC)}</span></li>`);
   if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC - dx.total ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC - dx.total)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
   if (res && verPrecios() && lista.length) for (const l of dx.lineas) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">${esc(l.t)}</span><span class="s">−${clp(l.m)}</span></li>`);
@@ -4994,6 +4995,42 @@ document.addEventListener("change", async e => {
   pintarCompNuevo();
 });
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="comp-n-quitar"]'); if (b) { S.compNuevo = null; pintarCompNuevo(); } });
+
+/* Recargo por distancia: si la dirección de entrega está a más de 5 km (en línea recta) de Quillota 407, Viña del Mar, se cobran $1.000.
+   La dirección se ubica con OpenStreetMap (Photon) desde el teléfono del cliente; si no se encuentra, no se cobra recargo. */
+const DIST_ORIGEN = { lat: -33.0232, lng: -71.5482 }, DIST_MAX = 5, DIST_RECARGO = 1000;
+const DIST = { k: "", km: null, buscando: "", t: null };
+const distClave = (dir, comuna) => String(`${dir || ""}|${comuna || ""}`).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9|]+/g, " ").trim();
+function distDatos() {
+  const c = S.ses.cliente || {}, d = $("#e-dir"), co = $("#e-comuna");
+  return { dir: (d ? d.value : c.direccion || "").trim(), comuna: (co ? co.value : c.comuna || "").trim() };
+}
+function recargoDist() {
+  if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return 0;
+  const { dir, comuna } = distDatos();
+  return DIST.k && DIST.k === distClave(dir, comuna) && DIST.km != null && DIST.km > DIST_MAX ? DIST_RECARGO : 0;
+}
+const kmEntre = (a, b) => { const R = 6371, r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lng - a.lng) * r, h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+async function distBuscar(dir, comuna) {
+  const k = distClave(dir, comuna); if (!dir || !k || DIST.buscando === k) return;
+  try { const c = JSON.parse(localStorage.getItem("pya.dist") || "{}"); if (c[k] && Date.now() - c[k].en < 30 * 864e5) { DIST.k = k; DIST.km = c[k].km; updateCarritoUI(); return; } } catch (_) {}
+  DIST.buscando = k;
+  try {
+    const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(`${dir}, ${comuna}, Chile`)}&limit=3&lat=${DIST_ORIGEN.lat}&lon=${DIST_ORIGEN.lng}`);
+    const j = await r.json(), f = (j.features || []).find(x => x && x.properties && x.properties.countrycode === "CL");
+    const km = f ? Math.round(kmEntre(DIST_ORIGEN, { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] }) * 10) / 10 : null;
+    if (distClave(distDatos().dir, distDatos().comuna) === k) { DIST.k = k; DIST.km = km; }
+    try { const c = JSON.parse(localStorage.getItem("pya.dist") || "{}"); c[k] = { km, en: Date.now() }; localStorage.setItem("pya.dist", JSON.stringify(c)); } catch (_) {}
+  } catch (e) { /* sin conexión al buscador: no se cobra recargo */ }
+  finally { if (DIST.buscando === k) DIST.buscando = ""; updateCarritoUI(); }
+}
+function distRevisar() {
+  if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return;
+  const { dir, comuna } = distDatos(), k = distClave(dir, comuna);
+  if (!dir || k === DIST.k || k === DIST.buscando) return;
+  clearTimeout(DIST.t); DIST.t = setTimeout(() => distBuscar(dir, comuna), 700);
+}
+document.addEventListener("input", e => { if (e.target && (e.target.id === "e-dir" || e.target.id === "e-comuna")) { DIST.k = ""; distRevisar(); updateCarritoUI(); } });
 async function enviarPedido(btn) {
   const cli = S.ses.cliente, err = $("#err-pedido");
   err.textContent = "";
@@ -5015,6 +5052,7 @@ async function enviarPedido(btn) {
   if (desde < "10:00" || hasta > "18:00") { err.textContent = "El horario de entrega es de 10:00 a 18:00 hrs. Elige un rango dentro de ese horario."; return; }
   if (hasta <= desde) { err.textContent = "La hora final del rango debe ser posterior a la hora de inicio."; return; }
   if (fecha === hoy() && hasta <= ahoraHM()) { err.textContent = "Ese rango horario ya pasó. Elige uno más tarde."; return; }
+  if (!S.editPedido && S.portal === "cliente" && distClave(dir, comuna) !== DIST.k) { clearTimeout(DIST.t); await Promise.race([distBuscar(dir, comuna), new Promise(r => setTimeout(r, 4000))]); }
   /* Clientes particulares que pagan por transferencia: el comprobante es obligatorio para enviar el pedido. */
   const compN = !esLocal() && !S.editPedido && pago === "Transferencia" ? (S.compNuevo && S.compNuevo.data ? S.compNuevo : null) : null;
   if (!esLocal() && !S.editPedido && pago === "Transferencia" && !compN) { err.textContent = S.compNuevo && S.compNuevo.procesando ? "Espera a que se cargue el comprobante." : "Adjunta el comprobante de la transferencia para enviar tu pedido."; const ec = $("#e-comp"); if (ec) ec.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
@@ -5048,10 +5086,11 @@ async function enviarPedido(btn) {
     const doc = {
       clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
-      total: Math.max(0, itSub(its) + 0 + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total))),
+      total: Math.max(0, itSub(its) + 0 + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total))),
+      ...(recargoDist() ? { recargoDist: recargoDist(), distanciaKm: DIST.km } : DIST.km != null && DIST.k === distClave(dir, comuna) ? { distanciaKm: DIST.km } : {}),
       ...descExtraDoc(), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
-      ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total)); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
+      ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total)); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
       estado: "pendiente", repartidorId: "", repartidorNombre: "",
       creado: Date.now(), tomado: 0, entregado: 0, origen: "cliente",
       ...(compN ? { comprobante: true, pagoCliente: true, pagoClienteEn: Date.now(), pagoClientePor: cli.nombre } : {})
@@ -6179,7 +6218,8 @@ function ivaLineHTML(p, neto) {
   const cup = (p && p.cupon && Number(p.descuento) ? `<p class="cup-ped">🎟️ Cupón <b>${esc(p.cupon)}</b> · descuento −${clp(p.descuento)}</p>` : "")
     + (p && Number(p.descuentoSus) ? `<p class="cup-ped">🔁 Suscripción · descuento ${fmtN(p.suscripcionPct)}% −${clp(p.descuentoSus)}</p>` : "")
     + (p && Number(p.descuentoCombo) ? `<p class="cup-ped">📦 ${esc(p.combosTxt || "Combos")} · −${clp(p.descuentoCombo)}</p>` : "")
-    + (p && Number(p.descuentoOferta) ? `<p class="cup-ped">⏰ Oferta del día · −${clp(p.descuentoOferta)}</p>` : "");
+    + (p && Number(p.descuentoOferta) ? `<p class="cup-ped">⏰ Oferta del día · −${clp(p.descuentoOferta)}</p>` : "")
+    + (p && Number(p.recargoDist) ? `<p class="cup-ped dist-ped">🚚 Recargo por distancia${p.distanciaKm ? ` (${fmtL(p.distanciaKm)} km)` : ""} · +${clp(p.recargoDist)}</p>` : "");
   if (!p || !p.conIva) return cup;
   const n = Math.round(Number(neto) || 0); if (!n) return cup;
   return cup + `<p class="iva-des"><span>Neto <b>${clp(n - ivaIncDe(n))}</b></span><span>IVA 19% incluido <b>${clp(ivaIncDe(n))}</b></span><span class="iva-t">Productos con IVA <b>${clp(n)}</b></span></p>`;
@@ -18539,6 +18579,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .comp-nuevo{display:grid;gap:8px;padding:12px;border:2px dashed #fb923c;border-radius:16px;background:#fff7ed}.comp-nuevo[hidden],.comp-nuevo:empty{display:none}
 .comp-n-t{margin:0;font-weight:800}.comp-req{font-style:normal;font-size:.72rem;font-weight:800;color:#fff;background:#ea580c;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}.comp-ok{font-size:.8rem;color:#16a34a;margin-left:6px}
 .comp-n-btn{width:100%;justify-content:center;cursor:pointer}.comp-n-ok{display:flex;gap:12px;align-items:center}.comp-n-ok img{width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}.comp-n-ok>div{display:grid;gap:6px}.comp-n-ok label{cursor:pointer}
+.dist-res-li .s{color:#b45309}.dist-ped{color:#b45309}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
