@@ -6233,6 +6233,8 @@ const ivaAplicaCli = c => !!(c && c.tipo === "Local comercial" && !c.sinIva);
 const ivaDe = n => Math.round((Number(n) || 0) * IVA);
 const ivaIncDe = t => { const v = Math.round(Number(t) || 0); return v - Math.round(v / (1 + IVA)); };
 const ivaPed = (p, neto) => 0; /* El IVA va incluido en el precio: nunca se suma aparte. */
+/* Total del pedido: el guardado (con cupón, puntos, combos, oferta, suscripción y recargo por distancia); si no tiene, el de los productos. */
+function totalPed(p, sub) { const t = Number(p && p.total); return p && p.total !== undefined && p.total !== null && p.total !== "" && Number.isFinite(t) ? t : sub; }
 function ivaLineHTML(p, neto) {
   const cup = (p && p.cupon && Number(p.descuento) ? `<p class="cup-ped">🎟️ Cupón <b>${esc(p.cupon)}</b> · descuento −${clp(p.descuento)}</p>` : "")
     + (p && Number(p.descuentoSus) ? `<p class="cup-ped">🔁 Suscripción · descuento ${fmtN(p.suscripcionPct)}% −${clp(p.descuentoSus)}</p>` : "")
@@ -13343,7 +13345,7 @@ function redTarjeta(p, iguales) {
     ${itemsHTML(its)}
     ${pedKgHTML(p)}
     ${p.nota ? `<p class="nota"><b>Nota</b>${esc(p.nota)}</p>` : ""}
-    <div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}
+    <div class="ped-f"><span class="tot">Total <b>${clp(totalPed(p, sub))}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}
     ${delPedHTML(p)}
   </article>`;
 }
@@ -14024,7 +14026,7 @@ function pedAdmCardHTML(p, o) {
       ${bidonesPedidoHTML(p, false)}
       ${p.nota ? `<p class="nota"><b>Nota</b>${esc(p.nota)}</p>` : ""}
       ${pagoEstadoHTML(p)}
-      ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(sub)}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}${pedPuntosAdHTML(p)}`}
+      ${enRep ? (p.pago ? `<p class="meta"><b>Pago:</b> ${esc(p.pago)}</p>` : "") : `<div class="ped-f"><span class="tot">Total <b>${clp(totalPed(p, sub))}</b>${p.pago ? ` <small>· ${esc(p.pago)}</small>` : ""}</span></div>${ivaLineHTML(p, itSub(its))}${pedPuntosAdHTML(p)}`}
       ${p.comprobante ? `<div class="comp-adm">${compLinkHTML(p)}</div>` : ""}
       ${p.calificacion && p.calificacion.e ? `<p class="cal-adm">${"★".repeat(p.calificacion.e)}${"☆".repeat(5 - p.calificacion.e)} <small>Calificación del cliente${p.calificacion.c ? `: «${esc(p.calificacion.c)}»` : ""}</small></p>` : ""}
       ${o.rep && esPrio(p) ? `<span class="prio-tag">⚡ Entrega prioritaria</span>` : ""}
