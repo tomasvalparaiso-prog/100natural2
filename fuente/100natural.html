@@ -4813,6 +4813,7 @@ function entregaHTML(c) {
             </div>
           </fieldset>`}
           ${esLocal() ? "" : `<div class="campo full" id="e-datos-tr"><details class="tr-det"><summary>🏦 Mostrar datos de transferencia</summary>${datosTrHTML()}</details></div>`}
+          ${esLocal() || S.editPedido ? "" : `<div class="campo full comp-nuevo" id="e-comp">${compNuevoHTML()}</div>`}
           <fieldset class="campo full bid-box" id="e-vacios" hidden></fieldset>
           <label class="campo full"><span>Nota para el repartidor <em>opcional</em></span><textarea id="e-nota" rows="2" placeholder="Ej.: llamar al llegar, el timbre no funciona"></textarea></label>
         </div>
@@ -4968,6 +4969,31 @@ function observarEntrega() {
   io = new IntersectionObserver(es => { S.entregaVisible = es[0].isIntersecting; updateBarra(); }, { threshold: 0.12 });
   io.observe(el);
 }
+
+/* Comprobante de transferencia adjuntado al hacer el pedido (clientes particulares). */
+S.compNuevo = null;
+function compNuevoHTML() {
+  const c = S.compNuevo, pago = (document.querySelector('input[name="pago"]:checked') || {}).value || "Transferencia";
+  if (pago !== "Transferencia") return "";
+  if (c && c.procesando) return `<p class="comp-n-t">📎 Comprobante de transferencia</p><p class="muted-s">Cargando la imagen…</p>`;
+  if (c && c.data) return `<p class="comp-n-t">📎 Comprobante de transferencia <span class="comp-ok">✓ Adjuntado</span></p><div class="comp-n-ok"><img src="${c.data}" alt="Comprobante adjuntado"><div><small>${esc(c.nombre)}</small><label class="btn chico suave">Cambiar<input type="file" id="e-comp-file" accept="image/*" hidden></label><button type="button" class="btn chico suave" data-act="comp-n-quitar">Quitar</button></div></div>`;
+  return `<p class="comp-n-t">📎 Comprobante de transferencia <em class="comp-req">obligatorio</em></p><p class="muted-s">Transfiere el total y adjunta una foto o captura del comprobante para enviar tu pedido al repartidor.</p><label class="btn suave comp-n-btn">📷 Adjuntar comprobante<input type="file" id="e-comp-file" accept="image/*" hidden></label>`;
+}
+function pintarCompNuevo() { const el = $("#e-comp"); if (el) { el.innerHTML = compNuevoHTML(); el.hidden = !el.innerHTML; } }
+document.addEventListener("change", async e => {
+  const t = e.target; if (!t) return;
+  if (t.name === "pago") { pintarCompNuevo(); return; }
+  if (t.id !== "e-comp-file") return;
+  const file = t.files && t.files[0]; if (!file) return;
+  S.compNuevo = { nombre: file.name || "comprobante", procesando: true, data: "" }; pintarCompNuevo();
+  try {
+    if (!/^image\//.test(file.type || "image/")) throw new Error("pdf");
+    S.compNuevo = { nombre: file.name || "comprobante.jpg", data: await comprimirFoto(file), procesando: false };
+    const err = $("#err-pedido"); if (err && /comprobante/.test(err.textContent)) err.textContent = "";
+  } catch (er) { S.compNuevo = null; toast(er && er.message === "pdf" ? "Sube el comprobante como foto o captura de pantalla (imagen)." : "No se pudo leer el archivo. Prueba con una foto o captura del comprobante."); }
+  pintarCompNuevo();
+});
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="comp-n-quitar"]'); if (b) { S.compNuevo = null; pintarCompNuevo(); } });
 async function enviarPedido(btn) {
   const cli = S.ses.cliente, err = $("#err-pedido");
   err.textContent = "";
@@ -4989,6 +5015,9 @@ async function enviarPedido(btn) {
   if (desde < "10:00" || hasta > "18:00") { err.textContent = "El horario de entrega es de 10:00 a 18:00 hrs. Elige un rango dentro de ese horario."; return; }
   if (hasta <= desde) { err.textContent = "La hora final del rango debe ser posterior a la hora de inicio."; return; }
   if (fecha === hoy() && hasta <= ahoraHM()) { err.textContent = "Ese rango horario ya pasó. Elige uno más tarde."; return; }
+  /* Clientes particulares que pagan por transferencia: el comprobante es obligatorio para enviar el pedido. */
+  const compN = !esLocal() && !S.editPedido && pago === "Transferencia" ? (S.compNuevo && S.compNuevo.data ? S.compNuevo : null) : null;
+  if (!esLocal() && !S.editPedido && pago === "Transferencia" && !compN) { err.textContent = S.compNuevo && S.compNuevo.procesando ? "Espera a que se cargue el comprobante." : "Adjunta el comprobante de la transferencia para enviar tu pedido."; const ec = $("#e-comp"); if (ec) ec.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
   ocupar(btn, true, S.editPedido ? "Guardando…" : "Enviando…");
   try {
     let prCli = {}, sinIvaCli = false;
@@ -5024,10 +5053,16 @@ async function enviarPedido(btn) {
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
       ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() - cuponDescuento(itSub(its)) - descExtra().total)); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
       estado: "pendiente", repartidorId: "", repartidorNombre: "",
-      creado: Date.now(), tomado: 0, entregado: 0, origen: "cliente"
+      creado: Date.now(), tomado: 0, entregado: 0, origen: "cliente",
+      ...(compN ? { comprobante: true, pagoCliente: true, pagoClienteEn: Date.now(), pagoClientePor: cli.nombre } : {})
     };
     const promoPid = promoDelPedido(lista); if (promoPid) doc.promoId = promoPid;
     await conReintento(() => S.db.collection("pedidos").doc(id).set(doc));
+    if (compN) {
+      try { await conReintento(() => S.db.doc("comprobantes/" + id).set({ pedido: id, clienteId: cli.id, nombre: compN.nombre, data: compN.data, creado: Date.now() })); S.compCache = S.compCache || {}; S.compCache[id] = { data: compN.data, nombre: compN.nombre }; }
+      catch (e) { toast("Tu pedido se envió, pero el comprobante no se pudo subir. Adjúntalo de nuevo en Mis pedidos."); try { await S.db.doc("pedidos/" + id).update({ comprobante: false, pagoCliente: false }); } catch (_) {} }
+      S.compNuevo = null; const ec = $("#e-comp"); if (ec) ec.innerHTML = compNuevoHTML();
+    }
     if (promoPid) { try { sessionStorage.removeItem(PROMO_PED_LS); } catch (_) {} promoEvento(promoPid, prev => { const ps = [...(prev.pedidos || []).filter(x => x.id !== id), { id, total: doc.total, en: Date.now() }].slice(-50); return { pedidos: ps, monto: ps.reduce((a2, x) => a2 + (Number(x.total) || 0), 0) }; }); }
     if (dir !== cli.direccion || depto !== (cli.depto || "") || comuna !== cli.comuna || tel !== cli.telefono) {
       try { await S.db.doc("clientes/" + cli.id).update({ direccion: dir, depto, comuna, telefono: tel }); Object.assign(cli, { direccion: dir, depto, comuna, telefono: tel }); guardarSesion(); } catch (_) {}
@@ -5500,7 +5535,8 @@ function creadoHTML(p) {
   const te = p && p.estado === "entregado" && !sinHoraEntrega() ? Number(p.entregado) || 0 : 0, quien = p && (p.entregadoPor || p.repartidorNombre);
   /* En Repartidores no se muestra cuándo se creó el pedido. */
   /* Excepción: Últimos pedidos (en Repartidores y en Administrador › Repartidores) sí muestra la hora en que se creó. */
-  const soloFecha = S.repTab !== "ultimos" && (S.portal === "repartidor" || (S.portal === "admin" && AD.local === "rep"));
+  /* Ahora también en Repartidores › Pedidos se muestra la hora en que se hizo el pedido. */
+  const soloFecha = false;
   const cre = t ? (soloFecha ? (k => { const r = relativo(k); return r ? r.toLowerCase() : "el " + fmtFecha(k); })(ymd(new Date(t))) : cuandoMs(t)) : "";
   return fechaEntregaHTML(p) + (t && !soloFecha ? `<p class="creado-en">🕒 Creado ${esc(cre)}</p>` : "") + (te ? `<p class="creado-en entregado-en">✅ Entregado ${esc(cuandoMs(te))}${quien ? ` · por ${esc(quien)}` : ""}</p>` : "") + edicionesHTML(p);
 }
@@ -18498,6 +18534,9 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 
 .pl-fotos{display:grid;gap:12px}.pl-foto{display:block;width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;background:var(--surface-2);cursor:pointer;box-shadow:0 10px 24px -18px var(--shadow)}.pl-foto img{display:block;width:100%;height:auto}
 .merma-form{display:grid;gap:12px;padding:14px}.merma-seg{grid-template-columns:1fr 1fr!important}
+.comp-nuevo{display:grid;gap:8px;padding:12px;border:2px dashed #fb923c;border-radius:16px;background:#fff7ed}.comp-nuevo[hidden],.comp-nuevo:empty{display:none}
+.comp-n-t{margin:0;font-weight:800}.comp-req{font-style:normal;font-size:.72rem;font-weight:800;color:#fff;background:#ea580c;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}.comp-ok{font-size:.8rem;color:#16a34a;margin-left:6px}
+.comp-n-btn{width:100%;justify-content:center;cursor:pointer}.comp-n-ok{display:flex;gap:12px;align-items:center}.comp-n-ok img{width:76px;height:76px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}.comp-n-ok>div{display:grid;gap:6px}.comp-n-ok label{cursor:pointer}
 .msj-ped-btn{justify-self:start;width:auto;margin:6px 0 0;font:inherit;font-size:.85rem;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
 </style>
 <script>
