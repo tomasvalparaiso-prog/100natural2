@@ -5005,7 +5005,10 @@ function distDatos() {
   const c = S.ses.cliente || {}, d = $("#e-dir"), co = $("#e-comuna");
   return { dir: (d ? d.value : c.direccion || "").trim(), comuna: (co ? co.value : c.comuna || "").trim() };
 }
+/* Cobro por distancia desactivado (21-11-2026): no se cobra recargo ni se busca la dirección. */
+const DIST_ACTIVO = false;
 function recargoDist() {
+  if (!DIST_ACTIVO) return 0;
   if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return 0;
   const { dir, comuna } = distDatos();
   return DIST.k && DIST.k === distClave(dir, comuna) && DIST.km != null && DIST.km > DIST_MAX ? DIST_RECARGO : 0;
@@ -5044,6 +5047,7 @@ async function distBuscar(dir, comuna) {
   } finally { if (DIST.buscando === k) DIST.buscando = ""; updateCarritoUI(); }
 }
 function distRevisar() {
+  if (!DIST_ACTIVO) return;
   if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return;
   const { dir, comuna } = distDatos(), k = distClave(dir, comuna);
   if (!dir || k === DIST.k || k === DIST.buscando) return;
@@ -5071,7 +5075,7 @@ async function enviarPedido(btn) {
   if (desde < "10:00" || hasta > "18:00") { err.textContent = "El horario de entrega es de 10:00 a 18:00 hrs. Elige un rango dentro de ese horario."; return; }
   if (hasta <= desde) { err.textContent = "La hora final del rango debe ser posterior a la hora de inicio."; return; }
   if (fecha === hoy() && hasta <= ahoraHM()) { err.textContent = "Ese rango horario ya pasó. Elige uno más tarde."; return; }
-  if (!S.editPedido && S.portal === "cliente" && distClave(dir, comuna) !== DIST.k) { clearTimeout(DIST.t); await Promise.race([distBuscar(dir, comuna), new Promise(r => setTimeout(r, 4000))]); }
+  if (DIST_ACTIVO && !S.editPedido && S.portal === "cliente" && distClave(dir, comuna) !== DIST.k) { clearTimeout(DIST.t); await Promise.race([distBuscar(dir, comuna), new Promise(r => setTimeout(r, 4000))]); }
   /* Clientes particulares que pagan por transferencia: el comprobante es obligatorio para enviar el pedido. */
   const compN = !esLocal() && !S.editPedido && pago === "Transferencia" ? (S.compNuevo && S.compNuevo.data ? S.compNuevo : null) : null;
   if (!esLocal() && !S.editPedido && pago === "Transferencia" && !compN) { err.textContent = S.compNuevo && S.compNuevo.procesando ? "Espera a que se cargue el comprobante." : "Adjunta el comprobante de la transferencia para enviar tu pedido."; const ec = $("#e-comp"); if (ec) ec.scrollIntoView({ block: "center", behavior: "smooth" }); return; }
@@ -5106,7 +5110,7 @@ async function enviarPedido(btn) {
       clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
       total: Math.max(0, itSub(its) + 0 + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total))),
-      ...(recargoDist() ? { recargoDist: recargoDist(), distanciaKm: DIST.km } : DIST.km != null && DIST.k === distClave(dir, comuna) ? { distanciaKm: DIST.km } : {}),
+      ...(recargoDist() ? { recargoDist: recargoDist(), distanciaKm: DIST.km } : {}),
       ...descExtraDoc(), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
       ...(() => { const p = puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total)); return p ? { puntosUsados: p, descuentoPuntos: p } : {}; })(),
