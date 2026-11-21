@@ -14466,7 +14466,7 @@ function edFormNuevo(p) {
   const its = {}; for (const i of items(p)) if (PROD[i.id]) its[i.id] = (its[i.id] || 0) + (Number(i.cant) || 0);
   const [hd, hh] = String(p.horario || "10:00–18:00").split(/[–-]/);
   const dev = {}; for (const t of TAM_BIDON) { const b = (p.bidones || {})[t]; if (b) dev[t] = Number(b.devueltos) || 0; }
-  return { dev, items: its, fecha: p.fechaEntrega || hoy(), hDesde: (hd || "10:00").trim().slice(0, 5), hHasta: (hh || "18:00").trim().slice(0, 5), direccion: p.direccion || "", depto: p.depto || "", comuna: p.comuna || "", telefono: p.telefono || "", nota: p.nota || "", pago: p.pago || "Transferencia", rep: p.repartidorId || "", repNom0: p.repartidorNombre || "" };
+  return { dev, items: its, fecha: p.fechaEntrega || hoy(), hDesde: (hd || "10:00").trim().slice(0, 5), hHasta: (hh || "18:00").trim().slice(0, 5), direccion: p.direccion || "", depto: p.depto || "", comuna: p.comuna || "", telefono: p.telefono || "", nota: p.nota || "", cupon: p.cupon || "", pago: p.pago || "Transferencia", rep: p.repartidorId || "", repNom0: p.repartidorNombre || "" };
 }
 function edRepOpts(f) {
   subUsuarios();
@@ -14501,6 +14501,7 @@ function edPedHTML(p) {
     <div class="pg-2"><label class="campo"><span>Depto / oficina</span><input name="depto" value="${esc(f.depto)}" maxlength="40"></label><label class="campo"><span>Comuna</span><input name="comuna" value="${esc(f.comuna)}" maxlength="60"></label></div>
     <label class="campo"><span>Teléfono</span><input name="telefono" value="${esc(f.telefono)}" maxlength="20" inputmode="tel"></label>
     <label class="campo"><span>Nota</span><input name="nota" value="${esc(f.nota)}" maxlength="200"></label>
+    <label class="campo ed-cup"><span>🎟️ Cupón de descuento <em>opcional</em></span><input name="cupon" value="${esc(f.cupon || "")}" maxlength="30" placeholder="Código del cupón" autocapitalize="characters" autocomplete="off" spellcheck="false"><small class="muted-s">El descuento se calcula sobre los productos al guardar. Déjalo vacío para quitar el cupón.</small></label>
     <label class="campo"><span>Repartidor</span><select name="rep"><option value="">Sin repartidor (queda Por tomar)</option>${edRepOpts(f).map(([rid, n]) => `<option value="${esc(rid)}" ${f.rep === rid ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>${p.estado === "entregado" ? `<small class="muted-s">El pedido ya está entregado: solo se corrige quién lo entregó.</small>` : `<small class="muted-s">Si eliges un repartidor, el pedido pasa a sus Pendientes.</small>`}</label>
     <p class="err" id="ed-err-${id}" role="alert"></p>
     <div class="acciones"><button type="button" class="btn suave" data-act="ed-no">Cancelar</button><button type="button" class="btn primario" data-act="ed-si" data-id="${id}">Guardar cambios</button></div>
@@ -14508,7 +14509,7 @@ function edPedHTML(p) {
 }
 function edLeer(id) {
   const fm = document.getElementById("ed-ped-" + id), f = S.edF; if (!fm || !f) return;
-  for (const n of ["fecha", "pago", "hDesde", "hHasta", "direccion", "depto", "comuna", "telefono", "nota", "rep"]) { const i = fm.elements[n]; if (i) f[n] = i.value; }
+  for (const n of ["fecha", "pago", "hDesde", "hHasta", "direccion", "depto", "comuna", "telefono", "nota", "rep", "cupon"]) { const i = fm.elements[n]; if (i) f[n] = i.value; }
 }
 function refrescarEd() { if (AD.local === "rep") renderListas(); else refrescarDelPed(); }
 async function edGuardar(id, btn) {
@@ -14538,7 +14539,24 @@ async function edGuardar(id, btn) {
       bid[t] = { pedidos: nb[t] || 0, devueltos: dev, pendientes: (nb[t] || 0) - dev }; cargo += bid[t].pendientes * VALOR_BIDON; hay = true;
     }
     if (hay) bid.cargo = cargo; else bid = {};
-    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0));
+    /* Cupón de descuento (lo puede agregar, cambiar o quitar el administrador al editar). */
+    const cupCod = String(f.cupon || "").trim().toUpperCase().replace(/\s+/g, ""), cupUpd = {};
+    let cupDesc = 0;
+    if (cupCod) {
+      const cs = await conReintento(() => S.db.doc("cupones/" + cupCod).get());
+      if (!cs.exists) { msg(`No existe el cupón «${cupCod}». Revisa el código.`); return; }
+      const c = cs.data() || {}, neto = itSub(its), hoyS = hoy();
+      if (cupCod !== d.cupon) {
+        if (c.activo === false) { msg(`El cupón «${cupCod}» está desactivado.`); return; }
+        if ((c.desde && c.desde > hoyS) || (c.hasta && c.hasta < hoyS)) { msg(`El cupón «${cupCod}» no está vigente hoy.`); return; }
+      }
+      if (Number(c.minimo) && neto < Number(c.minimo)) { msg(`El cupón «${cupCod}» pide una compra mínima de ${clp(c.minimo)} (los productos suman ${clp(neto)}).`); return; }
+      cupDesc = (c.tipo || "monto") === "porc" ? Math.round(neto * (Number(c.valor) || 0) / 100) : Number(c.valor) || 0;
+      if (c.tipo === "porc" && Number(c.tope)) cupDesc = Math.min(cupDesc, Number(c.tope));
+      cupDesc = Math.max(0, Math.min(cupDesc, neto));
+      Object.assign(cupUpd, { cupon: cupCod, descuento: cupDesc });
+    } else if (d.cupon) Object.assign(cupUpd, { cupon: "", descuento: 0 });
+    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0) - cupDesc - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0));
     const repUpd = {};
     if ((f.rep || "") !== (d.repartidorId || "")) {
       if (!f.rep) { Object.assign(repUpd, { repartidorId: "", repartidorNombre: "" }); if (d.estado === "en_camino") Object.assign(repUpd, { estado: "pendiente", tomado: 0 }); }
@@ -14546,8 +14564,8 @@ async function edGuardar(id, btn) {
     }
     const nuevoEd = { ...repUpd, items: its, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() };
     const historial = histCon(d, nuevoEd, ((S.ses.admin || {}).nombre || "Administrador") + " (administrador)");
-    await conReintento(() => ref.update({ ...repUpd, historial, items: its, bidones: bid, total, ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim(), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "Administrador" }));
-    const p = S.pedidos.find(x => x.id === id); if (p) Object.assign(p, repUpd, { historial, editado: Date.now(), items: its, bidones: bid, total, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() });
+    await conReintento(() => ref.update({ ...repUpd, ...cupUpd, historial, items: its, bidones: bid, total, ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim(), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "Administrador" }));
+    const p = S.pedidos.find(x => x.id === id); if (p) Object.assign(p, repUpd, cupUpd, { historial, editado: Date.now(), items: its, bidones: bid, total, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() });
     S.edPed = ""; S.edF = null; refrescarEd();
     toast(`Pedido #${codigo(id)} actualizado.`);
   } catch (e) { msg(msgError(e)); }
