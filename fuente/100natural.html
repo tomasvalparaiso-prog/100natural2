@@ -5011,18 +5011,37 @@ function recargoDist() {
   return DIST.k && DIST.k === distClave(dir, comuna) && DIST.km != null && DIST.km > DIST_MAX ? DIST_RECARGO : 0;
 }
 const kmEntre = (a, b) => { const R = 6371, r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lng - a.lng) * r, h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
+/* Normaliza abreviaturas comunes de la dirección (AVDA → Avenida, PSJE → Pasaje…). */
+const distDir = d => String(d || "").replace(/\b(avda|avd|av)\.?\s+/gi, "Avenida ").replace(/\b(psje|pje)\.?\s+/gi, "Pasaje ").replace(/\b(depto|dpto|dto|casa|block|of)\.?\s*[\w-]+$/i, "").replace(/\s+/g, " ").trim();
+async function distGeo(dir, comuna) {
+  const d = distDir(dir), cerca = `&lat=${DIST_ORIGEN.lat}&lon=${DIST_ORIGEN.lng}`;
+  const pruebas = [
+    () => `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=cl&q=${encodeURIComponent(`${d}, ${comuna}, Chile`)}`,
+    () => `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=cl&viewbox=-71.75,-32.80,-71.30,-33.20&bounded=1&q=${encodeURIComponent(d)}`,
+    () => `https://photon.komoot.io/api/?limit=3${cerca}&q=${encodeURIComponent(`${d}, ${comuna}, Chile`)}`,
+    () => `https://photon.komoot.io/api/?limit=3${cerca}&q=${encodeURIComponent(d)}`,
+  ];
+  for (const p of pruebas) {
+    try {
+      const r = await fetch(p(), { headers: { "Accept-Language": "es" } }); if (!r.ok) continue;
+      const j = await r.json();
+      if (Array.isArray(j)) { if (j[0]) return { lat: Number(j[0].lat), lng: Number(j[0].lon) }; continue; }
+      const fs = (j.features || []).filter(x => x && x.properties && x.properties.countrycode === "CL");
+      const num = (d.match(/\d+/) || [""])[0], f = fs.find(x => num && x.properties.housenumber === num) || fs[0];
+      if (f) return { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] };
+    } catch (_) { /* siguiente intento */ }
+  }
+  return null;
+}
 async function distBuscar(dir, comuna) {
   const k = distClave(dir, comuna); if (!dir || !k || DIST.buscando === k) return;
-  try { const c = JSON.parse(localStorage.getItem("pya.dist") || "{}"); if (c[k] && Date.now() - c[k].en < 30 * 864e5) { DIST.k = k; DIST.km = c[k].km; updateCarritoUI(); return; } } catch (_) {}
+  try { const c = JSON.parse(localStorage.getItem("pya.dist2") || "{}"); if (c[k] && Date.now() - c[k].en < 30 * 864e5) { DIST.k = k; DIST.km = c[k].km; updateCarritoUI(); return; } } catch (_) {}
   DIST.buscando = k;
   try {
-    const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(`${dir}, ${comuna}, Chile`)}&limit=3&lat=${DIST_ORIGEN.lat}&lon=${DIST_ORIGEN.lng}`);
-    const j = await r.json(), f = (j.features || []).find(x => x && x.properties && x.properties.countrycode === "CL");
-    const km = f ? Math.round(kmEntre(DIST_ORIGEN, { lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] }) * 10) / 10 : null;
+    const g = await distGeo(dir, comuna), km = g ? Math.round(kmEntre(DIST_ORIGEN, g) * 10) / 10 : null;
     if (distClave(distDatos().dir, distDatos().comuna) === k) { DIST.k = k; DIST.km = km; }
-    try { const c = JSON.parse(localStorage.getItem("pya.dist") || "{}"); c[k] = { km, en: Date.now() }; localStorage.setItem("pya.dist", JSON.stringify(c)); } catch (_) {}
-  } catch (e) { /* sin conexión al buscador: no se cobra recargo */ }
-  finally { if (DIST.buscando === k) DIST.buscando = ""; updateCarritoUI(); }
+    if (km != null) try { const c = JSON.parse(localStorage.getItem("pya.dist2") || "{}"); c[k] = { km, en: Date.now() }; localStorage.setItem("pya.dist2", JSON.stringify(c)); } catch (_) {}
+  } finally { if (DIST.buscando === k) DIST.buscando = ""; updateCarritoUI(); }
 }
 function distRevisar() {
   if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return;
