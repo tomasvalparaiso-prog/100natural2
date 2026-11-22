@@ -4282,10 +4282,11 @@ function cpwIr(p, quieto) {
 }
 /* Clientes › al entrar en un producto (paso 2): deja su fotografía centrada en la pantalla del celular. */
 function cpwCentrarFoto() {
-  const cat = $("#catalogo"); if (!cat) return false;
-  const foto = [...cat.querySelectorAll(".afiche, .prox-vol, .afp-img, .afi-car, img, [style*='background-image']")].find(x => x.offsetHeight > 120);
-  if (!foto) return false;
+  if (!$("#catalogo")) return false;
+  /* La foto se busca al momento de mover la pantalla: el catálogo se vuelve a dibujar justo después de entrar. */
+  const buscar = () => { const cat = $("#catalogo"); return cat && [...cat.querySelectorAll(".afiche, .prox-vol, .afp-img, .afi-car, img, [style*='background-image']")].find(x => x.offsetHeight > 120); };
   const ir = () => {
+    const foto = buscar(); if (!foto) return window.scrollTo({ top: 0, behavior: "smooth" });
     const r = foto.getBoundingClientRect(); if (!r.height) return;
     /* Barra inferior fija (si la hay): cualquier franja fija y ancha pegada abajo. */
     const abajo = [...document.querySelectorAll("body *")].filter(x => { if (getComputedStyle(x).position !== "fixed" || getComputedStyle(x).display === "none") return false; const b = x.getBoundingClientRect(); return b.width > innerWidth * 0.6 && b.height > 30 && b.top > innerHeight * 0.6 && b.bottom >= innerHeight - 4; }).reduce((m, x) => Math.max(m, innerHeight - x.getBoundingClientRect().top), 0);
@@ -4297,7 +4298,7 @@ function cpwCentrarFoto() {
     const y = window.scrollY + r.top + r.height / 2 - medio;
     window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
   };
-  requestAnimationFrame(() => setTimeout(ir, 60));
+  requestAnimationFrame(() => setTimeout(ir, 120));
   return true;
 }
 function vistaCliente() {
