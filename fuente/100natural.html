@@ -1604,7 +1604,7 @@ input:not([type="radio"]):focus,select:focus,textarea:focus{outline:2px solid va
 .hist-ed ol>li b{color:var(--ink);font-weight:700}.hist-ed ul{margin:2px 0 0;padding-left:16px;color:var(--ink)}
 .ed-sin{color:var(--warn)}
 .entrega-en{margin:0 0 2px;font-size:.92rem;color:var(--ink)}.ent-rel{font-size:.75rem;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:1px 8px;border-radius:999px}
-.corte-nota{display:block;margin-top:4px;font-size:.78rem;color:var(--muted);font-weight:500}
+.corte-aviso{display:flex;gap:10px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#fef3c7;color:#78350f;border:1px solid #fcd34d}.corte-aviso>span{font-size:1.4rem;line-height:1}.corte-aviso div{display:grid;gap:2px}.corte-aviso small{font-size:.88rem}.corte-aviso.tarde{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5}.corte-nota{display:block;margin-top:4px;font-size:.78rem;color:var(--muted);font-weight:500}
 .creado-en{margin:-2px 0 4px;font-size:.8rem;color:var(--muted)}
 .ad-n-acc{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .tp-vista{margin:10px 0}.tp-vista button{white-space:nowrap}
@@ -2740,12 +2740,14 @@ const fmtFecha = (s, largo) => s ? parse(s).toLocaleDateString("es-CL", largo ? 
 const fmtHora = ms => ms ? new Date(ms).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "";
 const relativo = s => s === hoy() ? "Hoy" : s === addDias(hoy(), 1) ? "Mañana" : s === addDias(hoy(), -1) ? "Ayer" : "";
 /* Pedidos ingresados desde las 15:00 se agendan para el día siguiente (si cae domingo, para el lunes). */
-const HORA_CORTE = 18; /* Pedidos ingresados desde las 18:00 quedan para el día siguiente. */
-const despuesCorte = () => new Date().getHours() >= HORA_CORTE;
+/* Hora de corte: los clientes hasta las 16:00; el equipo (administrador, punto de venta) hasta las 18:00. Después, el pedido queda para el día siguiente. */
+const HORA_CORTE_CLI = 16;
+const horaCorte = () => S.portal === "cliente" ? HORA_CORTE_CLI : 18;
+const despuesCorte = () => new Date().getHours() >= horaCorte();
 const sigHabil = f => { let d = addDias(f, 1); if (parse(d).getDay() === 0) d = addDias(d, 1); return d; };
 const fechaSugerida = () => despuesCorte() ? sigHabil(hoy()) : hoy();
 const ajustarFecha = f => (!f || f === hoy()) && despuesCorte() ? fechaSugerida() : f;
-const avisoCorte = (antes, f) => antes !== f ? ` Se ingresó después de las ${HORA_CORTE}:00, así que quedó para el ${fmtFecha(f, true)}.` : "";
+const avisoCorte = (antes, f) => antes !== f ? ` Se ingresó después de las ${horaCorte()}:00, así que quedó para el ${fmtFecha(f, true)}.` : "";
 const codigo = id => String(id).slice(-5).toUpperCase();
 const digitos = s => String(s).replace(/\D/g, "").length;
 const slug = u => String(u || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim()
@@ -4784,12 +4786,13 @@ function entregaHTML(c) {
       </div>
       <div data-wz="3 4">
         <h2 class="h2 wz-h-ent">Datos de entrega</h2>
+        ${S.portal === "cliente" && !S.editPedido ? `<div class="corte-aviso${despuesCorte() ? " tarde" : ""}" role="note"><span aria-hidden="true">⏰</span><div><b>Recibimos pedidos hasta las ${HORA_CORTE_CLI}:00 hrs.</b><small>${despuesCorte() ? `Ya pasaron las ${HORA_CORTE_CLI}:00: tu pedido se entregará el ${esc(fmtFecha(fechaSugerida(), true))}.` : `Los pedidos hechos después de las ${HORA_CORTE_CLI}:00 hrs se entregan al día siguiente.`}</small></div></div>` : ""}
         <div class="campos" data-wz="3">
           ${esLocal() ? `<label class="campo full"><span>Tu nombre <em>quien hace el pedido</em></span><input id="e-quien" autocomplete="off" value="" placeholder="Ej.: Juan Pérez"></label>` : ""}
           ${esLocal() ? `<label class="campo full"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label>` : `<div class="campo full dir-fila"><label class="campo"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label><label class="campo"><span>Casa / Depto</span><input id="e-depto" autocomplete="address-line2" value="${esc(c.depto || "")}" placeholder="Opcional"></label></div>`}
           <div class="campo full dir-fila cm-fila"><label class="campo"><span>Comuna</span><input id="e-comuna" autocomplete="off" value="${esc(c.comuna)}"></label>
           <label class="campo"><span>Teléfono</span><input id="e-tel" type="tel" inputmode="tel" value="${esc(c.telefono)}"></label></div>
-          <label class="campo"><span>Fecha de entrega</span><input id="e-fecha" type="date" min="${S.editPedido ? hoy() : fechaSugerida()}" value="${fs}">${S.editPedido ? "" : `<small class="corte-nota">Pedidos hechos desde las ${HORA_CORTE}:00 se entregan al día siguiente.</small>`}</label>
+          <label class="campo"><span>Fecha de entrega</span><input id="e-fecha" type="date" min="${S.editPedido ? hoy() : fechaSugerida()}" value="${fs}">${S.editPedido ? "" : `<small class="corte-nota">Pedidos hechos desde las ${horaCorte()}:00 se entregan al día siguiente.</small>`}</label>
           <fieldset class="campo"><legend>Rango horario de entrega <em>10:00 a 18:00 hrs</em></legend>
             <div class="rango">
               <input id="e-desde" type="time" step="900" min="10:00" max="18:00" value="10:00" aria-label="Desde">
@@ -12064,7 +12067,7 @@ function posVenderHTML() {
             <label class="campo full"><span>Dirección de despacho</span><input id="pos-c-dir" class="pos-in" data-c="direccion" value="${esc((POS.comp || {}).direccion || "")}" placeholder="Calle, número, depto y comuna" autocomplete="off"></label></div><p class="ayuda">Se guarda en la ficha del cliente.</p></div>`
           : posCli() ? `<p class="pos-cli-dat">📍 ${esc(posCli().direccion || "")}${posCli().telefono ? " · " + waA(posCli().telefono) : ""}</p>` : ""}
         <div class="campos">
-          <label class="campo"><span>Fecha de entrega</span><input id="pos-fecha" class="pos-in" data-f="fecha" type="date" value="${esc(POS.fecha || fechaSugerida())}" min="${hoy()}"><small class="corte-nota">Desde las ${HORA_CORTE}:00 quedan para el día siguiente.</small></label>
+          <label class="campo"><span>Fecha de entrega</span><input id="pos-fecha" class="pos-in" data-f="fecha" type="date" value="${esc(POS.fecha || fechaSugerida())}" min="${hoy()}"><small class="corte-nota">Desde las ${horaCorte()}:00 quedan para el día siguiente.</small></label>
           <fieldset class="campo"><legend>Horario <em>10:00 a 18:00</em></legend><div class="rango"><input id="pos-desde" class="pos-in" data-f="desde" type="time" step="900" min="10:00" max="18:00" value="${esc(POS.desde)}" aria-label="Desde"><span>a</span><input id="pos-hasta" class="pos-in" data-f="hasta" type="time" step="900" min="10:00" max="18:00" value="${esc(POS.hasta)}" aria-label="Hasta"></div></fieldset>
         </div>
         <fieldset class="campo full"><legend>Pago del pedido</legend><div class="pos-pagos">${POS_PAGOS.slice(0, 2).map(([k, ic]) => `<button type="button" class="pos-pago" data-act="pos-ppago" data-p="${k}" aria-pressed="${POS.ppago === k}">${ic} ${k}</button>`).join("")}</div></fieldset>
@@ -13708,7 +13711,7 @@ function adCrearBaseHTML() {
       <div class="total" id="ad-total-box" ${adSinPrecio() ? "hidden" : ""}><span>Total</span><b id="ad-total">$0</b></div>
       <div class="campos">
         <label class="campo full" id="ad-quien-box" ${adLocalSel() ? "" : "hidden"}><span>Nombre de quien hace el pedido <em>opcional</em></span><input id="ad-quien" autocomplete="off" placeholder="Ej.: Juan Pérez"></label>
-        <label class="campo"><span>Fecha de entrega</span><input id="ad-fecha-e" type="date" value="${fechaSugerida()}"><small class="corte-nota">Desde las ${HORA_CORTE}:00 los pedidos quedan para el día siguiente.</small></label>
+        <label class="campo"><span>Fecha de entrega</span><input id="ad-fecha-e" type="date" value="${fechaSugerida()}"><small class="corte-nota">Desde las ${horaCorte()}:00 los pedidos quedan para el día siguiente.</small></label>
         <fieldset class="campo"><legend>Rango horario de entrega <em>10:00 a 18:00 hrs</em></legend>
           <div class="rango"><input id="ad-desde" type="time" step="900" min="10:00" max="18:00" value="10:00" aria-label="Desde"><span>a</span><input id="ad-hasta" type="time" step="900" min="10:00" max="18:00" value="18:00" aria-label="Hasta"></div>
         </fieldset>
