@@ -674,7 +674,11 @@ body.banner-mini .banner-flot.banner-tap{pointer-events:auto}
 .prb-sub{margin:4px 0 12px}
 .adlc-tabs{margin-bottom:14px}.rep-tabs.adlc-tabs > button.adlc-cli{--ic:#0d9488!important}.rep-tabs.adlc-tabs > button.adlc-capt{--ic:#2563eb!important}
 .usu-posloc{margin:4px 0 12px;flex-wrap:wrap}
-.local-switch > .ad-grp-h{grid-column:1/-1;margin:14px 0 0;font-size:.95rem;font-weight:800;letter-spacing:.02em;color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--line)}.local-switch > .ad-grp-h:first-of-type{margin-top:0}.ls-uno > .ad-grp-h{display:none!important}
+.local-switch > .ad-grp-h{grid-column:1/-1;margin:14px 0 0;font-size:.95rem;font-weight:800;letter-spacing:.02em;color:var(--ink);padding-bottom:6px;border-bottom:2px solid var(--line)}.local-switch > .ad-grp-h:first-of-type{margin-top:0}
+/* Administrador › menú: títulos de grupo y nombres de las secciones más legibles. */
+.local-switch > .ad-grp-h{display:flex;align-items:center;gap:10px;margin-top:20px;padding:9px 14px;border:0;border-left:4px solid #0ea5e9;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,#0ea5e9 14%,var(--surface)),color-mix(in srgb,#0ea5e9 2%,transparent));font-size:1.02rem;font-weight:800;letter-spacing:.01em;color:var(--ink)}
+.ad-grp-e{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--surface);box-shadow:0 2px 8px -4px var(--shadow);font-size:1.05rem}
+.local-switch > .local-btn.local-btn:not(.ls-volver):not([aria-selected="true"]):not(.l-salir){color:var(--ink)!important}.local-switch > .local-btn.local-btn:not(.ls-volver){font-weight:700!important;font-size:.88rem!important;letter-spacing:0!important;line-height:1.2;text-wrap:balance;hyphens:none}.ls-uno > .ad-grp-h{display:none!important}
 /* Administrador: con el menú abierto no queda ninguna sección seleccionada ni su contenido abajo. */
 
 .local-btn.l-oscuro[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:-2px}
@@ -2942,7 +2946,8 @@ function pintarNotisUB() {
   const el = document.getElementById("ub-notis"); if (!el) return;
   /* Clientes (en Inicio): en vez de íconos, el buscador de productos (al tocarlo se abre el buscador con el teclado listo). */
   const c = S.portal === "cliente" && S.ses.cliente && S.cliTab === "inicio";
-  const h = c ? `<button type="button" class="ub-busq" data-act="cli-buscar" aria-label="Buscar productos"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar productos…</span></button>` : "";
+  const adm = S.portal === "admin" && S.ses.admin && typeof AD !== "undefined" && AD.local === "inicio";
+  const h = adm ? `<button type="button" class="ub-busq" data-act="adbq-abrir" aria-label="Buscar en todo"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar clientes, pedidos, secciones…</span></button>` : c ? `<button type="button" class="ub-busq" data-act="cli-buscar" aria-label="Buscar productos"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar productos…</span></button>` : "";
   if (el.innerHTML !== h) el.innerHTML = h;
   if (el.hidden !== !h) el.hidden = !h;
 }
@@ -11008,7 +11013,7 @@ function vistaAdmin() {
     <nav class="ad-barra" aria-label="Administración"><button type="button" role="tab" class="local-btn bar-inicio" data-act="ad-local" data-l="inicio" aria-selected="${AD.local === "inicio"}"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Inicio</button>${AD_BARRA.map(adBtn).join("")}<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button></nav>
     <div class="local-switch ${AD_CERR() ? "ls-uno" : ""}" role="tablist" aria-label="Local">
       ${AD_CERR() ? `<button type="button" class="local-btn ls-volver nav-volver" data-act="nav-volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Volver</button>` : ""}
-      ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h">${g}</h3>`) + its.map(adBtn).join("")).join("")}
+      ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h"><span class="ad-grp-e" aria-hidden="true">${AD_GRP_E[g] || "📁"}</span>${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
     ${["papas", "agua", "rep", "prov"].includes(AD.local) ? aduBarHTML(AD.local === "rep" ? "repartidor" : AD.local) : ""}${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : (AD.local === "est" || AD.local === "estpro") ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "clin" ? `<div id="clin-panel"></div>` : AD.local === "pts" ? `<div id="ptsad-panel"></div>` : AD.local === "sus" ? `<div id="susad-panel"></div>` : AD.local === "combo" ? `<div id="cbad-panel"></div>` : AD.local === "oferta" ? `<div id="ofad-panel"></div>` : AD.local === "rec" ? `<div id="recad-panel"></div>` : AD.local === "calif" ? `<div id="calad-panel"></div>` : AD.local === "refad" ? `<div id="refad-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
@@ -11447,6 +11452,8 @@ const AD_GRUPOS = [
   ["Sistema", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"]]]
 ];
 /* Barra inferior de Administrador: Crear pedido, (Modo carrusel), Perfil, Modo oscuro y Salir. */
+/* Ícono de cada grupo del menú de Administrador. */
+const AD_GRP_E = { "100% Natural": "🌿", "Pedidos": "🧾", "Fidelización": "💚", "Caja (pagos y ventas)": "💰", "Estadísticas": "📊", "Lista de usuarios": "👥", "Otras páginas": "🧩", "Sistema": "⚙️" };
 const AD_BARRA = [["ult", "Últimos pedidos"], ["agp", "Crear pedido"], ["bus", "Buscar pedido"]];
 /* Modo oscuro (Administrador › Modo oscuro): se guarda en este teléfono y cambia toda la página. */
 const TEMA_LS = "pya.tema.v1";
@@ -14197,7 +14204,7 @@ function ultPagoAvisoHTML(p) {
     <small>${esc((p.clienteNombre || "El cliente") + " lo marcó" + cuando)}${esEfectivo(p) ? " · 💵 Efectivo" : p.comprobante ? " · 🧾 Adjuntó comprobante" : " · Sin comprobante"}${ok ? "" : ` · Falta la confirmación del ${segQuien(p)}`}</small></div></div>`;
 }
 const BUS = { q: "" };
-const busCardHTML = () => `<div class="card bus-card"><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><div class="bus-2 bus-rango"><label class="campo"><span>📅 Desde <em>fecha de entrega</em></span><input type="date" id="bus-desde" value="${esc(BUS.desde || "")}"></label><label class="campo"><span>📅 Hasta</span><input type="date" id="bus-hasta" value="${esc(BUS.hasta || "")}"></label></div><div class="bus-rango-acc">${[["hoy", "Hoy"], ["sem", "Esta semana"], ["mes", "Este mes"], ["x", "Sin fechas"]].map(([k, l]) => `<button type="button" class="btn chico suave" data-act="bus-rango" data-r="${k}">${l}</button>`).join("")}</div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
+const busCardHTML = () => `${BUS.solo ? `<div class="bus-solo-h"><button type="button" class="wz-atras" data-act="bus-solo-volver">‹ Resultados</button><div><small>${BUS.nom ? "Pedidos del cliente" : "Pedido"}</small><b>${esc(BUS.nom || (BUS.q ? "#" + BUS.q : ""))}</b></div><button type="button" class="btn chico suave" data-act="bus-solo-filtros">Filtros</button></div>` : ""}<div class="card bus-card"${BUS.solo ? " hidden" : ""}><div class="bus-2"><label class="campo"><span>👤 Nombre del cliente</span><input type="search" id="bus-nom" value="${esc(BUS.nom || "")}" placeholder="Ej.: Barbones Viña" autocomplete="off" autocapitalize="none" spellcheck="false"></label><label class="campo"><span>📍 Dirección</span><input type="search" id="bus-dir" value="${esc(BUS.dir || "")}" placeholder="Ej.: Avda. Valparaíso 98" autocomplete="off" autocapitalize="none" spellcheck="false"></label></div><div class="bus-2 bus-rango"><label class="campo"><span>📅 Desde <em>fecha de entrega</em></span><input type="date" id="bus-desde" value="${esc(BUS.desde || "")}"></label><label class="campo"><span>📅 Hasta</span><input type="date" id="bus-hasta" value="${esc(BUS.hasta || "")}"></label></div><div class="bus-rango-acc">${[["hoy", "Hoy"], ["sem", "Esta semana"], ["mes", "Este mes"], ["x", "Sin fechas"]].map(([k, l]) => `<button type="button" class="btn chico suave" data-act="bus-rango" data-r="${k}">${l}</button>`).join("")}</div><label class="campo"><span>Buscar en todo el pedido</span><input type="search" id="bus-q" value="${esc(BUS.q)}" placeholder="Código, cliente, comuna, dirección, producto…" autocomplete="off" autocapitalize="none" spellcheck="false"></label><p class="muted-s">Busca por código (#A3F9K), nombre del cliente, comuna, dirección, teléfono, producto, repartidor, nota, forma de pago o estado. Puedes combinar palabras, por ejemplo: <i>barbones gajo chico</i>.</p></div><div id="bus-res"></div>`;
 /* Búsqueda de pedidos (Buscador de pedidos y Últimos pedidos). */
 function busMatch(raw) {
   raw = String(raw || "").trim(); const q = raw.replace(/[#\s]/g, "").toUpperCase();
@@ -16716,6 +16723,95 @@ function busqIr(tipo, id, g) {
   try { history.pushState(Object.assign({}, history.state || {}, { pyaBusq: 1, pyaPag: undefined }), ""); } catch (_) {} if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); }
   if (tipo === "prod") setTimeout(() => { const el = document.getElementById("row-" + id); if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.classList.add("busq-flash"); setTimeout(() => el.classList.remove("busq-flash"), 2200); } }, 250);
 }
+/* ---------- Administrador › Buscar en todo: barra bajo el nombre (en Inicio) que busca clientes, pedidos, secciones y usuarios del equipo ----------
+   Cliente → Buscar pedido con su nombre · Pedido → Buscar pedido con su código · Sección → la abre · Usuario del equipo → Lista usuarios. */
+const ADBQ = { q: "", y: 0 };
+const ADBQ_SEC_E = { clin: "🏠", papas: "🥔", agua: "💧", rep: "🛵", prov: "🚚", pizz: "🍕", utfsm: "🎓", inv: "📦", pper: "💼", cuentas: "🏪", perfil: "👤", ult: "🧾", red: "♻️", imp: "🖨️", borr: "📝", promo: "🎉", cup: "🎟️", coment: "💬", muro: "🗨️", comun: "🤝", pts: "⭐", sus: "🔁", refad: "🎁", combo: "📦", oferta: "⏱️", rec: "🍲", calif: "⭐", pag: "💰", ploc: "💵", pron: "📈", est: "📊", estpro: "📊", capt: "📋", usu: "👥", captados: "🧲", utfsm2: "🎓", pizz2: "🍕", prb: "🧪", reg: "⚙️", agp: "➕", bus: "🔍" };
+function adbqSecciones() {
+  const r = [], vistos = new Set();
+  for (const [g, xs] of [...AD_GRUPOS, ["Barra inferior", AD_BARRA]]) for (const [k, l] of xs) {
+    if (k === "carr" || k === "oscuro" || vistos.has(k)) continue; vistos.add(k);
+    r.push({ tipo: "sec", id: k, t: l, s: g, e: ADBQ_SEC_E[k] || "📁", txt: busqNorm(`${l} ${g} seccion pagina`) });
+  }
+  return r;
+}
+function adbqClientes() {
+  asegurarAdmin(); const m = new Map();
+  for (const c of [...((US.data || {}).clientes || []), ...(AD.clientes || [])]) if (c && c.id) m.set(c.id, Object.assign({}, m.get(c.id) || {}, c));
+  return [...m.values()].map(c => ({ tipo: "cli", id: c.id, t: String(c.nombre || c.id), s: [c.tipo, c.telefono, [c.direccion, c.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · "), e: c.tipo === "Local comercial" ? "🏪" : "👤", txt: busqNorm([c.nombre, c.tipo, c.telefono, String(c.telefono || "").replace(/\D/g, ""), c.direccion, c.depto, c.comuna, c.email, c.rut].join(" ")) }));
+}
+function adbqEquipo() {
+  const d = US.data || {}, r = [];
+  const L = { usuarios_admin: "Administrador", repartidores: "Repartidor", usuarios_agua: "Local agua", usuarios_papas: "Local papas", proveedores: "Proveedor" };
+  for (const [col, nom] of Object.entries(L)) for (const u of d[col] || []) if (u && u.nombre) r.push({ tipo: "usu", id: u.id, t: String(u.nombre), s: [nom, u.telefono].filter(Boolean).join(" · "), e: col === "repartidores" ? "🛵" : col === "proveedores" ? "🚚" : "🧑‍💼", txt: busqNorm([u.nombre, nom, u.telefono, u.usuario, u.email].join(" ")) });
+  return r;
+}
+function adbqResHTML() {
+  const pals = busqNorm(ADBQ.q).split(/\s+/).filter(Boolean), secs = adbqSecciones();
+  const it = r => `<li><button type="button" class="busq-it" data-act="adbq-ir" data-tipo="${r.tipo}" data-id="${esc(r.id)}"><span class="busq-e" aria-hidden="true">${r.e}</span><span class="busq-tx"><b>${busqMarcar(r.t, pals)}</b>${r.s ? `<small>${busqMarcar(r.s, pals)}</small>` : ""}</span>${r.pr ? `<span class="busq-pr">${r.pr}</span>` : ""}<span class="busq-fl" aria-hidden="true">›</span></button></li>`;
+  const grupo = (t, xs, n) => xs.length ? `<h3 class="busq-h">${t} <small>${fmtN(xs.length)}</small></h3><ul class="busq-lista">${xs.slice(0, n).map(it).join("")}</ul>${xs.length > n ? `<p class="muted-s adbq-mas">y ${fmtN(xs.length - n)} más · escribe más palabras para afinar</p>` : ""}` : "";
+  if (!pals.length) {
+    const pop = ["ult", "agp", "bus", "capt", "clin", "rep", "pag", "promo"].map(k => secs.find(s => s.id === k)).filter(Boolean);
+    return `<h3 class="busq-h">Secciones más usadas</h3><div class="busq-cats">${pop.map(s => `<button type="button" class="busq-cat" data-act="adbq-ir" data-tipo="sec" data-id="${esc(s.id)}"><span class="busq-cat-e" aria-hidden="true">${s.e}</span><span class="busq-cat-t">${esc(s.t)}</span></button>`).join("")}</div>
+      <p class="muted-s adbq-ayuda">Escribe el nombre o teléfono de un cliente, el código de un pedido (#A3F9K), una dirección o el nombre de una sección.</p>`;
+  }
+  const f = xs => xs.filter(r => pals.every(w => r.txt.includes(w)));
+  const sec = f(secs), cli = f(adbqClientes()), equ = f(adbqEquipo());
+  let ped = [];
+  try { const { coincide } = busMatch(ADBQ.q); ped = (S.pedidos || []).filter(coincide).sort((a, b) => (b.creado || 0) - (a.creado || 0)).map(p => ({ tipo: "ped", id: p.id, t: `#${codigo(p.id)} · ${p.clienteNombre || "Cliente"}`, s: [p.fechaEntrega ? cap(fmtFecha(p.fechaEntrega)) : "", p.estado === "entregado" ? "Entregado" : p.estado === "cancelado" ? "Cancelado" : "Pendiente", [p.direccion, p.comuna].filter(Boolean).join(", ")].filter(Boolean).join(" · "), e: p.estado === "entregado" ? "✅" : p.estado === "cancelado" ? "❌" : "🧾", pr: p.total ? clp(p.total) : "" })); } catch (_) {}
+  const html = grupo("Secciones", sec, 8) + grupo("Clientes", cli, 12) + grupo("Pedidos", ped, 12) + grupo("Equipo", equ, 8);
+  return html || `<div class="busq-nada"><span aria-hidden="true">🔎</span></div><p class="muted cmu-vacio">No encontramos «${esc(ADBQ.q)}». Prueba con otra palabra.</p>`;
+}
+function adbqPintar() { const r = $("#adbq-res"); if (r) r.innerHTML = adbqResHTML(); const x = document.querySelector("#adbq-modal .busq-x"); if (x) x.hidden = !ADBQ.q; }
+function adbqAbrir(sinFoco) {
+  let m = $("#adbq-modal");
+  if (!m) {
+    m = document.createElement("div"); m.id = "adbq-modal"; m.className = "adbq-modal";
+    m.innerHTML = `<div class="adbq-box"><div class="adbq-top"><button type="button" class="wz-atras" data-act="adbq-cerrar" aria-label="Volver">‹ Volver</button><b>Buscar en todo</b></div>
+      <label class="busq-campo"><span class="busq-lupa" aria-hidden="true">${UB_ICO.buscar}</span><input type="search" id="adbq-q" placeholder="Cliente, pedido, sección…" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Buscar en todo"><button type="button" class="busq-x" data-act="adbq-limpiar" aria-label="Borrar búsqueda" hidden>×</button></label><div id="adbq-res"></div></div>`;
+    document.body.appendChild(m); document.body.classList.add("adbq-on");
+    try { history.pushState(Object.assign({}, history.state || {}, { pyaAdbq: 1 }), ""); } catch (_) {}
+  }
+  const q = $("#adbq-q"); if (q) { q.value = ADBQ.q; if (!sinFoco) setTimeout(() => q.focus(), 60); }
+  adbqPintar(); m.scrollTop = 0;
+}
+function adbqCerrar() { const m = $("#adbq-modal"); if (m) { ADBQ.y = m.scrollTop; m.remove(); } document.body.classList.remove("adbq-on"); }
+function adbqIrSec(k) {
+  const b = document.createElement("button"); b.type = "button"; b.hidden = true; b.dataset.act = "ad-local"; b.dataset.l = k;
+  (document.querySelector("#admin-panel") || document.body).appendChild(b); b.click(); b.remove();
+  window.scrollTo(0, 0);
+}
+function adbqIr(tipo, id) {
+  ADBQ.volver = true; adbqCerrar();
+  if (tipo === "sec") adbqIrSec(id);
+  else if (tipo === "cli") { const c = adbqClientes().find(x => x.id === id); Object.assign(BUS, { q: "", nom: c ? c.t : "", dir: "", desde: "", hasta: "", solo: true }); adbqIrSec("bus"); }
+  else if (tipo === "ped") { Object.assign(BUS, { q: codigo(id), nom: "", dir: "", desde: "", hasta: "", solo: true }); adbqIrSec("bus"); }
+  else if (tipo === "usu") adbqIrSec("usu");
+  try { history.pushState(Object.assign({}, history.state || {}, { pyaAdbqVolver: 1 }), ""); } catch (_) {}
+}
+document.addEventListener("input", e => { if (e.target && e.target.id === "adbq-q") { ADBQ.q = e.target.value; adbqPintar(); } });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act^="adbq-"]'); if (!b) return;
+  const a = b.dataset.act; e.preventDefault();
+  if (a === "adbq-abrir") { ADBQ.volver = false; adbqAbrir(); }
+  else if (a === "adbq-cerrar") { ADBQ.volver = false; if ((history.state || {}).pyaAdbq) history.back(); else adbqCerrar(); }
+  else if (a === "adbq-limpiar") { ADBQ.q = ""; const q = $("#adbq-q"); if (q) { q.value = ""; q.focus(); } adbqPintar(); }
+  else if (a === "adbq-ir") adbqIr(b.dataset.tipo, b.dataset.id);
+});
+/* Buscar pedido abierto desde «Buscar en todo»: solo los resultados (sin el formulario); «Filtros» lo vuelve a mostrar. */
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act="bus-solo-volver"],[data-act="bus-solo-filtros"]'); if (!b) return;
+  e.preventDefault();
+  if (b.dataset.act === "bus-solo-filtros") { BUS.solo = false; const h = document.querySelector(".bus-solo-h"), c = document.querySelector(".bus-card"); if (h) h.remove(); if (c) c.hidden = false; return; }
+  if (ADBQ.volver && (history.state || {}).pyaAdbqVolver) history.back(); else { BUS.solo = false; ADBQ.volver = false; adbqAbrir(true); }
+});
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="ad-local"]'); if (b && !b.hidden) { ADBQ.volver = false; BUS.solo = false; } }, true);
+/* Botón Atrás del teléfono: cierra el buscador; y desde un resultado, vuelve a los resultados. */
+addEventListener("popstate", () => {
+  if (S.portal !== "admin") return;
+  if ($("#adbq-modal")) { adbqCerrar(); return; }
+  if (ADBQ.volver) { ADBQ.volver = false; BUS.solo = false; adbqAbrir(true); const m = $("#adbq-modal"); if (m) setTimeout(() => { m.scrollTop = ADBQ.y || 0; }, 60); }
+});
 /* ---------- Insignia de Trabajos comunitarios: los clientes inscritos en alguna actividad llevan un 🤝 junto a su foto ----------
    RPC «insignias_comunitarias» → { clienteId: n° de inscripciones }. Para el propio cliente se usa lo que ya sabe la app (CMU.mias). */
 const COMI = { map: {}, en: 0, cargando: false };
@@ -18634,7 +18730,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ult-acc .ult-pagado{border-radius:12px;font-weight:800}.ult-acc .ult-pagado~.link{grid-column:1/-1}
 .ult-acc .acciones>.btn,.ult-acc .ult-pagado{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
+.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.adbq-modal{position:fixed;inset:0;z-index:300;overflow:auto;background:var(--bg,#eef3f5);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 40px;-webkit-overflow-scrolling:touch}.adbq-box{max-width:760px;margin:0 auto}.adbq-top{display:flex;align-items:center;gap:12px;margin:2px 0 12px}.adbq-top b{font-size:1.15rem}.adbq-modal .busq-campo{top:0}.busq-h small{font-weight:700;color:var(--muted);margin-left:4px}.adbq-mas,.adbq-ayuda{margin:8px 4px 0}.bus-solo-h{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 20px -16px var(--shadow)}.bus-solo-h>div{flex:1;min-width:0;display:grid}.bus-solo-h small{color:var(--muted);font-size:.78rem}.bus-solo-h b{font-size:1.02rem;line-height:1.2;overflow-wrap:anywhere}.bus-solo-h .wz-atras{padding-left:10px;padding-right:10px}body.adbq-on{overflow:hidden}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .cli-not{margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}
 .cli-not-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.cli-not-h b{font-size:1rem}.cli-not-h small{margin-left:auto;color:var(--muted);font-weight:600}
