@@ -643,6 +643,8 @@ body.banner-mini .banner-flot{transform:translate(-50%,0)}
 /* Botón del usuario flotante pegado bajo el banner flotante: aparece y se mueve junto con el banner. */
 .usu-flot{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + var(--banner-h,0px) + 6px);z-index:59;width:var(--banner-w,min(960px,calc(100% - 32px)));transform:translate(-50%,calc(-100% - var(--banner-h,0px) - 20px));transition:transform .22s ease;pointer-events:none}
 .usu-flot .usu-bar{box-shadow:0 10px 24px -14px var(--shadow)}
+/* Teléfono girado (pantalla baja y ancha): el banner y la tarjeta del usuario más pequeños, para que no tapen la pantalla. */
+@media (orientation:landscape) and (max-height:540px){#banner{max-width:min(460px,60vw);margin-left:auto!important;margin-right:auto!important}.banner-flot{width:min(260px,40vw)!important}.usu-flot{width:min(460px,60vw)!important}.usu-flot .usu-bar{padding-top:4px;padding-bottom:4px}}
 body.banner-mini.con-usu:not(.usu-oculta) .usu-flot{transform:translate(-50%,0);pointer-events:auto}
 
 html{scroll-padding-top:calc(var(--banner-h,70px) + 16px)}
@@ -4275,7 +4277,25 @@ function cpwIr(p, quieto) {
   updateCarritoUI();
   if (quieto) return;
   el.classList.remove("wz-fwd", "wz-back"); void el.offsetWidth; el.classList.add(p >= antes ? "wz-fwd" : "wz-back");
+  if (p === 2 && cpwCentrarFoto()) return;
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+/* Clientes › al entrar en un producto (paso 2): deja su fotografía centrada en la pantalla del celular. */
+function cpwCentrarFoto() {
+  const cat = $("#catalogo"); if (!cat) return false;
+  const foto = [...cat.querySelectorAll(".afiche, .prox-vol, .afp-img, .afi-car, img, [style*='background-image']")].find(x => x.offsetHeight > 120);
+  if (!foto) return false;
+  const ir = () => {
+    const r = foto.getBoundingClientRect(); if (!r.height) return;
+    const nav = [...document.querySelectorAll(".ad-barra, .cli-tabs, nav")].filter(x => getComputedStyle(x).position === "fixed" && x.getBoundingClientRect().top > innerHeight / 2).reduce((m, x) => Math.max(m, innerHeight - x.getBoundingClientRect().top), 0);
+    /* El logo y la tarjeta del usuario quedan fijos arriba al bajar: que no tapen la foto. */
+    const uf = document.querySelector(".usu-flot .usu-bar"), cb = document.body.classList;
+    const arriba = bannerH() + (uf && cb.contains("con-usu") && !cb.contains("usu-oculta") ? uf.offsetHeight + 6 : 0) + 10;
+    const alto = innerHeight - nav - arriba, y = window.scrollY + r.top - arriba - Math.max(8, (alto - r.height) / 2);
+    window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+  };
+  requestAnimationFrame(() => setTimeout(ir, 60));
+  return true;
 }
 function vistaCliente() {
   const c = S.ses.cliente;
