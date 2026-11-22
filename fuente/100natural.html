@@ -2523,6 +2523,8 @@ for (const c of CATALOGO) for (const [id, nombre, medida, precio] of c.items) {
   PROD[id] = { id, nombre, medida, precio, fam: c.fam, cat: c.titulo };
   ORDEN.push(id);
 }
+/* Frutas, verduras, huevos y pulpa (Próximamente, sin precio todavía): se registran como productos para poder elegirlos en las promociones. */
+for (const [k, t] of FRUTAS) { PROD["fr_" + k] = { id: "fr_" + k, nombre: t, medida: "Próximamente", precio: 0, fam: "fruta", cat: t, prox: true }; PROX_IDS.add("fr_" + k); }
 /* Papas 1 kg: solo gajo chico y bastón 12 mm chico. El bastón 10 mm de 1 kg ya no se vende, pero se mantiene para los pedidos antiguos. */
 PROD.p1b10 = { id: "p1b10", nombre: "Papa bastón 10 mm grande", medida: "1 kg", precio: 1490, fam: "papa", cat: "Papas naturales 1 kg" };
 /* Corte de un producto de papas: g, b12, b10 y sus versiones "chico" (gc, b12c, b10c). */
@@ -2732,7 +2734,7 @@ function bidonesDoc() {
   if (Object.keys(o).length) o.cargo = cargoCarrito();
   return o;
 }
-const detalle = p => p.fam === "agua" ? p.cat : p.fam === "helado" ? "Helado · unidad" : p.fam === "perro" ? (p.id === "cama" ? "Cama premium · unidad" : "Comida casera · unidad") : p.fam === "completo" ? (p.id === "comp" ? "Completo · unidad" : `Bebida · ${p.medida}`) : p.fam === "pizzac" ? "Pizza congelada · unidad" : p.fam === "jugo" ? (p.medida === "agregado" ? "Agregado para el jugo" : p.medida === "fruta" ? "Se suma a un jugo" : "Jugo natural · vaso") : `Bolsa ${p.medida}`;
+const detalle = p => p.fam === "agua" ? p.cat : p.fam === "helado" ? "Helado · unidad" : p.fam === "perro" ? (p.id === "cama" ? "Cama premium · unidad" : "Comida casera · unidad") : p.fam === "completo" ? (p.id === "comp" ? "Completo · unidad" : `Bebida · ${p.medida}`) : p.fam === "pizzac" ? "Pizza congelada · unidad" : p.fam === "jugo" ? (p.medida === "agregado" ? "Agregado para el jugo" : p.medida === "fruta" ? "Se suma a un jugo" : "Jugo natural · vaso") : p.fam === "fruta" ? "Próximamente" : `Bolsa ${p.medida}`;
 
 /* ---------- Utilidades ---------- */
 const $ = s => document.querySelector(s);
@@ -16516,7 +16518,8 @@ function subPromos() {
 const promoEstado = p => p.activa === false ? ["pausa", "Pausada"] : p.hasta && p.hasta < hoy() ? ["fin", "Finalizada"] : p.desde > hoy() ? ["prog", "Programada"] : ["pub", "Publicada"];
 const promoItemsTxt = its => (its || []).filter(i => PROD[i.id]).map(i => `${i.q}× ${etiqueta(PROD[i.id])}${PROD[i.id].fam === "agua" ? " · " + PROD[i.id].cat : ""}`).join(", ");
 function promoHTML() {
-  const opts = ORDEN.map(id => PROD[id]).map(p => `<option value="${p.id}" ${PR.prodSel === p.id ? "selected" : ""}>${esc(etiqueta(p))} · ${esc(detalle(p))}</option>`).join("");
+  const op = p => `<option value="${p.id}" ${PR.prodSel === p.id ? "selected" : ""}>${esc(etiqueta(p))} · ${esc(detalle(p))}</option>`;
+  const opts = `<optgroup label="Productos">${ORDEN.filter(id => !PROX_IDS.has(id)).map(id => op(PROD[id])).join("")}</optgroup><optgroup label="Próximamente">${[...ORDEN.filter(id => PROX_IDS.has(id)), ...FRUTAS.map(([k]) => "fr_" + k)].map(id => op(PROD[id])).join("")}</optgroup>`;
   const form = `<div class="card ad-card promo-form">
       <h2 class="h2">${PR.editId ? "Editar promoción" : "Nueva promoción"}</h2>
       ${PR.editId ? `<p class="muted-s pr-ayuda">Al guardar, los clientes volverán a ver la promoción actualizada aunque hayan descartado la anterior.</p>` : ""}
@@ -17924,7 +17927,7 @@ function pedirPromo(id) {
   cerrarPromoModal();
   if (!p) return;
   let n = 0;
-  for (const i of p.items || []) if (PROD[i.id]) { S.carrito[i.id] = Math.min(99, (S.carrito[i.id] || 0) + (Number(i.q) || 1)); n++; }
+  for (const i of p.items || []) if (PROD[i.id] && !PROX_IDS.has(i.id)) { S.carrito[i.id] = Math.min(99, (S.carrito[i.id] || 0) + (Number(i.q) || 1)); n++; }
   cambiarCliTab("nuevo"); renderCatalogo();
   setTimeout(() => { const el = $(n ? "#entrega" : "#catalogo"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50);
   toast(n ? "Agregamos la promoción a tu pedido. Revisa los datos de entrega y envíalo." : "Elige tus productos para aprovechar la promoción.");
