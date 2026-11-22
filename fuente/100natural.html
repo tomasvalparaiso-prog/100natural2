@@ -1283,7 +1283,7 @@ body.barra-oculta #barra,body.barra-oculta #barra-ad,body.barra-oculta .pzz-cart
 @keyframes afiProg{from{background-size:0% 100%}to{background-size:100% 100%}}
 .afi-car.afi-play .afi-dots button[aria-current="true"]{background:linear-gradient(var(--ink),var(--ink)) left/0% 100% no-repeat,var(--line);animation:afiProg 4.5s linear forwards}
 @media (prefers-reduced-motion: reduce){.afi-car.afi-play .afi-dots button[aria-current="true"]{animation:none;background:var(--ink)}}
-.prox-vol[style*="--vol-helados"]{aspect-ratio:680/963}.prox-vol[style*="--vol-pizzascong"]{aspect-ratio:680/744}.prox-vol[style*="--vol-fr_"]{aspect-ratio:680/723}.prox-nota{margin:0 auto 6px;max-width:440px;text-align:center;font-weight:700;font-size:.9rem;color:var(--muted);background:var(--surface-2);border-radius:12px;padding:8px 10px}body[data-portal="cliente"] #catalogo .cat-prox .afiche{border-radius:18px!important;margin-bottom:8px}#catalogo .cat-todos.cat-prox > .cat-h{display:flex!important}
+.prox-vol[style*="--vol-helados"]{aspect-ratio:680/963}.prox-vol[style*="--vol-pizzascong"]{aspect-ratio:680/744}.prox-vol[style*="--vol-fr_"]{aspect-ratio:680/723}.prox-vol[style*="--vol-fr_pulpa"]{aspect-ratio:680/1020}.prox-nota{margin:0 auto 6px;max-width:440px;text-align:center;font-weight:700;font-size:.9rem;color:var(--muted);background:var(--surface-2);border-radius:12px;padding:8px 10px}body[data-portal="cliente"] #catalogo .cat-prox .afiche{border-radius:18px!important;margin-bottom:8px}#catalogo .cat-todos.cat-prox > .cat-h{display:flex!important}
 .pc-grupo.pc-tiles{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important;margin:0 0 12px!important;max-width:none!important;padding:0!important;background:none!important;border:0!important}@media(max-width:760px){.card .pc-grupo.pc-tiles{margin:0 -19px 12px!important}}@media(min-width:760px){.pc-tiles{gap:6px}}.pc-grupo.pc-tiles>button{width:auto!important;min-width:0!important;}.pc-tiles>button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:93px;padding:12px 2px 11px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.75rem;font-weight:700;line-height:1.15;text-align:center;cursor:pointer}.pc-tiles>button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}.pc-tiles svg{width:30px;height:30px}.pc-tiles>button b{position:absolute;top:6px;right:6px;font-size:.68rem;font-weight:800;min-width:20px;padding:0 6px;border-radius:999px;background:var(--surface-2);color:var(--ink);line-height:1.6}.pc-tiles>button[aria-pressed="true"] b{background:rgb(255 255 255 / .2);color:inherit}.pc-tiles>button[aria-pressed="true"] .usu-pi svg{color:inherit!important}
 .agp-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 12px}@media(min-width:760px){.agp-tiles{gap:6px}}.agp-e{font-size:26px;line-height:30px;height:30px}
 #portales #tab-pizzas:not([aria-selected="true"]),#portales #tab-utfsm:not([aria-selected="true"]),#portales #tab-prueba:not([aria-selected="true"]){display:none!important}
@@ -2239,6 +2239,7 @@ body[data-portal="cliente"]:has(.cli-tabs):has(#barra:not([hidden])) #toast{bott
 --vol-fr_sandia:url("img/fr_sandia.webp");
 --vol-fr_frutillas:url("img/fr_frutillas.webp");
 --vol-fr_kiwi:url("img/fr_kiwi.webp");
+--vol-fr_pulpa:url("img/fr_pulpa.webp");
 --vol-fr_arandanos:url("img/fr_arandanos.webp");
 --vol-fr_ciruelas:url("img/fr_ciruelas.webp");
 --vol-fr_naranjas:url("img/fr_naranjas.webp");
@@ -2504,7 +2505,7 @@ const CATALOGO = [
     ["pzc", "Pizza congelada", "unidad", 4990] ] }
 ];
 /* Frutas, verduras y huevos: Próximamente (solo su volante; aún no tienen productos para pedir). */
-const FRUTAS = [["platanos", "Plátanos", "🍌"], ["cerezas", "Cerezas", "🍒"], ["manzanas", "Manzanas", "🍎"], ["huevos", "Huevos", "🥚"], ["uvas", "Uvas", "🍇"], ["palta", "Palta", "🥑"], ["tomates", "Tomates", "🍅"], ["pina", "Piña", "🍍"], ["sandia", "Sandía", "🍉"], ["frutillas", "Frutillas", "🍓"], ["kiwi", "Kiwi", "🥝"], ["arandanos", "Arándanos", "🫐"], ["ciruelas", "Ciruelas", "🟣"], ["naranjas", "Naranjas", "🍊"], ["limones", "Limones", "🍋"]];
+const FRUTAS = [["pulpa", "Pulpa de fruta congelada", "🍓"], ["platanos", "Plátanos", "🍌"], ["cerezas", "Cerezas", "🍒"], ["manzanas", "Manzanas", "🍎"], ["huevos", "Huevos", "🥚"], ["uvas", "Uvas", "🍇"], ["palta", "Palta", "🥑"], ["tomates", "Tomates", "🍅"], ["pina", "Piña", "🍍"], ["sandia", "Sandía", "🍉"], ["frutillas", "Frutillas", "🍓"], ["kiwi", "Kiwi", "🥝"], ["arandanos", "Arándanos", "🫐"], ["ciruelas", "Ciruelas", "🟣"], ["naranjas", "Naranjas", "🍊"], ["limones", "Limones", "🍋"]];
 for (const [k, t] of FRUTAS) CATALOGO.push({ key: "fr_" + k, titulo: t, fam: "fruta", color: "hel", tag: "Próximamente", items: [] });
 const PROD = {};
 /* Productos «Próximamente»: solo se muestra su volante; no se pueden agregar al carrito. */
@@ -4609,7 +4610,7 @@ function cambiarOculto(id, ocultar) {
 }
 function aficheHTML(key, part) {
   if (key === "completos") return `<div class="afiche vol-nuevo" role="img" aria-label="Volante completos hot dogs $2.990 y bebida $990. Próximamente." style="background-image:var(--vol-completos)"></div>`;
-  if (String(key).startsWith("fr_")) { const c = CATALOGO.find(x => x.key === key); return `<div class="afiche vol-nuevo" role="img" aria-label="Volante ${esc(c ? c.titulo : "")}: frescos, naturales y de excelente calidad. Próximamente." style="background-image:var(--vol-${key});aspect-ratio:680/723"></div>`; }
+  if (String(key).startsWith("fr_")) { const c = CATALOGO.find(x => x.key === key); return `<div class="afiche vol-nuevo" role="img" aria-label="Volante ${esc(c ? c.titulo : "")}: frescos, naturales y de excelente calidad. Próximamente." style="background-image:var(--vol-${key});aspect-ratio:${key === "fr_pulpa" ? "680/1020" : "680/723"}"></div>`; }
   if (key === "pizzascong") return `<div class="afiche vol-nuevo" role="img" aria-label="Volante pizzas congeladas: $4.990 la unidad. Mantener congeladas. Próximamente." style="background-image:var(--vol-pizzascong);aspect-ratio:680/744"></div>`;
   if (key === "jugos") return `<div class="afiche vol-nuevo" role="img" aria-label="Volante jugos 100% naturales hechos con agua purificada: desde $990, otra fruta por $990 y agregados a $500. Próximamente." style="background-image:var(--vol-jugos)"></div>`;
   if (key === "dispensadores") return `<div class="afiche disp" role="img" aria-label="Afiche Renat Vatten dispensadores de agua: dispensador USB $9.000 y dispensador de sobremesa $8.000. Despacho lunes a sábado 10:00 a 18:00 hrs. WhatsApp +56 9 8231 6963."></div>`;
@@ -4620,9 +4621,9 @@ function aficheHTML(key, part) {
 function afichesCarruselHTML(lista) {
   /* Volantes propios de la vista Todos (una foto por categoría). */
   const VOLP = { papas1: [680, 1018], papas5: [680, 1019], alcalina: [680, 1022], dispensadores: [680, 1022], helados: [680, 963], perritos: [680, 1018], camas: [680, 1018], completos: [680, 1018], jugos: [680, 1018], pizzascong: [680, 744], purificada: [680, 1022] };
-  FRUTAS.forEach(([k]) => { VOLP["fr_" + k] = [680, 723]; });
+  FRUTAS.forEach(([k]) => { VOLP["fr_" + k] = k === "pulpa" ? [680, 1020] : [680, 723]; });
   const VOL = { papas1: [680, 1019], papas5: [680, 1018], alcalina: [680, 1020], dispensadores: [680, 1022], helados: [680, 963], perritos: [680, 1018], camas: [680, 1018], completos: [680, 1018], jugos: [680, 1018], pizzascong: [680, 744], purificada: [680, 1022] };
-  FRUTAS.forEach(([k]) => { VOL["fr_" + k] = [680, 723]; });
+  FRUTAS.forEach(([k]) => { VOL["fr_" + k] = k === "pulpa" ? [680, 1020] : [680, 723]; });
   const sl = lista.map(c => ({ c, a: VOL[c.key] ? `<div class="afp-img" role="img" aria-label="Volante ${esc(c.titulo)}" style="background-image:var(--vol${cliParticular() && VOL_PART.has(c.key) ? "P" : ""}-${c.key});aspect-ratio:${(cliParticular() && VOL_PART.has(c.key) ? VOLP : VOL)[c.key].join("/")}"></div>` : aficheHTML(c.key, cliParticular()) })).filter(x => x.a);
   if (sl.length < 2) return "";
   return `<div class="afi-car" aria-roledescription="carrusel" aria-label="Volantes de productos">
