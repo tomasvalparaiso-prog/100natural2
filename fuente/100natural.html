@@ -4152,7 +4152,8 @@ document.addEventListener("click", e => {
 
 /* ---------- Cliente ---------- */
 const esLocal = () => !!(S.ses.cliente && S.ses.cliente.tipo === "Local comercial");
-const verPrecios = () => !esLocal();
+/* Precios visibles para todos los clientes (también los locales comerciales, con sus precios). */
+const verPrecios = () => true;
 /* ---------- Clientes › Nuevo pedido en pasos (carrusel): 1 Agua o papas · 2 Productos · 3 Entrega · 4 Revisar y enviar · 5 Listo ---------- */
 const CPW = { paso: 1, grupo: "", fin: null };
 S.cliIr = ""; /* pedido recién enviado que se resalta al tocar «Ir al pedido» */
@@ -4862,7 +4863,7 @@ function entregaHTML(c) {
         </div>
         ${cpwOn() ? `<p class="err" id="err-entrega" role="alert" data-wz="3" style="margin-top:14px"></p><div class="wz-nav" data-wz="3"><span></span><button type="button" class="btn primario wz-sig" data-act="cpw-ir" data-p="4">Siguiente ›</button></div>` : ""}
         <div class="campos" data-wz="4">
-          ${esLocal() ? `<fieldset class="campo full pago-local" ${S.editPedido ? "" : "hidden"}><legend>Forma de pago</legend>
+          ${esLocal() ? `<fieldset class="campo full pago-local"><legend>Forma de pago</legend>
             <div class="seg">
               <label><input type="radio" name="pago" id="e-pago-tr" value="Transferencia" checked><span>Transferencia</span></label>
               <label><input type="radio" name="pago" id="e-pago-ef" value="Efectivo"><span>Efectivo</span></label>
@@ -4874,7 +4875,7 @@ function entregaHTML(c) {
               <label><input type="radio" name="pago" id="e-pago-ef" value="Efectivo"><span>Efectivo</span></label>
             </div>
           </fieldset>`}
-          ${esLocal() ? "" : `<div class="campo full" id="e-datos-tr"><details class="tr-det"><summary>🏦 Mostrar datos de transferencia</summary>${datosTrHTML()}</details></div>`}
+          ${`<div class="campo full" id="e-datos-tr"><details class="tr-det"><summary>🏦 Mostrar datos de transferencia</summary>${datosTrHTML()}</details></div>`}
           ${esLocal() || S.editPedido ? "" : `<div class="campo full comp-nuevo" id="e-comp">${compNuevoHTML()}</div>`}
           <fieldset class="campo full bid-box" id="e-vacios" hidden></fieldset>
           <label class="campo full"><span>Nota para el repartidor <em>opcional</em></span><textarea id="e-nota" rows="2" placeholder="Ej.: llamar al llegar, el timbre no funciona"></textarea></label>
