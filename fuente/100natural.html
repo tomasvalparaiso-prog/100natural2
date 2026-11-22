@@ -969,9 +969,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .mt-mov{margin:0 0 10px}.mt-mov summary{cursor:pointer;font-weight:800;padding:4px 0}.mt-mov ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px}.mt-mov li{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}.mt-mov li small{display:block;color:var(--muted)}.mt-mov .pos{color:#15803d}.mt-mov .neg{color:#b91c1c}
 .cmu-form.editando{border:2px solid #2563eb;box-shadow:0 0 0 4px color-mix(in srgb,#2563eb 15%,transparent)}.cmu-form .btn.suave{margin-top:8px}
 .cmu-pts{margin:0;font-size:.92rem;color:#92400e}.cmu-ins-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.cmu-ins-h small{display:block}
-.busq-campo{display:flex;align-items:center;gap:8px;padding:0 14px;min-height:54px;border:2px solid var(--line);border-radius:16px;background:var(--surface);font-size:1.1rem}.busq-campo:focus-within{border-color:#0ea5e9}.busq-campo input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);outline:none;padding:12px 0}
+.busq-campo{position:sticky;top:6px;z-index:3;display:flex;align-items:center;gap:10px;padding:0 8px 0 16px;min-height:58px;border:2px solid color-mix(in srgb,#0ea5e9 35%,var(--line));border-radius:999px;background:var(--surface);font-size:1.08rem;box-shadow:0 10px 28px -16px rgba(14,165,233,.55);transition:border-color .2s,box-shadow .2s}.busq-lupa{display:inline-grid;color:#0ea5e9}.busq-lupa svg{width:22px;height:22px}.busq-x{width:36px;height:36px;border-radius:999px;border:0;background:var(--surface-2);color:var(--muted);font-size:1.4rem;line-height:1;cursor:pointer;flex:none}.busq-x[hidden]{display:none}.busq-campo:focus-within{border-color:#0ea5e9;box-shadow:0 0 0 4px color-mix(in srgb,#0ea5e9 18%,transparent),0 12px 30px -16px rgba(14,165,233,.6)}.busq-campo input{flex:1;min-width:0;border:0!important;background:none!important;box-shadow:none!important;font:inherit;color:var(--ink);outline:none!important;padding:12px 0!important;min-height:0!important;border-radius:0!important}.busq-campo input::-webkit-search-cancel-button{display:none}#busq-res{margin-top:14px}.busq-h{margin:16px 2px 8px;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}.busq-chip{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.92rem;cursor:pointer;box-shadow:0 4px 12px -10px var(--shadow)}.busq-chip:hover,.busq-chip:active{border-color:#0ea5e9;background:color-mix(in srgb,#0ea5e9 8%,var(--surface))}.busq-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px}.busq-cat{position:relative;display:grid;justify-items:center;gap:6px;padding:14px 6px 12px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;box-shadow:0 6px 16px -14px var(--shadow)}.busq-cat:hover,.busq-cat:active{border-color:#0ea5e9}.busq-cat-e{display:grid;place-items:center;width:52px;height:52px;border-radius:999px;background:color-mix(in srgb,#0ea5e9 10%,var(--surface-2));font-size:1.7rem}.busq-cat-t{font-weight:700;font-size:.86rem;line-height:1.15;text-align:center}.busq-cat small{position:absolute;top:6px;right:6px;font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:999px;background:#fef3c7;color:#92400e}.busq-nada{text-align:center;font-size:3rem;margin-top:20px}.busq-it mark{background:color-mix(in srgb,#0ea5e9 22%,transparent);color:inherit;border-radius:4px;padding:0 1px}
 .busq-sug{display:flex;flex-wrap:wrap;gap:8px}.busq-lista{list-style:none;margin:0;padding:0;display:grid;gap:8px}.busq-it{width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
-.busq-it:hover{border-color:#0ea5e9}.busq-e{font-size:1.6rem;line-height:1}.busq-tx{flex:1;min-width:0;display:grid}.busq-tx small{color:var(--muted)}.busq-pr{font-weight:800;white-space:nowrap}.busq-tag{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;white-space:nowrap}.busq-fl{color:var(--muted);font-size:1.4rem}
+.busq-it:hover,.busq-it:active{border-color:#0ea5e9;background:color-mix(in srgb,#0ea5e9 5%,var(--surface))}.busq-it{box-shadow:0 6px 16px -14px var(--shadow)}.busq-e{display:grid;place-items:center;width:46px;height:46px;flex:none;border-radius:999px;background:color-mix(in srgb,#0ea5e9 10%,var(--surface-2));font-size:1.5rem;line-height:1}.busq-tx{flex:1;min-width:0;display:grid}.busq-tx small{color:var(--muted)}.busq-pr{font-weight:800;white-space:nowrap}.busq-tag{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;white-space:nowrap}.busq-fl{color:var(--muted);font-size:1.4rem}
 .prod.busq-flash{animation:busqF 2s ease}@keyframes busqF{0%,60%{box-shadow:0 0 0 3px #0ea5e9;background:color-mix(in srgb,#0ea5e9 12%,transparent)}100%{box-shadow:none}}
 .ad-rec{margin:0 0 12px}.ad-rec-t{display:block;font-weight:800;color:var(--muted);margin-bottom:6px}.ad-rec-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
 .ad-rec-b{display:grid;gap:1px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-width:0}.ad-rec-b b{font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ad-rec-b small{font-size:.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2940,20 +2940,9 @@ const bannerH = () => { const b = document.querySelector(".banner-flot"); return
 const UB_ICO = {"promos": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 12v9H4v-9\"/><path d=\"M2 7h20v5H2z\"/><path d=\"M12 21V7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/></svg>", "puntos": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"m12 6 1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5L11 8z\"/><path d=\"M8.5 14 7 21l5-2.5L17 21l-1.5-7\"/></svg>", "cupones": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z\"/><path d=\"M9 9h.01M15 15h.01M15.5 8.5l-7 7\"/></svg>", "comun": "<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.6\"/><path d=\"M15.5 14.3A5 5 0 0 1 21 19\"/></svg>", "musica": "<svg viewBox=\"0 0 24 24\" width=\"26\" height=\"26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", "buscar": "<svg viewBox=\"0 0 24 24\" width=\"26\" height=\"26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"11\" cy=\"11\" r=\"6.5\"/><path d=\"m20 20-4.3-4.3\"/></svg>", "coment": "<svg viewBox=\"0 0 24 24\" width=\"26\" height=\"26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/><path d=\"M8 9h8M8 13h5\"/></svg>"};
 function pintarNotisUB() {
   const el = document.getElementById("ub-notis"); if (!el) return;
-  const c = S.portal === "cliente" && S.ses.cliente && S.cliTab === "inicio"; let xs = [];
-  if (c) {
-    const n = f => { try { return f() || 0; } catch (_) { return 0; } };
-    xs = [
-      ["musica", "cli-musica", "#7c3aed", n(() => window.__radioSonando && window.__radioSonando() ? 1 : 0), () => "Música sonando"],
-      ["promos", "cli-promos", "#f59e0b", n(() => promosActivasCli().length), k => `${k} ${k === 1 ? "promoción" : "promociones"}`],
-      ["puntos", "cli-puntos", "#d97706", n(() => ptsAplica() && PTS.cargado ? puntosSaldo() : 0), k => `${fmtN(k)} puntos`],
-      ["cupones", "cli-cupones", "#db2777", n(() => CUPC.lista ? CUPC.lista.filter(x => !x.agotado).length : 0), k => `${k} ${k === 1 ? "cupón disponible" : "cupones disponibles"}`],
-      ["comun", "cli-comun", "#16a34a", n(() => cmuProx().filter(a => !CMU.mias.has(a.id)).length), k => `${k} ${k === 1 ? "trabajo comunitario" : "trabajos comunitarios"}`],
-      ["coment", "cli-coment", "#0ea5e9", 1, () => "Sugerencias"],
-      ["buscar", "cli-buscar", "#0ea5e9", 1, () => "Buscador de productos"],
-    ].filter(x => x[3] > 0);
-  }
-  const h = xs.map(([k, act, col, v, t]) => `<button type="button" class="ub-ni" data-act="${act}" style="--c:${col}" title="${esc(t(v))}" aria-label="${esc(t(v))}"><span class="ub-ni-i" aria-hidden="true">${UB_ICO[k]}</span></button>`).join("");
+  /* Clientes (en Inicio): en vez de íconos, el buscador de productos (al tocarlo se abre el buscador con el teclado listo). */
+  const c = S.portal === "cliente" && S.ses.cliente && S.cliTab === "inicio";
+  const h = c ? `<button type="button" class="ub-busq" data-act="cli-buscar" aria-label="Buscar productos"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar productos…</span></button>` : "";
   if (el.innerHTML !== h) el.innerHTML = h;
   if (el.hidden !== !h) el.hidden = !h;
 }
@@ -4165,7 +4154,7 @@ function cpwHeadHTML() {
   const p = CPW.paso, g = CPW_GR.find(x => x[0] === CPW.grupo), gp = cpwEsProx(CPW.grupo);
   if (p === 5) return "";
   const tit = p === 2 && CPW.grupo === "fav" ? "Mis favoritos" : p === 2 && gp ? `${gp[2]} · Próximamente` : p === 2 && g ? ({ agua: "Agua purificada", papa: "Papas al vacío" }[g[0]] || g[2]) : CPW_TIT[p];
-  return `<div class="wz-head"><button type="button" class="wz-atras" data-act="cpw-atras" ${p === 1 ? "hidden" : ""} aria-label="Paso anterior">‹ Atrás</button>
+  return `<div class="wz-head"><button type="button" class="wz-atras" data-act="cpw-atras" ${p === 1 ? "hidden" : ""} aria-label="${p === 2 && window.__busqVolver ? "Volver a los resultados de la búsqueda" : "Paso anterior"}">${p === 2 && window.__busqVolver ? "‹ Resultados" : "‹ Atrás"}</button>
     <div class="wz-tit"><small>Paso ${p} de 4</small><b>${esc(tit)}</b></div>
     <ol class="wz-dots" aria-hidden="true">${[1, 2, 3, 4].map(i => `<li class="${i === p ? "act" : i < p ? "ok" : ""}"></li>`).join("")}</ol></div>`;
 }
@@ -4262,6 +4251,7 @@ function cpwValEntrega() {
 }
 /* Pasa a otro paso: muestra solo esa ventana, con una entrada deslizada. */
 function cpwIr(p, quieto) {
+  if (p !== 2 && !window.__busqEntrando) window.__busqVolver = false;
   const antes = CPW.paso;
   if (p === 3 && antes === 2 && !carritoLista().length) { toast("Agrega al menos un producto tocando su foto."); return; }
   if (p === 3 && !quieto && !carritoLista().length) { toast("Agrega al menos un producto tocando su foto."); return; }
@@ -15297,7 +15287,7 @@ document.addEventListener("click", e => {
     S.todosPos = null; cambiarCliTab("inicio"); window.scrollTo({ top: 0, behavior: "smooth" });
   } else if (a === "cpw-grupo") { CPW.grupo = b.dataset.g; cpwIr(2); if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); } }
   else if (a === "cpw-ir") cpwIr(Number(b.dataset.p));
-  else if (a === "cpw-atras") cpwIr(CPW.paso === 3 && !CPW.grupo ? 1 : CPW.paso - 1);
+  else if (a === "cpw-atras") { if (CPW.paso === 2 && window.__busqVolver) busqVolver(); else cpwIr(CPW.paso === 3 && !CPW.grupo ? 1 : CPW.paso - 1); }
   else if (a === "cpw-otro") { CPW.grupo = ""; CPW.fin = null; cpwIr(1); }
   else if (a === "cpw-ver") {
     /* «Ir al pedido»: abre Mis pedidos › Pendientes en el día de entrega y resalta el pedido recién enviado. */
@@ -16681,27 +16671,49 @@ function busqIndice() {
   }
   return r;
 }
+/* Resalta las palabras buscadas (sin importar tildes ni mayúsculas). */
+function busqMarcar(t, pals) {
+  const s = String(t || ""), n = busqNorm(s); const m = new Array(s.length).fill(false);
+  for (const w of pals) { if (!w) continue; let i = n.indexOf(w); while (i >= 0) { for (let j = i; j < i + w.length && j < s.length; j++) m[j] = true; i = n.indexOf(w, i + w.length); } }
+  let out = "", on = false; for (let i = 0; i < s.length; i++) { if (m[i] !== on) { out += m[i] ? "<mark>" : "</mark>"; on = m[i]; } out += esc(s[i]); } return out + (on ? "</mark>" : "");
+}
 function busqResHTML() {
   const pals = busqNorm(BUSQ.q).split(/\s+/).filter(Boolean), idx = busqIndice();
   const sug = ["Agua purificada", "Agua alcalina", "Papas", "Bidón 20 L", "Plátanos", "Helados"].filter(x => idx.some(r => busqNorm(x).split(" ").every(w => r.txt.includes(w))));
-  if (!pals.length) return `<p class="muted-s">Escribe el nombre de un producto o toca una sugerencia:</p><div class="busq-sug">${sug.map(x => `<button type="button" class="chip" data-act="busq-sug" data-q="${esc(x)}">${esc(x)}</button>`).join("")}</div>`;
+  if (!pals.length) {
+    /* Sin texto: sugerencias rápidas y todas las categorías para explorar. */
+    const SUG_E = { "Agua purificada": "💧", "Agua alcalina": "💎", "Papas": "🥔", "Bidón 20 L": "🫙", "Plátanos": "🍌", "Helados": "🍦" };
+    const grupos = []; const vistos = new Set();
+    for (const x of idx) { const k = x.tipo === "prod" ? x.g : x.id; if (vistos.has(k)) continue; vistos.add(k); grupos.push({ k, e: x.e, t: x.tipo === "prod" ? (x.g === "papa" ? "Papas" : "Agua") : x.t, prox: x.tipo === "prox", tipo: x.tipo, id: x.id, g: x.g }); }
+    return `<h3 class="busq-h">Búsquedas populares</h3><div class="busq-sug">${sug.map(x => `<button type="button" class="busq-chip" data-act="busq-sug" data-q="${esc(x)}"><span aria-hidden="true">${SUG_E[x] || "🔍"}</span>${esc(x)}</button>`).join("")}</div>
+      <h3 class="busq-h">Explorar categorías</h3><div class="busq-cats">${grupos.map(gr => `<button type="button" class="busq-cat" data-act="busq-ir" data-tipo="${gr.tipo}" data-id="${gr.prox ? esc(gr.id) : ""}" data-g="${esc(gr.g)}"><span class="busq-cat-e" aria-hidden="true">${gr.e}</span><span class="busq-cat-t">${esc(gr.t)}</span>${gr.prox ? `<small>Pronto</small>` : ""}</button>`).join("")}</div>`;
+  }
   const xs = idx.filter(r => pals.every(w => r.txt.includes(w)));
-  if (!xs.length) return `<p class="muted cmu-vacio">No encontramos «${esc(BUSQ.q)}». Prueba con otra palabra, o cuéntanos qué te gustaría en <button type="button" class="link" data-act="cli-coment">Sugerencias</button>.</p>`;
-  return `<p class="muted-s">${xs.length} ${xs.length === 1 ? "resultado" : "resultados"}</p><ul class="busq-lista">${xs.slice(0, 60).map(r => `<li><button type="button" class="busq-it${r.tipo === "prox" ? " prox" : ""}" data-act="busq-ir" data-tipo="${r.tipo}" data-id="${esc(r.id)}" data-g="${esc(r.g)}"><span class="busq-e" aria-hidden="true">${r.e}</span><span class="busq-tx"><b>${esc(r.t)}</b><small>${esc(r.s)}</small></span>${r.tipo === "prox" ? `<span class="busq-tag">Próximamente</span>` : r.precio ? `<span class="busq-pr">${clp(r.precio)}</span>` : ""}<span class="busq-fl" aria-hidden="true">›</span></button></li>`).join("")}</ul>`;
+  if (!xs.length) return `<div class="busq-nada"><span aria-hidden="true">🔎</span></div><p class="muted cmu-vacio">No encontramos «${esc(BUSQ.q)}». Prueba con otra palabra, o cuéntanos qué te gustaría en <button type="button" class="link" data-act="cli-coment">Sugerencias</button>.</p>`;
+  return `<h3 class="busq-h">${xs.length} ${xs.length === 1 ? "resultado" : "resultados"}</h3><ul class="busq-lista">${xs.slice(0, 60).map(r => `<li><button type="button" class="busq-it${r.tipo === "prox" ? " prox" : ""}" data-act="busq-ir" data-tipo="${r.tipo}" data-id="${esc(r.id)}" data-g="${esc(r.g)}"><span class="busq-e" aria-hidden="true">${r.e}</span><span class="busq-tx"><b>${busqMarcar(r.t, pals)}</b><small>${busqMarcar(r.s, pals)}</small></span>${r.tipo === "prox" ? `<span class="busq-tag">Próximamente</span>` : r.precio ? `<span class="busq-pr">${clp(r.precio)}</span>` : ""}<span class="busq-fl" aria-hidden="true">›</span></button></li>`).join("")}</ul>`;
 }
-function abrirBuscador() {
+function busqVolver() {
+  window.__busqVolver = false; const y = BUSQ.y || 0;
+  abrirBuscador(true); setTimeout(() => window.scrollTo(0, y), 80);
+}
+addEventListener("popstate", () => { if (window.__busqVolver && S.portal === "cliente" && CPW.paso === 2 && !PAG_EL) busqVolver(); });
+function abrirBuscador(sinFoco) {
   if (!S.ses.cliente) return;
   let m = $("#busq-modal");
   if (!m) { m = document.createElement("div"); m.id = "busq-modal"; m.className = "promo-modal pagina-cli"; m.innerHTML = `<div class="promo-box busq-box"><div class="pl-h"><b>🔍 Buscador de productos</b><button type="button" class="ap-cerrar" data-act="busq-cerrar" aria-label="Volver">×</button></div>
-    <label class="busq-campo"><span aria-hidden="true">🔍</span><input type="search" id="busq-q" placeholder="Buscar productos: papas, agua, plátanos…" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"></label><div id="busq-res"></div></div>`; montarPaginaCli(m); }
-  const q = $("#busq-q"); if (q) { q.value = BUSQ.q; setTimeout(() => q.focus(), 60); }
+    <label class="busq-campo"><span class="busq-lupa" aria-hidden="true">${UB_ICO.buscar}</span><input type="search" id="busq-q" placeholder="¿Qué estás buscando?" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"><button type="button" class="busq-x" data-act="busq-limpiar" aria-label="Borrar búsqueda" hidden>×</button></label><div id="busq-res"></div></div>`; montarPaginaCli(m); }
+  const q = $("#busq-q"); if (q) { q.value = BUSQ.q; if (!sinFoco) setTimeout(() => q.focus(), 60); }
   pintarBusq();
 }
-function pintarBusq() { const r = $("#busq-res"); if (r) r.innerHTML = busqResHTML(); }
+function pintarBusq() { const r = $("#busq-res"); if (r) r.innerHTML = busqResHTML(); const x = document.querySelector(".busq-x"); if (x) x.hidden = !BUSQ.q; }
 document.addEventListener("input", e => { if (e.target && e.target.id === "busq-q") { BUSQ.q = e.target.value; pintarBusq(); } });
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="busq-limpiar"]'); if (!b) return; e.preventDefault(); BUSQ.q = ""; const q = $("#busq-q"); if (q) { q.value = ""; q.focus(); } pintarBusq(); });
 function busqIr(tipo, id, g) {
+  /* Recordar la búsqueda: «‹ Resultados» (o el botón Atrás del teléfono) vuelve a los resultados. */
+  BUSQ.y = window.scrollY; window.__busqVolver = true; window.__busqEntrando = true;
   const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click();
-  CPW.grupo = g; cpwIr(2); if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); }
+  CPW.grupo = g; cpwIr(2); window.__busqEntrando = false; window.__busqVolver = true; { const hd = document.querySelector(".wz-atras"); if (hd && CPW.paso === 2) { hd.textContent = "‹ Resultados"; hd.setAttribute("aria-label", "Volver a los resultados de la búsqueda"); } }
+  try { history.pushState(Object.assign({}, history.state || {}, { pyaBusq: 1, pyaPag: undefined }), ""); } catch (_) {} if (CPW.paso === 2) { const c = $("#catalogo"); if (c) c.innerHTML = catalogoHTML(); updateCarritoUI(); }
   if (tipo === "prod") setTimeout(() => { const el = document.getElementById("row-" + id); if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.classList.add("busq-flash"); setTimeout(() => el.classList.remove("busq-flash"), 2200); } }, 250);
 }
 /* ---------- Insignia de Trabajos comunitarios: los clientes inscritos en alguna actividad llevan un 🤝 junto a su foto ----------
@@ -18622,7 +18634,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ult-acc .ult-pagado{border-radius:12px;font-weight:800}.ult-acc .ult-pagado~.link{grid-column:1/-1}
 .ult-acc .acciones>.btn,.ult-acc .ult-pagado{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:empty{display:none}
+.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .cli-not{margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}
 .cli-not-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.cli-not-h b{font-size:1rem}.cli-not-h small{margin-left:auto;color:var(--muted);font-weight:600}
