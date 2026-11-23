@@ -7963,6 +7963,8 @@ async function accionRep(act, id, btn) {
       if (d.estado !== "pendiente" || (d.repartidorId && d.repartidorId !== r.id)) { toast("Otro repartidor ya tomó este pedido.", { error: true }); return; }
       await conReintento(() => ref.update({ estado: "en_camino", repartidorId: r.id, repartidorNombre: r.nombre, tomado: Date.now() }));
       { const pe = S.pedidos.find(x => x.id === id); if (pe) Object.assign(pe, { estado: "en_camino", repartidorId: r.id, repartidorNombre: r.nombre, tomado: Date.now() }); }
+      /* Aviso push al cliente: su pedido va en camino. */
+      conReintento(() => S.db.doc("avisos_push/camino_" + id + "_" + Date.now().toString(36)).set({ tipo: "en_camino", pedido: id, por: r.nombre || "", en: Date.now() })).catch(() => {});
       /* Se queda en la misma lista (el pedido sale de «Por tomar» sin mover la pantalla). */
       if (S.portal === "repartidor") { const y = window.scrollY; renderListas(); window.scrollTo(0, y); }
       else { irAComanda(id, "mios", d.fechaEntrega); toast(`Pedido #${codigo(id)} tomado. Está en Pendientes.`); }

@@ -156,7 +156,7 @@ html:has(#msj-pan:not([hidden])) #push-card{display:none}`;
         return;
       }
       if (!fuiLista && cuenta()) {
-        const b = document.querySelector('[data-act="rep-tab"][data-t="ultimos"], [data-act="ad-local"][data-l="ult"]');
+        const b = document.querySelector('[data-act="rep-tab"][data-t="ultimos"], [data-act="ad-local"][data-l="ult"], .cli-tabs [data-act="cli-tab"][data-t="mis"]');
         if (b) { b.click(); fuiLista = true; }
       }
       if (n > 40) clearInterval(t);
