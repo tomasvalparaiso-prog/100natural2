@@ -4324,6 +4324,7 @@ function vistaCliente() {
     <button type="button" class="cli-favs" data-act="cli-favs"><span class="rep-ti" aria-hidden="true" style="color:#e11d48!important">${FAV_SVG.replace('<svg ', '<svg width="26" height="26" fill="currentColor" ')}</span><span class="rep-tt">Mis favoritos</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-promos"><span class="rep-ti" aria-hidden="true" style="color:#f59e0b!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span><span class="rep-tt">Promociones</span><span class="cnt" id="cnt-promos"></span></button>
+    ${esLocal() ? "" : `<button type="button" class="cli-solo-ini" data-act="cli-ofertadia"><span class="rep-ti" aria-hidden="true" style="color:#dc2626!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg></span><span class="rep-tt">Oferta del día</span><span class="cnt" id="cnt-ofd"></span></button>`}
     <button type="button" class="cli-solo-ini" data-act="cli-buscar"><span class="rep-ti" aria-hidden="true" style="color:#0ea5e9!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></svg></span><span class="rep-tt">Buscador</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-puntos"><span class="rep-ti" aria-hidden="true" style="color:#d97706!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m12 6 1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5L11 8z"/><path d="M8.5 14 7 21l5-2.5L17 21l-1.5-7"/></svg></span><span class="rep-tt">Puntos</span><span class="cnt pts-cnt" id="cnt-pts"></span></button>
     ${esLocal() ? "" : `<button type="button" class="cli-solo-ini" data-act="cli-cupones"><span class="rep-ti" aria-hidden="true" style="color:#db2777!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6z"/><path d="M9 9h.01M15 15h.01M15.5 8.5l-7 7"/></svg></span><span class="rep-tt">Cupones</span><span class="cnt" id="cnt-cupcli"></span></button>`}
@@ -7945,7 +7946,7 @@ function repLejos(p) {
   const m = String(p.horario || "").match(/(\d{1,2}):(\d{2})/); if (!m || (f && f < hy)) return "";
   const ini = new Date(); ini.setHours(Number(m[1]), Number(m[2]), 0, 0);
   const falta = ini.getTime() - Date.now();
-  if (falta > 2 * 36e5) { const hh = Math.floor(falta / 36e5), mm = Math.round(falta % 36e5 / 6e4); return `Este pedido se entrega desde las <b>${esc(m[1].padStart(2, "0") + ":" + m[2])}</b>${p.horario ? ` (${esc(p.horario)})` : ""}: faltan ${hh} h${mm ? ` ${mm} min` : ""}.`; }
+  if (falta > 2 * 36e5) { const hh = Math.floor(falta / 36e5), mm = Math.round(falta % 36e5 / 6e4), desde = new Date(ini.getTime() - 2 * 36e5), dh = String(desde.getHours()).padStart(2, "0") + ":" + String(desde.getMinutes()).padStart(2, "0"); return `Este pedido se entrega desde las <b>${esc(m[1].padStart(2, "0") + ":" + m[2])}</b>${p.horario ? ` (${esc(p.horario)})` : ""}: faltan ${hh} h${mm ? ` ${mm} min` : ""}. Podrás tomarlo desde las <b>${dh}</b>.`; }
   return "";
 }
 /* «Para mañana»: pasa un pedido por tomar al día hábil siguiente (no domingo) y lo deja con prioridad. */
@@ -7967,6 +7968,7 @@ async function accionRep(act, id, btn) {
   const r = repUsuario(), ref = S.db.doc("pedidos/" + id);
   ocupar(btn, true, "…");
   try {
+    if (act === "tomar" && S.portal === "repartidor" && repLejos(S.pedidos.find(x => x.id === id))) { toast("Todavía no puedes tomar este pedido: falta más de 2 horas para su horario.", { error: true }); return; }
     if (act === "tomar") {
       let lease = null;
       try { lease = await ref.acquire({ holder: r.id + "-" + Math.random().toString(36).slice(2), ttlMs: 4000 }); } catch (_) {}
@@ -9767,7 +9769,7 @@ function navEntrada(b) {
   const a = b.dataset.act, k = S.portal; if (!a) return null;
   if (a === "ini-portal" || a === "pv-inicio" || a === "cli-inicio" || (a === "ad-local" && b.dataset.l === "inicio")) return { key: "inicio", sel: NAV_INICIO[k] };
   if (a === "usu-bar") return ["admin", "papas", "cliente", "cfd"].includes(k) ? { key: "perfil", sel: "#usu-bar" } : null;
-  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro", "cli-buscar", "cli-puntos"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
+  if (["cli-promos", "cli-cupones", "cli-coment", "cli-comun", "cli-muro", "cli-buscar", "cli-puntos", "cli-ofertadia"].includes(a)) return { key: `[data-act="${a}"]`, sel: `.cli-tabs [data-act="${a}"]` };
   if (!(/tab$/.test(a) || a === "ad-local")) return null;
   let key = `[data-act="${a}"]`; ["t", "l"].forEach(d => { if (b.dataset[d]) key += `[data-${d}="${b.dataset[d]}"]`; });
   const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
@@ -11180,9 +11182,10 @@ const PTS_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke=
 const CLIN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="12.5" r="2.3"/><path d="M8.5 19c.4-2 1.8-3.2 3.5-3.2s3.1 1.2 3.5 3.2"/></svg>';
 const MURO_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>';
 const CMU_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3A5 5 0 0 1 21 19"/></svg>';
+const NEON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M6 12h3M11 12h7"/><path d="M5 4l1.5 2M19 4l-1.5 2M12 3v2.5"/></svg>';
 const COM_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const CUP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 5v2M14 11v2M14 17v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc" || AD.local === "vpar")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "sus" ? SUS_SVG : k === "refad" ? REF_SVG : k === "grupal" ? GRP_SVG : k === "mloc" ? ML_SVG : k === "combo" ? COMBO_SVG : k === "oferta" ? OFERTA_SVG : k === "rec" ? REC_SVG : k === "calif" ? CALIF_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
+const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc" || AD.local === "vpar")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "sus" ? SUS_SVG : k === "refad" ? REF_SVG : k === "grupal" ? GRP_SVG : k === "mloc" ? ML_SVG : k === "combo" ? COMBO_SVG : k === "oferta" ? OFERTA_SVG : k === "neon" ? NEON_SVG : k === "rec" ? REC_SVG : k === "calif" ? CALIF_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button></div>
@@ -11192,7 +11195,7 @@ function vistaAdmin() {
       ${AD_CERR() ? `<button type="button" class="local-btn ls-volver nav-volver" data-act="nav-volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Volver</button>` : ""}
       ${AD_GRUPOS.map(([g, its]) => (AD_CERR() ? "" : `<h3 class="ad-grp-h"><span class="ad-grp-e" aria-hidden="true">${AD_GRP_E[g] || "📁"}</span>${g}</h3>`) + its.map(adBtn).join("")).join("")}
     </div>
-    ${["papas", "agua", "rep", "prov"].includes(AD.local) ? aduBarHTML(AD.local === "rep" ? "repartidor" : AD.local) : ""}${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "vpar" ? `${ventasTabsHTML()}<div id="vpar-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : (AD.local === "est" || AD.local === "estpro") ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "clin" ? `<div id="clin-panel"></div>` : AD.local === "pts" ? `<div id="ptsad-panel"></div>` : AD.local === "sus" ? `<div id="susad-panel"></div>` : AD.local === "combo" ? `<div id="cbad-panel"></div>` : AD.local === "oferta" ? `<div id="ofad-panel"></div>` : AD.local === "rec" ? `<div id="recad-panel"></div>` : AD.local === "calif" ? `<div id="calad-panel"></div>` : AD.local === "refad" ? `<div id="refad-panel"></div>` : AD.local === "grupal" ? `<div id="grupal-panel"></div>` : AD.local === "mloc" ? `<div id="ml-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
+    ${["papas", "agua", "rep", "prov"].includes(AD.local) ? aduBarHTML(AD.local === "rep" ? "repartidor" : AD.local) : ""}${AD.local === "inicio" ? "" : AD.local === "prb" ? adPrbHTML() : AD.local === "utfsm2" ? adUt2HTML() : AD.local === "pizz2" ? adPz2HTML() : AD.local === "perfil" ? perfilHTML("admin") : AD.local === "agp" ? agpHTML() : AD.local === "borr" ? borrHTML() : AD.local === "rep" ? repBodyHTML() : AD.local === "pizz" ? `<div id="apz-panel"></div>` : AD.local === "utfsm" ? `<div id="aut-panel"></div>` : AD.local === "ploc" ? `<div id="ploc-panel"></div>` : AD.local === "efead" ? `<div id="efead-panel"></div>` : AD.local === "posad" ? posAdHTML() : AD.local === "prov" ? `<div id="prov-crear"></div>${tabsProd("pv-adtab", [["ingreso", "Ingresar pedido"], ["pedidos", "Pedidos"], ["pagos", "Pago pedidos"]], PV.adTab)}<div id="prov-panel"></div>` : AD.local === "usu" ? `<div id="usu-crear"></div><div id="usu-panel"></div>` : AD.local === "ped" ? `${ventasTabsHTML()}<div id="tp-panel"></div>` : AD.local === "graf" ? `${ventasTabsHTML()}<div id="graf-panel"></div>` : AD.local === "vloc" ? `${ventasTabsHTML()}<div id="vloc-panel"></div>` : AD.local === "vpar" ? `${ventasTabsHTML()}<div id="vpar-panel"></div>` : AD.local === "pag" ? `${ventasTabsHTML()}<div id="tpg-panel"></div>` : AD.local === "pper" ? `<div id="tpg-panel"></div>` : (AD.local === "est" || AD.local === "estpro") ? `<div id="est-panel"></div>` : AD.local === "red" ? `<div id="red-panel"></div>` : AD.local === "cuentas" ? `<div id="cl-panel"></div>` : AD.local === "piezas" ? `<div id="pz-panel"></div>` : AD.local === "pron" ? `<div id="pron-panel"></div>` : AD.local === "imp" ? `<div id="imp-panel"></div>` : AD.local === "reg" ? `<div id="reg-panel"></div>` : AD.local === "inv" ? `<div id="inv-ad-panel"></div>` : AD.local === "ult" ? `<div id="ult-panel"></div>` : AD.local === "ins" ? `<div id="ins-ad-panel"></div>` : AD.local === "osm" ? `<div id="osm-panel"></div>` : AD.local === "posc" ? `<div id="pc-panel"></div>` : AD.local === "promo" ? `<div id="promo-panel"></div>` : AD.local === "cup" ? `<div id="cup-panel"></div>` : AD.local === "coment" ? `<div id="com-panel"></div>` : AD.local === "clin" ? `<div id="clin-panel"></div>` : AD.local === "pts" ? `<div id="ptsad-panel"></div>` : AD.local === "sus" ? `<div id="susad-panel"></div>` : AD.local === "combo" ? `<div id="cbad-panel"></div>` : AD.local === "oferta" ? `<div id="ofad-panel"></div>` : AD.local === "neon" ? `<div id="neon-panel"></div>` : AD.local === "rec" ? `<div id="recad-panel"></div>` : AD.local === "calif" ? `<div id="calad-panel"></div>` : AD.local === "refad" ? `<div id="refad-panel"></div>` : AD.local === "grupal" ? `<div id="grupal-panel"></div>` : AD.local === "mloc" ? `<div id="ml-panel"></div>` : AD.local === "comun" ? `<div id="cmu-panel"></div>` : AD.local === "muro" ? `<div id="muro-panel"></div>` : AD.local === "precios" ? `<div id="precios-panel"></div>` : AD.local === "bus" ? busCardHTML() : AD.local === "capt" || AD.local === "captados" ? `<div id="adcap-panel"></div>` : `${AD.seccion === "clientes" ? `${tabsProd("ad-tab", TABS_ADMIN.map(([k, l]) => [k, k === "total" ? (AD.local === "papas" ? "Total pedidos papas" : "Total pedidos agua") : l]), AD.tab)}<div id="admin-panel"></div>`
       : AD.local === "agua" ? `${tabsProd("agua-tab", [...TABS_AGUA.filter(([k]) => k !== "sueldo"), ["osm", "Osmosis inversa"]], AG.tab === "sueldo" ? (AG.tab = "pdped") : AG.tab)}<div id="agua-panel"></div>`
       : `${tabsProd("papas-tab", TABS_PAPAS.filter(([k]) => k !== "sueldo"), (PP.tab === "sueldo" || PP.tab === "prv" ? (PP.tab = "ped") : PP.tab))}<div id="papas-panel"></div>`}`}`;
 }
@@ -11620,7 +11623,7 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 const AD_GRUPOS = [
   ["100% Natural", [["clin", "Clientes"], ["papas", "Local papas"], ["agua", "Local agua"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"], ["perfil", "Perfil"]]],
   ["Pedidos", [["ult", "Últimos pedidos"], ["red", "Pedidos redundantes"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"]]],
-  ["Fidelización", [["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["muro", "Muro de comentarios"], ["comun", "Trabajos comunitarios"], ["pts", "Puntos"], ["sus", "Suscripción"], ["refad", "Referidos"], ["grupal", "Pedidos grupales"], ["combo", "Combos y packs"], ["oferta", "Oferta del día"], ["rec", "Recetas"], ["calif", "Calificaciones"], ["precios", "Precios especiales"]]],
+  ["Fidelización", [["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["muro", "Muro de comentarios"], ["comun", "Trabajos comunitarios"], ["pts", "Puntos"], ["sus", "Suscripción"], ["refad", "Referidos"], ["grupal", "Pedidos grupales"], ["combo", "Combos y packs"], ["oferta", "Oferta del día"], ["neon", "Barra neón"], ["rec", "Recetas"], ["calif", "Calificaciones"], ["precios", "Precios especiales"]]],
   ["Caja (pagos y ventas)", [["pag", "Ventas"], ["ploc", "Pagos clientes"], ["mloc", "Merma"]]],
   ["Estadísticas", [["pron", "Estimación de pedidos"], ["est", "Ventas del periodo"], ["estpro", "Promociones"]]],
   /* Repartidores pasó a «100% Natural» («Pagos en efectivo» quedó como pestaña dentro de Repartidores). */
@@ -13700,6 +13703,7 @@ function activarAdmin() {
   if (AD.local === "sus") { subUsuarios(); subSus(); subSusAd(); renderSusAd(); return; }
   if (AD.local === "combo") { subFid(); renderCombosAd(); return; }
   if (AD.local === "oferta") { subFid(); renderOfertaAd(); return; }
+  if (AD.local === "neon") { subFid(); subNeon(); renderNeonAd(); return; }
   if (AD.local === "rec") { subFid(); renderRecetasAd(); return; }
   if (AD.local === "calif") { subUsuarios(); renderCalifAd(); return; }
   if (AD.local === "refad") { subUsuarios(); subPuntosAd(); renderRefAd(); return; }
@@ -15498,6 +15502,7 @@ document.addEventListener("click", e => {
   }
   else if (a === "cli-promos") abrirPromosCli();
   else if (a === "cli-cupones") { if (!esLocal()) abrirCuponesCli(); }
+  else if (a === "cli-ofertadia") { if (!esLocal()) abrirOfertaDia(); }
   else if (a === "cupc-cerrar") { const m = $("#cupc-modal"); if (m) m.remove(); }
   else if (a === "cupc-copiar") { try { navigator.clipboard.writeText(id).then(() => toast(`📋 Código ${id} copiado.`), () => toast(`Código: ${id}`)); } catch (_) { toast(`Código: ${id}`); } }
   else if (a === "cupc-usar") usarCuponCli(id);
@@ -15529,6 +15534,10 @@ document.addEventListener("click", e => {
   else if (a === "cbad-borrar") borrarDocFid("combos", b.dataset.id, "Combo eliminado.");
   else if (a === "cbad-act") toggleCombo(b.dataset.id);
   else if (a === "ofad-guardar") guardarOferta(b);
+  else if (a === "neon-add") { neonLeer(); NEON.ed.mensajes.push({ t: "", ir: "", on: true }); renderNeonAd(true); }
+  else if (a === "neon-del") { neonLeer(); NEON.ed.mensajes.splice(Number(b.dataset.i), 1); renderNeonAd(true); }
+  else if (a === "neon-guardar") guardarNeon(b);
+  else if (a === "neon-ir") neonIr(b.dataset.ir);
   else if (a === "ofad-quitar") quitarOferta();
   else if (a === "recad-nuevo") { FID.recEd = { id: "", titulo: "", emoji: "🥔", foto: "", tiempo: "", porciones: "", ingredientes: "", pasos: "", prods: [] }; renderRecetasAd(); }
   else if (a === "recad-editar") { const r = FID.recetas.find(x => x.id === b.dataset.id); if (r) { FID.recEd = Object.assign({ prods: [] }, r, { ingredientes: (r.ingredientes || []).join("\n"), pasos: (r.pasos || []).join("\n") }); renderRecetasAd(); } }
@@ -16304,12 +16313,12 @@ document.addEventListener("click", e => {
   else if (a === "fac-del-no") { S.facDel = ""; refrescarDelPed(); }
   else if (a === "fac-del-si") quitarFactura(id, b);
   else if (a === "ped-prio") { if (S.portal === "admin" && S.ses.admin) cambiarPrio(id, b); }
-  else if (a === "tomar" && S.portal === "repartidor" && !b.dataset.conf && repLejos(S.pedidos.find(x => x.id === id))) {
-    /* Pedido lejos del horario actual: se pide confirmar antes de tomarlo. */
+  else if (a === "tomar" && S.portal === "repartidor" && repLejos(S.pedidos.find(x => x.id === id))) {
+    /* Pedido a más de 2 horas de su rango horario (u otro día): se avisa y no se permite tomarlo. */
     const msg = repLejos(S.pedidos.find(x => x.id === id)), box = b.parentElement; if (!box) return;
     const ya = box.querySelector(".rep-conf"); if (ya) ya.remove();
     const dv = document.createElement("div"); dv.className = "rep-conf"; dv.setAttribute("role", "alert");
-    dv.innerHTML = `<p>⚠️ ${msg}</p><div><button type="button" class="btn primario chico" data-act="tomar" data-id="${esc(id)}" data-conf="1">Tomar igual</button><button type="button" class="btn suave chico" data-act="rep-conf-no">Cancelar</button></div>`;
+    dv.innerHTML = `<p>⛔ <b>Todavía no puedes tomar este pedido.</b> ${msg}</p><div><button type="button" class="btn suave chico" data-act="rep-conf-no">Entendido</button></div>`;
     b.after(dv); b.hidden = true;
   }
   else if (a === "rep-manana") { if (S.db) repManana(id, b); }
@@ -17984,7 +17993,7 @@ function cerrarPromoModal() { const m = $("#promo-modal"); if (m) m.remove(); }
    de la página (con el banner, el nombre de la sección arriba y la barra inferior), igual que Inicio o Mis pedidos.
    Se muestran en «#panel-sec» (S.cliTab = "sec"); el botón Atrás del teléfono vuelve a Inicio. */
 let PAG_N = 0, PAG_EL = null;
-const PAG_ACT = { "grp-modal": "cli-grupos", "combos-modal": "cli-combos", "rec-modal": "cli-recetas", "trk-modal": "cli-tab-mis", "ref-modal": "cli-referidos", "pts-modal": "cli-puntos", "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
+const PAG_ACT = { "ofd-modal": "cli-ofertadia", "grp-modal": "cli-grupos", "combos-modal": "cli-combos", "rec-modal": "cli-recetas", "trk-modal": "cli-tab-mis", "ref-modal": "cli-referidos", "pts-modal": "cli-puntos", "busq-modal": "cli-buscar", "promo-pag": "cli-promos", "cupc-modal": "cli-cupones", "com-modal": "cli-coment", "cmu-modal": "cli-comun", "muro-modal": "cli-muro" };
 
 /* ---------- Suscripción: los pedidos programados (que se crean solos) llevan un % de descuento que define el administrador (config/suscripcion). ---------- */
 const SUS = { pct: 0, subs: false, cargado: false, lista: [], subsAd: false, cargadoAd: false, edit: "" };
@@ -18215,7 +18224,7 @@ function descExtra() {
 }
 function descExtraDoc() { const d = descExtra(); return Object.assign({}, d.primera ? { primeraCompra: true, descuentoPrimera: d.primera, primeraPct: PRIMERA_PCT } : {}, d.grupoId ? { grupoId: d.grupoId, grupoNombre: d.grupoNombre, grupoPct: d.grupoPct, grupoBase: d.grupoBase, descuentoGrupo: d.grupo || 0 } : {}, d.combo ? { descuentoCombo: d.combo, combosTxt: d.combosTxt } : {}, d.oferta ? { descuentoOferta: d.oferta, ofertaProd: (ofertaVigente() || {}).prod } : {}); }
 function irAlCarrito() {
-  ["combos-modal", "rec-modal"].forEach(id => { const m = $("#" + id); if (m) m.remove(); });
+  ["combos-modal", "rec-modal", "ofd-modal"].forEach(id => { const m = $("#" + id); if (m) m.remove(); });
   setTimeout(() => { const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click(); setTimeout(() => { try { if (cpwOn() && carritoLista().length) cpwIr(3); } catch (_) {} updateCarritoUI(); }, 120); }, 60);
 }
 function comboAgregar(cid) {
@@ -18264,6 +18273,104 @@ function combosPagHTML() {
       <div class="cb-pie"><p>${ah > 0 ? `<s>${clp(reg)}</s> ` : ""}<b>${clp(c.precio)}</b>${ah > 0 ? ` <em>Ahorras ${clp(ah)}</em>` : ""}</p><button type="button" class="btn primario" data-act="combo-agregar" data-id="${esc(c.id)}">🛒 Agregar</button></div></article>`; }).join("")}</div>`
       : vacio("Aún no hay combos", "Pronto tendremos packs con precio especial.")}</div>`;
 }
+/* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
+const NEON = { subs: false, cfg: null, ed: null };
+const NEON_IR = [["", "Sin enlace"], ["cli-ofertadia", "Oferta del día"], ["cli-promos", "Promociones"], ["cli-cupones", "Cupones"], ["cli-combos", "Combos y packs"], ["cli-grupos", "Pedidos grupales"], ["cli-referidos", "Invita y gana"], ["cli-puntos", "Puntos"], ["cli-recetas", "Recetas"], ["nuevo", "Nuevo pedido"]];
+const NEON_COL = [["rosa", "Rosa"], ["azul", "Azul"], ["verde", "Verde"], ["amarillo", "Amarillo"], ["naranjo", "Naranjo"]];
+function subNeon() { if (NEON.subs || !S.db) return; NEON.subs = true; S.db.doc("config/neon").onSnapshot(d => { NEON.cfg = d.exists ? d.data() || {} : {}; if (!NEON.sucio) NEON.ed = null; pintarNeon(); renderNeonAd(); }, () => { NEON.cfg = NEON.cfg || {}; }); }
+function neonCfg() { const c = NEON.cfg || {}; return { activa: c.activa !== false, oferta: c.oferta !== false, color: c.color || "rosa", vel: c.vel || "normal", mensajes: Array.isArray(c.mensajes) ? c.mensajes : [] }; }
+function neonItems(cfg) {
+  const its = [];
+  const o = cfg.oferta ? ofertaVigente() : null;
+  if (o) { const p = PROD[o.prod], antes = precioMio(o.prod), pct = antes > 0 ? Math.round((1 - Number(o.precio) / antes) * 100) : 0, fin = new Date(Number(o.hasta)); its.push({ t: `⏰ OFERTA DEL DÍA: ${o.titulo ? o.titulo + " · " : ""}${etiqueta(p)} a ${clp(o.precio)}${pct > 0 ? ` (−${pct}%)` : ""} · hasta las ${String(fin.getHours()).padStart(2, "0")}:${String(fin.getMinutes()).padStart(2, "0")}`, ir: "cli-ofertadia" }); }
+  for (const m of cfg.mensajes) if (m && m.on !== false && String(m.t || "").trim()) its.push({ t: String(m.t).trim(), ir: m.ir || "" });
+  return its;
+}
+function neonHTML(cfg, its) {
+  const seg = `<div class="neon-seg">${its.map(x => `<span class="neon-it" data-ir="${esc(x.ir)}">${esc(x.t)}</span>`).join("")}</div>`;
+  const largo = its.reduce((t, x) => t + x.t.length + 8, 0), f = cfg.vel === "lenta" ? 0.32 : cfg.vel === "rapida" ? 0.14 : 0.22;
+  return `<div class="neon-track" style="--nd:${Math.max(8, Math.round(largo * f))}s">${seg}${seg.replace('class="neon-seg"', 'class="neon-seg" aria-hidden="true"')}</div>`;
+}
+function pintarNeon() {
+  let el = document.getElementById("neon-bar");
+  if (!el) { const bn = document.getElementById("banner"); if (!bn) return; bn.insertAdjacentHTML("afterend", `<div id="neon-bar" class="neon-bar" role="marquee" aria-label="Novedades" hidden></div>`); el = document.getElementById("neon-bar"); }
+  const ok = S.portal === "cliente" && !!S.ses.cliente;
+  if (ok) { subNeon(); subFid(); }
+  const cfg = neonCfg(), its = ok && NEON.cfg && cfg.activa ? neonItems(cfg) : [];
+  if (!its.length) { if (!el.hidden) { el.hidden = true; el.innerHTML = ""; el.dataset.f = ""; } return; }
+  const f = JSON.stringify([cfg.color, cfg.vel, its]);
+  if (el.dataset.f !== f) { el.dataset.f = f; el.dataset.c = cfg.color; el.innerHTML = neonHTML(cfg, its); }
+  if (el.hidden) el.hidden = false;
+}
+setInterval(pintarNeon, 2000);
+function neonIr(ir) {
+  if (!ir || S.portal !== "cliente") return;
+  if (ir === "nuevo") { const t = $('.cli-tabs [data-act="cli-tab"][data-t="nuevo"]'); if (t) t.click(); return; }
+  const b = $(`.cli-tabs [data-act="${ir}"]`); if (b) b.click();
+}
+document.addEventListener("click", e => {
+  const bar = e.target.closest && e.target.closest("#neon-bar"); if (!bar) return;
+  const it = e.target.closest(".neon-it"), ir = it ? it.dataset.ir : ((bar.querySelector(".neon-it") || {}).dataset || {}).ir;
+  neonIr(ir);
+}, true);
+function neonLeer() {
+  const f = NEON.ed; if (!f) return; NEON.sucio = true; const v = id => document.getElementById(id);
+  if (v("neon-activa")) f.activa = v("neon-activa").checked; if (v("neon-oferta")) f.oferta = v("neon-oferta").checked;
+  if (v("neon-color")) f.color = v("neon-color").value; if (v("neon-vel")) f.vel = v("neon-vel").value;
+  f.mensajes.forEach((m, i) => { const t = v("neon-t" + i), ir = v("neon-ir" + i), on = v("neon-on" + i); if (t) m.t = t.value; if (ir) m.ir = ir.value; if (on) m.on = on.checked; });
+}
+function neonAdHTML() {
+  if (!NEON.cfg) return `<div class="card ad-card"><p class="muted-s">Cargando…</p></div>`;
+  const f = NEON.ed || (NEON.ed = JSON.parse(JSON.stringify(neonCfg())));
+  const prevIts = f.activa ? neonItems(f) : [];
+  return `<div class="card ad-card"><h2 class="h2">✨ Barra neón</h2><p class="muted-s">Aparece en Clientes justo debajo del banner, con el texto en movimiento. Al tocar un mensaje, el cliente va a la sección que elijas.</p>
+    <p class="muted-s"><b>Vista previa</b></p>${prevIts.length ? `<div class="neon-bar neon-prev" data-c="${esc(f.color)}">${neonHTML(f, prevIts)}</div>` : `<p class="muted-s">${f.activa ? "No hay mensajes para mostrar: la barra no aparece." : "La barra está apagada."}</p>`}
+    <div class="form">
+      <label class="neon-chk"><input type="checkbox" id="neon-activa" ${f.activa ? "checked" : ""}> Mostrar la barra neón a los clientes</label>
+      <label class="neon-chk"><input type="checkbox" id="neon-oferta" ${f.oferta ? "checked" : ""}> Incluir la oferta del día (cuando hay una vigente)</label>
+      <div class="pg-2"><label class="campo"><span>Color</span><select id="neon-color">${NEON_COL.map(([k, l]) => `<option value="${k}" ${f.color === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+      <label class="campo"><span>Velocidad</span><select id="neon-vel">${[["lenta", "Lenta"], ["normal", "Normal"], ["rapida", "Rápida"]].map(([k, l]) => `<option value="${k}" ${f.vel === k ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
+      <fieldset class="campo"><legend>Campañas en la barra</legend>
+        ${f.mensajes.length ? f.mensajes.map((m, i) => `<div class="neon-fila"><label class="campo"><span>Mensaje ${i + 1}</span><input id="neon-t${i}" value="${esc(m.t || "")}" maxlength="120" placeholder="Ej.: 🚚 Despacho gratis sobre $15.000 este fin de semana"></label>
+          <button type="button" class="btn chico suave" data-act="neon-del" data-i="${i}" aria-label="Quitar mensaje ${i + 1}">Quitar</button>
+          <div class="pg-2"><label class="campo"><span>Al tocarlo, ir a</span><select id="neon-ir${i}">${NEON_IR.map(([k, l]) => `<option value="${k}" ${(m.ir || "") === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+          <label class="neon-chk"><input type="checkbox" id="neon-on${i}" ${m.on !== false ? "checked" : ""}> Visible</label></div></div>`).join("") : `<p class="muted-s">Aún no hay campañas.</p>`}
+        <button type="button" class="btn suave" data-act="neon-add">+ Agregar mensaje</button></fieldset>
+      <div class="acciones"><button type="button" class="btn primario" data-act="neon-guardar">Guardar barra neón</button></div></div></div>`;
+}
+function renderNeonAd(forzar) { const el = $("#neon-panel"); if (!el || AD.local !== "neon") return; const a = document.activeElement; if (!forzar && a && el.contains(a) && /INPUT|SELECT/.test(a.tagName)) return; el.innerHTML = neonAdHTML(); }
+document.addEventListener("change", e => { if (e.target.closest && e.target.closest("#neon-panel") && /neon-(activa|oferta|color|vel|on|ir)/.test(e.target.id || "")) { neonLeer(); renderNeonAd(true); } });
+document.addEventListener("input", e => { if (e.target.closest && e.target.closest("#neon-panel") && /^neon-t\d/.test(e.target.id || "")) { neonLeer(); const f = NEON.ed, its = f.activa ? neonItems(f) : [], p = $("#neon-panel .neon-prev"); if (p && its.length) { p.innerHTML = neonHTML(f, its); } } });
+async function guardarNeon(btn) {
+  neonLeer(); const f = NEON.ed; if (!f) return;
+  const mensajes = f.mensajes.map(m => ({ t: String(m.t || "").trim().slice(0, 120), ir: m.ir || "", on: m.on !== false })).filter(m => m.t);
+  ocupar(btn, true, "Guardando…");
+  try { await conReintento(() => S.db.doc("config/neon").set({ activa: !!f.activa, oferta: !!f.oferta, color: f.color || "rosa", vel: f.vel || "normal", mensajes, en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); NEON.ed = null; NEON.sucio = false; toast("Barra neón guardada."); }
+  catch (e) { toast(msgError(e)); }
+  finally { ocupar(btn, false); renderNeonAd(true); }
+}
+/* Botón «Oferta del día» (clientes particulares): página con la oferta que publica el administrador. */
+function ofertaDiaHTML() {
+  const o = ofertaVigente();
+  const cab = `<div class="pl-h"><b>⏰ Oferta del día</b><button type="button" class="ap-cerrar" data-act="fid-cerrar" aria-label="Volver">×</button></div>`;
+  if (!FID.cargado) return `<div class="promo-box fid-box">${cab}<p class="muted-s">Cargando…</p></div>`;
+  if (!o) return `<div class="promo-box fid-box">${cab}${vacio("Hoy no hay oferta del día", "Vuelve pronto: cada día podemos publicar un producto a precio especial.")}</div>`;
+  const p = PROD[o.prod], antes = precioMio(o.prod), pct = antes > 0 ? Math.round((1 - Number(o.precio) / antes) * 100) : 0;
+  return `<div class="promo-box fid-box">${cab}<article class="ofd-card">
+    ${pct > 0 ? `<span class="ofd-pct">−${pct}%</span>` : ""}
+    <div class="ofd-emo" aria-hidden="true">${p.fam === "papa" ? "🥔" : "💧"}</div>
+    <h2>${esc(o.titulo || etiqueta(p))}</h2>${o.titulo ? `<p class="ofd-prod">${esc(etiqueta(p))}</p>` : ""}<small>${esc(detalle(p))}${o.max ? ` · máx. ${o.max} por pedido` : ""}</small>
+    <p class="ofd-precio">${antes > Number(o.precio) ? `<s>${clp(antes)}</s> ` : ""}<b>${clp(o.precio)}</b></p>
+    <p class="ofd-fin">Termina en <b class="ofd-t">${restaTxt(Number(o.hasta) - Date.now())}</b></p>
+    <button type="button" class="btn primario ofd-btn" data-act="oferta-agregar">🛒 Aprovechar oferta</button></article></div>`;
+}
+function abrirOfertaDia() { if (!S.ses.cliente) return; subFid(); paginaFid("ofd-modal", ofertaDiaHTML()); }
+setInterval(() => {
+  const n = $("#cnt-ofd"); if (n) { const t = ofertaVigente() ? "1" : ""; if (n.textContent !== t) n.textContent = t; }
+  const m = $("#ofd-modal"); if (!m) return; const o = ofertaVigente(), f = m.dataset.f || "", g = o ? o.prod + o.precio + o.hasta + (o.titulo || "") : "-";
+  if (f !== g) { m.dataset.f = g; m.innerHTML = ofertaDiaHTML(); return; }
+  const t = m.querySelector(".ofd-t"); if (t && o) t.textContent = restaTxt(Number(o.hasta) - Date.now());
+}, 1000);
 function pintarCombos() { if ($("#combos-modal")) paginaFid("combos-modal", combosPagHTML()); }
 function abrirCombos() { if (!S.ses.cliente) return; subFid(); paginaFid("combos-modal", combosPagHTML()); }
 const RECETAS_BASE = [
@@ -19317,6 +19424,16 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ult-acc .acciones>.btn,.ult-acc .ult-pagado{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
 .ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.adbq-modal{position:fixed;inset:0;z-index:300;overflow:auto;background:var(--bg,#eef3f5);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 40px;-webkit-overflow-scrolling:touch}.adbq-box{max-width:760px;margin:0 auto}.adbq-top{display:flex;align-items:center;gap:12px;margin:2px 0 12px}.adbq-top b{font-size:1.15rem}.adbq-modal .busq-campo{top:0}.busq-h small{font-weight:700;color:var(--muted);margin-left:4px}.adbq-mas,.adbq-ayuda{margin:8px 4px 0}.adbq-fv{margin:4px 0 10px}.adbq-ficha{display:grid;gap:12px;padding:16px}.adf-cab{display:flex;align-items:center;gap:12px}.adf-cab .uc-av{width:52px;height:52px;font-size:1.2rem;flex:none;display:grid;place-items:center;border-radius:999px;background:#0e7490;color:#fff;font-weight:800}.adf-cab>div{display:grid}.adf-cab b{font-size:1.2rem}.adf-cab small{color:var(--muted)}.adf-dl{margin:0;display:grid;gap:6px}.adf-dl>div{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.adf-dl dt{color:var(--muted);font-size:.85rem}.adf-dl dd{margin:0;font-weight:600;overflow-wrap:anywhere}.adf-kpi{margin:0}.bus-solo-h{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 20px -16px var(--shadow)}.bus-solo-h>div{flex:1;min-width:0;display:grid}.bus-solo-h small{color:var(--muted);font-size:.78rem}.bus-solo-h b{font-size:1.02rem;line-height:1.2;overflow-wrap:anywhere}.bus-solo-h .wz-atras{padding-left:10px;padding-right:10px}body.adbq-on{overflow:hidden}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
+.neon-bar{--nc:#ff2fb3;position:relative;overflow:hidden;margin:10px auto 0;width:var(--banner-w,min(960px,calc(100% - 32px)));border-radius:14px;background:#07071a;border:2px solid var(--nc);box-shadow:0 0 6px var(--nc),0 0 16px -2px var(--nc),inset 0 0 12px -4px var(--nc);cursor:pointer;-webkit-tap-highlight-color:transparent}.neon-bar[hidden]{display:none}
+.neon-bar[data-c="verde"]{--nc:#39ff88}.neon-bar[data-c="azul"]{--nc:#2fd8ff}.neon-bar[data-c="amarillo"]{--nc:#ffe03a}.neon-bar[data-c="naranjo"]{--nc:#ff8a1f}
+.neon-track{display:flex;width:max-content;animation:neon-mov var(--nd,20s) linear infinite}.neon-bar:active .neon-track{animation-play-state:paused}
+.neon-seg{display:flex;flex:none;align-items:center;white-space:nowrap;padding:9px 0}
+.neon-it{display:inline-flex;align-items:center;padding:0 22px;font-weight:800;font-size:1rem;letter-spacing:.02em;color:#fff;text-shadow:0 0 4px #fff,0 0 10px var(--nc),0 0 20px var(--nc);animation:neon-parp 4s infinite}
+.neon-it::after{content:"✦";margin-left:44px;color:var(--nc);text-shadow:0 0 8px var(--nc)}
+@keyframes neon-mov{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes neon-parp{0%,92%,100%{opacity:1}93%{opacity:.55}95%{opacity:1}96%{opacity:.7}}
+@media (prefers-reduced-motion:reduce){.neon-track{animation:none}.neon-seg+.neon-seg{display:none}.neon-seg{flex-wrap:wrap;white-space:normal}.neon-it{animation:none}}
+.neon-fila{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}.neon-fila .pg-2{grid-column:1/-1}.neon-fila>.campo{min-width:0}.neon-fila>.campo input{width:100%;min-width:0}.neon-prev{margin:0 0 12px;width:100%}.neon-chk{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}.neon-chk input{width:22px;height:22px;flex:none;margin:0;accent-color:#0e7490}.ofd-card{position:relative;display:grid;justify-items:center;gap:6px;text-align:center;padding:18px 16px 20px;border-radius:18px;background:linear-gradient(180deg,#fff7ed,var(--surface));border:2px solid #fdba74}.ofd-card h2{margin:6px 0 0;font-size:1.3rem}.ofd-prod{margin:0;font-weight:700}.ofd-card small{color:var(--muted)}.ofd-foto{width:min(260px,70vw);aspect-ratio:1;object-fit:contain;border-radius:14px}.ofd-emo{font-size:4.5rem}.ofd-pct{position:absolute;top:12px;right:12px;background:#dc2626;color:#fff;font-weight:800;padding:4px 10px;border-radius:999px}.ofd-precio{margin:6px 0 0;font-size:1.1rem}.ofd-precio s{color:var(--muted)}.ofd-precio b{font-size:1.7rem;color:#dc2626}.ofd-fin{margin:0;color:var(--muted)}.ofd-fin b{color:var(--ink,#111);font-variant-numeric:tabular-nums}.ofd-btn{width:100%;max-width:320px;margin-top:6px}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .cli-not{margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}
 .cli-not-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.cli-not-h b{font-size:1rem}.cli-not-h small{margin-left:auto;color:var(--muted);font-weight:600}
