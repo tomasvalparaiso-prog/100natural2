@@ -7972,7 +7972,9 @@ async function accionRep(act, id, btn) {
       const tE = Date.now();
       await conReintento(() => ref.update({ estado: "entregado", entregado: tE, entregadoPor: r.nombre || "", entregadoPorId: r.id || "" }));
       const pe = S.pedidos.find(x => x.id === id); if (pe) Object.assign(pe, { estado: "entregado", entregado: tE, entregadoPor: r.nombre || "", entregadoPorId: r.id || "" });
-      irAComanda(id, "ent", pe ? fEntRep(pe) : "");
+      /* Repartidor: se queda en la sección donde está (el pedido sale de la lista sin mover la pantalla). */
+      if (S.portal === "repartidor") { const y = window.scrollY; renderListas(); window.scrollTo(0, y); }
+      else irAComanda(id, "ent", pe ? fEntRep(pe) : "");
     } else if (act === "liberar") {
       const upd = { estado: "pendiente", repartidorId: "", repartidorNombre: "", tomado: 0, rutaId: "", rutaOrden: 0, entregado: 0, entregadoPor: "", entregadoPorId: "" };
       await conReintento(() => ref.update(upd));
