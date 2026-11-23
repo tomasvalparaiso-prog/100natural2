@@ -4262,8 +4262,8 @@ function cpwValEntrega() {
   const v = id => (($("#" + id) || {}).value || "").trim();
   const desde = v("e-desde").slice(0, 5), hasta = v("e-hasta").slice(0, 5), fecha0 = v("e-fecha"), fecha = S.editPedido ? fecha0 : ajustarFecha(fecha0);
   if (esLocal() && v("e-quien").length < 2) return "Escribe tu nombre, el de quien hace el pedido.";
-  if (!v("e-dir")) return "Escribe la dirección de entrega.";
-  if (!v("e-comuna")) return "Escribe la comuna.";
+  if (!esRetiro() && !v("e-dir")) return "Escribe la dirección de entrega.";
+  if (!esRetiro() && !v("e-comuna")) return "Escribe la comuna.";
   if (digitos(v("e-tel")) < 8) return "Escribe un teléfono de contacto válido.";
   if (!fecha || fecha < hoy()) return "Elige una fecha de entrega de hoy en adelante.";
   if (!/^\d{2}:\d{2}$/.test(desde) || !/^\d{2}:\d{2}$/.test(hasta)) return "Elige el rango horario de entrega: desde y hasta.";
@@ -4901,7 +4901,7 @@ function prodHTML(p, oculto) {
 }
 function entregaHTML(c) {
   const fs = fechaSugerida();
-  return `<section class="card entrega" id="entrega" data-wz="3 4">
+  return `<section class="card entrega${typeof esRetiro === "function" && esRetiro() ? " modo-retiro" : ""}" id="entrega" data-wz="3 4">
     <div class="entrega-grid">
       <div data-wz="4">
         <h2 class="h2">Tu pedido</h2>
@@ -4914,6 +4914,7 @@ function entregaHTML(c) {
         ${S.portal === "cliente" && !S.editPedido ? `<div id="e-grupo"></div>` : ""}
         ${S.portal === "cliente" && !S.editPedido ? `<div class="corte-aviso${despuesCorte() ? " tarde" : ""}" role="note"><span aria-hidden="true">⏰</span><div><b>Recibimos pedidos hasta las ${HORA_CORTE_CLI}:00 hrs.</b><small>${despuesCorte() ? `Ya pasaron las ${HORA_CORTE_CLI}:00: tu pedido se entregará el ${esc(fmtFecha(fechaSugerida(), true))}.` : `Los pedidos hechos después de las ${HORA_CORTE_CLI}:00 hrs se entregan al día siguiente.`}</small></div></div>` : ""}
         <div class="campos" data-wz="3">
+          ${entModoHTML()}
           ${esLocal() ? `<label class="campo full"><span>Tu nombre <em>quien hace el pedido</em></span><input id="e-quien" autocomplete="off" value="" placeholder="Ej.: Juan Pérez"></label>` : ""}
           ${esLocal() ? "" : `<div class="campo full" id="e-dirs">${eDirsHTML()}</div>`}
           ${esLocal() ? `<label class="campo full"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label>` : `<div class="campo full dir-fila"><label class="campo"><span>Dirección</span><input id="e-dir" autocomplete="address-line1" value="${esc(c.direccion)}"></label><label class="campo"><span>Casa / Depto</span><input id="e-depto" autocomplete="address-line2" value="${esc(c.depto || "")}" placeholder="Opcional"></label></div>`}
@@ -5070,6 +5071,7 @@ function updateCarritoUI() {
     : `<li class="vacio">Aún no agregas productos. Usa el botón + de cada producto.</li>`;
   if (res && cargo && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
   if (res && rDist && verPrecios() && lista.length) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li"><span class="q"></span><span class="n">🚚 Recargo por distancia<small>${fmtL(DIST.km)} km desde el local (más de ${DIST_MAX} km)</small></span><span class="s">+${clp(rDist)}</span></li>`);
+  if (res && !desp && verPrecios() && lista.length && esRetiro()) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li"><span class="q"></span><span class="n">🏪 Retiro en el local<small>sin costo de despacho</small></span><span class="s">$0</span></li>`);
   if (res && desp && verPrecios() && lista.length) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li desp-res-li"><span class="q"></span><span class="n">🚚 Despacho<small>a tu dirección</small></span><span class="s">+${clp(desp)}</span></li>`);
   if (res && ivaC && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="iva-res-li"><span class="q"></span><span class="n">IVA 19% incluido<small>neto ${clp(netoC - ivaC)}</small></span><span class="s">${clp(ivaC)}</span></li>`);
   if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC - dx.total ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC - dx.total)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
@@ -5142,9 +5144,28 @@ function distDatos() {
 const DIST_ACTIVO = false;
 /* Despacho: clientes particulares pagan $1.000 por el despacho en cada pedido que hacen en la app. */
 const DESPACHO_PART = 1000;
-function despachoCli() { return S.ses.cliente && S.portal === "cliente" && !S.editPedido && cliParticular() ? DESPACHO_PART : 0; }
+/* Paso 3: el cliente particular elige despacho a su dirección o retiro en el local (sin costo de despacho). */
+const esRetiro = () => S.entregaModo === "retiro" && S.portal === "cliente" && !!S.ses.cliente && cliParticular() && !S.editPedido;
+function despachoCli() { return S.ses.cliente && S.portal === "cliente" && !S.editPedido && cliParticular() && !esRetiro() ? DESPACHO_PART : 0; }
+function entModoHTML() {
+  if (!(S.portal === "cliente" && S.ses.cliente && cliParticular() && !S.editPedido)) return "";
+  const r = esRetiro();
+  return `<fieldset class="campo full ent-modo"><legend>¿Cómo recibes tu pedido?</legend><div class="ent-modo-b" role="radiogroup">
+    <button type="button" role="radio" class="ent-op" data-act="ent-modo" data-m="despacho" aria-checked="${!r}"><span aria-hidden="true">🚚</span><b>Despacho</b><small>a tu dirección · +${clp(DESPACHO_PART)}</small></button>
+    <button type="button" role="radio" class="ent-op" data-act="ent-modo" data-m="retiro" aria-checked="${r}"><span aria-hidden="true">🏪</span><b>Retiro</b><small>en el local · sin costo</small></button></div>
+    <p class="ent-ret-nota" ${r ? "" : "hidden"}>🏪 Retiras tu pedido en el local en la fecha y el horario que elijas abajo.</p></fieldset>`;
+}
+function entModo(m) {
+  S.entregaModo = m === "retiro" ? "retiro" : "despacho";
+  const e = $("#entrega"); if (e) e.classList.toggle("modo-retiro", esRetiro());
+  document.querySelectorAll('[data-act="ent-modo"]').forEach(b => b.setAttribute("aria-checked", String(b.dataset.m === S.entregaModo)));
+  const n = $(".ent-ret-nota"); if (n) n.hidden = !esRetiro();
+  const er = $("#err-entrega"); if (er) er.textContent = "";
+  updateCarritoUI();
+}
 function recargoDist() {
   if (!DIST_ACTIVO) return 0;
+  if (typeof esRetiro === "function" && esRetiro()) return 0;
   if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return 0;
   const { dir, comuna } = distDatos();
   return DIST.k && DIST.k === distClave(dir, comuna) && DIST.km != null && DIST.km > DIST_MAX ? DIST_RECARGO : 0;
@@ -5204,8 +5225,9 @@ async function enviarPedido(btn) {
   const horario = `${desde}–${hasta}`;
   let pago = (document.querySelector('input[name="pago"]:checked') || {}).value || "Transferencia";
   if (esLocal() && quien.length < 2) { err.textContent = "Escribe tu nombre, el de quien hace el pedido."; return; }
-  if (!dir) { err.textContent = "Escribe la dirección de entrega."; return; }
-  if (!comuna) { err.textContent = "Escribe la comuna."; return; }
+  const retiro = esRetiro();
+  if (!retiro && !dir) { err.textContent = "Escribe la dirección de entrega."; return; }
+  if (!retiro && !comuna) { err.textContent = "Escribe la comuna."; return; }
   if (digitos(tel) < 8) { err.textContent = "Escribe un teléfono de contacto válido."; return; }
   if (!fecha || fecha < hoy()) { err.textContent = "Elige una fecha de entrega de hoy en adelante."; return; }
   if (!/^\d{2}:\d{2}$/.test(desde) || !/^\d{2}:\d{2}$/.test(hasta)) { err.textContent = "Elige el rango horario de entrega: desde y hasta."; return; }
@@ -5245,10 +5267,10 @@ async function enviarPedido(btn) {
     const id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const its = lista.map(x => ({ id: x.p.id, nombre: etiqueta(x.p), detalle: detalle(x.p), precio: precioCli(x.p.id, prCli, sinIvaCli, cli.tipo || ""), cant: x.q }));
     const doc = {
-      clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
+      clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: retiro ? (dir || "Retiro en el local") : dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
       total: Math.max(0, itSub(its) + 0 + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total))) + despachoCli(),
-      ...(despachoCli() ? { despacho: despachoCli() } : {}),
+      ...(despachoCli() ? { despacho: despachoCli() } : {}), ...(retiro ? { entrega: "retiro" } : {}),
       ...(recargoDist() ? { recargoDist: recargoDist(), distanciaKm: DIST.km } : {}),
       ...descExtraDoc(), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
@@ -5265,7 +5287,8 @@ async function enviarPedido(btn) {
       S.compNuevo = null; const ec = $("#e-comp"); if (ec) ec.innerHTML = compNuevoHTML();
     }
     if (promoPid) { try { sessionStorage.removeItem(PROMO_PED_LS); } catch (_) {} promoEvento(promoPid, prev => { const ps = [...(prev.pedidos || []).filter(x => x.id !== id), { id, total: doc.total, en: Date.now() }].slice(-50); return { pedidos: ps, monto: ps.reduce((a2, x) => a2 + (Number(x.total) || 0), 0) }; }); }
-    await guardarDirPedido(cli, { direccion: dir, depto, comuna }, tel);
+    if (!retiro) await guardarDirPedido(cli, { direccion: dir, depto, comuna }, tel);
+    S.entregaModo = "despacho";
     try { grpTrasPedido(); } catch (_) {}
     S.carrito = {}; S.dev = {}; S.devTocado = {}; S.repCli = null; S.cupon = null; FID.enCarro = {}; pintarCupon(); PTS.usar = false; pintarPuntosBox(); { const av = document.querySelector(".rep-cli-aviso"); if (av) av.remove(); }
     $("#e-nota").value = "";
@@ -6383,6 +6406,7 @@ function ivaLineHTML(p, neto) {
     + (p && Number(p.descuentoPrimera) ? `<p class="cup-ped">🎉 Primera compra ${fmtN(p.primeraPct || 50)}% · −${clp(p.descuentoPrimera)}</p>` : "")
     + (p && Number(p.descuentoCombo) ? `<p class="cup-ped">📦 ${esc(p.combosTxt || "Combos")} · −${clp(p.descuentoCombo)}</p>` : "")
     + (p && Number(p.descuentoOferta) ? `<p class="cup-ped">⏰ Oferta del día · −${clp(p.descuentoOferta)}</p>` : "")
+    + (p && p.entrega === "retiro" ? `<p class="cup-ped dist-ped ret-ped">🏪 <b>Retiro en el local</b> · sin despacho</p>` : "")
     + (p && Number(p.despacho) ? `<p class="cup-ped dist-ped">🚚 Despacho · +${clp(p.despacho)}</p>` : "")
     + (p && Number(p.recargoDist) ? `<p class="cup-ped dist-ped">🚚 Recargo por distancia${p.distanciaKm ? ` (${fmtL(p.distanciaKm)} km)` : ""} · +${clp(p.recargoDist)}</p>` : "");
   if (!p || !p.conIva) return cup;
@@ -15616,6 +15640,7 @@ document.addEventListener("click", e => {
   else if (a === "cup-del-si") { CUP.del = ""; conReintento(() => S.db.doc("cupones/" + id).delete()).then(() => toast("Cupón eliminado.")).catch(e => toast(msgError(e))); }
   else if (a === "cup-copiar") { const t = id; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast(`Código ${t} copiado.`)).catch(() => toast(`Código: ${t}`)); }
   else if (a === "cup-aplicar") aplicarCupon();
+  else if (a === "ent-modo") entModo(b.dataset.m);
   else if (a === "cup-quitar") { S.cupon = null; pintarCupon(); updateCarritoUI(); }
   else if (a === "promo-ver") { const p = PR.lista.find(x => x.id === id); if (p) mostrarPromoModal(p); }
   else if (a === "promo-cerrar") cerrarPromoModal();
@@ -19433,7 +19458,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ult-acc .ult-pagado{border-radius:12px;font-weight:800}.ult-acc .ult-pagado~.link{grid-column:1/-1}
 .ult-acc .acciones>.btn,.ult-acc .ult-pagado{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box}
 .rp-cli-btn{display:inline-flex;align-items:center;gap:8px;margin:8px 0 2px;width:auto}
-.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.adbq-modal{position:fixed;inset:0;z-index:300;overflow:auto;background:var(--bg,#eef3f5);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 40px;-webkit-overflow-scrolling:touch}.adbq-box{max-width:760px;margin:0 auto}.adbq-top{display:flex;align-items:center;gap:12px;margin:2px 0 12px}.adbq-top b{font-size:1.15rem}.adbq-modal .busq-campo{top:0}.busq-h small{font-weight:700;color:var(--muted);margin-left:4px}.adbq-mas,.adbq-ayuda{margin:8px 4px 0}.adbq-fv{margin:4px 0 10px}.adbq-ficha{display:grid;gap:12px;padding:16px}.adf-cab{display:flex;align-items:center;gap:12px}.adf-cab .uc-av{width:52px;height:52px;font-size:1.2rem;flex:none;display:grid;place-items:center;border-radius:999px;background:#0e7490;color:#fff;font-weight:800}.adf-cab>div{display:grid}.adf-cab b{font-size:1.2rem}.adf-cab small{color:var(--muted)}.adf-dl{margin:0;display:grid;gap:6px}.adf-dl>div{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.adf-dl dt{color:var(--muted);font-size:.85rem}.adf-dl dd{margin:0;font-weight:600;overflow-wrap:anywhere}.adf-kpi{margin:0}.bus-solo-h{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 20px -16px var(--shadow)}.bus-solo-h>div{flex:1;min-width:0;display:grid}.bus-solo-h small{color:var(--muted);font-size:.78rem}.bus-solo-h b{font-size:1.02rem;line-height:1.2;overflow-wrap:anywhere}.bus-solo-h .wz-atras{padding-left:10px;padding-right:10px}body.adbq-on{overflow:hidden}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
+.ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.adbq-modal{position:fixed;inset:0;z-index:300;overflow:auto;background:var(--bg,#eef3f5);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 40px;-webkit-overflow-scrolling:touch}.adbq-box{max-width:760px;margin:0 auto}.adbq-top{display:flex;align-items:center;gap:12px;margin:2px 0 12px}.adbq-top b{font-size:1.15rem}.adbq-modal .busq-campo{top:0}.busq-h small{font-weight:700;color:var(--muted);margin-left:4px}.adbq-mas,.adbq-ayuda{margin:8px 4px 0}.adbq-fv{margin:4px 0 10px}.adbq-ficha{display:grid;gap:12px;padding:16px}.adf-cab{display:flex;align-items:center;gap:12px}.adf-cab .uc-av{width:52px;height:52px;font-size:1.2rem;flex:none;display:grid;place-items:center;border-radius:999px;background:#0e7490;color:#fff;font-weight:800}.adf-cab>div{display:grid}.adf-cab b{font-size:1.2rem}.adf-cab small{color:var(--muted)}.adf-dl{margin:0;display:grid;gap:6px}.adf-dl>div{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.adf-dl dt{color:var(--muted);font-size:.85rem}.adf-dl dd{margin:0;font-weight:600;overflow-wrap:anywhere}.adf-kpi{margin:0}.bus-solo-h{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 20px -16px var(--shadow)}.bus-solo-h>div{flex:1;min-width:0;display:grid}.bus-solo-h small{color:var(--muted);font-size:.78rem}.bus-solo-h b{font-size:1.02rem;line-height:1.2;overflow-wrap:anywhere}.bus-solo-h .wz-atras{padding-left:10px;padding-right:10px}body.adbq-on{overflow:hidden}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}.ent-modo{border:0;padding:0;margin:0}.ent-modo legend{font-weight:700;margin-bottom:8px}.ent-modo-b{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ent-op{display:grid;justify-items:center;gap:2px;padding:12px 8px;border:2px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;text-align:center}.ent-op>span{font-size:1.6rem;line-height:1.1}.ent-op b{font-size:1rem}.ent-op small{color:var(--muted);font-size:.8rem}.ent-op[aria-checked="true"]{border-color:#0e7490;background:#ecfeff;box-shadow:0 0 0 3px rgba(14,116,144,.15)}.ent-op[aria-checked="true"] b{color:#0e7490}.ent-ret-nota{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#f0fdf4;color:#166534;font-weight:600;font-size:.9rem}.ent-ret-nota[hidden]{display:none}.modo-retiro #e-dirs,.modo-retiro .dir-fila:not(.cm-fila),.modo-retiro .cm-fila>label:first-child{display:none!important}
 .neon-bar{--nc:#ff2fb3;--nc2:#ff8ad8;position:relative;display:flex;align-items:stretch;overflow:hidden;margin:12px auto 10px;width:var(--banner-w,min(960px,calc(100% - 32px)));min-height:46px;border-radius:999px;background:radial-gradient(120% 180% at 50% -40%,color-mix(in srgb,var(--nc) 22%,transparent),transparent 60%),linear-gradient(180deg,#141432,#06061a);border:1.5px solid color-mix(in srgb,var(--nc) 85%,#fff);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 10px -1px var(--nc),0 0 26px -6px var(--nc),inset 0 0 14px -6px var(--nc),0 10px 22px -14px #000;cursor:pointer;-webkit-tap-highlight-color:transparent;animation:neon-resp 3.2s ease-in-out infinite}.neon-bar[hidden]{display:none}
 .neon-bar::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 6px);border-radius:inherit}
 .neon-cols{display:flex;flex-wrap:wrap;gap:8px}.neon-col{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 10px;border:2px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}.neon-col i{width:20px;height:20px;border-radius:50%;background:var(--sw);box-shadow:0 0 6px var(--sw),0 0 12px -2px var(--sw)}.neon-col[aria-pressed="true"]{border-color:var(--sw);background:#0d0d24;color:#fff;box-shadow:0 0 10px -2px var(--sw)}.neon-col-p input{-webkit-appearance:none;appearance:none;flex:none;inline-size:22px;block-size:22px;min-height:0;padding:0;border:0;border-radius:50%;background:none;overflow:hidden;cursor:pointer;box-shadow:0 0 6px var(--sw)}.neon-col i{outline:1px solid rgba(0,0,0,.12)}.neon-col-p input::-webkit-color-swatch-wrapper{padding:0}.neon-col-p input::-webkit-color-swatch{border:0;border-radius:50%}
