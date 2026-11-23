@@ -5058,18 +5058,19 @@ function updateCarritoUI() {
   document.querySelectorAll("#catalogo .cat.fam-papa .cat-h").forEach(hd => { let s = hd.querySelector(".kg-cat"); if (!s) { s = document.createElement("span"); s.className = "kg-cat"; hd.appendChild(s); } s.textContent = kgPapas ? `Total papas: ${fmtN(kgPapas)} kg` : ""; });
   const lista = carritoLista();
   pintarVacios();
-  const cargo = cargoCarrito(), rDist = recargoDist(); distRevisar();
+  const cargo = cargoCarrito(), rDist = recargoDist(), desp = S.editPedido ? (Number(S.editPedido.despacho) || 0) : despachoCli(); distRevisar();
   const netoC = lista.reduce((a, x) => a + precioMio(x.p.id) * x.q, 0), ivaC = carritoConIva() ? ivaIncDe(netoC) : 0;
   const dx = S.editPedido ? { total: 0, lineas: [] } : descExtra();
   const descC = (S.editPedido ? 0 : cuponDescuento(netoC)) + dx.total;
   const descP = verPrecios() ? puntosDescuento(Math.max(0, netoC + cargo - descC)) : 0;
-  const total = Math.max(0, netoC + cargo + rDist - descC - descP);
+  const total = Math.max(0, netoC + cargo + rDist - descC - descP) + (lista.length ? desp : 0);
   const res = $("#resumen");
   if (res) res.innerHTML = lista.length
     ? lista.map(x => `<li><span class="q">${x.q}×</span><span class="n">${esc(etiqueta(x.p))}<small>${esc(detalle(x.p))}</small></span>${verPrecios() ? `<span class="s">${clp(precioMio(x.p.id) * x.q)}</span>` : ""}</li>`).join("")
     : `<li class="vacio">Aún no agregas productos. Usa el botón + de cada producto.</li>`;
   if (res && cargo && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="bid-res-li"><span class="q"></span><span class="n">${cargo > 0 ? "Bidones prestados" : "Descuento bidones devueltos"}<small>${Math.round(Math.abs(cargo) / VALOR_BIDON)} × ${clp(VALOR_BIDON)}</small></span><span class="s">${cargo > 0 ? "" : "−"}${clp(Math.abs(cargo))}</span></li>`);
   if (res && rDist && verPrecios() && lista.length) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li"><span class="q"></span><span class="n">🚚 Recargo por distancia<small>${fmtL(DIST.km)} km desde el local (más de ${DIST_MAX} km)</small></span><span class="s">+${clp(rDist)}</span></li>`);
+  if (res && desp && verPrecios() && lista.length) res.insertAdjacentHTML("beforeend", `<li class="dist-res-li desp-res-li"><span class="q"></span><span class="n">🚚 Despacho<small>a tu dirección</small></span><span class="s">+${clp(desp)}</span></li>`);
   if (res && ivaC && verPrecios()) res.insertAdjacentHTML("beforeend", `<li class="iva-res-li"><span class="q"></span><span class="n">IVA 19% incluido<small>neto ${clp(netoC - ivaC)}</small></span><span class="s">${clp(ivaC)}</span></li>`);
   if (res && S.cupon && verPrecios() && !S.editPedido && lista.length) res.insertAdjacentHTML("beforeend", descC - dx.total ? `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}</span><span class="s">−${clp(descC - dx.total)}</span></li>` : `<li class="cup-res-li"><span class="q"></span><span class="n">Cupón ${esc(S.cupon.codigo)}<small>Se aplica con una compra mínima de ${clp(S.cupon.minimo)}</small></span><span class="s">$0</span></li>`);
   if (res && verPrecios() && lista.length) for (const l of dx.lineas) res.insertAdjacentHTML("beforeend", `<li class="cup-res-li"><span class="q"></span><span class="n">${esc(l.t)}</span><span class="s">−${clp(l.m)}</span></li>`);
@@ -5139,6 +5140,9 @@ function distDatos() {
 }
 /* Cobro por distancia desactivado (21-11-2026): no se cobra recargo ni se busca la dirección. */
 const DIST_ACTIVO = false;
+/* Despacho: clientes particulares pagan $1.000 por el despacho en cada pedido que hacen en la app. */
+const DESPACHO_PART = 1000;
+function despachoCli() { return S.ses.cliente && S.portal === "cliente" && !S.editPedido && cliParticular() ? DESPACHO_PART : 0; }
 function recargoDist() {
   if (!DIST_ACTIVO) return 0;
   if (!S.ses.cliente || S.editPedido || S.portal !== "cliente") return 0;
@@ -5228,7 +5232,7 @@ async function enviarPedido(btn) {
       const historial = histCon(d, { solicitante: quien, telefono: tel, direccion: dir, depto, comuna, fechaEntrega: fecha, horario, pago, nota, items: its }, (cli.nombre || "Cliente") + " (cliente)");
       await conReintento(() => ref.update({
         historial, solicitante: quien, telefono: tel, direccion: dir, depto, comuna, fechaEntrega: fecha, horario, pago, nota,
-        items: its, bidones: bidonesDoc(), total: Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + cargoCarrito()), ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), editado: Date.now()
+        items: its, bidones: bidonesDoc(), total: Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + cargoCarrito()) + (Number(d.despacho) || 0), ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), editado: Date.now()
       }));
       S.editPedido = null; S.carrito = {}; S.dev = {}; S.devTocado = {}; S.cliTab = "mis"; S.misSub = "pend"; CPW.paso = 1; CPW.grupo = ""; CPW.fin = null;
       renderView(); window.scrollTo(0, 0);
@@ -5243,7 +5247,8 @@ async function enviarPedido(btn) {
     const doc = {
       clienteId: cli.id, clienteNombre: cli.nombre, clienteTipo: cli.tipo || "", solicitante: quien, telefono: tel, direccion: dir, depto, comuna,
       fechaEntrega: fecha, horario, pago, nota, items: its, bidones: bidonesDoc(),
-      total: Math.max(0, itSub(its) + 0 + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total))),
+      total: Math.max(0, itSub(its) + 0 + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total - puntosDescuento(Math.max(0, itSub(its) + cargoCarrito() + recargoDist() - cuponDescuento(itSub(its)) - descExtra().total))) + despachoCli(),
+      ...(despachoCli() ? { despacho: despachoCli() } : {}),
       ...(recargoDist() ? { recargoDist: recargoDist(), distanciaKm: DIST.km } : {}),
       ...descExtraDoc(), ...(ivaAplicaCli({ tipo: cli.tipo, sinIva: sinIvaCli }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), numCliente: num,
       ...(S.cupon && cuponDescuento(itSub(its)) ? { cupon: S.cupon.codigo, descuento: cuponDescuento(itSub(its)) } : {}),
@@ -6378,6 +6383,7 @@ function ivaLineHTML(p, neto) {
     + (p && Number(p.descuentoPrimera) ? `<p class="cup-ped">🎉 Primera compra ${fmtN(p.primeraPct || 50)}% · −${clp(p.descuentoPrimera)}</p>` : "")
     + (p && Number(p.descuentoCombo) ? `<p class="cup-ped">📦 ${esc(p.combosTxt || "Combos")} · −${clp(p.descuentoCombo)}</p>` : "")
     + (p && Number(p.descuentoOferta) ? `<p class="cup-ped">⏰ Oferta del día · −${clp(p.descuentoOferta)}</p>` : "")
+    + (p && Number(p.despacho) ? `<p class="cup-ped dist-ped">🚚 Despacho · +${clp(p.despacho)}</p>` : "")
     + (p && Number(p.recargoDist) ? `<p class="cup-ped dist-ped">🚚 Recargo por distancia${p.distanciaKm ? ` (${fmtL(p.distanciaKm)} km)` : ""} · +${clp(p.recargoDist)}</p>` : "");
   if (!p || !p.conIva) return cup;
   const n = Math.round(Number(neto) || 0); if (!n) return cup;
@@ -14787,7 +14793,7 @@ async function edGuardar(id, btn) {
       cupDesc = Math.max(0, Math.min(cupDesc, neto));
       Object.assign(cupUpd, { cupon: cupCod, descuento: cupDesc });
     } else if (d.cupon) Object.assign(cupUpd, { cupon: "", descuento: 0 });
-    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0) - cupDesc - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0));
+    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0) - cupDesc - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0) + (Number(d.despacho) || 0));
     const repUpd = {};
     if ((f.rep || "") !== (d.repartidorId || "")) {
       if (!f.rep) { Object.assign(repUpd, { repartidorId: "", repartidorNombre: "" }); if (d.estado === "en_camino") Object.assign(repUpd, { estado: "pendiente", tomado: 0 }); }
@@ -15537,6 +15543,7 @@ document.addEventListener("click", e => {
   else if (a === "neon-add") { neonLeer(); NEON.ed.mensajes.push({ t: "", ir: "", on: true }); renderNeonAd(true); }
   else if (a === "neon-del") { neonLeer(); NEON.ed.mensajes.splice(Number(b.dataset.i), 1); renderNeonAd(true); }
   else if (a === "neon-guardar") guardarNeon(b);
+  else if (a === "neon-col") { neonLeer(); NEON.ed.color = b.dataset.c; renderNeonAd(true); }
   else if (a === "neon-ir") neonIr(b.dataset.ir);
   else if (a === "ofad-quitar") quitarOferta();
   else if (a === "recad-nuevo") { FID.recEd = { id: "", titulo: "", emoji: "🥔", foto: "", tiempo: "", porciones: "", ingredientes: "", pasos: "", prods: [] }; renderRecetasAd(); }
@@ -18276,7 +18283,9 @@ function combosPagHTML() {
 /* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
 const NEON = { subs: false, cfg: null, ed: null };
 const NEON_IR = [["", "Sin enlace"], ["cli-ofertadia", "Oferta del día"], ["cli-promos", "Promociones"], ["cli-cupones", "Cupones"], ["cli-combos", "Combos y packs"], ["cli-grupos", "Pedidos grupales"], ["cli-referidos", "Invita y gana"], ["cli-puntos", "Puntos"], ["cli-recetas", "Recetas"], ["nuevo", "Nuevo pedido"]];
-const NEON_COL = [["rosa", "Rosa"], ["azul", "Azul"], ["verde", "Verde"], ["amarillo", "Amarillo"], ["naranjo", "Naranjo"]];
+const NEON_COL = [["rosa", "Rosa", "#ff2fb3"], ["azul", "Azul", "#22d3ff"], ["verde", "Verde", "#2bff88"], ["amarillo", "Amarillo", "#ffd60a"], ["naranjo", "Naranjo", "#ff7a1a"], ["rojo", "Rojo", "#ff2d4a"], ["morado", "Morado", "#a855ff"], ["blanco", "Blanco", "#e8f4ff"]];
+const neonHex = c => /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : ((NEON_COL.find(x => x[0] === c) || NEON_COL[0])[2]);
+const neonEstilo = c => { const x = neonHex(c); return `--nc:${x};--nc2:color-mix(in srgb,${x} 50%,#fff)`; };
 function subNeon() { if (NEON.subs || !S.db) return; NEON.subs = true; S.db.doc("config/neon").onSnapshot(d => { NEON.cfg = d.exists ? d.data() || {} : {}; if (!NEON.sucio) NEON.ed = null; pintarNeon(); renderNeonAd(); }, () => { NEON.cfg = NEON.cfg || {}; }); }
 function neonCfg() { const c = NEON.cfg || {}; return { activa: c.activa !== false, oferta: c.oferta !== false, color: c.color || "rosa", vel: c.vel || "normal", mensajes: Array.isArray(c.mensajes) ? c.mensajes : [] }; }
 function neonItems(cfg) {
@@ -18299,7 +18308,7 @@ function pintarNeon() {
   const cfg = neonCfg(), its = ok && NEON.cfg && cfg.activa ? neonItems(cfg) : [];
   if (!its.length) { if (!el.hidden) { el.hidden = true; el.innerHTML = ""; el.dataset.f = ""; } return; }
   const f = JSON.stringify([cfg.color, cfg.vel, its]);
-  if (el.dataset.f !== f) { el.dataset.f = f; el.dataset.c = cfg.color; el.innerHTML = neonHTML(cfg, its); }
+  if (el.dataset.f !== f) { el.dataset.f = f; el.setAttribute("style", neonEstilo(cfg.color)); el.innerHTML = neonHTML(cfg, its); }
   if (el.hidden) el.hidden = false;
 }
 setInterval(pintarNeon, 2000);
@@ -18316,7 +18325,7 @@ document.addEventListener("click", e => {
 function neonLeer() {
   const f = NEON.ed; if (!f) return; NEON.sucio = true; const v = id => document.getElementById(id);
   if (v("neon-activa")) f.activa = v("neon-activa").checked; if (v("neon-oferta")) f.oferta = v("neon-oferta").checked;
-  if (v("neon-color")) f.color = v("neon-color").value; if (v("neon-vel")) f.vel = v("neon-vel").value;
+  if (v("neon-vel")) f.vel = v("neon-vel").value;
   f.mensajes.forEach((m, i) => { const t = v("neon-t" + i), ir = v("neon-ir" + i), on = v("neon-on" + i); if (t) m.t = t.value; if (ir) m.ir = ir.value; if (on) m.on = on.checked; });
 }
 function neonAdHTML() {
@@ -18324,12 +18333,13 @@ function neonAdHTML() {
   const f = NEON.ed || (NEON.ed = JSON.parse(JSON.stringify(neonCfg())));
   const prevIts = f.activa ? neonItems(f) : [];
   return `<div class="card ad-card"><h2 class="h2">✨ Barra neón</h2><p class="muted-s">Aparece en Clientes justo debajo del banner, con el texto en movimiento. Al tocar un mensaje, el cliente va a la sección que elijas.</p>
-    <p class="muted-s"><b>Vista previa</b></p>${prevIts.length ? `<div class="neon-bar neon-prev" data-c="${esc(f.color)}">${neonHTML(f, prevIts)}</div>` : `<p class="muted-s">${f.activa ? "No hay mensajes para mostrar: la barra no aparece." : "La barra está apagada."}</p>`}
+    <p class="muted-s"><b>Vista previa</b></p>${prevIts.length ? `<div class="neon-bar neon-prev" style="${neonEstilo(f.color)}">${neonHTML(f, prevIts)}</div>` : `<p class="muted-s">${f.activa ? "No hay mensajes para mostrar: la barra no aparece." : "La barra está apagada."}</p>`}
     <div class="form">
       <label class="neon-chk"><input type="checkbox" id="neon-activa" ${f.activa ? "checked" : ""}> Mostrar la barra neón a los clientes</label>
       <label class="neon-chk"><input type="checkbox" id="neon-oferta" ${f.oferta ? "checked" : ""}> Incluir la oferta del día (cuando hay una vigente)</label>
-      <div class="pg-2"><label class="campo"><span>Color</span><select id="neon-color">${NEON_COL.map(([k, l]) => `<option value="${k}" ${f.color === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
-      <label class="campo"><span>Velocidad</span><select id="neon-vel">${[["lenta", "Lenta"], ["normal", "Normal"], ["rapida", "Rápida"]].map(([k, l]) => `<option value="${k}" ${f.vel === k ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
+      <fieldset class="campo"><legend>Color de la barra</legend><div class="neon-cols">${NEON_COL.map(([k, l, x]) => `<button type="button" class="neon-col" data-act="neon-col" data-c="${k}" aria-pressed="${f.color === k}" style="--sw:${x}"><i aria-hidden="true"></i>${l}</button>`).join("")}
+        <label class="neon-col neon-col-p" aria-pressed="${/^#/.test(f.color || "")}" style="--sw:${neonHex(f.color)}"><input type="color" id="neon-colp" value="${neonHex(f.color)}" aria-label="Elegir otro color">Otro color</label></div></fieldset>
+      <div class="pg-2"><label class="campo"><span>Velocidad</span><select id="neon-vel">${[["lenta", "Lenta"], ["normal", "Normal"], ["rapida", "Rápida"]].map(([k, l]) => `<option value="${k}" ${f.vel === k ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
       <fieldset class="campo"><legend>Campañas en la barra</legend>
         ${f.mensajes.length ? f.mensajes.map((m, i) => `<div class="neon-fila"><label class="campo"><span>Mensaje ${i + 1}</span><input id="neon-t${i}" value="${esc(m.t || "")}" maxlength="120" placeholder="Ej.: 🚚 Despacho gratis sobre $15.000 este fin de semana"></label>
           <button type="button" class="btn chico suave" data-act="neon-del" data-i="${i}" aria-label="Quitar mensaje ${i + 1}">Quitar</button>
@@ -18339,7 +18349,7 @@ function neonAdHTML() {
       <div class="acciones"><button type="button" class="btn primario" data-act="neon-guardar">Guardar barra neón</button></div></div></div>`;
 }
 function renderNeonAd(forzar) { const el = $("#neon-panel"); if (!el || AD.local !== "neon") return; const a = document.activeElement; if (!forzar && a && el.contains(a) && /INPUT|SELECT/.test(a.tagName)) return; el.innerHTML = neonAdHTML(); }
-document.addEventListener("change", e => { if (e.target.closest && e.target.closest("#neon-panel") && /neon-(activa|oferta|color|vel|on|ir)/.test(e.target.id || "")) { neonLeer(); renderNeonAd(true); } });
+document.addEventListener("change", e => { if (e.target.closest && e.target.closest("#neon-panel") && /neon-(activa|oferta|colp|vel|on|ir)/.test(e.target.id || "")) { neonLeer(); if (e.target.id === "neon-colp" && NEON.ed) NEON.ed.color = e.target.value; renderNeonAd(true); } });
 document.addEventListener("input", e => { if (e.target.closest && e.target.closest("#neon-panel") && /^neon-t\d/.test(e.target.id || "")) { neonLeer(); const f = NEON.ed, its = f.activa ? neonItems(f) : [], p = $("#neon-panel .neon-prev"); if (p && its.length) { p.innerHTML = neonHTML(f, its); } } });
 async function guardarNeon(btn) {
   neonLeer(); const f = NEON.ed; if (!f) return;
@@ -19426,7 +19436,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ub-notis{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}.ub-notis[hidden]{display:none}.ub-ni[data-act="cli-buscar"]{margin-left:auto}.ub-notis:has(.ub-busq){padding:6px}.adbq-modal{position:fixed;inset:0;z-index:300;overflow:auto;background:var(--bg,#eef3f5);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 40px;-webkit-overflow-scrolling:touch}.adbq-box{max-width:760px;margin:0 auto}.adbq-top{display:flex;align-items:center;gap:12px;margin:2px 0 12px}.adbq-top b{font-size:1.15rem}.adbq-modal .busq-campo{top:0}.busq-h small{font-weight:700;color:var(--muted);margin-left:4px}.adbq-mas,.adbq-ayuda{margin:8px 4px 0}.adbq-fv{margin:4px 0 10px}.adbq-ficha{display:grid;gap:12px;padding:16px}.adf-cab{display:flex;align-items:center;gap:12px}.adf-cab .uc-av{width:52px;height:52px;font-size:1.2rem;flex:none;display:grid;place-items:center;border-radius:999px;background:#0e7490;color:#fff;font-weight:800}.adf-cab>div{display:grid}.adf-cab b{font-size:1.2rem}.adf-cab small{color:var(--muted)}.adf-dl{margin:0;display:grid;gap:6px}.adf-dl>div{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.adf-dl dt{color:var(--muted);font-size:.85rem}.adf-dl dd{margin:0;font-weight:600;overflow-wrap:anywhere}.adf-kpi{margin:0}.bus-solo-h{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 20px -16px var(--shadow)}.bus-solo-h>div{flex:1;min-width:0;display:grid}.bus-solo-h small{color:var(--muted);font-size:.78rem}.bus-solo-h b{font-size:1.02rem;line-height:1.2;overflow-wrap:anywhere}.bus-solo-h .wz-atras{padding-left:10px;padding-right:10px}body.adbq-on{overflow:hidden}.ub-busq{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 14px;border:2px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--muted);font:inherit;font-size:1rem;text-align:left;cursor:pointer}.ub-busq:active,.ub-busq:hover{border-color:#0ea5e9}.ub-busq-i{display:inline-grid;color:#0ea5e9}.ub-busq-i svg{width:22px;height:22px}.ub-busq-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ub-notis:empty{display:none}
 .neon-bar{--nc:#ff2fb3;--nc2:#ff8ad8;position:relative;display:flex;align-items:stretch;overflow:hidden;margin:12px auto 10px;width:var(--banner-w,min(960px,calc(100% - 32px)));min-height:46px;border-radius:999px;background:radial-gradient(120% 180% at 50% -40%,color-mix(in srgb,var(--nc) 22%,transparent),transparent 60%),linear-gradient(180deg,#141432,#06061a);border:1.5px solid color-mix(in srgb,var(--nc) 85%,#fff);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 10px -1px var(--nc),0 0 26px -6px var(--nc),inset 0 0 14px -6px var(--nc),0 10px 22px -14px #000;cursor:pointer;-webkit-tap-highlight-color:transparent;animation:neon-resp 3.2s ease-in-out infinite}.neon-bar[hidden]{display:none}
 .neon-bar::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 6px);border-radius:inherit}
-.neon-bar[data-c="verde"]{--nc:#2bff88;--nc2:#9dffc8}.neon-bar[data-c="azul"]{--nc:#22d3ff;--nc2:#a5f0ff}.neon-bar[data-c="amarillo"]{--nc:#ffd60a;--nc2:#fff1a1}.neon-bar[data-c="naranjo"]{--nc:#ff7a1a;--nc2:#ffc28f}
+.neon-cols{display:flex;flex-wrap:wrap;gap:8px}.neon-col{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 10px;border:2px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}.neon-col i{width:20px;height:20px;border-radius:50%;background:var(--sw);box-shadow:0 0 6px var(--sw),0 0 12px -2px var(--sw)}.neon-col[aria-pressed="true"]{border-color:var(--sw);background:#0d0d24;color:#fff;box-shadow:0 0 10px -2px var(--sw)}.neon-col-p input{-webkit-appearance:none;appearance:none;flex:none;inline-size:22px;block-size:22px;min-height:0;padding:0;border:0;border-radius:50%;background:none;overflow:hidden;cursor:pointer;box-shadow:0 0 6px var(--sw)}.neon-col i{outline:1px solid rgba(0,0,0,.12)}.neon-col-p input::-webkit-color-swatch-wrapper{padding:0}.neon-col-p input::-webkit-color-swatch{border:0;border-radius:50%}
 .neon-tag{position:relative;z-index:2;flex:none;display:inline-flex;align-items:center;gap:7px;margin:6px 0 6px 6px;padding:0 14px 0 12px;border-radius:999px;background:var(--nc);color:#0a0a1f;font-weight:900;font-size:.78rem;letter-spacing:.14em;box-shadow:0 0 12px var(--nc),0 0 2px #fff inset}
 .neon-tag i{width:8px;height:8px;border-radius:50%;background:#0a0a1f;box-shadow:0 0 0 2px color-mix(in srgb,#fff 70%,var(--nc));animation:neon-pto 1.2s ease-in-out infinite}
 .neon-vent{position:relative;flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;-webkit-mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,transparent,#000 22px,#000 calc(100% - 34px),transparent)}
