@@ -7799,7 +7799,7 @@ function porComunaHTML(lista, fn) {
 function comandaHTML(p, me, conFecha) {
   const mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(`${p.direccion}, ${p.comuna}`);
   let acc = "";
-  if (p.estado === "pendiente") acc = `<button class="btn primario" data-act="tomar" data-id="${esc(p.id)}">Tomar pedido</button>`;
+  if (p.estado === "pendiente") acc = `<button class="btn primario" data-act="tomar" data-id="${esc(p.id)}">Tomar pedido</button><button class="btn suave rep-manana" data-act="rep-manana" data-id="${esc(p.id)}">📅 Para mañana</button>`;
   const admP = S.portal === "admin" && !!S.ses.admin;
   if (p.estado === "pendiente") {}
   else if (p.estado === "en_camino" && (p.repartidorId === me || admP)) acc = `<button class="btn suave chico" data-act="liberar" data-id="${esc(p.id)}">${admP ? "↩ Dejar por tomar" : "Liberar"}</button><button class="btn ok" data-act="entregar" data-id="${esc(p.id)}">Marcar entregado</button>`;
@@ -7947,6 +7947,21 @@ function repLejos(p) {
   const falta = ini.getTime() - Date.now();
   if (falta > 2 * 36e5) { const hh = Math.floor(falta / 36e5), mm = Math.round(falta % 36e5 / 6e4); return `Este pedido se entrega desde las <b>${esc(m[1].padStart(2, "0") + ":" + m[2])}</b>${p.horario ? ` (${esc(p.horario)})` : ""}: faltan ${hh} h${mm ? ` ${mm} min` : ""}.`; }
   return "";
+}
+/* «Para mañana»: pasa un pedido por tomar al día hábil siguiente (no domingo) y lo deja con prioridad. */
+async function repManana(id, btn) {
+  const p = (S.pedidos || []).find(x => x.id === id); if (!p || p.estado !== "pendiente") return;
+  const base = p.fechaEntrega && p.fechaEntrega > hoy() ? p.fechaEntrega : hoy(), nueva = sigHabil(base);
+  const quien = (S.ses.repartidor && S.ses.repartidor.nombre) || (S.ses.admin && S.ses.admin.nombre) || "";
+  ocupar(btn, true, "Moviendo…");
+  try {
+    await conReintento(() => S.db.doc("pedidos/" + id).update({ fechaEntrega: nueva, prioridad: true, prioridadEn: Date.now(), movidoDe: p.fechaEntrega || "", movidoPor: quien, movidoEn: Date.now() }));
+    Object.assign(p, { fechaEntrega: nueva, prioridad: true });
+    /* Aviso push al cliente con la nueva fecha. */
+    conReintento(() => S.db.doc("avisos_push/reprog_" + id + "_" + Date.now().toString(36)).set({ tipo: "reprogramado", pedido: id, por: quien, en: Date.now() })).catch(() => {});
+    const y = window.scrollY; renderListas(); window.scrollTo(0, y);
+  } catch (e) { toast(msgError(e), { error: true }); }
+  finally { if (btn.isConnected) ocupar(btn, false); }
 }
 async function accionRep(act, id, btn) {
   const r = repUsuario(), ref = S.db.doc("pedidos/" + id);
@@ -16297,6 +16312,7 @@ document.addEventListener("click", e => {
     dv.innerHTML = `<p>⚠️ ${msg}</p><div><button type="button" class="btn primario chico" data-act="tomar" data-id="${esc(id)}" data-conf="1">Tomar igual</button><button type="button" class="btn suave chico" data-act="rep-conf-no">Cancelar</button></div>`;
     b.after(dv); b.hidden = true;
   }
+  else if (a === "rep-manana") { if (S.db) repManana(id, b); }
   else if (a === "rep-conf-no") { const box = b.closest(".rep-conf"); if (box) { const t = box.previousElementSibling; if (t && t.dataset.act === "tomar") t.hidden = false; box.remove(); } }
   else if (a === "tomar" || a === "entregar" || a === "liberar") { if (S.db) accionRep(a, id, b); }
   else if (a === "copiar") {
