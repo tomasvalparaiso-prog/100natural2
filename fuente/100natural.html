@@ -17154,6 +17154,10 @@ function adbqAbrir(sinFoco) {
   adbqPintar(); m.scrollTop = 0;
 }
 function adbqCerrar() { const m = $("#adbq-modal"); if (m) { ADBQ.y = m.scrollTop; m.remove(); } document.body.classList.remove("adbq-on"); }
+function adbqInicio() {
+  ADBQ.alInicio = false; BUS.solo = false; if (ADBQ.usuQ && US.q === ADBQ.usuQ) US.q = ""; ADBQ.usuQ = "";
+  if (AD.local !== "inicio") { adbqIrSec("inicio"); const hh = NAVH[S.portal]; if (hh) hh.length = 0; try { navVolverPintar(); } catch (_) {} }
+}
 function adbqIrSec(k) {
   const b = document.createElement("button"); b.type = "button"; b.hidden = true; b.dataset.act = "ad-local"; b.dataset.l = k;
   (document.querySelector("#admin-panel") || document.body).appendChild(b); b.click(); b.remove();
@@ -17162,9 +17166,9 @@ function adbqIrSec(k) {
 function adbqIr(tipo, id) {
   ADBQ.volver = true; adbqCerrar();
   if (tipo === "sec") adbqIrSec(id);
-  else if (tipo === "cli") { const c = adbqClientes().find(x => x.id === id); Object.assign(BUS, { q: "", nom: c ? c.t : "", dir: "", desde: "", hasta: "", solo: true }); adbqIrSec("bus"); }
+  else if (tipo === "cli") { const c = adbqClientes().find(x => x.id === id); US.q = ADBQ.usuQ = c ? c.t : ""; US.tipo = ""; US.edit = ""; US.del = ""; adbqIrSec("capt"); }
   else if (tipo === "ped") { Object.assign(BUS, { q: codigo(id), nom: "", dir: "", desde: "", hasta: "", solo: true }); adbqIrSec("bus"); }
-  else if (tipo === "usu") adbqIrSec("usu");
+  else if (tipo === "usu") { const u = adbqEquipo().find(x => x.id === id); US.q = ADBQ.usuQ = u ? u.t : ""; US.edit = ""; US.del = ""; adbqIrSec("usu"); }
   try { history.pushState(Object.assign({}, history.state || {}, { pyaAdbqVolver: 1 }), ""); } catch (_) {}
 }
 document.addEventListener("input", e => { if (e.target && e.target.id === "adbq-q") { ADBQ.q = e.target.value; adbqPintar(); } });
@@ -17172,7 +17176,11 @@ document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest('[data-act^="adbq-"]'); if (!b) return;
   const a = b.dataset.act; e.preventDefault();
   if (a === "adbq-abrir") { ADBQ.volver = false; adbqAbrir(); }
-  else if (a === "adbq-cerrar") { ADBQ.volver = false; if ((history.state || {}).pyaAdbq) history.back(); else adbqCerrar(); }
+  else if (a === "adbq-cerrar") {
+    /* «‹ Volver» del buscador: siempre a la página de inicio del administrador. */
+    ADBQ.volver = false; ADBQ.alInicio = true;
+    if ((history.state || {}).pyaAdbq) history.back(); else { adbqCerrar(); adbqInicio(); }
+  }
   else if (a === "adbq-limpiar") { ADBQ.q = ""; const q = $("#adbq-q"); if (q) { q.value = ""; q.focus(); } adbqPintar(); }
   else if (a === "adbq-ir") adbqIr(b.dataset.tipo, b.dataset.id);
 });
@@ -17183,11 +17191,11 @@ document.addEventListener("click", e => {
   if (b.dataset.act === "bus-solo-filtros") { BUS.solo = false; const h = document.querySelector(".bus-solo-h"), c = document.querySelector(".bus-card"); if (h) h.remove(); if (c) c.hidden = false; return; }
   if (ADBQ.volver && (history.state || {}).pyaAdbqVolver) history.back(); else { BUS.solo = false; ADBQ.volver = false; adbqAbrir(true); }
 });
-document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="ad-local"]'); if (b && !b.hidden) { ADBQ.volver = false; BUS.solo = false; } }, true);
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest('[data-act="ad-local"]'); if (b && !b.hidden) { ADBQ.volver = false; BUS.solo = false; if (ADBQ.usuQ && US.q === ADBQ.usuQ) US.q = ""; ADBQ.usuQ = ""; } }, true);
 /* Botón Atrás del teléfono: cierra el buscador; y desde un resultado, vuelve a los resultados. */
 addEventListener("popstate", () => {
   if (S.portal !== "admin") return;
-  if ($("#adbq-modal")) { adbqCerrar(); return; }
+  if ($("#adbq-modal")) { adbqCerrar(); if (ADBQ.alInicio) adbqInicio(); return; }
   if (ADBQ.volver) { ADBQ.volver = false; BUS.solo = false; adbqAbrir(true); const m = $("#adbq-modal"); if (m) setTimeout(() => { m.scrollTop = ADBQ.y || 0; }, 60); }
 });
 /* ---------- Insignia de Trabajos comunitarios: los clientes inscritos en alguna actividad llevan un 🤝 junto a su foto ----------
