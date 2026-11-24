@@ -4403,7 +4403,7 @@ function vistaCliente() {
   if (!esLocal() && (S.cliTab === "con" || S.cliTab === "stk")) S.cliTab = "nuevo";
   return `<div class="tabs rep-tabs cli-tabs" role="tablist" aria-label="Secciones">
     <button type="button" class="bar-inicio" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="rep-tt">Inicio</span></button>
-    <button role="tab" data-act="cli-tab" data-t="nuevo" aria-selected="${S.cliTab === "nuevo"}"><span class="rep-ti" aria-hidden="true">${TI.carro}</span><span class="rep-tt">Nuevo pedido</span></button>
+    <button role="tab" data-act="cli-tab" data-t="nuevo" aria-selected="${S.cliTab === "nuevo"}"><span class="rep-ti" aria-hidden="true">${TI.carro}</span><span class="rep-tt">Crear pedido</span></button>
     <button role="tab" data-act="cli-tab" data-t="mis" aria-selected="${S.cliTab === "mis"}"><span class="rep-ti" aria-hidden="true">${TI.boleta}</span><span class="rep-tt">Mis pedidos</span><span class="cnt" id="cnt-mis"></span></button>
     <button type="button" class="cli-favs" data-act="cli-favs"><span class="rep-ti" aria-hidden="true" style="color:#e11d48!important">${FAV_SVG.replace('<svg ', '<svg width="26" height="26" fill="currentColor" ')}</span><span class="rep-tt">Mis favoritos</span></button>
     <button type="button" class="cli-solo-ini" data-act="cli-musica"><span class="rep-ti" aria-hidden="true" style="color:#7c3aed!important"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span><span class="rep-tt">Mi música</span></button>
@@ -18506,7 +18506,7 @@ async function guardarDespAd(btn) {
 }
 /* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
 const NEON = { subs: false, cfg: null, ed: null };
-const NEON_IR = [["", "Sin enlace"], ["cli-ofertadia", "Oferta del día"], ["cli-promos", "Promociones"], ["cli-cupones", "Cupones"], ["cli-combos", "Combos y packs"], ["cli-grupos", "Pedidos grupales"], ["cli-referidos", "Invita y gana"], ["cli-puntos", "Puntos"], ["cli-recetas", "Recetas"], ["nuevo", "Nuevo pedido"]];
+const NEON_IR = [["", "Sin enlace"], ["cli-ofertadia", "Oferta del día"], ["cli-promos", "Promociones"], ["cli-cupones", "Cupones"], ["cli-combos", "Combos y packs"], ["cli-grupos", "Pedidos grupales"], ["cli-referidos", "Invita y gana"], ["cli-puntos", "Puntos"], ["cli-recetas", "Recetas"], ["nuevo", "Crear pedido"]];
 const NEON_COL = [["rosa", "Rosa", "#ff2fb3"], ["azul", "Azul", "#22d3ff"], ["verde", "Verde", "#2bff88"], ["amarillo", "Amarillo", "#ffd60a"], ["naranjo", "Naranjo", "#ff7a1a"], ["rojo", "Rojo", "#ff2d4a"], ["morado", "Morado", "#a855ff"], ["blanco", "Blanco", "#e8f4ff"]];
 const neonHex = c => /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : ((NEON_COL.find(x => x[0] === c) || NEON_COL[0])[2]);
 const neonEstilo = c => { const x = neonHex(c); return `--nc:${x};--nc2:color-mix(in srgb,${x} 50%,#fff)`; };
