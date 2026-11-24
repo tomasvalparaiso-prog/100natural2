@@ -18783,7 +18783,18 @@ function pedirPromo(id) {
 
 /* ---------- Recordar página y pestaña al actualizar ---------- */
 const NAV = "pya.nav.v1";
+/* Pedido en curso del cliente: al actualizar la página (misma pestaña, hasta 2 h) se vuelve al mismo paso con los productos y datos de entrega. */
+const PED_CURSO = "pya.pedCurso.v1";
+function guardarPedCurso() {
+  try {
+    const c = S.ses.cliente;
+    if (S.portal !== "cliente" || !c || S.editPedido || S.cliTab !== "nuevo" || !(CPW.paso >= 1 && CPW.paso <= 4) || !Object.values(S.carrito || {}).some(q => q > 0)) { sessionStorage.removeItem(PED_CURSO); return; }
+    const campos = {}; document.querySelectorAll("#entrega input[id], #entrega select[id], #entrega textarea[id]").forEach(x => { if (x.type === "file" || x.type === "password") return; campos[x.id] = x.type === "radio" || x.type === "checkbox" ? (x.checked ? "1" : "") : x.value; });
+    sessionStorage.setItem(PED_CURSO, JSON.stringify({ cli: c.id, en: Date.now(), paso: CPW.paso, grupo: CPW.grupo, carrito: S.carrito, modo: S.entregaModo || "", loc: S.retiroLocal || 0, campos }));
+  } catch (_) {}
+}
 function guardarNav() {
+  guardarPedCurso();
   try { localStorage.setItem(NAV, JSON.stringify({ portal: S.portal, cliTab: S.cliTab, repTab: S.repTab, misSub: S.misSub, adLocal: AD.local, adSec: AD.seccion, adTab: AD.tab, agTab: AG.tab, ppTab: PP.tab, pvTab: PV.adTab, usPag: US.pag })); } catch (_) {}
 }
 (function restaurarNav() {
@@ -18806,7 +18817,24 @@ function guardarNav() {
   if (S.portal === "papas") PP.tab = "prod";
   /* Clientes entra siempre a Inicio. */
   if (S.portal === "cliente") S.cliTab = "inicio";
+  /* …salvo que haya un pedido en curso (se actualizó la página a mitad de la compra). */
+  let pc = null; try { pc = JSON.parse(sessionStorage.getItem(PED_CURSO) || "null"); } catch (_) {}
+  if (S.portal === "cliente" && pc && S.ses.cliente && pc.cli === S.ses.cliente.id && Date.now() - (pc.en || 0) < 2 * 36e5 && pc.carrito) {
+    const car = {}; for (const [id, q] of Object.entries(pc.carrito)) if (PROD[id] && Number(q) > 0) car[id] = Number(q);
+    if (Object.keys(car).length) {
+      S.carrito = car; S.cliTab = "nuevo"; CPW.grupo = typeof pc.grupo === "string" ? pc.grupo : ""; CPW.paso = Math.min(4, Math.max(1, Number(pc.paso) || 2));
+      if (pc.modo) S.entregaModo = pc.modo; S.retiroLocal = Number(pc.loc) || 0;
+      let n = 0; const rell = () => {
+        const e = document.getElementById("entrega");
+        if (!e || !S.ses.cliente) { if (++n < 40) setTimeout(rell, 250); return; }
+        for (const [id, v] of Object.entries(pc.campos || {})) { const x = document.getElementById(id); if (!x || !e.contains(x)) continue; if (x.type === "radio" || x.type === "checkbox") { if (v && !x.checked) x.click(); } else if (v !== "" && x.value !== v) { x.value = v; x.dispatchEvent(new Event("input", { bubbles: true })); } }
+        try { if (CPW.paso >= 3) cpwIr(CPW.paso, true); updateCarritoUI(); } catch (_) {}
+      };
+      setTimeout(rell, 600);
+    }
+  }
 })();
+document.addEventListener("input", () => setTimeout(guardarPedCurso, 0));
 document.addEventListener("click", () => setTimeout(guardarNav, 0));
 document.addEventListener("change", () => setTimeout(guardarNav, 0));
 window.addEventListener("pagehide", guardarNav);
