@@ -5341,7 +5341,7 @@ async function enviarPedido(btn) {
       const historial = histCon(d, { solicitante: quien, telefono: tel, direccion: dir, depto, comuna, fechaEntrega: fecha, horario, pago, nota, items: its }, (cli.nombre || "Cliente") + " (cliente)");
       await conReintento(() => ref.update({
         historial, solicitante: quien, telefono: tel, direccion: dir, depto, comuna, fechaEntrega: fecha, horario, pago, nota,
-        items: its, bidones: bidonesDoc(), total: Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + cargoCarrito()) + (Number(d.despacho) || 0), ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), editado: Date.now()
+        items: its, bidones: bidonesDoc(), total: Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + cargoCarrito() - (Number(d.descuento) || 0) - descGuardados(d, itSub(its)).total - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0)) + (Number(d.despacho) || 0), ...(d.primeraCompra || Number(d.descuentoPrimera) ? { descuentoPrimera: descGuardados(d, itSub(its)).primera } : {}), ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), editado: Date.now()
       }));
       S.editPedido = null; S.carrito = {}; S.dev = {}; S.devTocado = {}; S.cliTab = "mis"; S.misSub = "pend"; CPW.paso = 1; CPW.grupo = ""; CPW.fin = null;
       renderView(); window.scrollTo(0, 0);
@@ -14906,7 +14906,8 @@ async function edGuardar(id, btn) {
       cupDesc = Math.max(0, Math.min(cupDesc, neto));
       Object.assign(cupUpd, { cupon: cupCod, descuento: cupDesc });
     } else if (d.cupon) Object.assign(cupUpd, { cupon: "", descuento: 0 });
-    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0) - cupDesc - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0) + (Number(d.despacho) || 0));
+    const dg = descGuardados(d, itSub(its)); if (d.primeraCompra || Number(d.descuentoPrimera)) cupUpd.descuentoPrimera = dg.primera;
+    const total = Math.max(0, itSub(its) + ivaPed(d, itSub(its)) + (hay ? cargo : 0) - cupDesc - dg.total - (Number(d.descuentoPuntos) || 0) + (Number(d.recargoDist) || 0) + (Number(d.despacho) || 0));
     const repUpd = {};
     if ((f.rep || "") !== (d.repartidorId || "")) {
       if (!f.rep) { Object.assign(repUpd, { repartidorId: "", repartidorNombre: "" }); if (d.estado === "en_camino") Object.assign(repUpd, { estado: "pendiente", tomado: 0 }); }
@@ -16809,7 +16810,7 @@ async function repreciarPedidos(cliId, precios, sinIva) {
     if (!!p.conIva !== conIva) cambio = true;
     if (!cambio) continue;
     const sub = itSub(its), iva = conIva ? ivaIncDe(sub) : 0;
-    const total = Math.max(0, sub + cargoBid(p));
+    const total = Math.max(0, sub + cargoBid(p) - (Number(p.descuento) || 0) - descGuardados(p, sub).total - (Number(p.descuentoPuntos) || 0) + (Number(p.recargoDist) || 0) + (Number(p.despacho) || 0));
     const upd = { items: its, total, conIva, iva, ivaIncl: true, repreciado: Date.now(), ...(p.conIva && !conIva ? { ivaQuitado: true } : {}), ...(!p.conIva && conIva ? { ivaQuitado: false } : {}) };
     try { await conReintento(() => S.db.doc("pedidos/" + p.id).update(upd)); Object.assign(p, upd); n++; } catch (e) { console.warn("repreciar", p.id, e); }
   }
@@ -18344,6 +18345,14 @@ function descExtra() {
   }
   r.total = r.combo + r.oferta + (r.grupo || 0) + (r.primera || 0);
   return r;
+}
+/* Al editar o re-preciar un pedido guardado se conservan sus descuentos (primera compra, grupal, combos, oferta, suscripción).
+   La primera compra se recalcula con su % sobre el nuevo subtotal (tope PRIMERA_MAX). Devuelve { primera, total }. */
+function descGuardados(d, sub) {
+  d = d || {}; sub = Math.max(0, Number(sub) || 0);
+  const primera = d.primeraCompra || Number(d.descuentoPrimera) ? Math.min(PRIMERA_MAX, Math.round(sub * (Number(d.primeraPct) || PRIMERA_PCT) / 100)) : 0;
+  const otros = (Number(d.descuentoGrupo) || 0) + (Number(d.descuentoCombo) || 0) + (Number(d.descuentoOferta) || 0) + (Number(d.descuentoSus) || 0);
+  return { primera, total: Math.min(sub, primera + otros) };
 }
 function descExtraDoc() { const d = descExtra(); return Object.assign({}, d.primera ? { primeraCompra: true, descuentoPrimera: d.primera, primeraPct: PRIMERA_PCT } : {}, d.grupoId ? { grupoId: d.grupoId, grupoNombre: d.grupoNombre, grupoPct: d.grupoPct, grupoBase: d.grupoBase, descuentoGrupo: d.grupo || 0 } : {}, d.combo ? { descuentoCombo: d.combo, combosTxt: d.combosTxt } : {}, d.oferta ? { descuentoOferta: d.oferta, ofertaProd: (ofertaVigente() || {}).prod } : {}); }
 function irAlCarrito() {
