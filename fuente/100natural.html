@@ -15737,11 +15737,12 @@ document.addEventListener("click", e => {
   else if (a === "cbad-borrar") borrarDocFid("combos", b.dataset.id, "Combo eliminado.");
   else if (a === "cbad-act") toggleCombo(b.dataset.id);
   else if (a === "ofad-guardar") guardarOferta(b);
-  else if (a === "neon-add") { neonLeer(); NEON.ed.mensajes.push({ t: "", ir: "", on: true }); renderNeonAd(true); }
-  else if (a === "neon-del") { neonLeer(); NEON.ed.mensajes.splice(Number(b.dataset.i), 1); renderNeonAd(true); }
+  else if (a === "neon-add") { neonLeer(); NEON.eds[NEON.tab].mensajes.push({ t: "", ir: "", on: true }); NEON.sucios[NEON.tab] = true; renderNeonAd(true); }
+  else if (a === "neon-del") { neonLeer(); NEON.eds[NEON.tab].mensajes.splice(Number(b.dataset.i), 1); NEON.sucios[NEON.tab] = true; renderNeonAd(true); }
+  else if (a === "neon-tab") { neonLeer(); NEON.tab = b.dataset.t === "local" ? "local" : "part"; renderNeonAd(true); }
   else if (a === "neon-guardar") guardarNeon(b);
   else if (a === "despad-guardar") guardarDespAd(b);
-  else if (a === "neon-col") { neonLeer(); NEON.ed.color = b.dataset.c; renderNeonAd(true); }
+  else if (a === "neon-col") { neonLeer(); NEON.eds[NEON.tab].color = b.dataset.c; renderNeonAd(true); }
   else if (a === "neon-ir") neonIr(b.dataset.ir);
   else if (a === "ofad-quitar") quitarOferta();
   else if (a === "recad-nuevo") { FID.recEd = { id: "", titulo: "", emoji: "🥔", foto: "", tiempo: "", porciones: "", ingredientes: "", pasos: "", prods: [] }; renderRecetasAd(); }
@@ -16622,7 +16623,7 @@ document.addEventListener("change", e => {
   if (e.target.id === "pc-pagofijo") { PC.pagoFijo = e.target.value; PC.dirty = true; return; }
   if (e.target.id === "pc-siniva") {
     PC.sinIva = e.target.checked; PC.dirty = true;
-    document.querySelectorAll("#pc-form .pc-neto").forEach(nIn => { const id = nIn.dataset.id, kg = Number(nIn.dataset.kg) || 0, tIn = document.querySelector(`#pc-form .pc-in[data-id="${id}"]`), n = Number(nIn.value); if (tIn) { tIn.value = n > 0 ? totalNeto(n, kg) : ""; tIn.placeholder = baseEf(id, PC.sinIva); } const t = Number(tIn && tIn.value), iva = $("#pc-iva-" + id), bl = $("#pc-base-" + id); if (iva) iva.textContent = t > 0 ? ivaTxt(t, kg) : ""; if (bl) bl.textContent = "Base " + clp(t > 0 ? t : baseEf(id, PC.sinIva)); });
+    document.querySelectorAll("#pc-form .pc-neto").forEach(nIn => { const id = nIn.dataset.id, kg = Number(nIn.dataset.kg) || 0, tIn = document.querySelector(`#pc-form .pc-in[data-id="${id}"]`), n = Number(nIn.value); if (tIn) { tIn.value = n > 0 ? totalNeto(n, kg) : ""; tIn.placeholder = baseEf(id, PC.sinIva, pcTipo()); } const t = Number(tIn && tIn.value), iva = $("#pc-iva-" + id), bl = $("#pc-base-" + id); if (iva) iva.textContent = t > 0 ? ivaTxt(t, kg) : ""; if (bl) bl.textContent = "Base " + clp(t > 0 ? t : baseEf(id, PC.sinIva, pcTipo())); });
     document.querySelectorAll("#pc-form .pc-tbl thead th:last-child").forEach(th => { if (th.textContent !== "Total bolsa") th.textContent = PC.sinIva ? "Total s/IVA" : "Total c/IVA"; });
   }
   if (e.target.id === "pc-cli") { PC.cli = e.target.value; PC.dirty = false; PC.sinIvaCli = ""; renderPrecios(); }
@@ -16750,7 +16751,7 @@ document.addEventListener("input", e => {
     else nIn.value = e.target.value === "" || !(val > 0) ? "" : netoUnidad(val, kg);
     const t = Number(tIn.value);
     if (iva) iva.textContent = t > 0 ? ivaTxt(t, kg) : "";
-    const bl = $("#pc-base-" + id); if (bl) bl.textContent = "Base " + clp(t > 0 ? t : baseEf(id, PC.sinIva));
+    const bl = $("#pc-base-" + id); if (bl) bl.textContent = "Base " + clp(t > 0 ? t : baseEf(id, PC.sinIva, pcTipo()));
     const tr = e.target.closest("tr"); if (tr) tr.classList.toggle("pc-esp", t > 0);
   }
 });
@@ -16821,12 +16822,18 @@ const ivaF = () => PC.sinIva ? 1 : 1 + IVA;
 const totalNeto = (n, kg) => Math.round(Number(n) * (kg || 1) * ivaF());
 const netoUnidad = (total, kg) => kg ? Math.round(Number(total) / ivaF() / kg * 100) / 100 : Math.round(Number(total) / ivaF());
 const netoBase = (p, kg) => kg ? Math.round(p.precio / (1 + IVA) / kg * 100) / 100 : netoDe(p.precio);
-const baseEf = (pid, sinIva) => sinIva ? netoDe(PROD[pid].precio) : PROD[pid].precio;
+/* Precio base sin precio especial. Locales comerciales: el precio final de un Particular es su precio NETO, y se le suma el IVA
+   (bidón 20 L: particular $2.500 final → local $2.500 + IVA = $2.975; con «precios netos» paga $2.500). */
+const baseEf = (pid, sinIva, tipo) => {
+  if (tipo === "Local comercial") { const n = Number(PRECIO_PART[pid] || PROD[pid].precio) || 0; return sinIva ? n : Math.round(n * (1 + IVA)); }
+  return sinIva ? netoDe(PROD[pid].precio) : PROD[pid].precio;
+};
+const pcTipo = () => { const c = (US.data && US.data.clientes || []).find(x => x.id === PC.cli); return c ? c.tipo || "" : ""; };
 const ivaTxt = (t, kg) => { const nb = Math.round(t / ivaF()); return PC.sinIva ? `${kg ? `Neto bolsa ${clp(nb)} · ` : ""}Sin IVA` : `${kg ? `Neto bolsa ${clp(nb)} · ` : ""}IVA ${clp(t - nb)}`; };
 /* Precio base para clientes Particular (con IVA) cuando es distinto del precio general. Los Local comercial usan el precio general o su precio especial. */
 const PRECIO_PART = { p1g: 1699, p1b12: 1699, p5g: 7495, p5gc: 7495, p5b12: 7495, p5b12p: 7495, p5b12c: 7495, p5b10: 7495, p5b10c: 7495, p5e: 7495 };
 const esTipoPart = t => t !== undefined && t !== null && t !== "Local comercial";
-const precioCli = (pid, precios, sinIva, tipo) => { const v = precios ? Number(precios[pid]) : 0; if (v > 0) return Math.round(v); if (esTipoPart(tipo) && PRECIO_PART[pid]) return sinIva ? netoDe(PRECIO_PART[pid]) : PRECIO_PART[pid]; return baseEf(pid, sinIva); };
+const precioCli = (pid, precios, sinIva, tipo) => { const v = precios ? Number(precios[pid]) : 0; if (v > 0) return Math.round(v); if (esTipoPart(tipo) && PRECIO_PART[pid]) return sinIva ? netoDe(PRECIO_PART[pid]) : PRECIO_PART[pid]; return baseEf(pid, sinIva, tipo); };
 /* Lista de clientes de Precios especiales (con buscador: busca en locales y particulares). */
 function pcListaHTML() {
   const todos = (US.data.clientes || []).slice().sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
@@ -16864,9 +16871,9 @@ function preciosHTML() {
       ${CATALOGO.map(cat => ({ cat, its: cat.items })).filter(x => x.its.length).map(({ cat, its }) => `<h3 class="sec pc-cat">${esc(cat.titulo)}</h3>
         <div class="tbl-wrap"><table class="tbl pc-tbl"><thead><tr><th>Producto</th><th class="r">${cat.fam === "papa" ? "Neto x kg" : "Neto"}</th><th class="r">${cat.fam === "papa" ? "Total bolsa" : PC.sinIva ? "Total s/IVA" : "Total c/IVA"}</th></tr></thead><tbody>
         ${its.map(([id]) => { const p = PROD[id], kg = kgBolsa(p), v = Number(pr[id]) > 0 ? Math.round(pr[id]) : "", nGuard = kg ? Number((c.preciosNetoKg || {})[id]) : Number((c.preciosNeto || {})[id]), n = v ? (nGuard > 0 && totalNeto(nGuard, kg) === v ? Math.round(nGuard * 100) / 100 : netoUnidad(v, kg)) : ""; const lbl = `${esc(etiqueta(p))} ${esc(p.medida)} para ${esc(c.nombre)}`;
-          return `<tr class="${v ? "pc-esp" : ""}"><td>${esc(etiqueta(p))}${p.fam === "papa" ? ` <small class="muted-s">${esc(p.medida)}</small>` : ""}${(c.ocultos || []).includes(id) ? ` <small class="pc-oculto" title="El cliente lo ocultó de su lista">🙈 oculto</small>` : ""}<br><small class="muted-s" id="pc-base-${id}">Base ${clp(v || baseEf(id, PC.sinIva))}</small></td>
+          return `<tr class="${v ? "pc-esp" : ""}"><td>${esc(etiqueta(p))}${p.fam === "papa" ? ` <small class="muted-s">${esc(p.medida)}</small>` : ""}${(c.ocultos || []).includes(id) ? ` <small class="pc-oculto" title="El cliente lo ocultó de su lista">🙈 oculto</small>` : ""}<br><small class="muted-s" id="pc-base-${id}">Base ${clp(v || baseEf(id, PC.sinIva, pcTipo()))}</small></td>
             <td class="r"><input class="pc-neto" type="number" inputmode="decimal" min="0" step="${kg ? "0.01" : "1"}" data-id="${id}" data-kg="${kg}" value="${n}" placeholder="${netoBase(p, kg)}" aria-label="Precio neto ${kg ? "por kilo " : ""}de ${lbl}"></td>
-            <td class="r"><input class="pc-in" type="number" inputmode="numeric" min="0" step="1" data-id="${id}" value="${v}" placeholder="${baseEf(id, PC.sinIva)}" aria-label="Precio total de ${lbl}"><small class="pc-iva" id="pc-iva-${id}">${v ? ivaTxt(v, kg) : ""}</small></td></tr>`; }).join("")}
+            <td class="r"><input class="pc-in" type="number" inputmode="numeric" min="0" step="1" data-id="${id}" value="${v}" placeholder="${baseEf(id, PC.sinIva, pcTipo())}" aria-label="Precio total de ${lbl}"><small class="pc-iva" id="pc-iva-${id}">${v ? ivaTxt(v, kg) : ""}</small></td></tr>`; }).join("")}
         </tbody></table></div>`).join("")}
       <p class="err" id="pc-err" role="alert"></p>
       <div class="acciones"><button type="button" class="btn suave" data-act="pc-reset">Volver a precios base</button><button type="button" class="btn primario grande" data-act="pc-guardar">Guardar precios</button></div>
@@ -16905,7 +16912,7 @@ async function guardarPrecios(btn, reset) {
   const precios = {};
   /* Todos los productos (también los que el cliente ocultó) están en el formulario, así que se guarda lo que se ve. */
   const netos = {}, netosKg = {};
-  if (!reset) document.querySelectorAll("#pc-form .pc-in").forEach(i => { const id = i.dataset.id, v = Math.round(Number(i.value)); if (i.value !== "" && v > 0 && PROD[id] && v !== baseEf(id, PC.sinIva)) { precios[id] = v; const kg = kgBolsa(PROD[id]), ni = document.querySelector(`#pc-form .pc-neto[data-id="${id}"]`), nv = ni ? Number(ni.value) : 0; netos[id] = Math.round(v / ivaF()); if (kg) netosKg[id] = nv > 0 && totalNeto(nv, kg) === v ? nv : netoUnidad(v, kg); else if (nv > 0 && totalNeto(nv, 0) === v) netos[id] = Math.round(nv); } });
+  if (!reset) document.querySelectorAll("#pc-form .pc-in").forEach(i => { const id = i.dataset.id, v = Math.round(Number(i.value)); if (i.value !== "" && v > 0 && PROD[id] && v !== baseEf(id, PC.sinIva, pcTipo())) { precios[id] = v; const kg = kgBolsa(PROD[id]), ni = document.querySelector(`#pc-form .pc-neto[data-id="${id}"]`), nv = ni ? Number(ni.value) : 0; netos[id] = Math.round(v / ivaF()); if (kg) netosKg[id] = nv > 0 && totalNeto(nv, kg) === v ? nv : netoUnidad(v, kg); else if (nv > 0 && totalNeto(nv, 0) === v) netos[id] = Math.round(nv); } });
   ocupar(btn, true, "Guardando…");
   try {
     await conReintento(() => S.db.doc("clientes/" + PC.cli).update({ precios, preciosNeto: netos, preciosNetoKg: netosKg, sinIva: !!PC.sinIva, pagoFijo: PC.pagoFijo || "", preciosEn: Date.now(), preciosPor: (S.ses.admin || {}).nombre || "" }));
@@ -18505,16 +18512,20 @@ async function guardarDespAd(btn) {
   finally { ocupar(btn, false); renderDespAd(); }
 }
 /* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
-const NEON = { subs: false, cfg: null, ed: null };
+/* Dos barras: una para clientes Particulares (config/neon) y otra para Locales comerciales (config/neon_local). */
+const NEON = { subs: false, cfgs: { part: null, local: null }, eds: { part: null, local: null }, sucios: { part: false, local: false }, tab: "part" };
+const NEON_DOC = { part: "config/neon", local: "config/neon_local" };
+const NEON_IR_LOCAL = ["", "cli-promos", "cli-combos", "cli-recetas", "nuevo"];
+const neonK = () => S.portal === "cliente" ? (esLocal() ? "local" : "part") : NEON.tab;
 const NEON_IR = [["", "Sin enlace"], ["cli-ofertadia", "Oferta del día"], ["cli-promos", "Promociones"], ["cli-cupones", "Cupones"], ["cli-combos", "Combos y packs"], ["cli-grupos", "Pedidos grupales"], ["cli-referidos", "Invita y gana"], ["cli-puntos", "Puntos"], ["cli-recetas", "Recetas"], ["nuevo", "Crear pedido"]];
 const NEON_COL = [["rosa", "Rosa", "#ff2fb3"], ["azul", "Azul", "#22d3ff"], ["verde", "Verde", "#2bff88"], ["amarillo", "Amarillo", "#ffd60a"], ["naranjo", "Naranjo", "#ff7a1a"], ["rojo", "Rojo", "#ff2d4a"], ["morado", "Morado", "#a855ff"], ["blanco", "Blanco", "#e8f4ff"]];
 const neonHex = c => /^#[0-9a-f]{6}$/i.test(String(c || "")) ? c : ((NEON_COL.find(x => x[0] === c) || NEON_COL[0])[2]);
 const neonEstilo = c => { const x = neonHex(c); return `--nc:${x};--nc2:color-mix(in srgb,${x} 50%,#fff)`; };
-function subNeon() { if (NEON.subs || !S.db) return; NEON.subs = true; S.db.doc("config/neon").onSnapshot(d => { NEON.cfg = d.exists ? d.data() || {} : {}; if (!NEON.sucio) NEON.ed = null; pintarNeon(); renderNeonAd(); }, () => { NEON.cfg = NEON.cfg || {}; }); }
-function neonCfg() { const c = NEON.cfg || {}; return { activa: c.activa !== false, oferta: c.oferta !== false, color: c.color || "rosa", vel: c.vel || "normal", mensajes: Array.isArray(c.mensajes) ? c.mensajes : [] }; }
+function subNeon() { if (NEON.subs || !S.db) return; NEON.subs = true; for (const k of ["part", "local"]) S.db.doc(NEON_DOC[k]).onSnapshot(d => { NEON.cfgs[k] = d.exists ? d.data() || {} : {}; if (!NEON.sucios[k]) NEON.eds[k] = null; pintarNeon(); renderNeonAd(); }, () => { NEON.cfgs[k] = NEON.cfgs[k] || {}; }); }
+function neonCfg(k) { const c = NEON.cfgs[k || neonK()] || {}; return { activa: c.activa !== false, oferta: c.oferta !== false, color: c.color || "rosa", vel: c.vel || "normal", mensajes: Array.isArray(c.mensajes) ? c.mensajes : [] }; }
 function neonItems(cfg) {
   const its = [];
-  const o = cfg.oferta ? ofertaVigente() : null;
+  const o = cfg.oferta && neonK() === "part" ? ofertaVigente() : null;
   if (o) { const p = PROD[o.prod], antes = precioMio(o.prod), pct = antes > 0 ? Math.round((1 - Number(o.precio) / antes) * 100) : 0, fin = new Date(Number(o.hasta)); its.push({ t: `⏰ OFERTA DEL DÍA: ${o.titulo ? o.titulo + " · " : ""}${etiqueta(p)} a ${clp(o.precio)}${pct > 0 ? ` (−${pct}%)` : ""} · hasta las ${String(fin.getHours()).padStart(2, "0")}:${String(fin.getMinutes()).padStart(2, "0")}`, ir: "cli-ofertadia" }); }
   for (const m of cfg.mensajes) if (m && m.on !== false && String(m.t || "").trim()) its.push({ t: String(m.t).trim(), ir: m.ir || "" });
   return its;
@@ -18529,7 +18540,7 @@ function pintarNeon() {
   if (!el) { const bn = document.getElementById("banner"); if (!bn) return; bn.insertAdjacentHTML("beforebegin", `<div id="neon-bar" class="neon-bar" role="marquee" aria-label="Novedades" hidden></div>`); el = document.getElementById("neon-bar"); }
   const ok = S.portal === "cliente" && !!S.ses.cliente;
   if (ok) { subNeon(); subFid(); }
-  const cfg = neonCfg(), its = ok && NEON.cfg && cfg.activa ? neonItems(cfg) : [];
+  const k = neonK(), cfg = neonCfg(k), its = ok && NEON.cfgs[k] && cfg.activa ? neonItems(cfg) : [];
   if (!its.length) { if (!el.hidden) { el.hidden = true; el.innerHTML = ""; el.dataset.f = ""; } return; }
   const f = JSON.stringify([cfg.color, cfg.vel, its]);
   if (el.dataset.f !== f) { el.dataset.f = f; el.setAttribute("style", neonEstilo(cfg.color)); el.innerHTML = neonHTML(cfg, its); }
@@ -18547,39 +18558,43 @@ document.addEventListener("click", e => {
   neonIr(ir);
 }, true);
 function neonLeer() {
-  const f = NEON.ed; if (!f) return; NEON.sucio = true; const v = id => document.getElementById(id);
+  const f = NEON.eds[NEON.tab]; if (!f) return; NEON.sucios[NEON.tab] = true; const v = id => document.getElementById(id);
   if (v("neon-activa")) f.activa = v("neon-activa").checked; if (v("neon-oferta")) f.oferta = v("neon-oferta").checked;
   if (v("neon-vel")) f.vel = v("neon-vel").value;
   f.mensajes.forEach((m, i) => { const t = v("neon-t" + i), ir = v("neon-ir" + i), on = v("neon-on" + i); if (t) m.t = t.value; if (ir) m.ir = ir.value; if (on) m.on = on.checked; });
 }
 function neonAdHTML() {
-  if (!NEON.cfg) return `<div class="card ad-card"><p class="muted-s">Cargando…</p></div>`;
-  const f = NEON.ed || (NEON.ed = JSON.parse(JSON.stringify(neonCfg())));
+  const k = NEON.tab, loc = k === "local";
+  const tabs = `<div class="seg neon-tabs" role="tablist">${[["part", "🏠 Particulares"], ["local", "🏪 Locales comerciales"]].map(([t, l]) => `<button type="button" role="tab" class="neon-tab" data-act="neon-tab" data-t="${t}" aria-selected="${k === t}">${l}</button>`).join("")}</div>`;
+  if (!NEON.cfgs[k]) return `<div class="card ad-card"><h2 class="h2">✨ Barra neón</h2>${tabs}<p class="muted-s">Cargando…</p></div>`;
+  const f = NEON.eds[k] || (NEON.eds[k] = JSON.parse(JSON.stringify(neonCfg(k))));
   const prevIts = f.activa ? neonItems(f) : [];
-  return `<div class="card ad-card"><h2 class="h2">✨ Barra neón</h2><p class="muted-s">Aparece en Clientes justo debajo del banner, con el texto en movimiento. Al tocar un mensaje, el cliente va a la sección que elijas.</p>
+  const irs = loc ? NEON_IR.filter(([x]) => NEON_IR_LOCAL.includes(x)) : NEON_IR;
+  return `<div class="card ad-card"><h2 class="h2">✨ Barra neón</h2><p class="muted-s">Aparece en Clientes sobre el banner, con el texto en movimiento. Hay una barra para clientes <b>Particulares</b> y otra para <b>Locales comerciales</b>: cada cliente ve solo la suya.</p>${tabs}
+    <p class="neon-para">Editando la barra de <b>${loc ? "Locales comerciales" : "Particulares"}</b>${NEON.sucios[k] ? " · <span class=\"neon-sinG\">cambios sin guardar</span>" : ""}</p>
     <p class="muted-s"><b>Vista previa</b></p>${prevIts.length ? `<div class="neon-bar neon-prev" style="${neonEstilo(f.color)}">${neonHTML(f, prevIts)}</div>` : `<p class="muted-s">${f.activa ? "No hay mensajes para mostrar: la barra no aparece." : "La barra está apagada."}</p>`}
     <div class="form">
-      <label class="neon-chk"><input type="checkbox" id="neon-activa" ${f.activa ? "checked" : ""}> Mostrar la barra neón a los clientes</label>
-      <label class="neon-chk"><input type="checkbox" id="neon-oferta" ${f.oferta ? "checked" : ""}> Incluir la oferta del día (cuando hay una vigente)</label>
+      <label class="neon-chk"><input type="checkbox" id="neon-activa" ${f.activa ? "checked" : ""}> Mostrar esta barra a los ${loc ? "locales comerciales" : "clientes particulares"}</label>
+      ${loc ? "" : `<label class="neon-chk"><input type="checkbox" id="neon-oferta" ${f.oferta ? "checked" : ""}> Incluir la oferta del día (cuando hay una vigente)</label>`}
       <fieldset class="campo"><legend>Color de la barra</legend><div class="neon-cols">${NEON_COL.map(([k, l, x]) => `<button type="button" class="neon-col" data-act="neon-col" data-c="${k}" aria-pressed="${f.color === k}" style="--sw:${x}"><i aria-hidden="true"></i>${l}</button>`).join("")}
         <label class="neon-col neon-col-p" aria-pressed="${/^#/.test(f.color || "")}" style="--sw:${neonHex(f.color)}"><input type="color" id="neon-colp" value="${neonHex(f.color)}" aria-label="Elegir otro color">Otro color</label></div></fieldset>
       <div class="pg-2"><label class="campo"><span>Velocidad</span><select id="neon-vel">${[["lenta", "Lenta"], ["normal", "Normal"], ["rapida", "Rápida"]].map(([k, l]) => `<option value="${k}" ${f.vel === k ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
       <fieldset class="campo"><legend>Campañas en la barra</legend>
         ${f.mensajes.length ? f.mensajes.map((m, i) => `<div class="neon-fila"><label class="campo"><span>Mensaje ${i + 1}</span><input id="neon-t${i}" value="${esc(m.t || "")}" maxlength="120" placeholder="Ej.: 🚚 Despacho gratis sobre $15.000 este fin de semana"></label>
           <button type="button" class="btn chico suave" data-act="neon-del" data-i="${i}" aria-label="Quitar mensaje ${i + 1}">Quitar</button>
-          <div class="pg-2"><label class="campo"><span>Al tocarlo, ir a</span><select id="neon-ir${i}">${NEON_IR.map(([k, l]) => `<option value="${k}" ${(m.ir || "") === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+          <div class="pg-2"><label class="campo"><span>Al tocarlo, ir a</span><select id="neon-ir${i}">${irs.map(([k, l]) => `<option value="${k}" ${(m.ir || "") === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
           <label class="neon-chk"><input type="checkbox" id="neon-on${i}" ${m.on !== false ? "checked" : ""}> Visible</label></div></div>`).join("") : `<p class="muted-s">Aún no hay campañas.</p>`}
         <button type="button" class="btn suave" data-act="neon-add">+ Agregar mensaje</button></fieldset>
-      <div class="acciones"><button type="button" class="btn primario" data-act="neon-guardar">Guardar barra neón</button></div></div></div>`;
+      <div class="acciones"><button type="button" class="btn primario" data-act="neon-guardar">Guardar barra de ${loc ? "locales comerciales" : "particulares"}</button></div></div></div>`;
 }
 function renderNeonAd(forzar) { const el = $("#neon-panel"); if (!el || AD.local !== "neon") return; const a = document.activeElement; if (!forzar && a && el.contains(a) && /INPUT|SELECT/.test(a.tagName)) return; el.innerHTML = neonAdHTML(); }
-document.addEventListener("change", e => { if (e.target.closest && e.target.closest("#neon-panel") && /neon-(activa|oferta|colp|vel|on|ir)/.test(e.target.id || "")) { neonLeer(); if (e.target.id === "neon-colp" && NEON.ed) NEON.ed.color = e.target.value; renderNeonAd(true); } });
-document.addEventListener("input", e => { if (e.target.closest && e.target.closest("#neon-panel") && /^neon-t\d/.test(e.target.id || "")) { neonLeer(); const f = NEON.ed, its = f.activa ? neonItems(f) : [], p = $("#neon-panel .neon-prev"); if (p && its.length) { p.innerHTML = neonHTML(f, its); } } });
+document.addEventListener("change", e => { if (e.target.closest && e.target.closest("#neon-panel") && /neon-(activa|oferta|colp|vel|on|ir)/.test(e.target.id || "")) { neonLeer(); if (e.target.id === "neon-colp" && NEON.eds[NEON.tab]) NEON.eds[NEON.tab].color = e.target.value; renderNeonAd(true); } });
+document.addEventListener("input", e => { if (e.target.closest && e.target.closest("#neon-panel") && /^neon-t\d/.test(e.target.id || "")) { neonLeer(); const f = NEON.eds[NEON.tab], its = f.activa ? neonItems(f) : [], p = $("#neon-panel .neon-prev"); if (p && its.length) { p.innerHTML = neonHTML(f, its); } } });
 async function guardarNeon(btn) {
-  neonLeer(); const f = NEON.ed; if (!f) return;
+  neonLeer(); const k = NEON.tab, f = NEON.eds[k]; if (!f) return;
   const mensajes = f.mensajes.map(m => ({ t: String(m.t || "").trim().slice(0, 120), ir: m.ir || "", on: m.on !== false })).filter(m => m.t);
   ocupar(btn, true, "Guardando…");
-  try { await conReintento(() => S.db.doc("config/neon").set({ activa: !!f.activa, oferta: !!f.oferta, color: f.color || "rosa", vel: f.vel || "normal", mensajes, en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); NEON.ed = null; NEON.sucio = false; toast("Barra neón guardada."); }
+  try { await conReintento(() => S.db.doc(NEON_DOC[k]).set({ activa: !!f.activa, oferta: k === "part" && !!f.oferta, color: f.color || "rosa", vel: f.vel || "normal", mensajes, en: Date.now(), por: (S.ses.admin || {}).nombre || "" })); NEON.eds[k] = null; NEON.sucios[k] = false; toast(`Barra neón de ${k === "local" ? "locales comerciales" : "particulares"} guardada.`); }
   catch (e) { toast(msgError(e)); }
   finally { ocupar(btn, false); renderNeonAd(true); }
 }
@@ -19717,7 +19732,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 @keyframes neon-resp{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 10px -1px var(--nc),0 0 26px -6px var(--nc),inset 0 0 14px -6px var(--nc),0 10px 22px -14px #000}50%{box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,0 0 14px 0 var(--nc),0 0 36px -4px var(--nc),inset 0 0 18px -6px var(--nc),0 10px 22px -14px #000}}
 @keyframes neon-pto{0%,100%{opacity:1}50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.neon-bar,.neon-tag i,.neon-it{animation:none}.neon-track{animation:none}.neon-seg+.neon-seg{display:none}.neon-seg{flex-wrap:wrap;white-space:normal;padding:6px 0}}
-.neon-fila{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}.neon-fila .pg-2{grid-column:1/-1}.neon-fila>.campo{min-width:0}.neon-fila>.campo input{width:100%;min-width:0}.neon-prev{margin:0 0 12px;width:100%}.neon-chk{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}.neon-chk input{width:22px;height:22px;flex:none;margin:0;accent-color:#0e7490}.ofd-card{position:relative;display:grid;justify-items:center;gap:6px;text-align:center;padding:18px 16px 20px;border-radius:18px;background:linear-gradient(180deg,#fff7ed,var(--surface));border:2px solid #fdba74}.ofd-card h2{margin:6px 0 0;font-size:1.3rem}.ofd-prod{margin:0;font-weight:700}.ofd-card small{color:var(--muted)}.ofd-foto{width:min(260px,70vw);aspect-ratio:1;object-fit:contain;border-radius:14px}.ofd-emo{font-size:4.5rem}.ofd-pct{position:absolute;top:12px;right:12px;background:#dc2626;color:#fff;font-weight:800;padding:4px 10px;border-radius:999px}.ofd-precio{margin:6px 0 0;font-size:1.1rem}.ofd-precio s{color:var(--muted)}.ofd-precio b{font-size:1.7rem;color:#dc2626}.ofd-fin{margin:0;color:var(--muted)}.ofd-fin b{color:var(--ink,#111);font-variant-numeric:tabular-nums}.ofd-btn{width:100%;max-width:320px;margin-top:6px}
+.neon-fila{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line)}.neon-fila .pg-2{grid-column:1/-1}.neon-fila>.campo{min-width:0}.neon-fila>.campo input{width:100%;min-width:0}.neon-prev{margin:0 0 12px;width:100%}.neon-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}.neon-tab{min-height:44px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}.neon-tab[aria-selected="true"]{border-color:#0e7490;background:#ecfeff;color:#0e7490}.neon-para{margin:0 0 10px;font-size:.92rem}.neon-sinG{color:#b45309;font-weight:700}.neon-chk{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}.neon-chk input{width:22px;height:22px;flex:none;margin:0;accent-color:#0e7490}.ofd-card{position:relative;display:grid;justify-items:center;gap:6px;text-align:center;padding:18px 16px 20px;border-radius:18px;background:linear-gradient(180deg,#fff7ed,var(--surface));border:2px solid #fdba74}.ofd-card h2{margin:6px 0 0;font-size:1.3rem}.ofd-prod{margin:0;font-weight:700}.ofd-card small{color:var(--muted)}.ofd-foto{width:min(260px,70vw);aspect-ratio:1;object-fit:contain;border-radius:14px}.ofd-emo{font-size:4.5rem}.ofd-pct{position:absolute;top:12px;right:12px;background:#dc2626;color:#fff;font-weight:800;padding:4px 10px;border-radius:999px}.ofd-precio{margin:6px 0 0;font-size:1.1rem}.ofd-precio s{color:var(--muted)}.ofd-precio b{font-size:1.7rem;color:#dc2626}.ofd-fin{margin:0;color:var(--muted)}.ofd-fin b{color:var(--ink,#111);font-variant-numeric:tabular-nums}.ofd-btn{width:100%;max-width:320px;margin-top:6px}
 .ub-ni{display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer}.ub-ni-i{display:inline-grid;place-items:center;color:var(--c)}.ub-ni-i svg{display:block;width:24px;height:24px}
 .cli-not{margin:14px 0 6px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:0 8px 20px -16px var(--shadow)}
 .cli-not-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.cli-not-h b{font-size:1rem}.cli-not-h small{margin-left:auto;color:var(--muted);font-weight:600}
