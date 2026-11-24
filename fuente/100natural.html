@@ -18844,7 +18844,7 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
       if (snap.exists) {
         const np = perfil(s.id, snap.data());
         if (k === "pos" || k === "pizzas" || k === "prueba") np.src = s.src;
-        if (k === "cliente" && (JSON.stringify(np.ocultos) !== JSON.stringify(s.ocultos || []) || JSON.stringify(np.precios) !== JSON.stringify(s.precios || {}) || np.sinIva !== !!s.sinIva)) cambio = true;
+        if (k === "cliente" && (JSON.stringify(np.ocultos) !== JSON.stringify(s.ocultos || []) || JSON.stringify(np.precios) !== JSON.stringify(s.precios || {}) || np.sinIva !== !!s.sinIva || (np.tipo || "") !== (s.tipo || "") || (np.pagoFijo || "") !== (s.pagoFijo || ""))) cambio = true;
         S.ses[k] = np;
       }
       else { S.ses[k] = null; cambio = true; }
@@ -18852,6 +18852,22 @@ if (S.ses.repartidor && !document.querySelector(`[data-act="rep-tab"][data-t="${
   }
   guardarSesion();
   if (cambio) renderView();
+  /* Si el administrador cambia el tipo de cliente (Particular ↔ Local comercial) mientras la app está abierta, se aplica al instante. */
+  (function vigilarCli() {
+    let id = "", off = null;
+    const on = () => {
+      const c = S.ses.cliente, nid = c && !c.demo ? c.id : "";
+      if (nid === id) return; if (off) { try { off(); } catch (_) {} off = null; } id = nid; if (!id) return;
+      try { off = S.db.doc(col("cliente") + "/" + id).onSnapshot(sn => {
+        const s = S.ses.cliente; if (!sn.exists || !s || s.id !== id) return;
+        const np = perfil(id, sn.data());
+        if ((np.tipo || "") === (s.tipo || "") && (np.pagoFijo || "") === (s.pagoFijo || "") && np.sinIva === !!s.sinIva) return;
+        Object.assign(s, { tipo: np.tipo, pagoFijo: np.pagoFijo, sinIva: np.sinIva, precios: np.precios, ocultos: np.ocultos });
+        guardarSesion(); S.entregaModo = "despacho"; renderView();
+      }, () => {}); } catch (_) {}
+    };
+    on(); setInterval(on, 3000);
+  })();
 })();
 /* Deja disponibles para el bloque «Cambios 10-11» (otro <script>) las variables y funciones de la app que usa. */
 [["pyaGoogle", () => GOOGLE_APP], ["abrirComunidad", () => abrirComunidad], ["abrirPromo", () => id => { const p = PR.lista.find(x => x.id === id); if (!p || !esCliP() || !S.ses.cliente) return false; if (p.activa === false || (p.hasta && p.hasta < hoy())) return true; mostrarPromoModal(p); return true; }], ["$", () => $], ["AD", () => AD], ["US", () => US], ["subUsuarios", () => subUsuarios], ["comprimirFoto", () => comprimirFoto], ["toastFn", () => toast], ["ADSUB_INI", () => ADSUB_INI, v => { ADSUB_INI = v; }], ["BARSEC", () => BARSEC], ["CL", () => CL], ["INI", () => INI], ["INI_TIT", () => INI_TIT], ["IVA", () => IVA], ["NAVH", () => NAVH], ["NAV_INICIO", () => NAV_INICIO], ["PAGO_KG_ENTREGA", () => PAGO_KG_ENTREGA], ["PV", () => PV], ["S", () => S], ["UMBRAL_KG_SEM", () => UMBRAL_KG_SEM], ["addDias", () => addDias], ["afiAjustar", () => afiAjustar, v => { afiAjustar = v; }], ["afiIr", () => afiIr, v => { afiIr = v; }], ["afiN", () => afiN], ["afiRaw", () => afiRaw, v => { afiRaw = v; }], ["clp", () => clp], ["colapGrids", () => colapGrids, v => { colapGrids = v; }], ["conReintento", () => conReintento, v => { conReintento = v; }], ["detalle", () => detalle], ["entrar", () => entrar, v => { entrar = v; }], ["esc", () => esc], ["fmtFecha", () => fmtFecha], ["fmtN", () => fmtN], ["hoy", () => hoy], ["ivaLineHTML", () => ivaLineHTML, v => { ivaLineHTML = v; }], ["kmDias", () => kmDias, v => { kmDias = v; }], ["kmDiasMix", () => kmDiasMix, v => { kmDiasMix = v; }], ["misPagosHTML", () => misPagosHTML, v => { misPagosHTML = v; }], ["msgError", () => msgError, v => { msgError = v; }], ["ocupar", () => ocupar, v => { ocupar = v; }], ["perfil", () => perfil, v => { perfil = v; }], ["perfilAbierto", () => perfilAbierto], ["renderListas", () => renderListas, v => { renderListas = v; }], ["repUsuario", () => repUsuario], ["semanaRep", () => semanaRep, v => { semanaRep = v; }], ["subKmGps", () => subKmGps, v => { subKmGps = v; }], ["toast", () => toast, v => { toast = v; }], ["vacio", () => vacio, v => { vacio = v; }]].forEach(([n, g, s]) => { try { if (!(n in window) || Object.getOwnPropertyDescriptor(window, n)?.configurable) Object.defineProperty(window, n, { configurable: true, get: g, set: s || (() => {}) }); } catch (_) {} });
