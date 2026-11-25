@@ -11417,7 +11417,7 @@ const DESP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke
 const NEON_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="3"/><path d="M6 12h3M11 12h7"/><path d="M5 4l1.5 2M19 4l-1.5 2M12 3v2.5"/></svg>';
 const COM_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const CUP_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 5v2M14 11v2M14 17v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc" || AD.local === "vpar")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "sus" ? SUS_SVG : k === "refad" ? REF_SVG : k === "grupal" ? GRP_SVG : k === "mloc" ? ML_SVG : k === "combo" ? COMBO_SVG : k === "oferta" ? OFERTA_SVG : k === "neon" ? NEON_SVG : k === "desp" ? DESP_SVG : k === "cliprod" ? CPE_SVG : k === "rec" ? REC_SVG : k === "calif" ? CALIF_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
+const adBtn = ([k, l]) => AD_PORT[k] ? adPortBtn(k, l) : k === "salir" ? `<button type="button" class="local-btn l-salir" data-act="salir" data-k="admin"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Salir</button>` : k === "carr" ? `<span class="carr-ancla" hidden></span>` : k === "perfil" ? `<button type="button" role="tab" class="local-btn l-perfil bar-perfil" data-k="admin" data-act="ad-local" data-l="perfil" aria-selected="${AD.local === "perfil"}">${perfilIcoHTML("admin")}Perfil</button>` : `<button type="button" role="tab" class="local-btn l-${k}" data-act="${k === "oscuro" ? "ad-oscuro" : "ad-local"}" data-l="${k}"${k === "oscuro" ? ` aria-pressed="${temaOscuro()}"` : ""} aria-selected="${k !== "oscuro" && (AD.local === k || (k === "pag" && (AD.local === "ped" || AD.local === "graf" || AD.local === "vloc" || AD.local === "vpar")))}">${k === "oscuro" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>' : k === "cup" ? CUP_SVG : k === "coment" ? COM_SVG : k === "clin" ? CLIN_SVG : k === "sus" ? SUS_SVG : k === "refad" ? REF_SVG : k === "grupal" ? GRP_SVG : k === "mloc" ? ML_SVG : k === "combo" ? COMBO_SVG : k === "oferta" ? OFERTA_SVG : k === "neon" ? NEON_SVG : k === "desp" ? DESP_SVG : k === "cliprod" ? CPE_SVG : k === "rec" ? REC_SVG : k === "calif" ? CALIF_SVG : k === "pts" ? PTS_SVG : k === "estpro" ? ESTPRO_SVG : k === "comun" ? CMU_SVG : k === "muro" ? MURO_SVG : k === "borr" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v6h6M8 13h5M8 17h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15.5 18.5l4.5-4.5 1.5 1.5-4.5 4.5H15.5z" fill="currentColor"/></svg>' : k === "agp" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' : k === "agua" ? ICO.agua : k === "papas" || k === "prov" ? ICO.papa : k === "usu" ? ICO.usu : k === "ped" ? ICO.ped : k === "pag" || k === "pper" || k === "efead" ? ICO.pago : k === "bus" ? ICO.lupa : k === "capt" ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 4.8"/></svg>' : k === "captados" ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : k === "promo" ? ICO.promo : k === "precios" ? ICO.precio : k === "est" ? ICO.est : k === "red" ? ICO.red : k === "cuentas" ? ICO.cuenta : k === "piezas" ? ICO.pieza : k === "posc" || k === "inv" || k === "ins" ? ICO.caja : k === "osm" ? ICO.agua : k === "pizz" ? `<span class="apz-ico" aria-hidden="true">🍕</span>` : k === "utfsm" ? `<span class="apz-ico" aria-hidden="true">🎓</span>` : k === "posad" ? `<span class="apz-ico" aria-hidden="true">🏪</span>` : k === "ploc" ? `<span class="apz-ico" aria-hidden="true">🧾</span>` : k === "ult" ? ICO.ped : k === "pron" ? ICO.est : k === "imp" ? ICO.impr : k === "reg" ? ICO.reg : ICO.rep}${l}${k === "red" ? `<span class="cnt red-cnt" id="red-cnt"></span>` : ""}</button>`;
 function vistaAdmin() {
   if (AD.local === "ins") AD.local = "inv"; /* La pestaña Ingreso de stock fue eliminada. */
   return `<div class="ad-top"><button type="button" class="btn suave chico ad-pt-tog" data-act="ad-portales" aria-pressed="${!AD.ocultarPortales}">${AD.ocultarPortales ? "▾ Mostrar páginas" : "▴ Ocultar páginas"}</button></div>
@@ -11854,14 +11854,14 @@ const posEnPapas = () => PP.tab === "pv" && ((S.portal === "papas" && PP.sec !==
 /* Menú de Administrador ordenado por secciones. */
 const AD_GRUPOS = [
   ["100% Natural", [["clin", "Clientes"], ["papas", "Local papas"], ["agua", "Local agua"], ["rep", "Repartidores"], ["prov", "Proveedores"], ["pizz", "Local pizzas"], ["utfsm", "UTFSM"], ["inv", "Inventario general"], ["pper", "Sueldos"], ["cuentas", "Cuentas locales"], ["perfil", "Perfil"]]],
-  ["Pedidos", [["ult", "Últimos pedidos"], ["red", "Pedidos redundantes"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"]]],
+  ["Pedidos", [["ult", "Últimos pedidos"], ["agp", "Crear pedido"], ["bus", "Buscar pedido"], ["red", "Pedidos redundantes"], ["imp", "Imprimir pedidos"], ["borr", "Borrador de pedidos"]]],
   ["Fidelización", [["promo", "Promociones"], ["cup", "Cupones"], ["coment", "Sugerencias"], ["muro", "Muro de comentarios"], ["comun", "Trabajos comunitarios"], ["pts", "Puntos"], ["sus", "Suscripción"], ["refad", "Referidos"], ["grupal", "Pedidos grupales"], ["combo", "Combos y packs"], ["oferta", "Oferta del día"], ["neon", "Barra neón"], ["rec", "Recetas"], ["calif", "Calificaciones"], ["precios", "Precios especiales"], ["desp", "Despacho"]]],
   ["Caja (pagos y ventas)", [["pag", "Ventas"], ["ploc", "Pagos clientes"], ["mloc", "Merma"]]],
   ["Estadísticas", [["pron", "Estimación de pedidos"], ["est", "Ventas del periodo"], ["estpro", "Promociones"]]],
   /* Repartidores pasó a «100% Natural» («Pagos en efectivo» quedó como pestaña dentro de Repartidores). */
   ["Lista de usuarios", [["capt", "Lista clientes"], ["cliprod", "Clientes edición productos"], ["usu", "Lista usuarios"], ["captados", "Lista captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
-  ["Sistema", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"]]]
+  ["Sistema", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"], ["salir", "Salir"]]]
 ];
 /* Barra inferior de Administrador: Crear pedido, (Modo carrusel), Perfil, Modo oscuro y Salir. */
 /* Ícono de cada grupo del menú de Administrador. */
@@ -19209,6 +19209,29 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     if (k === "prov") return PV.adTab === "inicio";
     return !!INI[k];
   };
+  /* Botones de la barra inferior copiados en la grilla de la página de inicio (los que no estén ya en ella).
+     Las secciones al principio; Modo oscuro y Salir al final. Cada copia hace lo mismo que el botón de la barra. */
+  const mismo = (o, x) => (x.dataset.act || "") === (o.dataset.act || "") && (x.dataset.t || x.dataset.l || "") === (o.dataset.t || o.dataset.l || "");
+  function biCopiar(k, bar, t) {
+    if (k === "admin") return; /* Administrador: ya están en el menú (Pedidos y Sistema). */
+    const bs = barBtns(bar), firma = bs.map(b => txtDe(b)).join("|");
+    const ya = t.querySelectorAll(":scope > .bi-acc");
+    if (t.dataset.biFirma === firma && ya.length) return;
+    ya.forEach(x => x.remove());
+    const propios = [...t.children].filter(x => x.tagName === "BUTTON" && !x.classList.contains("bi-acc"));
+    const ini = [], fin = [];
+    bs.forEach((b, i) => {
+      const fijo = b.dataset.act === "salir" || b.dataset.act === "ad-oscuro";
+      if (propios.some(x => mismo(b, x) || (fijo && x.dataset.act === b.dataset.act))) return;
+      const el = document.createElement("button"); el.type = "button"; el.className = "bi-acc" + (b.dataset.act === "salir" ? " bi-salir pos-tab-salir" : "") + (b.dataset.act === "ad-oscuro" ? " tab-oscuro" : ""); el.dataset.bi = String(i);
+      el.innerHTML = `<span class="rep-ti" aria-hidden="true">${icoDe(b)}</span><span class="rep-tt">${esc(txtDe(b))}</span>`;
+      (fijo ? fin : ini).push(el);
+    });
+    const primero = [...t.children].find(x => x.tagName === "BUTTON" && !x.classList.contains("cv-volver") && !x.classList.contains("pm-volver") && !x.classList.contains("nav-volver"));
+    ini.forEach(el => { if (primero) primero.before(el); else t.append(el); });
+    fin.forEach(el => t.append(el));
+    t.dataset.biFirma = firma;
+  }
   let ocupado = false;
   function biAplicar() {
     const k = S.portal, selBar = PORTALES_BI[k];
@@ -19216,6 +19239,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     const bar = selBar && document.querySelector("main " + selBar + ", " + selBar);
     const d = INI_TIT[k], t = d && document.querySelector("main " + d[0]);
     if (!bar || !t) { if (viejo) viejo.remove(); return; }
+    biCopiar(k, bar, t);
     let g = viejo;
     if (!g) { g = document.createElement("section"); g.id = "bi-grp"; g.className = "bi-grp"; g.innerHTML = `<h3 class="bi-h">Barra inferior</h3><div class="tabs rep-tabs ico-tabs bi-tabs" role="group" aria-label="Barra inferior"></div>`; }
     if (g.previousElementSibling !== t) t.after(g);
@@ -19232,7 +19256,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
     clones.forEach(c => { const o = bs[Number(c.dataset.bi)]; if (!o) return; const sel = o.getAttribute("aria-selected") === "true"; if (sel && selI < 0) selI = Number(c.dataset.bi); const pr = o.getAttribute("aria-pressed"); if (pr !== null && c.getAttribute("aria-pressed") !== pr) c.setAttribute("aria-pressed", pr); });
     const enBarSec = !!BARSEC[k] && selI >= 0;
     clones.forEach(c => { const on = enBarSec && Number(c.dataset.bi) === selI; if (c.classList.contains("bi-sel") !== on) c.classList.toggle("bi-sel", on); });
-    const ver = enBarSec || enInicio(k);
+    const ver = enBarSec; /* En la página de inicio los botones de la barra ya están entre los demás (biCopiar). */
     if (g.hidden === ver) g.hidden = !ver;
     if (g.classList.contains("bi-uno") !== enBarSec) g.classList.toggle("bi-uno", enBarSec);
   }
@@ -19256,7 +19280,7 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
   /* «Barra inferior» de la página de inicio: cada botón hace lo mismo que el de la barra. «Volver» lleva a la página de inicio. */
   const irInicio = () => { const s = NAV_INICIO[S.portal]; const b = s && document.querySelector(s); if (b) b.click(); };
   window.addEventListener("click", e => {
-    const c = e.target.closest && e.target.closest("#bi-grp button[data-bi]");
+    const c = e.target.closest && e.target.closest("#bi-grp button[data-bi], button.bi-acc[data-bi]");
     if (c) {
       e.preventDefault(); e.stopImmediatePropagation();
       if (c.dataset.bi === "volver") { irInicio(); return; }
