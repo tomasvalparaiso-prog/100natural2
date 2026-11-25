@@ -13881,7 +13881,7 @@ function redHTML() {
 }
 function renderRed() { const el = $("#red-panel"); if (el) el.innerHTML = redHTML(); }
 /* Administrador › Total ventas: une Ventas totales y Ventas por producto en una sola pestaña. */
-const ventasTabsHTML = () => tabsProd("ad-vtab", [["pag", "Ventas totales"], ["ped", "Ventas por producto"], ["vloc", "Ventas por local"], ["vpar", "Ventas por particular"], ["graf", "Gráficos"]], AD.local);
+const ventasTabsHTML = () => tabsProd("ad-vtab", [["pag", "Ventas totales"], ["ped", "Ventas por producto"], ["vloc", "Ventas por local comercial"], ["vpar", "Ventas por particular"], ["graf", "Gráficos"]], AD.local);
 /* Administrador › Ventas / pedidos › Ventas por local: todos los pedidos de cada local comercial, por día/semana/mes/año. */
 const VLOC = { per: "dia", ref: hoy(), abiertos: new Set(), q: "" };
 /* Ventas por particular: lo mismo, para los clientes particulares. */
