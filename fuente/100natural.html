@@ -19300,7 +19300,10 @@ main .tabs.bi-sub-ocu.bi-sub-ocu{display:none!important}
       (fijo ? fin : ini).push(el);
     });
     const primero = [...t.children].find(x => x.tagName === "BUTTON" && !x.classList.contains("cv-volver") && !x.classList.contains("pm-volver") && !x.classList.contains("nav-volver"));
-    ini.forEach(el => { if (primero) primero.before(el); else t.append(el); });
+    /* «Punto de venta» siempre primero: las copias van justo después de él. */
+    const pvB = [...t.children].find(x => x.tagName === "BUTTON" && !x.classList.contains("bi-acc") && (x.dataset.t === "pv" || x.dataset.t === "pos"));
+    if (pvB) { let ref = pvB; ini.forEach(el => { ref.after(el); ref = el; }); }
+    else ini.forEach(el => { if (primero) primero.before(el); else t.append(el); });
     fin.forEach(el => t.append(el));
     t.dataset.biFirma = firma;
   }
