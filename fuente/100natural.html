@@ -7166,7 +7166,7 @@ function repBodyHTML() {
   if (S.repTab === "perfil" && S.portal !== "repartidor") S.repTab = "ultimos";
   const tab = (t, txt) => `<button role="tab" data-act="rep-tab" data-t="${t}" aria-selected="${S.repTab === t}"><span class="rep-ti" aria-hidden="true">${REP_ICO[t] || ""}</span><span class="rep-tt">${txt}</span><span class="cnt" id="cnt-${t}"></span></button>`;
   const enRep = S.portal === "repartidor"; /* Repartidores: Modo carrusel, Buscar pedidos, Modo oscuro y Salir van en la barra de abajo. */
-  return `<div class="tabs rep-tabs${enRep ? " rep-main-tabs" : ""}" role="tablist" aria-label="Comandas">${enRep ? "" : tab("ultimos", "Últimos pedidos")}${!enRep && S.portal === "admin" && S.ses.admin ? tab("tdisp", "Modo ruta") : ""}${tab("tomar", "Por tomar")}${tab("mios", "En camino")}${tab("ent", "Entregados")}${tab("total", "Total reparto")}${tab("pagos", "Pago reparto extra")}${tab("efe", "Pagos en efectivo")}${tab("vac", "Vacaciones")}${S.portal === "repartidor" && suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : ""}${tab("buscar", "Buscar pedidos")}${tab("comb", "Combustible")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") + tab("km", "Kilómetros recorridos") : ""}${enRep ? perfilTabBtn("rep-tab", "repartidor", S.repTab) + `<button type="button" class="tab-oscuro" data-act="ad-oscuro" aria-pressed="${temaOscuro()}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${OSC_SVG}</svg></span><span class="rep-tt">Modo oscuro</span></button>` : ""}</div>${enRep ? `<nav class="ad-barra rep-barra" data-main=".rep-main-tabs" aria-label="Opciones">${INI_BTN("ini-portal", INI.repartidor)}${tab("ultimos", "Últimos pedidos")}${tab("tdisp", "Modo ruta")}${tab("buscar", "Buscar pedidos")}${`<button type="button" class="pos-tab-salir" data-act="salir" data-k="repartidor" data-sin-oscuro="1"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`}</nav><div id="rep-perfil">${S.repTab === "perfil" ? perfilHTML("repartidor") : ""}</div>` : ""}
+  return `<div class="tabs rep-tabs${enRep ? " rep-main-tabs" : ""}" role="tablist" aria-label="Comandas">${enRep ? /* Repartidores: orden fijo de los botones de inicio. */ tab("ultimos", "Últimos pedidos") + tab("tomar", "Por tomar") + tab("mios", "En camino") + tab("ent", "Entregados") + tab("efe", "Pagos en efectivo") + tab("total", "Total reparto") + tab("tdisp", "Modo ruta") + tab("comb", "Combustible") + tab("buscar", "Buscar pedidos") + tab("pagos", "Pago reparto extra") + tab("vac", "Vacaciones") + (suelDe((S.ses.repartidor || {}).nombre) ? tab("sueldo", "Mi sueldo") : "") : ""}${enRep ? "" : tab("ultimos", "Últimos pedidos")}${!enRep && S.portal === "admin" && S.ses.admin ? tab("tdisp", "Modo ruta") : ""}${enRep ? "" : tab("tomar", "Por tomar") + tab("mios", "En camino") + tab("ent", "Entregados") + tab("total", "Total reparto") + tab("pagos", "Pago reparto extra") + tab("efe", "Pagos en efectivo") + tab("vac", "Vacaciones") + tab("buscar", "Buscar pedidos") + tab("comb", "Combustible")}${S.portal === "admin" && S.ses.admin ? tab("ranking", "Ranking") + tab("km", "Kilómetros recorridos") : ""}${enRep ? perfilTabBtn("rep-tab", "repartidor", S.repTab) + `<button type="button" class="tab-oscuro" data-act="ad-oscuro" aria-pressed="${temaOscuro()}"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${OSC_SVG}</svg></span><span class="rep-tt">Modo oscuro</span></button>` : ""}</div>${enRep ? `<nav class="ad-barra rep-barra" data-main=".rep-main-tabs" aria-label="Opciones">${INI_BTN("ini-portal", INI.repartidor)}${tab("ultimos", "Últimos pedidos")}${tab("tdisp", "Modo ruta")}${tab("buscar", "Buscar pedidos")}${`<button type="button" class="pos-tab-salir" data-act="salir" data-k="repartidor" data-sin-oscuro="1"><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span><span class="rep-tt">Salir</span></button>`}</nav><div id="rep-perfil">${S.repTab === "perfil" ? perfilHTML("repartidor") : ""}</div>` : ""}
   <div class="rep-top">
     <div id="tomar-seg" class="tomar-seg"></div>
     <div class="fecha-nav" role="group" aria-label="Fecha de entrega">
@@ -11933,7 +11933,7 @@ const AD_GRUPOS = [
   /* Repartidores pasó a «100% Natural» («Pagos en efectivo» quedó como pestaña dentro de Repartidores). */
   ["Lista de usuarios", [["capt", "Lista clientes"], ["cliprod", "Clientes edición productos"], ["usu", "Lista usuarios"], ["captados", "Lista captados"]]],
   ["Otras páginas", [["utfsm2", "UTFSM-2"], ["pizz2", "Local pizzas-2"], ["prb", "Interfaces-2"]]],
-  ["Sistema", [["reg", "Registro / sistema"], ["carr", "Modo carrusel"], ["oscuro", "Modo oscuro"], ["salir", "Salir"]]]
+  ["Sistema", [["reg", "Registro / sistema"], ["oscuro", "Modo oscuro"], ["salir", "Salir"]]]
 ];
 /* Barra inferior de Administrador: Crear pedido, (Modo carrusel), Perfil, Modo oscuro y Salir. */
 /* Ícono de cada grupo del menú de Administrador. */
@@ -11984,7 +11984,8 @@ new MutationObserver(() => oscuroBotones()).observe(document.body, { childList: 
 /* Botón Carrusel en todas las páginas: va antes de Modo oscuro y pasa los botones de secciones a una fila deslizable (y de vuelta). Cada página recuerda su modo en este teléfono. */
 const CARR_SVG = '<rect x="7" y="5" width="10" height="14" rx="2"/><path d="M3 7v10M21 7v10"/>';
 const carrKey = () => "pya.carr." + (S.portal || "x");
-function carrOn() { try { const v = localStorage.getItem(carrKey()); if (v === null && S.portal === "papas") return localStorage.getItem("pya.papasCarr") === "1"; return v === "1"; } catch (_) { return false; } }
+function carrOn() { return false; }
+function carrOnViejo() { try { const v = localStorage.getItem(carrKey()); if (v === null && S.portal === "papas") return localStorage.getItem("pya.papasCarr") === "1"; return v === "1"; } catch (_) { return false; } }
 /* Recuerda dónde quedó cada fila deslizable para que al volver a dibujarse (al tocar un botón) no salte ni se mueva sola. */
 const CARR_POS = {};
 const carrClave = t => (S.portal || "") + ":" + (t.classList.contains("local-switch") ? "menu" : ((t.querySelector("button[data-act]") || {}).dataset || {}).act || t.className);
@@ -12001,6 +12002,10 @@ function carrCentrar(t) {
 /* Páginas sin botón Modo carrusel. */
 const CARR_NO = new Set(["cliente", "prov", "prueba", "cfd", "utfsm", "pizzas"]);
 function carrBotones() {
+  /* «Modo carrusel» ya no se ofrece en ninguna página de inicio: se quita el botón y las filas vuelven a ser grillas. */
+  document.querySelectorAll(".pc-carr").forEach(x => x.remove());
+  document.querySelectorAll(".pc-tabs, .pc-on").forEach(p => p.classList.remove("pc-tabs", "pc-on"));
+  return;
   const on = carrOn();
   document.querySelectorAll('.tab-oscuro, .ad-barra .carr-ancla, .local-switch .carr-ancla').forEach(ob => {
     if (CARR_NO.has(S.portal)) { const pc = ob.previousElementSibling; if (pc && pc.classList.contains("pc-carr")) pc.remove(); const pp = ob.parentElement; if (pp) pp.classList.remove("pc-tabs", "pc-on"); return; }
