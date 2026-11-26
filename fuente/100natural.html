@@ -18751,7 +18751,7 @@ document.addEventListener("click", e => { const b = e.target.closest && e.target
 const JG = { est: null, cargando: false, err: "", vista: null, board: null, vueltas: [], jugando: false, res: null, cfg: null, adSub: false, adDocs: [], adCargado: false, adEd: null, rot: 0, rul: null, ras: null };
 const JG_DEF = { activo: true, prob: 0.05, cada: 1000, jugadas: 1, premios: ["ap20", "p1b12", "p1g"] };
 const JG_SUB = { ruleta: { activo: true, prob: 0.1, cada: 1000 }, raspa: { activo: true, prob: 0.15 }, racha: { activo: true, semanas: 4, premio: "ap20" } };
-const jgRpc = async (fn, args) => { if (!(window.__pya && window.__pya.cliente)) return null; const x = await window.__pya.cliente.rpc(fn, args || {}); if (x.error) throw new Error(x.error.message || "Error"); return x.data; };
+const jgRpc = async (fn, args) => { if (!(window.__pya && window.__pya.cliente)) return null; const x = await window.__pya.cliente.rpc(fn, Object.assign({ p_cliente: S.ses.cliente ? S.ses.cliente.id : null }, args || {})); if (x.error) throw new Error(x.error.message || "Error"); return x.data; };
 const jgCfg = () => { const c = Object.assign({}, JG_DEF, JG.cfg || {}); for (const k in JG_SUB) c[k] = Object.assign({}, JG_SUB[k], (JG.cfg || {})[k] || {}); return c; };
 const jgEmo = id => { const p = PROD[id] || {}; return p.fam === "papa" ? (/bast/i.test(p.nombre || "") ? "🍟" : "🥔") : /alcalina/i.test(detalle(p) || "") ? "💎" : "💧"; };
 const jgNom = id => PROD[id] ? etiqueta(PROD[id]) : "Producto";
@@ -18981,7 +18981,7 @@ document.addEventListener("click", e => {
   else if (a === "jg-raspa-nueva") { JG.ras = { activa: true }; jgPintar(); }
   else if (a === "jg-racha") jgReclamarRacha(b);
 });
-setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && !esLocal() && S.cargado && (!JG.est || JG.estDe !== S.ses.cliente.id)) { JG.estDe = S.ses.cliente.id; JG.est = null; subJgCfg(); jgCargar(); } }, 3000);
+setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && !esLocal() && S.cargado && JG.estDe !== S.ses.cliente.id) { JG.estDe = S.ses.cliente.id; JG.est = null; subJgCfg(); jgCargar(); } }, 3000);
 function subJgCfg() { if (JG.cfgSub || !S.db) return; JG.cfgSub = true; S.db.doc("config/juego").onSnapshot(d => { JG.cfg = d.exists ? d.data() || {} : {}; renderJgAd(); }, () => {}); }
 /* Premios en el pedido: se agregan gratis (precio $0) al próximo pedido del cliente y quedan canjeados al enviarlo. */
 const premiosCarrito = () => S.portal === "cliente" && S.ses.cliente && !esLocal() && !S.editPedido ? jgPendientes() : [];
