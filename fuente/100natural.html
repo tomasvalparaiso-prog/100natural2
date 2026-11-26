@@ -19371,6 +19371,25 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && ADT.abierto) adtCerrar(); });
 setInterval(adtPintar, 1500); setTimeout(adtPintar, 700);
+/* ---------- Local agua, Local papas y Repartidores no ven precios (solo Clientes y Administrador).
+   Se mantienen los montos donde los necesitan para trabajar: Punto de venta, cobro en efectivo y sus sueldos o pagos. ---------- */
+const SINPR_OK = {
+  agua: ["pv", "pago", "pcapt", "sueldo", "ventas"],
+  papas: ["pv", "sacos", "lavpago", "sueldo", "ventas"],
+  repartidor: ["efe", "sueldo", "pagos", "comb", "total"]
+};
+const sinPrecios = () => { const p = S.portal; if (!SINPR_OK[p] || !(S.ses && S.ses[p])) return false; const t = p === "agua" ? AG.tab : p === "papas" ? PP.tab : S.repTab; return !SINPR_OK[p].includes(t); };
+const SINPR_RE = /[−-]?\s?\$\s?-?\d[\d.]*(,\d+)?(\s?(c\/u|\/kg|neto|IVA))?/g;
+function sinPrLimpiar() {
+  if (!sinPrecios()) return;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: n => {
+    const pe = n.parentElement; if (!pe || /^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/.test(pe.tagName)) return NodeFilter.FILTER_REJECT;
+    if (pe.closest("#msj-pan, #rad-pan, #ad-top, .toast, [data-con-precio]")) return NodeFilter.FILTER_REJECT;
+    return /\$\s?-?\d/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+  const ns = []; while (w.nextNode()) ns.push(w.currentNode);
+  for (const n of ns) { const v = n.nodeValue.replace(SINPR_RE, "").replace(/\(\s*\)/g, "").replace(/\s·\s*(·|$)/g, "$1").replace(/^\s*·\s*/, ""); n.nodeValue = v; const pe = n.parentElement; if (pe && !pe.textContent.trim() && !pe.querySelector("svg,img,input,button")) pe.style.display = "none"; }
+}
+(() => { let t = 0; new MutationObserver(() => { if (!sinPrecios()) return; clearTimeout(t); t = setTimeout(sinPrLimpiar, 30); }).observe(document.body, { childList: true, subtree: true, characterData: true }); setInterval(sinPrLimpiar, 2000); })();
 /* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
 /* Dos barras: una para clientes Particulares (config/neon) y otra para Locales comerciales (config/neon_local). */
 const NEON = { subs: false, cfgs: { part: null, local: null }, eds: { part: null, local: null }, sucios: { part: false, local: false }, tab: "part" };
