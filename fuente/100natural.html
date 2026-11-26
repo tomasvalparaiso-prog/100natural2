@@ -19240,7 +19240,10 @@ const ADT_ICO = {
   noti: ADT_SV('<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'),
   conf: ADT_SV('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
   msj: ADT_SV('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
-  mus: ADT_SV('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>')
+  mus: ADT_SV('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  bus: ADT_SV('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+  agp: ADT_SV('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+  act: ADT_SV('<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>')
 };
 const adtVisto = () => { try { return Number(localStorage.getItem(ADT.vistoLS)) || 0; } catch (_) { return 0; } };
 /* Novedades: pedidos nuevos de clientes (últimas 48 h), pagos por confirmar y pedidos de hoy sin repartidor. */
@@ -19255,7 +19258,7 @@ function adtNotis() {
 function adtBarHTML() {
   const nt = adtNotis().n, mb = document.querySelector("#msj-btn .msj-n"), nm = mb ? mb.textContent : "", rb = document.getElementById("rad-btn"), son = rb && rb.classList.contains("on");
   const b = (k, lbl, n, extra) => `<button type="button" class="adt-b${ADT.abierto === k ? " on" : ""}${extra || ""}" data-adt="${k}" aria-label="${lbl}${n ? `: ${n} nuevas` : ""}" title="${lbl}">${ADT_ICO[k]}${n ? `<span class="adt-n">${esc(String(n))}</span>` : ""}</button>`;
-  return `${b("noti", "Notificaciones", nt > 99 ? "99+" : nt)}${b("conf", "Configuración")}${b("msj", "Mensajes", nm)}${b("mus", son ? "Música: sonando" : "Música", "", son ? " sonando" : "")}`;
+  return `${b("bus", "Buscar")}${b("agp", "Crear pedido")}${b("act", "Actualizar")}<span class="adt-sep" aria-hidden="true"></span>${b("noti", "Notificaciones", nt > 99 ? "99+" : nt)}${b("conf", "Configuración")}${b("msj", "Mensajes", nm)}${b("mus", son ? "Música: sonando" : "Música", "", son ? " sonando" : "")}`;
 }
 function adtPintar() {
   const ver = S.portal === "admin" && !!(S.ses && S.ses.admin);
@@ -19295,6 +19298,9 @@ document.addEventListener("click", e => {
   if (b) { const k = b.dataset.adt;
     if (k === "msj") { adtCerrar(); const m = document.getElementById("msj-btn"); if (m) m.click(); return; }
     if (k === "mus") { adtCerrar(); const r = document.getElementById("rad-btn"); if (r) r.click(); return; }
+    if (k === "bus") { adtCerrar(); const x = document.createElement("button"); x.type = "button"; x.dataset.act = "adbq-abrir"; x.hidden = true; document.body.appendChild(x); x.click(); x.remove(); return; }
+    if (k === "agp") { adtCerrar(); adtIr("agp"); return; }
+    if (k === "act") { adtCerrar(); b.classList.add("girando"); b.disabled = true; toast("Actualizando…"); setTimeout(() => location.reload(), 250); return; }
     if (ADT.abierto === k) adtCerrar(); else adtAbrir(k); return; }
   const pan = t.closest && t.closest("#adt-pan"); if (!pan) return;
   if (t === pan || t.closest("[data-adt-x]")) { adtCerrar(); return; }
@@ -20566,7 +20572,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-ad-prods{display:grid;gap:6px}
 .ad-top{display:flex;justify-content:flex-end;gap:6px;padding:4px 12px;max-width:var(--maxw,1100px);margin:0 auto}.ad-top[hidden]{display:none}
 .adt-b{position:relative;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 4px 10px -8px rgba(15,23,42,.5)}.adt-b.on{background:#0f766e;color:#fff;border-color:#0f766e}.adt-b.sonando{color:#7c3aed;border-color:#c4b5fd}
-.adt-b svg{width:20px;height:20px}.adt-n{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:.7rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
+.adt-b svg{width:20px;height:20px}.adt-sep{width:1px;align-self:stretch;margin:4px 2px;background:var(--line)}.adt-b.girando svg{animation:adt-gira .8s linear infinite}@keyframes adt-gira{to{transform:rotate(360deg)}}.adt-n{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:.7rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 body[data-portal="admin"] #msj-btn,body[data-portal="admin"] #rad-btn{display:none!important}
 .adt-pan{position:fixed;inset:0;z-index:9990;background:rgba(15,23,42,.35);display:flex;justify-content:flex-end;align-items:flex-start;padding:50px 10px 10px}.adt-pan-box{width:min(100%,420px);max-height:calc(100vh - 80px);overflow:auto;background:var(--surface);color:var(--ink);border-radius:18px;box-shadow:0 20px 40px -12px rgba(0,0,0,.5)}
 .adt-pan-h{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--line);z-index:1}.adt-x{width:40px;height:40px;border:0;border-radius:12px;background:var(--surface-2);color:inherit;font-size:1rem;cursor:pointer}
