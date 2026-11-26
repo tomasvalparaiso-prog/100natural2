@@ -19233,7 +19233,7 @@ document.addEventListener("change", async e => {
   catch (er) { S.loteComp = null; toast(er && er.message === "pdf" ? "Sube el comprobante como foto o captura de pantalla (imagen)." : "No se pudo leer el archivo. Prueba con una foto o captura del comprobante."); }
   renderListas();
 });
-/* ---------- Administrador: barra arriba del banner con Notificaciones, Configuración, Mensajes y Música. ---------- */
+/* ---------- Barra arriba del banner (Administrador, Clientes, Local papas y Local agua): accesos rápidos, Notificaciones, Configuración, Mensajes y Música. ---------- */
 const ADT = { abierto: "", vistoLS: "pya.adNotiVisto" };
 const ADT_SV = p => `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const ADT_ICO = {
@@ -19243,69 +19243,113 @@ const ADT_ICO = {
   mus: ADT_SV('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
   bus: ADT_SV('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
   agp: ADT_SV('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
-  act: ADT_SV('<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>')
+  act: ADT_SV('<path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/>'),
+  pos: ADT_SV('<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4"/><path d="M7 9h4"/>'),
+  ped: ADT_SV('<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>')
 };
-const adtVisto = () => { try { return Number(localStorage.getItem(ADT.vistoLS)) || 0; } catch (_) { return 0; } };
-/* Novedades: pedidos nuevos de clientes (últimas 48 h), pagos por confirmar y pedidos de hoy sin repartidor. */
+/* Toca un botón «invisible» con esa acción (las secciones se abren con los mismos clics que en la página). */
+const adtClic = (act, extra) => { const t = document.createElement("button"); t.type = "button"; t.dataset.act = act; Object.assign(t.dataset, extra || {}); t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); window.scrollTo(0, 0); };
+const adtIr = l => adtClic("ad-local", { l });
+const ADT_PORT = {
+  admin: { quick: [["bus", "Buscar", () => adtClic("adbq-abrir")], ["agp", "Crear pedido", () => adtIr("agp")]],
+    conf: [["👤", "Mi perfil", () => adtIr("perfil")], ["👥", "Lista usuarios", () => adtIr("usu")], ["✨", "Barra neón", () => adtIr("neon")], ["🎮", "Juegos", () => adtIr("juego")], ["🔥", "Oferta del día", () => adtIr("oferta")], ["🗂️", "Registro / sistema", () => adtIr("reg")]] },
+  cliente: { quick: [["bus", "Buscar productos", () => adtClic("cli-buscar")], ["agp", "Crear pedido", () => adtClic("cli-tab", { t: "nuevo" })]],
+    conf: [["👤", "Mi perfil", () => adtClic("cli-tab", { t: "perf" })], ["🧾", "Mis pedidos", () => adtClic("cli-tab", { t: "mis" })], ["❤️", "Mis favoritos", () => adtClic("cli-favs")], ["🧺", "Grilla productos", () => adtClic("cli-grilla")]] },
+  papas: { quick: [["pos", "Punto de venta", () => adtClic("papas-tab", { t: "pv" })], ["ped", "Pedidos diarios", () => adtClic("papas-tab", { t: "ped" })]],
+    conf: [["👤", "Mi perfil", () => adtClic("papas-tab", { t: "perfil" })], ["➕", "Ingresar producción", () => adtClic("papas-tab", { t: "prod" })], ["📦", "Inventario producción", () => adtClic("papas-tab", { t: "disp" })], ["🥔", "Inventario sacos", () => adtClic("papas-tab", { t: "stock" })]] },
+  agua: { quick: [["pos", "Punto de venta", () => adtClic("agua-tab", { t: "pv" })], ["ped", "Pedidos diarios", () => adtClic("agua-tab", { t: "pdped" })]],
+    conf: [["👤", "Mi perfil", () => adtClic("agua-tab", { t: "perfil" })], ["➕", "Ingresar producción", () => adtClic("agua-tab", { t: "agregar" })], ["📦", "Inventario producción", () => adtClic("agua-tab", { t: "stock" })], ["📤", "Retiro de producto", () => adtClic("agua-tab", { t: "retiro" })]] }
+};
+const adtPort = () => { const p = S.portal; return ADT_PORT[p] && S.ses && S.ses[p] ? p : ""; };
+const adtVisto = () => { try { return Number(localStorage.getItem(ADT.vistoLS + "." + S.portal)) || 0; } catch (_) { return 0; } };
+const adtFam = p => S.portal === "papas" ? items(p).some(i => PROD[i.id] && PROD[i.id].fam === "papa") : S.portal === "agua" ? items(p).some(i => PROD[i.id] && PROD[i.id].fam === "agua") : true;
+/* Novedades según la página. */
 function adtNotis() {
-  const ps = S.pedidos || [], ahora = Date.now(), h = hoy();
-  const nuevos = ps.filter(p => p.estado !== "cancelado" && (!p.origen || p.origen === "cliente") && (Number(p.creado) || 0) > ahora - 48 * 3600e3).sort((a, b) => (b.creado || 0) - (a.creado || 0)).slice(0, 15);
-  const pagos = ps.filter(p => p.estado !== "cancelado" && p.pagoCliente && !p.pagoAdmin).sort((a, b) => (b.pagoClienteEn || 0) - (a.pagoClienteEn || 0)).slice(0, 15);
-  const sinRep = ps.filter(p => p.fechaEntrega === h && p.estado === "pendiente" && !p.repartidorId);
-  const v = adtVisto(), n = nuevos.filter(p => (p.creado || 0) > v).length + pagos.filter(p => (p.pagoClienteEn || 0) > v).length;
-  return { nuevos, pagos, sinRep, n };
+  const ps = S.pedidos || [], ahora = Date.now(), h = hoy(), v = adtVisto(), P = S.portal;
+  if (P === "cliente") {
+    const cid = (S.ses.cliente || {}).id, mios = ps.filter(p => p.clienteId === cid && p.estado !== "cancelado");
+    const camino = mios.filter(p => p.estado === "en_camino"), prox = mios.filter(p => p.estado === "pendiente").sort((a, b) => String(a.fechaEntrega).localeCompare(String(b.fechaEntrega))).slice(0, 10);
+    const entreg = mios.filter(p => p.estado === "entregado" && (Number(p.entregadoEn || p.actualizado || p.creado) || 0) > ahora - 72 * 3600e3).slice(0, 10);
+    return { cli: true, camino, prox, entreg, n: camino.length };
+  }
+  const nuevos = ps.filter(p => p.estado !== "cancelado" && adtFam(p) && (P !== "admin" || !p.origen || p.origen === "cliente") && (Number(p.creado) || 0) > ahora - 48 * 3600e3).sort((a, b) => (b.creado || 0) - (a.creado || 0)).slice(0, 15);
+  const pagos = P === "admin" ? ps.filter(p => p.estado !== "cancelado" && p.pagoCliente && !p.pagoAdmin).sort((a, b) => (b.pagoClienteEn || 0) - (a.pagoClienteEn || 0)).slice(0, 15) : [];
+  const deHoy = ps.filter(p => p.fechaEntrega === h && p.estado !== "cancelado" && adtFam(p));
+  const sinRep = P === "admin" ? deHoy.filter(p => p.estado === "pendiente" && !p.repartidorId) : [];
+  const n = nuevos.filter(p => (p.creado || 0) > v).length + pagos.filter(p => (p.pagoClienteEn || 0) > v).length;
+  return { nuevos, pagos, sinRep, deHoy, n };
 }
 function adtBarHTML() {
-  const nt = adtNotis().n, mb = document.querySelector("#msj-btn .msj-n"), nm = mb ? mb.textContent : "", rb = document.getElementById("rad-btn"), son = rb && rb.classList.contains("on");
-  const b = (k, lbl, n, extra) => `<button type="button" class="adt-b${ADT.abierto === k ? " on" : ""}${extra || ""}" data-adt="${k}" aria-label="${lbl}${n ? `: ${n} nuevas` : ""}" title="${lbl}">${ADT_ICO[k]}${n ? `<span class="adt-n">${esc(String(n))}</span>` : ""}</button>`;
-  return `${b("bus", "Buscar")}${b("agp", "Crear pedido")}${b("act", "Actualizar")}<span class="adt-sep" aria-hidden="true"></span>${b("noti", "Notificaciones", nt > 99 ? "99+" : nt)}${b("conf", "Configuración")}${b("msj", "Mensajes", nm)}${b("mus", son ? "Música: sonando" : "Música", "", son ? " sonando" : "")}`;
+  const P = adtPort(), cfg = ADT_PORT[P], nt = adtNotis().n, mb = document.querySelector("#msj-btn .msj-n"), nm = mb ? mb.textContent : "", rb = document.getElementById("rad-btn"), son = rb && rb.classList.contains("on");
+  const b = (k, lbl, n, extra) => `<button type="button" class="adt-b${ADT.abierto === k ? " on" : ""}${extra || ""}" data-adt="${k}" aria-label="${lbl}${n ? `: ${n}` : ""}" title="${lbl}">${ADT_ICO[k]}${n ? `<span class="adt-n">${esc(String(n))}</span>` : ""}</button>`;
+  return `${cfg.quick.map(([k, l], i) => b(k, l).replace(`data-adt="${k}"`, `data-adt="q${i}"`)).join("")}${b("act", "Actualizar")}<span class="adt-sep" aria-hidden="true"></span>${b("noti", "Notificaciones", nt > 99 ? "99+" : nt)}${b("conf", "Configuración")}${b("msj", "Mensajes", nm)}${b("mus", son ? "Música: sonando" : "Música", "", son ? " sonando" : "")}`;
 }
 function adtPintar() {
-  const ver = S.portal === "admin" && !!(S.ses && S.ses.admin);
+  const P = adtPort();
   let el = document.getElementById("ad-top");
-  if (!ver) { if (el) el.hidden = true; adtCerrar(); return; }
+  if (!P) { if (el) el.hidden = true; adtCerrar(); document.body.classList.remove("con-adt"); return; }
   if (!el) { const bn = document.getElementById("banner"); if (!bn) return; bn.insertAdjacentHTML("beforebegin", `<div id="ad-top" class="ad-top" role="toolbar" aria-label="Accesos rápidos"></div>`); el = document.getElementById("ad-top"); }
-  el.hidden = false; const html = adtBarHTML(); if (el.innerHTML !== html) el.innerHTML = html;
+  /* En Clientes, la barra neón queda arriba de esta barra. */
+  const nb = document.getElementById("neon-bar"); if (nb && nb.nextElementSibling !== el && el.previousElementSibling !== nb) { /* sin cambios de orden */ }
+  el.hidden = false; document.body.classList.add("con-adt"); const html = adtBarHTML(); if (el.dataset.p !== P || el.innerHTML !== html) { el.innerHTML = html; el.dataset.p = P; }
   const pan = document.getElementById("adt-pan"); if (pan && ADT.abierto === "noti") { const n = adtNotiHTML(); if (pan.dataset.h !== n) { pan.dataset.h = n; pan.querySelector(".adt-pan-in").innerHTML = n; } }
 }
-const adtIr = l => { const t = document.createElement("button"); t.type = "button"; t.dataset.act = "ad-local"; t.dataset.l = l; t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); window.scrollTo(0, 0); };
 function adtNotiHTML() {
-  const { nuevos, pagos, sinRep } = adtNotis(), v = ADT.vistoAntes || 0;
-  const it = (p, ico, txt, l, nuevo) => `<li><button type="button" data-adt-ir="${l}" class="${nuevo ? "nuevo" : ""}"><span class="adt-i" aria-hidden="true">${ico}</span><span><b>${esc(txt)}</b><small>${esc(p.clienteNombre || "")}${p.total ? " · " + clp(p.total) : ""}</small></span></button></li>`;
+  const x = adtNotis(), v = ADT.vistoAntes || 0, P = S.portal;
+  const it = (p, ico, txt, ir, nuevo, sub) => `<li><button type="button" data-adt-ir="${ir}" class="${nuevo ? "nuevo" : ""}"><span class="adt-i" aria-hidden="true">${ico}</span><span><b>${esc(txt)}</b><small>${esc(sub != null ? sub : (p.clienteNombre || ""))}${p.total ? " · " + clp(p.total) : ""}</small></span></button></li>`;
   const sec = (t, xs) => xs.length ? `<h4>${t}</h4><ul class="adt-l">${xs.join("")}</ul>` : "";
-  const html = sec(`Pagos por confirmar (${pagos.length})`, pagos.map(p => it(p, "💳", `Pagó: ${haceMin(p.pagoClienteEn || p.creado || Date.now())}`, "ploc", (p.pagoClienteEn || 0) > v)))
-    + sec(`Hoy sin repartidor (${sinRep.length})`, sinRep.slice(0, 15).map(p => it(p, "🛵", `Entrega ${p.hDesde ? p.hDesde + "–" + (p.hHasta || "") : "hoy"}`, "ult", false)))
-    + sec("Pedidos nuevos", nuevos.map(p => it(p, "🧾", `Nuevo pedido · ${haceMin(p.creado || Date.now())}`, "ult", (p.creado || 0) > v)));
-  return `<div class="adt-avisos">${typeof avisosBtnHTML === "function" ? avisosBtnHTML() : ""}</div>${html || `<p class="muted adt-vacio">No hay novedades.</p>`}`;
+  const avisos = `<div class="adt-avisos">${typeof avisosBtnHTML === "function" ? avisosBtnHTML() : ""}</div>`;
+  let html;
+  if (x.cli) {
+    const num = p => `Pedido N° ${Number(p.numCliente) || "–"}`;
+    html = sec(`🛵 En camino (${x.camino.length})`, x.camino.map(p => it(p, "🛵", "Tu pedido va en camino", "mis", true, num(p))))
+      + sec("📅 Próximos pedidos", x.prox.map(p => it(p, "🧾", `Entrega ${fmtFecha(p.fechaEntrega)}${p.hDesde ? ` · ${p.hDesde}–${p.hHasta || ""}` : ""}`, "mis", false, num(p))))
+      + sec("✅ Entregados", x.entreg.map(p => it(p, "✅", `Entregado · ${fmtFecha(p.fechaEntrega)}`, "mis", false, num(p))));
+  } else if (P === "admin") {
+    html = sec(`Pagos por confirmar (${x.pagos.length})`, x.pagos.map(p => it(p, "💳", `Pagó: ${haceMin(p.pagoClienteEn || p.creado || Date.now())}`, "ploc", (p.pagoClienteEn || 0) > v)))
+      + sec(`Hoy sin repartidor (${x.sinRep.length})`, x.sinRep.slice(0, 15).map(p => it(p, "🛵", `Entrega ${p.hDesde ? p.hDesde + "–" + (p.hHasta || "") : "hoy"}`, "ult", false)))
+      + sec("Pedidos nuevos", x.nuevos.map(p => it(p, "🧾", `Nuevo pedido · ${haceMin(p.creado || Date.now())}`, "ult", (p.creado || 0) > v)));
+  } else {
+    html = sec(`Pedidos para hoy (${x.deHoy.length})`, x.deHoy.slice(0, 20).map(p => it(p, p.estado === "entregado" ? "✅" : p.estado === "en_camino" ? "🛵" : "🧾", p.estado === "entregado" ? "Entregado" : p.estado === "en_camino" ? "En camino" : `Entrega ${p.hDesde ? p.hDesde + "–" + (p.hHasta || "") : "hoy"}`, "ped", false)))
+      + sec("Pedidos nuevos", x.nuevos.map(p => it(p, "🆕", `Nuevo pedido · ${haceMin(p.creado || Date.now())}`, "ped", (p.creado || 0) > v)));
+  }
+  return avisos + (html || `<p class="muted adt-vacio">No hay novedades.</p>`);
+}
+function adtIrA(dest) {
+  const P = S.portal;
+  if (P === "admin") return adtIr(dest);
+  if (P === "cliente") return adtClic("cli-tab", { t: "mis" });
+  if (P === "papas") return adtClic("papas-tab", { t: "ped" });
+  if (P === "agua") return adtClic("agua-tab", { t: "pdped" });
 }
 function adtConfHTML() {
-  const o = temaOscuro(), f = (l, ico, t) => `<button type="button" class="adt-op" data-adt-ir="${l}"><span aria-hidden="true">${ico}</span>${t}<span class="adt-fl" aria-hidden="true">›</span></button>`;
+  const o = temaOscuro(), cfg = ADT_PORT[adtPort()] || { conf: [] };
   return `<button type="button" class="adt-op" data-adt-osc aria-pressed="${o}"><span aria-hidden="true">${o ? "☀️" : "🌙"}</span>Modo oscuro<span class="adt-sw${o ? " on" : ""}" aria-hidden="true"></span></button>
     <div class="adt-avisos">${typeof avisosBtnHTML === "function" ? avisosBtnHTML() : ""}</div>
-    ${f("perfil", "👤", "Mi perfil")}${f("usu", "👥", "Lista usuarios")}${f("neon", "✨", "Barra neón")}${f("juego", "🎮", "Juegos")}${f("oferta", "🔥", "Oferta del día")}${f("reg", "🗂️", "Registro / sistema")}`;
+    ${cfg.conf.map(([ico, t], i) => `<button type="button" class="adt-op" data-adt-cf="${i}"><span aria-hidden="true">${ico}</span>${esc(t)}<span class="adt-fl" aria-hidden="true">›</span></button>`).join("")}`;
 }
 function adtAbrir(k) {
   adtCerrar(); ADT.abierto = k;
-  if (k === "noti") { ADT.vistoAntes = adtVisto(); try { localStorage.setItem(ADT.vistoLS, String(Date.now())); } catch (_) {} }
+  if (k === "noti") { ADT.vistoAntes = adtVisto(); try { localStorage.setItem(ADT.vistoLS + "." + S.portal, String(Date.now())); } catch (_) {} }
   const tit = k === "noti" ? "🔔 Notificaciones" : "⚙️ Configuración", body = k === "noti" ? adtNotiHTML() : adtConfHTML();
   document.body.insertAdjacentHTML("beforeend", `<div id="adt-pan" class="adt-pan" role="dialog" aria-modal="true" aria-label="${tit}"><div class="adt-pan-box"><div class="adt-pan-h"><b>${tit}</b><button type="button" class="adt-x" data-adt-x aria-label="Cerrar">✕</button></div><div class="adt-pan-in">${body}</div></div></div>`);
   adtPintar();
 }
-function adtCerrar() { const p = document.getElementById("adt-pan"); if (p) p.remove(); if (ADT.abierto) { ADT.abierto = ""; const el = document.getElementById("ad-top"); if (el) el.innerHTML = adtBarHTML(); } }
+function adtCerrar() { const p = document.getElementById("adt-pan"); if (p) p.remove(); if (ADT.abierto) { ADT.abierto = ""; const el = document.getElementById("ad-top"); if (el && adtPort()) el.innerHTML = adtBarHTML(); } }
 document.addEventListener("click", e => {
   const t = e.target;
   const b = t.closest && t.closest("[data-adt]");
-  if (b) { const k = b.dataset.adt;
+  if (b) { const k = b.dataset.adt, cfg = ADT_PORT[adtPort()];
+    if (/^q\d$/.test(k)) { adtCerrar(); const q = cfg && cfg.quick[Number(k.slice(1))]; if (q) q[2](); return; }
     if (k === "msj") { adtCerrar(); const m = document.getElementById("msj-btn"); if (m) m.click(); return; }
     if (k === "mus") { adtCerrar(); const r = document.getElementById("rad-btn"); if (r) r.click(); return; }
-    if (k === "bus") { adtCerrar(); const x = document.createElement("button"); x.type = "button"; x.dataset.act = "adbq-abrir"; x.hidden = true; document.body.appendChild(x); x.click(); x.remove(); return; }
-    if (k === "agp") { adtCerrar(); adtIr("agp"); return; }
     if (k === "act") { adtCerrar(); b.classList.add("girando"); b.disabled = true; toast("Actualizando…"); setTimeout(() => location.reload(), 250); return; }
     if (ADT.abierto === k) adtCerrar(); else adtAbrir(k); return; }
   const pan = t.closest && t.closest("#adt-pan"); if (!pan) return;
   if (t === pan || t.closest("[data-adt-x]")) { adtCerrar(); return; }
-  const ir = t.closest("[data-adt-ir]"); if (ir) { const l = ir.dataset.adtIr; adtCerrar(); adtIr(l); return; }
-  if (t.closest("[data-adt-osc]")) { const x = document.createElement("button"); x.type = "button"; x.dataset.act = "ad-oscuro"; x.dataset.l = "oscuro"; x.hidden = true; document.body.appendChild(x); x.click(); x.remove(); setTimeout(() => { const i = pan.querySelector(".adt-pan-in"); if (i && ADT.abierto === "conf") i.innerHTML = adtConfHTML(); }, 60); }
+  const ir = t.closest("[data-adt-ir]"); if (ir) { const l = ir.dataset.adtIr; adtCerrar(); adtIrA(l); return; }
+  const cf = t.closest("[data-adt-cf]"); if (cf) { const c = (ADT_PORT[adtPort()] || { conf: [] }).conf[Number(cf.dataset.adtCf)]; adtCerrar(); if (c) c[2](); return; }
+  if (t.closest("[data-adt-osc]")) { adtClic("ad-oscuro", { l: "oscuro" }); setTimeout(() => { const i = pan.querySelector(".adt-pan-in"); if (i && ADT.abierto === "conf") i.innerHTML = adtConfHTML(); }, 60); }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && ADT.abierto) adtCerrar(); });
 setInterval(adtPintar, 1500); setTimeout(adtPintar, 700);
@@ -20573,7 +20617,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .ad-top{display:flex;justify-content:flex-end;gap:6px;padding:4px 12px;max-width:var(--maxw,1100px);margin:0 auto}.ad-top[hidden]{display:none}
 .adt-b{position:relative;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 4px 10px -8px rgba(15,23,42,.5)}.adt-b.on{background:#0f766e;color:#fff;border-color:#0f766e}.adt-b.sonando{color:#7c3aed;border-color:#c4b5fd}
 .adt-b svg{width:20px;height:20px}.adt-sep{width:1px;align-self:stretch;margin:4px 2px;background:var(--line)}.adt-b.girando svg{animation:adt-gira .8s linear infinite}@keyframes adt-gira{to{transform:rotate(360deg)}}.adt-n{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:.7rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
-body[data-portal="admin"] #msj-btn,body[data-portal="admin"] #rad-btn{display:none!important}
+body.con-adt #msj-btn,body.con-adt #rad-btn{display:none!important}
 .adt-pan{position:fixed;inset:0;z-index:9990;background:rgba(15,23,42,.35);display:flex;justify-content:flex-end;align-items:flex-start;padding:50px 10px 10px}.adt-pan-box{width:min(100%,420px);max-height:calc(100vh - 80px);overflow:auto;background:var(--surface);color:var(--ink);border-radius:18px;box-shadow:0 20px 40px -12px rgba(0,0,0,.5)}
 .adt-pan-h{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--line);z-index:1}.adt-x{width:40px;height:40px;border:0;border-radius:12px;background:var(--surface-2);color:inherit;font-size:1rem;cursor:pointer}
 .adt-pan-in{padding:10px 14px 16px}.adt-pan-in h4{margin:12px 0 6px;font-size:.85rem;color:var(--muted)}.adt-l{list-style:none;margin:0;padding:0;display:grid;gap:6px}
