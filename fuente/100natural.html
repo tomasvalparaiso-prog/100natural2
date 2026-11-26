@@ -18787,7 +18787,20 @@ async function jgJugarLocal(tipo) {
   await S.db.doc("juegos/jg" + en.toString(36)).set({ clienteId: S.ses.cliente.id, tipo, gano, prod, en, fecha: hoy(), semana: jgLunes(hoy()), estado: gano ? "pendiente" : null });
   return { gano, prod };
 }
-async function jgJugar(tipo) { return (await jgRpc("juego_jugar", { tipo })) || await jgJugarLocal(tipo); }
+/* Práctica: al principio cada juego regala 5 tiradas de prueba, sin premios, para que el cliente lo conozca (se guarda en este teléfono). */
+const JGP_MAX = 5, JGP_K = { figuritas: "fig", ruleta: "rul", raspa: "ras" };
+const jgpLeer = () => { try { return JSON.parse(localStorage.getItem("pya.jgPrueba." + ((S.ses.cliente || {}).id || "")) || "{}") || {}; } catch (_) { return {}; } };
+const jgpGuardar = o => { try { localStorage.setItem("pya.jgPrueba." + ((S.ses.cliente || {}).id || ""), JSON.stringify(o)); } catch (_) {} };
+const jgPrueba = k => { const o = jgpLeer(); return o["no_" + k] ? 0 : Math.max(0, JGP_MAX - (Number(o[k]) || 0)); };
+function jgpUsar(k) { const o = jgpLeer(); o[k] = (Number(o[k]) || 0) + 1; jgpGuardar(o); if (o[k] >= JGP_MAX) setTimeout(() => toast("🎓 ¡Terminaste la práctica! Desde ahora juegas de verdad y puedes ganar premios."), 1600); }
+function jgpSaltar(k) { const o = jgpLeer(); o["no_" + k] = 1; jgpGuardar(o); }
+const jgpBanner = k => { const n = jgPrueba(k); return n ? `<div class="jg-prueba"><span aria-hidden="true">🎓</span><div><b>Modo práctica</b><small>Te ${n === 1 ? "queda 1 tirada" : `quedan ${n} tiradas`} de prueba gratis. No dan premios: son para que conozcas el juego.</small></div><button type="button" data-act="jg-saltar" data-k="${k}">Saltar</button></div>` : ""; };
+const jgpRes = (res, txt) => res.gano ? `<div class="jg-res gano">🎉 <b>¡Así se gana!</b> ${txt}<br><small>Tirada de prueba: no da premio.</small></div>` : `<div class="jg-res">🎓 Tirada de prueba: esta vez no salió premio.</div>`;
+async function jgJugar(tipo) {
+  const k = JGP_K[tipo];
+  if (k && jgPrueba(k)) { const ps = ((JG.est && JG.est.premios) || []).filter(id => PROD[id]), gano = !!ps.length && Math.random() < .4; jgpUsar(k); return { gano, prod: gano ? ps[Math.floor(Math.random() * ps.length)] : null, prueba: true }; }
+  return (await jgRpc("juego_jugar", { tipo })) || await jgJugarLocal(tipo);
+}
 async function jgCargar() {
   if (!S.ses.cliente || JG.cargando) return; JG.cargando = true;
   try { JG.est = (await jgRpc("juego_estado")) || await jgEstadoLocal(); JG.err = ""; }
@@ -18799,9 +18812,9 @@ const jgDisp = e => !e ? 0 : (e.activo ? e.restantes : 0) + (e.ruleta && e.rulet
 const jgPremiosHTML = () => { const pend = jgPendientes(); return pend.length ? `<div class="jg-pend"><b>🎁 Tus premios</b>${pend.map(g => `<p>${jgEmo(g.prod)} ${esc(jgNom(g.prod))} <small>· se agrega gratis a tu próximo pedido</small></p>`).join("")}</div>` : ""; };
 const JG_JUEGOS = [["fig", "🃏", "Figuritas", "Da vuelta 3 figuritas iguales y gánate el producto"], ["rul", "🎡", "Ruleta", "Un giro por cada $1.000 en compras"], ["ras", "🪙", "Raspa y gana", "Una tarjeta por cada pedido entregado"], ["rac", "🔥", "Racha de pedidos", ""]];
 function jgHubHTML(e) {
-  const c = jgCfg(), est = { fig: e.activo ? (e.restantes ? `<b>${fmtN(e.restantes)} ${e.restantes === 1 ? "jugada" : "jugadas"}</b>` : "Sin jugadas") : null,
-    rul: e.ruleta.activo ? (e.ruleta.restantes ? `<b>${fmtN(e.ruleta.restantes)} ${e.ruleta.restantes === 1 ? "giro" : "giros"}</b>` : "Sin giros") : null,
-    ras: e.raspa.activo ? (e.raspa.restantes ? `<b>${fmtN(e.raspa.restantes)} ${e.raspa.restantes === 1 ? "tarjeta" : "tarjetas"}</b>` : "Sin tarjetas") : null,
+  const c = jgCfg(), pb = k => jgPrueba(k) ? `<b>🎓 ${jgPrueba(k)} tiradas de prueba</b>` : "", est = { fig: e.activo ? pb("fig") || (e.restantes ? `<b>${fmtN(e.restantes)} ${e.restantes === 1 ? "jugada" : "jugadas"}</b>` : "Sin jugadas") : null,
+    rul: e.ruleta.activo ? pb("rul") || (e.ruleta.restantes ? `<b>${fmtN(e.ruleta.restantes)} ${e.ruleta.restantes === 1 ? "giro" : "giros"}</b>` : "Sin giros") : null,
+    ras: e.raspa.activo ? pb("ras") || (e.raspa.restantes ? `<b>${fmtN(e.raspa.restantes)} ${e.raspa.restantes === 1 ? "tarjeta" : "tarjetas"}</b>` : "Sin tarjetas") : null,
     rac: e.racha.activo ? (e.racha.listo ? "<b>¡Premio listo!</b>" : `${e.racha.semanas} de ${e.racha.meta} semanas`) : null };
   JG_JUEGOS[1][3] = `Un giro por cada ${clp(e.ruleta.cada || 1000)} en compras`;
   const js = JG_JUEGOS.filter(([k]) => k !== "rac" && est[k] != null);
@@ -18835,13 +18848,13 @@ function jgNuevoTablero() { JG.board = Array.from({ length: 9 }, () => null); JG
 function jgFigHTML(e) {
   if (!e.activo) return vacio("Este juego no está disponible", "Vuelve pronto.");
   if (!JG.board) jgNuevoTablero();
-  const quedan = e.restantes, ps = (e.premios || []).filter(id => PROD[id]);
+  const pr = jgPrueba("fig"), quedan = pr || e.restantes, ps = (e.premios || []).filter(id => PROD[id]);
   const cartas = JG.board.map((f, i) => { const v = f != null; return `<button type="button" class="jg-c${v && !(JG.anim && JG.anim.has(i)) ? " vuelta" : ""}${JG.res && JG.vueltas.includes(i) ? (JG.res.gano ? " gano" : " elegida") : JG.res && v ? " resto" : ""}" data-act="jg-carta" data-i="${i}" ${v || JG.jugando || JG.res || !quedan && !JG.caras ? "disabled" : ""} aria-label="${v ? esc(jgNom(f)) : "Figurita boca abajo"}"><span class="jg-cara jg-dorso" aria-hidden="true">⭐</span><span class="jg-cara jg-frente${v && JG.trio ? " jg-t" + JG.trio.indexOf(f) : ""}" aria-hidden="true">${v ? `${jgEmo(f)}<small>${esc(jgNom(f))}</small>` : ""}</span></button>`; }).join("");
-  const msg = JG.res ? (JG.res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(JG.res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">No salieron 3 iguales. ${quedan ? "¡Prueba otra vez!" : "¡Suerte la próxima!"}</div>`) : JG.vueltas.length ? `<p class="jg-hint">Da vuelta ${3 - JG.vueltas.length} ${3 - JG.vueltas.length === 1 ? "figurita más" : "figuritas más"}…</p>` : quedan ? `<p class="jg-hint">Toca 3 figuritas para darlas vuelta. Si salen <b>3 iguales</b>, ¡te ganas ese producto!</p>` : "";
-  return `<div class="jg-saldo"><div><small>Jugadas disponibles</small><b>${fmtN(quedan)}</b></div><div><small>Compras que cuentan</small><b>${clp(e.compras)}</b></div></div>
-    <p class="muted-s jg-regla">Por cada <b>${clp(e.cada)}</b> en pedidos entregados tienes <b>${e.porCompra} ${e.porCompra === 1 ? "jugada" : "jugadas"}</b>. ${quedan ? "" : `Te faltan <b>${clp(e.falta)}</b> para ${e.porCompra === 1 ? "una jugada" : e.porCompra + " jugadas"} más.`}</p>
+  const msg = JG.res && JG.res.prueba ? jgpRes(JG.res, `Salieron 3 iguales: ${esc(jgNom(JG.res.prod))}.`) : JG.res ? (JG.res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(JG.res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">No salieron 3 iguales. ${quedan ? "¡Prueba otra vez!" : "¡Suerte la próxima!"}</div>`) : JG.vueltas.length ? `<p class="jg-hint">Da vuelta ${3 - JG.vueltas.length} ${3 - JG.vueltas.length === 1 ? "figurita más" : "figuritas más"}…</p>` : quedan ? `<p class="jg-hint">Toca 3 figuritas para darlas vuelta. Si salen <b>3 iguales</b>, ¡te ganas ese producto!</p>` : "";
+  return `${jgpBanner("fig")}<div class="jg-saldo"><div><small>Jugadas disponibles</small><b>${fmtN(e.restantes)}</b></div><div><small>Compras que cuentan</small><b>${clp(e.compras)}</b></div></div>
+    <p class="muted-s jg-regla">Por cada <b>${clp(e.cada)}</b> en pedidos entregados tienes <b>${e.porCompra} ${e.porCompra === 1 ? "jugada" : "jugadas"}</b>. ${e.restantes ? "" : `Te faltan <b>${clp(e.falta)}</b> para ${e.porCompra === 1 ? "una jugada" : e.porCompra + " jugadas"} más.`}</p>
     <div class="jg-tab">${cartas}</div>${msg}
-    ${JG.res && quedan ? `<button type="button" class="btn primario jg-otra" data-act="jg-otra">🔄 Jugar otra vez (${fmtN(quedan)})</button>` : ""}
+    ${JG.res && quedan ? `<button type="button" class="btn primario jg-otra" data-act="jg-otra">🔄 ${pr ? `Otra tirada de prueba (${pr})` : `Jugar otra vez (${fmtN(quedan)})`}</button>` : ""}
     ${ps.length ? `<p class="jg-prem-t">Premios posibles</p><div class="jg-prem">${ps.map(id => `<span>${jgEmo(id)} ${esc(jgNom(id))}</span>`).join("")}</div>` : ""}${jgPremiosHTML()}`;
 }
 function jgPool() { const ps = ((JG.est && JG.est.premios) || []).filter(id => PROD[id]), otros = ORDEN.filter(id => PROD[id] && !PROX_IDS.has(id) && !ps.includes(id)).slice(0, 12); return [...new Set([...ps, ...otros])].filter(Boolean); }
@@ -18863,16 +18876,16 @@ function jgCompletar() { setTimeout(() => { JG.anim = new Set(); const r = (JG.r
 async function jgVoltear(i) {
   if (JG.jugando || JG.res || !JG.est || JG.vueltas.includes(i) || JG.board[i] != null) return;
   if (!JG.caras) {
-    if (JG.est.restantes <= 0) return;
+    if (!jgPrueba("fig") && JG.est.restantes <= 0) return;
     JG.jugando = true; let res;
     try { res = await jgJugar("figuritas"); } catch (e) { JG.jugando = false; toast(msgError(e)); jgPintar(); return; }
-    JG.jugando = false; JG.pend = res; JG.caras = jgCaras(res); JG.est.restantes = Math.max(0, JG.est.restantes - 1);
+    JG.jugando = false; JG.pend = res; JG.caras = jgCaras(res); if (!res.prueba) JG.est.restantes = Math.max(0, JG.est.restantes - 1);
   }
   JG.vueltas.push(i); JG.board[i] = JG.caras[JG.vueltas.length - 1]; JG.anim = new Set([i]);
   if (JG.vueltas.length === 3) {
     const res = JG.res = JG.pend; jgCompletar();
     try { if (navigator.vibrate) navigator.vibrate(res.gano ? [120, 60, 120, 60, 300] : 60); } catch (_) {}
-    jgPintar(); if (res.gano) jgCargar(); return;
+    jgPintar(); if (res.gano && !res.prueba) jgCargar(); return;
   }
   try { if (navigator.vibrate) navigator.vibrate(25); } catch (_) {}
   jgPintar();
@@ -18889,16 +18902,16 @@ function jgRuedaSVG(segs) {
 function jgRulHTML(e) {
   const r = e.ruleta; if (!r.activo) return vacio("Este juego no está disponible", "Vuelve pronto.");
   const st = JG.rul || (JG.rul = { segs: jgRulSeg() }), res = st.res;
-  const q = r.restantes;
-  return `<div class="jg-saldo jg-saldo-1"><div><small>Giros disponibles</small><b>${fmtN(q)}</b></div></div>
-    <p class="muted-s jg-regla">Por cada <b>${clp(r.cada)}</b> en pedidos entregados tienes <b>1 giro</b>. Si la ruleta para en un producto, ¡te lo ganas!${q ? "" : ` Te faltan <b>${clp(r.falta)}</b> para tu próximo giro.`}</p>
+  const pr = jgPrueba("rul"), q = pr || r.restantes;
+  return `${jgpBanner("rul")}<div class="jg-saldo jg-saldo-1"><div><small>Giros disponibles</small><b>${fmtN(r.restantes)}</b></div></div>
+    <p class="muted-s jg-regla">Por cada <b>${clp(r.cada)}</b> en pedidos entregados tienes <b>1 giro</b>. Si la ruleta para en un producto, ¡te lo ganas!${r.restantes ? "" : ` Te faltan <b>${clp(r.falta)}</b> para tu próximo giro.`}</p>
     <div class="jg-rueda"><div class="jg-flecha" aria-hidden="true">▼</div><div class="jg-rueda-in" style="transform:rotate(${JG.rot}deg)">${jgRuedaSVG(st.segs)}</div></div>
-    ${res ? (res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">🍀 Esta vez no hubo premio. ${q ? "¡Gira otra vez!" : "¡Suerte la próxima!"}</div>`) : ""}
-    ${!st.girando && q ? `<button type="button" class="btn primario jg-otra" data-act="jg-girar">🎡 ${res ? "Girar otra vez" : "Girar la ruleta"} (${fmtN(q)})</button>` : ""}
+    ${res && res.prueba ? jgpRes(res, `La ruleta paró en ${esc(jgNom(res.prod))}.`) : res ? (res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">🍀 Esta vez no hubo premio. ${q ? "¡Gira otra vez!" : "¡Suerte la próxima!"}</div>`) : ""}
+    ${!st.girando && q ? `<button type="button" class="btn primario jg-otra" data-act="jg-girar">🎡 ${pr ? `Giro de prueba (${pr})` : `${res ? "Girar otra vez" : "Girar la ruleta"} (${fmtN(q)})`}</button>` : ""}
     ${jgPremiosHTML()}`;
 }
 async function jgGirar(b) {
-  const st = JG.rul; if (!st || st.girando || JG.est.ruleta.restantes <= 0) return; st.res = null; const rs = $("#jg-modal .jg-res"); if (rs) rs.remove();
+  const st = JG.rul; if (!st || st.girando || !jgPrueba("rul") && JG.est.ruleta.restantes <= 0) return; st.res = null; const rs = $("#jg-modal .jg-res"); if (rs) rs.remove();
   ocupar(b, true, "Girando…"); let res;
   try { res = await jgJugar("ruleta"); } catch (e) { ocupar(b, false); toast(msgError(e)); return; }
   let idx;
@@ -18907,19 +18920,19 @@ async function jgGirar(b) {
   const a = 360 / st.segs.length, fin = (360 - (idx + .5) * a + (Math.random() - .5) * a * .6) % 360;
   JG.rot = JG.rot - (JG.rot % 360) + 360 * 6 + fin; st.girando = true; b.disabled = true;
   const w = $("#jg-modal .jg-rueda-in"); if (w) w.style.transform = `rotate(${JG.rot}deg)`;
-  setTimeout(() => { st.girando = false; st.res = res; JG.est.ruleta.restantes = Math.max(0, JG.est.ruleta.restantes - 1); try { if (navigator.vibrate) navigator.vibrate(res.gano ? [120, 60, 120, 60, 300] : 60); } catch (_) {} jgPintar(); jgCargar(); }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 300 : 4300);
+  setTimeout(() => { st.girando = false; st.res = res; if (!res.prueba) JG.est.ruleta.restantes = Math.max(0, JG.est.ruleta.restantes - 1); try { if (navigator.vibrate) navigator.vibrate(res.gano ? [120, 60, 120, 60, 300] : 60); } catch (_) {} jgPintar(); if (!res.prueba) jgCargar(); }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 300 : 4300);
 }
 
 /* ----- 3. Raspa y gana: una tarjeta por cada pedido entregado. ----- */
 function jgRasHTML(e) {
   const r = e.raspa; if (!r.activo) return vacio("Este juego no está disponible", "Vuelve pronto.");
-  const st = JG.ras || (JG.ras = {}), quedan = r.restantes, res = st.res;
+  const st = JG.ras || (JG.ras = {}), pr = jgPrueba("ras"), quedan = pr || r.restantes, res = st.res;
   const tarjeta = st.activa ? `<div class="jg-rasp"><div class="jg-rasp-fondo">${res ? (res.gano ? `<span class="jg-rasp-e">${jgEmo(res.prod)}</span><b>¡Ganaste ${esc(jgNom(res.prod))}!</b>` : `<span class="jg-rasp-e">🍀</span><b>Sigue participando</b>`) : `<span class="jg-rasp-e">⏳</span>`}</div><canvas class="jg-rasp-cv" width="600" height="320" aria-label="Raspa la tarjeta con el dedo"></canvas></div>` : "";
-  return `<div class="jg-saldo jg-saldo-1"><div><small>Tarjetas por raspar</small><b>${fmtN(quedan)}</b></div></div>
+  return `${jgpBanner("ras")}<div class="jg-saldo jg-saldo-1"><div><small>Tarjetas por raspar</small><b>${fmtN(r.restantes)}</b></div></div>
     <p class="muted-s jg-regla">Recibes <b>1 tarjeta por cada pedido entregado</b>. Ráspala con el dedo y descubre si ganaste un producto.</p>
     ${tarjeta}
-    ${st.listo ? (res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">Esta vez no hubo premio. ${quedan ? "¡Raspa otra!" : "¡Suerte en tu próximo pedido!"}</div>`) : ""}
-    ${!st.activa || st.listo ? quedan ? `<button type="button" class="btn primario jg-otra" data-act="jg-raspa-nueva">🪙 ${st.activa ? "Raspar otra" : "Raspar una tarjeta"} (${fmtN(quedan)})</button>` : !st.activa ? `<div class="jg-res">No tienes tarjetas. Con tu próximo pedido entregado recibes una nueva.</div>` : "" : ""}
+    ${st.listo && res.prueba ? jgpRes(res, `Descubriste ${esc(jgNom(res.prod))}.`) : st.listo ? (res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">Esta vez no hubo premio. ${quedan ? "¡Raspa otra!" : "¡Suerte en tu próximo pedido!"}</div>`) : ""}
+    ${!st.activa || st.listo ? quedan ? `<button type="button" class="btn primario jg-otra" data-act="jg-raspa-nueva">🪙 ${pr ? `Tarjeta de prueba (${pr})` : `${st.activa ? "Raspar otra" : "Raspar una tarjeta"} (${fmtN(quedan)})`}</button>` : !st.activa ? `<div class="jg-res">No tienes tarjetas. Con tu próximo pedido entregado recibes una nueva.</div>` : "" : ""}
     ${jgPremiosHTML()}`;
 }
 function jgRasMontar() {
@@ -18933,7 +18946,7 @@ function jgRasMontar() {
   const pos = ev => { const r = cv.getBoundingClientRect(); return [(ev.clientX - r.left) * 600 / r.width, (ev.clientY - r.top) * 320 / r.height]; };
   const raspar = ev => { if (!dn || !st.res) return; const [px, py] = pos(ev); x.globalCompositeOperation = "destination-out"; x.beginPath(); x.arc(px, py, 34, 0, Math.PI * 2); x.fill(); if (++mov % 8 === 0) jgRasRevisar(cv, x); };
   cv.addEventListener("pointerdown", async ev => { ev.preventDefault(); dn = true; st.raspando = true; try { cv.setPointerCapture(ev.pointerId); } catch (_) {}
-    if (!st.res && !st.pidiendo) { st.pidiendo = true; try { st.res = await jgJugar("raspa"); JG.est.raspa.restantes = Math.max(0, JG.est.raspa.restantes - 1); const f = $("#jg-modal .jg-rasp-fondo"); if (f) f.innerHTML = st.res.gano ? `<span class="jg-rasp-e">${jgEmo(st.res.prod)}</span><b>¡Ganaste ${esc(jgNom(st.res.prod))}!</b>` : `<span class="jg-rasp-e">🍀</span><b>Sigue participando</b>`; } catch (e) { toast(msgError(e)); st.activa = false; st.raspando = false; jgPintar(); } finally { st.pidiendo = false; } }
+    if (!st.res && !st.pidiendo) { st.pidiendo = true; try { st.res = await jgJugar("raspa"); if (!st.res.prueba) JG.est.raspa.restantes = Math.max(0, JG.est.raspa.restantes - 1); const f = $("#jg-modal .jg-rasp-fondo"); if (f) f.innerHTML = st.res.gano ? `<span class="jg-rasp-e">${jgEmo(st.res.prod)}</span><b>¡Ganaste ${esc(jgNom(st.res.prod))}!</b>` : `<span class="jg-rasp-e">🍀</span><b>Sigue participando</b>`; } catch (e) { toast(msgError(e)); st.activa = false; st.raspando = false; jgPintar(); } finally { st.pidiendo = false; } }
     raspar(ev); });
   cv.addEventListener("pointermove", raspar);
   const fin = () => { if (!dn) return; dn = false; st.raspando = false; try { st.img = x.getImageData(0, 0, 600, 320); } catch (_) {} jgRasRevisar(cv, x); };
@@ -18946,7 +18959,7 @@ function jgRasRevisar(cv, x) {
   if (lim / tot < .45) return;
   st.listo = true; st.raspando = false; cv.style.transition = "opacity .4s"; cv.style.opacity = "0";
   try { if (navigator.vibrate) navigator.vibrate(st.res.gano ? [120, 60, 120, 60, 300] : 60); } catch (_) {}
-  setTimeout(() => { jgPintar(); if (st.res.gano) jgCargar(); }, 420);
+  setTimeout(() => { jgPintar(); if (st.res.gano && !st.res.prueba) jgCargar(); }, 420);
 }
 
 /* ----- 4. Racha de pedidos: pedidos entregados en semanas seguidas. ----- */
@@ -18976,6 +18989,7 @@ document.addEventListener("click", e => {
   const a = b.dataset.act;
   if (a === "jg-ver") { JG.vista = b.dataset.v || null; if (JG.vista === "fig") jgNuevoTablero(); if (JG.vista === "rul") JG.rul = null; if (JG.vista === "ras") JG.ras = null; jgPintar(); const m = $("#jg-modal"); if (m) m.scrollIntoView({ block: "start" }); jgCargar(); }
   else if (a === "jg-otra") { jgNuevoTablero(); jgPintar(); }
+  else if (a === "jg-saltar") { jgpSaltar(b.dataset.k); if (b.dataset.k === "fig") jgNuevoTablero(); if (b.dataset.k === "rul" && JG.rul) JG.rul.res = null; if (b.dataset.k === "ras") JG.ras = null; jgPintar(); toast("Listo: ahora juegas de verdad."); }
   else if (a === "jg-carta") jgVoltear(Number(b.dataset.i));
   else if (a === "jg-girar") jgGirar(b);
   else if (a === "jg-raspa-nueva") { JG.ras = { activa: true }; jgPintar(); }
@@ -20323,7 +20337,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-t0{background:#e0f2fe;border-color:#7dd3fc}.jg-t1{background:#fef3c7;border-color:#fcd34d}.jg-t2{background:#dcfce7;border-color:#86efac}.jg-c.resto .jg-frente{filter:saturate(.55);opacity:.85}.jg-c.elegida .jg-frente{border-color:#7c3aed}.jg-c.gano .jg-frente{border-color:#f59e0b;background:#fffbeb;animation:jg-brillo 1s ease-in-out 3}@keyframes jg-brillo{50%{box-shadow:0 0 0 4px #fde68a,0 0 22px #f59e0b}}
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
-.jg-ad-prods{display:grid;gap:6px}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
+.jg-ad-prods{display:grid;gap:6px}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
 .gri-chips{display:flex;gap:8px;overflow-x:auto;margin:0 -4px 6px;padding:4px 4px 8px;scrollbar-width:none;position:sticky;top:0;z-index:4;background:linear-gradient(var(--bg,#eef2f6) 80%,transparent)}.gri-chips::-webkit-scrollbar{display:none}
 .gri-chips button{flex:none;display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-weight:700;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
 .gri-chips button small{padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:.72rem}.gri-chips button[aria-pressed="true"]{background:#0f766e;border-color:#0f766e;color:#fff}.gri-chips button[aria-pressed="true"] small{background:rgba(255,255,255,.22);color:#fff}
@@ -20345,8 +20359,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-h-fig{background:linear-gradient(135deg,#ede9fe,#ddd6fe)}.jg-h-rul{background:linear-gradient(135deg,#e0f2fe,#bae6fd)}.jg-h-ras{background:linear-gradient(135deg,#fef3c7,#fde68a)}.jg-h-rac{background:linear-gradient(135deg,#ffe4e6,#fecdd3)}
 .jg-hub-i{font-size:2.4rem;width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:rgba(255,255,255,.7);flex:none}.jg-hub-t{display:grid;gap:2px}.jg-hub-t b{font-size:1.08rem}.jg-hub-t small{color:#475569;font-size:.82rem}.jg-hub-t em{font-style:normal;font-size:.86rem;color:#5b21b6}
 .pl-h .jg-atras{border:0;background:var(--surface-2);border-radius:999px;padding:6px 12px;font-weight:700;color:inherit;cursor:pointer}
-.jg-rueda{position:relative;width:100%;max-width:320px;margin:14px auto 6px;aspect-ratio:1}.jg-rueda-in{width:100%;height:100%;border-radius:50%;box-shadow:0 0 0 6px #7c3aed,0 0 0 10px #fde68a,0 14px 28px -10px rgba(30,27,75,.6);transition:transform 4.2s cubic-bezier(.12,.75,.15,1)}.jg-rueda-svg{width:100%;height:100%;display:block}
-.jg-flecha{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:2;font-size:2rem;color:#ef4444;text-shadow:0 2px 3px rgba(0,0,0,.3)}
+.jg-rueda{position:relative;width:min(100%,380px);margin:22px auto 10px;aspect-ratio:1}.jg-rueda-in{width:100%;height:100%;border-radius:50%;box-shadow:0 0 0 6px #7c3aed,0 0 0 10px #fde68a,0 14px 28px -10px rgba(30,27,75,.6);transition:transform 4.2s cubic-bezier(.12,.75,.15,1)}.jg-rueda-svg{width:100%;height:100%;display:block}
+.jg-flecha{position:absolute;top:-20px;left:50%;transform:translateX(-50%);z-index:2;font-size:2.4rem;color:#ef4444;text-shadow:0 2px 3px rgba(0,0,0,.3)}
 .jg-saldo-1{grid-template-columns:1fr}.jg-rasp{position:relative;width:100%;max-width:360px;margin:12px auto;aspect-ratio:600/320;border-radius:18px;overflow:hidden;box-shadow:0 10px 22px -12px rgba(30,27,75,.6)}
 .jg-rasp-fondo{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:6px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:3px dashed #f59e0b;border-radius:18px;text-align:center;padding:10px;color:#92400e}.jg-rasp-e{font-size:3rem}
 .jg-rasp-cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer}
