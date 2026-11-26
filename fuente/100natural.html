@@ -2953,7 +2953,7 @@ function pintarNotisUB() {
   /* Clientes (en Inicio): en vez de íconos, el buscador de productos (al tocarlo se abre el buscador con el teclado listo). */
   const c = S.portal === "cliente" && S.ses.cliente && S.cliTab === "inicio";
   const adm = false; /* Administrador: el buscador ahora está en la barra de arriba del banner */
-  const h = adm ? `<button type="button" class="ub-busq" data-act="adbq-abrir" aria-label="Buscar en todo"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar clientes, pedidos, secciones…</span></button>` : c ? `<button type="button" class="ub-busq" data-act="cli-buscar" aria-label="Buscar productos"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar productos…</span></button>` : "";
+  const h = adm ? `<button type="button" class="ub-busq" data-act="adbq-abrir" aria-label="Buscar en todo"><span class="ub-busq-i" aria-hidden="true">${UB_ICO.buscar}</span><span class="ub-busq-t">Buscar clientes, pedidos, secciones…</span></button>` : ""; /* Clientes: el buscador de productos ahora está en la barra de arriba del banner */
   const prim = c && typeof primeraOk === "function" && primeraOk() ? `<button type="button" class="prim-ban" data-act="prim-ir"><span class="prim-e" aria-hidden="true">🎉</span><span class="prim-t"><b>${PRIMERA_PCT}% de descuento</b> en tu primera compra con la app <small>(hasta ${clp(PRIMERA_MAX)})</small></span><span class="prim-ir" aria-hidden="true">Pedir ›</span></button>` : "";
   const h2 = h + prim;
   if (el.innerHTML !== h2) el.innerHTML = h2;
