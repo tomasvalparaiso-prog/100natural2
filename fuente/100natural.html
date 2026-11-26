@@ -15062,11 +15062,11 @@ function edDevHTML(f, id) {
 const edKg = x => { const m = /(\d+(?:[.,]\d+)?)\s*kg/i.exec((PROD[x] || {}).medida || ""); return m ? Number(m[1].replace(",", ".")) || 0 : 0; };
 function edPrecioHTML(f, x, q) {
   f.precios = f.precios || {}; const v = f.precios[x], kg = edKg(x), n = esc(etiqueta(PROD[x])), hay = v != null && v !== "";
-  const mostrar = hay ? (kg ? Math.round(Number(v) / kg) : v) : "";
-  return `<div class="ed-pr"><label><span>${kg ? "Precio por kilo $" : "Precio unitario $"}</span><input type="number" class="ed-pr-in" data-p="${x}" inputmode="numeric" min="0" step="1" value="${esc(mostrar)}" placeholder="Precio de lista" aria-label="${kg ? "Precio por kilo" : "Precio unitario"} de ${n}"></label><small class="ed-pr-sub" data-p="${x}">${edSubTxt(x, hay ? Number(v) : null, q)}</small></div>`;
+  const mostrar = hay ? edNeto(Number(v) / (kg || 1)) : ""; /* se edita el valor neto (sin IVA) */
+  return `<div class="ed-pr"><label><span>${kg ? "Precio neto por kilo $" : "Precio neto unitario $"}</span><input type="number" class="ed-pr-in" data-p="${x}" inputmode="numeric" min="0" step="1" value="${esc(mostrar)}" placeholder="Precio de lista" aria-label="${kg ? "Precio neto por kilo" : "Precio neto unitario"} de ${n}"></label><small class="ed-pr-sub" data-p="${x}">${edSubTxt(x, hay ? Number(v) : null, q)}</small></div>`;
 }
 const edNeto = v => Math.round((Number(v) || 0) / (1 + IVA));
-function edSubTxt(x, unit, q) { const kg = edKg(x); if (unit == null) return "Se usa el precio del cliente"; return `${kg ? `${fmtN(kg * q)} kg · ` : ""}Subtotal <b>${clp(unit * q)}</b> · Neto <b>${clp(edNeto(unit * q))}</b>${kg ? ` (${clp(edNeto(unit / kg))}/kg)` : ""}`; }
+function edSubTxt(x, unit, q) { const kg = edKg(x); if (unit == null) return "Se usa el precio del cliente"; return `${kg ? `${fmtN(kg * q)} kg · ` : ""}Neto <b>${clp(edNeto(unit * q))}</b> · Con IVA <b>${clp(unit * q)}</b>${kg ? ` (${clp(unit / kg)}/kg con IVA)` : ` (${clp(unit)} c/u con IVA)`}`; }
 /* Resumen del pedido al editar: valor neto, IVA y total de los productos. */
 function edTotHTML(f) {
   const xs = ORDEN.filter(x => f.items[x] > 0); let tot = 0, falta = 0;
@@ -15077,7 +15077,7 @@ function edTotHTML(f) {
 document.addEventListener("input", e => {
   const i = e.target; if (!i.classList || !i.classList.contains("ed-pr-in") || !S.edF) return;
   const x = i.dataset.p, v = i.value.trim(), kg = edKg(x); S.edF.precios = S.edF.precios || {};
-  if (v === "") delete S.edF.precios[x]; else S.edF.precios[x] = Math.max(0, Math.round((Number(v) || 0) * (kg || 1)));
+  if (v === "") delete S.edF.precios[x]; else S.edF.precios[x] = Math.max(0, Math.round((Number(v) || 0) * (kg || 1) * (1 + IVA)));
   const s = i.closest(".ed-pr") && i.closest(".ed-pr").querySelector(".ed-pr-sub"), q = S.edF.items[x] || 0;
   if (s) s.innerHTML = edSubTxt(x, v === "" ? null : S.edF.precios[x], q);
   const t = i.closest(".ed-ped") && i.closest(".ed-ped").querySelector(".ed-tot"); if (t) t.outerHTML = edTotHTML(S.edF);
