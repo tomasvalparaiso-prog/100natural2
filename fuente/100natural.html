@@ -6127,6 +6127,7 @@ function clientePagosHTML() {
     </div>
     <p class="rango-lbl">${esc(etiquetaPeriodo(S.pagoPer, a, b))}</p>
     ${tablaLoc}
+    ${loteHTML()}
     ${pagoEstHTML("cp-est", S.pagoEst, pend.length, sum(pend), pag.length, sum(pag))}
     <p class="muted pago-ayuda">Un pedido queda como pagado cuando lo marcas tú y también lo confirma el administrador.</p>
     <div class="lista">${!S.cargado ? vacio("Cargando tus pedidos…", "Un momento.") : lista.length ? lista.map(pagoCardCliente).join("")
@@ -6607,7 +6608,9 @@ async function verComprobante(id) {
   if (S.compVer[id]) { delete S.compVer[id]; refrescarComp(); return; }
   S.compVer[id] = true; refrescarComp();
   if (S.compCache[id] || !S.db) return;
-  try { const s = await conReintento(() => S.db.doc("comprobantes/" + id).get()); S.compCache[id] = s.exists ? (s.data() || {}) : {}; }
+  const pp = (S.pedidos || []).find(x => x.id === id), did = pp && pp.compLote ? pp.compLote : id; /* comprobante de un pago de semana o mes */
+  if (did !== id && S.compCache[did]) { S.compCache[id] = S.compCache[did]; refrescarComp(); return; }
+  try { const s = await conReintento(() => S.db.doc("comprobantes/" + did).get()); S.compCache[id] = s.exists ? (s.data() || {}) : {}; if (did !== id) S.compCache[did] = S.compCache[id]; }
   catch (e) { toast(msgError(e)); delete S.compVer[id]; }
   refrescarComp();
 }
@@ -15055,17 +15058,20 @@ function edDevHTML(f, id) {
     ${ts.map(t => { if (f.dev[t] === undefined) f.dev[t] = nb[t] || 0; const d = f.dev[t], pend = (nb[t] || 0) - d; return `<div class="bid-fila pg-fila on"><span class="bid-tit">Bidón ${t} L<small>Pide ${fmtN(nb[t] || 0)} · ${pend > 0 ? `${fmtN(pend)} sin devolver (+${clp(pend * VALOR_BIDON)})` : pend < 0 ? `devuelve ${fmtN(-pend)} de más (−${clp(-pend * VALOR_BIDON)})` : "devuelve todos"}</small></span><div class="bid-step"><button type="button" data-act="ed-dev" data-id="${id}" data-t="${t}" data-d="-1" aria-label="Uno menos" ${d > 0 ? "" : "disabled"}>−</button><b>${fmtN(d)}</b><button type="button" data-act="ed-dev" data-id="${id}" data-t="${t}" data-d="1" aria-label="Uno más">+</button></div></div>`; }).join("")}
   </fieldset>`;
 }
-/* Precio unitario de cada producto al editar un pedido (el administrador lo puede cambiar). */
+/* Precio de cada producto al editar un pedido (el administrador lo puede cambiar). Las papas se muestran por kilo. */
+const edKg = x => { const m = /(\d+(?:[.,]\d+)?)\s*kg/i.exec((PROD[x] || {}).medida || ""); return m ? Number(m[1].replace(",", ".")) || 0 : 0; };
 function edPrecioHTML(f, x, q) {
-  f.precios = f.precios || {}; const v = f.precios[x], n = esc(etiqueta(PROD[x]));
-  return `<div class="ed-pr"><label><span>Precio unitario $</span><input type="number" class="ed-pr-in" data-p="${x}" inputmode="numeric" min="0" step="1" value="${v != null && v !== "" ? esc(v) : ""}" placeholder="Precio de lista" aria-label="Precio unitario de ${n}"></label><small class="ed-pr-sub" data-p="${x}">${v != null && v !== "" ? `Subtotal <b>${clp(Number(v) * q)}</b>` : "Se usa el precio del cliente"}</small></div>`;
+  f.precios = f.precios || {}; const v = f.precios[x], kg = edKg(x), n = esc(etiqueta(PROD[x])), hay = v != null && v !== "";
+  const mostrar = hay ? (kg ? Math.round(Number(v) / kg) : v) : "";
+  return `<div class="ed-pr"><label><span>${kg ? "Precio por kilo $" : "Precio unitario $"}</span><input type="number" class="ed-pr-in" data-p="${x}" inputmode="numeric" min="0" step="1" value="${esc(mostrar)}" placeholder="Precio de lista" aria-label="${kg ? "Precio por kilo" : "Precio unitario"} de ${n}"></label><small class="ed-pr-sub" data-p="${x}">${edSubTxt(x, hay ? Number(v) : null, q)}</small></div>`;
 }
+function edSubTxt(x, unit, q) { const kg = edKg(x); if (unit == null) return "Se usa el precio del cliente"; return `${kg ? `${fmtN(kg * q)} kg · ` : ""}Subtotal <b>${clp(unit * q)}</b>`; }
 document.addEventListener("input", e => {
   const i = e.target; if (!i.classList || !i.classList.contains("ed-pr-in") || !S.edF) return;
-  const x = i.dataset.p, v = i.value.trim(); S.edF.precios = S.edF.precios || {};
-  if (v === "") delete S.edF.precios[x]; else S.edF.precios[x] = Math.max(0, Math.round(Number(v) || 0));
+  const x = i.dataset.p, v = i.value.trim(), kg = edKg(x); S.edF.precios = S.edF.precios || {};
+  if (v === "") delete S.edF.precios[x]; else S.edF.precios[x] = Math.max(0, Math.round((Number(v) || 0) * (kg || 1)));
   const s = i.closest(".ed-pr") && i.closest(".ed-pr").querySelector(".ed-pr-sub"), q = S.edF.items[x] || 0;
-  if (s) s.innerHTML = v === "" ? "Se usa el precio del cliente" : `Subtotal <b>${clp(S.edF.precios[x] * q)}</b>`;
+  if (s) s.innerHTML = edSubTxt(x, v === "" ? null : S.edF.precios[x], q);
 });
 function edPedHTML(p) {
   const f = S.edF, id = esc(p.id); if (f.sinBoleta === undefined) f.sinBoleta = !!p.sinBoleta;
@@ -19108,6 +19114,63 @@ document.addEventListener("click", e => {
   if (a === "gri-cat") { GRI.cat = b.dataset.k || ""; griPintar(); const m = $("#gri-modal .gri-chips"); if (m) { const s = m.querySelector('[aria-pressed="true"]'); if (s) s.scrollIntoView({ inline: "center", block: "nearest" }); } return; }
   if (a === "mas" || a === "menos") { const it = b.closest(".gri-it"); setTimeout(() => { griPintar(); if (a === "mas" && it) { const id = b.dataset.id, n = document.querySelector(`#gri-modal [data-act="mas"][data-id="${id}"]`); const c = n && n.closest(".gri-it"); if (c) { c.classList.remove("gri-pop"); void c.offsetWidth; c.classList.add("gri-pop"); } } }, 0); }
 });
+/* ---------- Pagos (local comercial): pagar la semana o el mes completo con un solo comprobante. ---------- */
+function loteIdsCli() { const cli = S.ses.cliente; const locs = (S.pagoAuth && S.pagoAuth.locales || []).filter(Boolean); const ids = [...new Set([cli.id, ...locs])]; return S.pagoLocal ? ids.filter(x => x === S.pagoLocal) : ids; }
+function lotePend(per) {
+  const [a, b] = rangoPeriodo(per, S.pagoRef || hoy()), ids = loteIdsCli();
+  return { a, b, ps: S.pedidos.filter(p => ids.includes(p.clienteId) && p.estado !== "cancelado" && p.fechaEntrega >= a && p.fechaEntrega <= b && !pagado(p) && !p.pagoCliente).sort((x, y) => String(x.fechaEntrega).localeCompare(String(y.fechaEntrega))) };
+}
+function loteHTML() {
+  if (cliParticular() || !S.ses.cliente) return "";
+  const sem = lotePend("semana"), mes = lotePend("mes"), sum = l => l.reduce((s, p) => s + (Number(p.total) || 0), 0), L = S.pagoLote;
+  if (L) {
+    const x = lotePend(L.per), tot = sum(x.ps), c = S.loteComp;
+    return `<div class="card lote-card"><h3 class="h2">💳 Pagar ${L.per === "semana" ? "la semana" : "el mes"} completo</h3>
+      <p class="rango-lbl">${esc(etiquetaPeriodo(L.per, x.a, x.b))}</p>
+      ${x.ps.length ? `<ul class="lote-l">${x.ps.map(p => `<li><span>${esc(fmtFecha(p.fechaEntrega))} · ${S.pagoMulti ? esc(S.pagoMulti(p.clienteId)) + " · " : ""}Pedido N° ${Number(p.numCliente) || "–"}</span><b>${clp(p.total)}</b></li>`).join("")}</ul>
+      <div class="lote-tot"><span>${fmtN(x.ps.length)} ${x.ps.length === 1 ? "pedido" : "pedidos"}</span><b>Total a pagar ${clp(tot)}</b></div>
+      <label class="comp-btn"><span>${c ? (c.procesando ? "Preparando archivo…" : `📎 ${esc(c.nombre)}`) : "📎 Adjuntar comprobante de transferencia <em>(obligatorio)</em>"}</span><input type="file" accept="image/*" class="lote-in"></label>
+      ${c && c.data ? `<img class="comp-prev" src="${c.data}" alt="Vista previa del comprobante">` : ""}
+      <p class="muted-s">Todos estos pedidos quedan marcados como pagados con este comprobante. Falta la confirmación del administrador.</p>
+      <div class="acciones"><button type="button" class="btn suave" data-act="lote-no">Cancelar</button><button type="button" class="btn primario" data-act="lote-si" ${c && c.data ? "" : "disabled"}>Confirmar pago de ${clp(tot)}</button></div>`
+      : vacio("No hay pedidos por pagar en este período", "Cambia la fecha para elegir otra semana o mes.") + `<div class="acciones"><button type="button" class="btn suave" data-act="lote-no">Volver</button></div>`}</div>`;
+  }
+  const b = (per, x, t) => `<button type="button" class="lote-b" data-act="lote-abrir" data-per="${per}" ${x.ps.length ? "" : "disabled"}><span>💳 ${t}</span><small>${x.ps.length ? `${fmtN(x.ps.length)} ${x.ps.length === 1 ? "pedido" : "pedidos"} · <b>${clp(sum(x.ps))}</b>` : "Nada por pagar"}</small></button>`;
+  return `<div class="lote-bs">${b("semana", sem, "Pagar la semana completa")}${b("mes", mes, "Pagar el mes completo")}</div>`;
+}
+async function loteConfirmar(btn) {
+  const L = S.pagoLote, c = S.loteComp, cli = S.ses.cliente; if (!L || !c || !c.data || !cli || !S.db) return;
+  const x = lotePend(L.per); if (!x.ps.length) return;
+  ocupar(btn, true, "Subiendo comprobante…");
+  const lid = "lote" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), por = (S.pagoAuth || {}).nombre || cli.nombre || "", ahora = Date.now();
+  try {
+    await conReintento(() => S.db.doc("comprobantes/" + lid).set({ pedido: x.ps[0].id, pedidos: x.ps.map(p => p.id), clienteId: x.ps[0].clienteId || cli.id, nombre: c.nombre, data: c.data, creado: ahora, por, lote: L.per, total: x.ps.reduce((s, p) => s + (Number(p.total) || 0), 0) }));
+    let ok = 0;
+    for (const p of x.ps) {
+      const datos = { comprobante: true, compLote: lid, pagoCliente: true, pagoClienteEn: ahora, pagoClientePor: por };
+      try { await conReintento(() => S.db.doc("pedidos/" + p.id).update(datos)); Object.assign(p, datos); ok++; } catch (_) {}
+    }
+    S.compCache[lid] = { data: c.data, nombre: c.nombre };
+    S.pagoLote = null; S.loteComp = null;
+    toast(ok === x.ps.length ? `Pago enviado: ${ok} ${ok === 1 ? "pedido marcado" : "pedidos marcados"} como pagados. Falta la confirmación del administrador.` : `Se marcaron ${ok} de ${x.ps.length} pedidos. Revisa los que faltan.`);
+  } catch (e) { toast(msgError(e)); }
+  finally { if (btn.isConnected) ocupar(btn, false); renderListas(); }
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest('[data-act^="lote-"]'); if (!b || S.portal !== "cliente") return;
+  const a = b.dataset.act;
+  if (a === "lote-abrir") { S.pagoLote = { per: b.dataset.per }; S.loteComp = null; renderListas(); const k = $("#pagos-cli .lote-card"); if (k) k.scrollIntoView({ block: "start", behavior: "smooth" }); }
+  else if (a === "lote-no") { S.pagoLote = null; S.loteComp = null; renderListas(); }
+  else if (a === "lote-si") loteConfirmar(b);
+});
+document.addEventListener("change", async e => {
+  const i = e.target; if (!i.classList || !i.classList.contains("lote-in")) return;
+  const f = i.files && i.files[0]; i.value = ""; if (!f) return;
+  S.loteComp = { nombre: f.name || "comprobante", procesando: true, data: "" }; renderListas();
+  try { if (!/^image\//.test(f.type || "image/")) throw new Error("pdf"); S.loteComp = { nombre: f.name || "comprobante.jpg", data: await comprimirFoto(f), procesando: false }; }
+  catch (er) { S.loteComp = null; toast(er && er.message === "pdf" ? "Sube el comprobante como foto o captura de pantalla (imagen)." : "No se pudo leer el archivo. Prueba con una foto o captura del comprobante."); }
+  renderListas();
+});
 /* Barra neón bajo el banner (clientes): texto en movimiento con la oferta del día y las campañas que el administrador escribe en Administrador › Barra neón. Se guarda en config/neon. */
 /* Dos barras: una para clientes Particulares (config/neon) y otra para Locales comerciales (config/neon_local). */
 const NEON = { subs: false, cfgs: { part: null, local: null }, eds: { part: null, local: null }, sucios: { part: false, local: false }, tab: "part" };
@@ -20368,7 +20431,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-t0{background:#e0f2fe;border-color:#7dd3fc}.jg-t1{background:#fef3c7;border-color:#fcd34d}.jg-t2{background:#dcfce7;border-color:#86efac}.jg-c.resto .jg-frente{filter:saturate(.55);opacity:.85}.jg-c.elegida .jg-frente{border-color:#7c3aed}.jg-c.gano .jg-frente{border-color:#f59e0b;background:#fffbeb;animation:jg-brillo 1s ease-in-out 3}@keyframes jg-brillo{50%{box-shadow:0 0 0 4px #fde68a,0 0 22px #f59e0b}}
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
-.jg-ad-prods{display:grid;gap:6px}.ed-ped .pg-fila{flex-wrap:wrap}.ed-pr{flex-basis:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:6px}.ed-pr label{display:grid;gap:2px;font-size:.78rem;font-weight:700;color:var(--muted)}.ed-pr input{width:130px;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font:inherit;font-weight:700;font-size:1rem;background:var(--surface);color:var(--ink)}.ed-pr-sub{color:var(--muted);font-size:.8rem;text-align:right}.jg-tr-bono{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#e0f2fe);color:#4c1d95;font-size:.9rem}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
+.jg-ad-prods{display:grid;gap:6px}.lote-bs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.lote-b{display:grid;gap:4px;justify-items:start;text-align:left;padding:12px 14px;border:0;border-radius:16px;background:linear-gradient(135deg,#0f766e,#0e7490);color:#fff;font:inherit;font-weight:800;cursor:pointer;box-shadow:0 8px 18px -12px rgba(15,118,110,.9)}.lote-b small{font-weight:600;opacity:.9}.lote-b[disabled]{background:var(--surface-2);color:var(--muted);box-shadow:none;cursor:default}.lote-card{margin:12px 0}.lote-l{list-style:none;margin:8px 0;padding:0;display:grid;gap:4px}.lote-l li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.9rem}.lote-tot{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px;padding:10px 12px;border-radius:12px;background:var(--surface-2)}.lote-tot b{font-size:1.1rem}.ed-ped .pg-fila{flex-wrap:wrap}.ed-pr{flex-basis:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:6px}.ed-pr label{display:grid;gap:2px;font-size:.78rem;font-weight:700;color:var(--muted)}.ed-pr input{width:130px;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font:inherit;font-weight:700;font-size:1rem;background:var(--surface);color:var(--ink)}.ed-pr-sub{color:var(--muted);font-size:.8rem;text-align:right}.jg-tr-bono{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#e0f2fe);color:#4c1d95;font-size:.9rem}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
 .gri-chips{display:flex;gap:8px;overflow-x:auto;margin:0 -4px 6px;padding:4px 4px 8px;scrollbar-width:none;position:sticky;top:0;z-index:4;background:linear-gradient(var(--bg,#eef2f6) 80%,transparent)}.gri-chips::-webkit-scrollbar{display:none}
 .gri-chips button{flex:none;display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-weight:700;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
 .gri-chips button small{padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:.72rem}.gri-chips button[aria-pressed="true"]{background:#0f766e;border-color:#0f766e;color:#fff}.gri-chips button[aria-pressed="true"] small{background:rgba(255,255,255,.22);color:#fff}
