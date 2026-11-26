@@ -14135,11 +14135,12 @@ function adBuscadoSumar(id) { if (!id) return; try { const m = adBuscadosCont();
 function adRecientesHTML() {
   if (!AD.cargadoC || AD.nuevo) return "";
   const cnt = new Map(), loc = adBuscadosCont();
-  for (const p of S.pedidos || []) if (p.clienteId && (p.origen === "admin" || p.origen === "repartidor")) cnt.set(p.clienteId, (cnt.get(p.clienteId) || 0) + 1);
-  for (const [id, n] of Object.entries(loc)) cnt.set(id, (cnt.get(id) || 0) + (Number(n) || 0));
-  const xs = AD.clientes.filter(c => cnt.get(c.id) && (!crearEnRep() || c.tipo !== "Local comercial")).sort((a, b) => cnt.get(b.id) - cnt.get(a.id) || a.nombre.localeCompare(b.nombre, "es")).slice(0, 6);
+  /* Los 8 clientes que más piden (todos sus pedidos, menos los cancelados), para elegirlos con un toque. */
+  for (const p of S.pedidos || []) if (p.clienteId && p.estado !== "cancelado") cnt.set(p.clienteId, (cnt.get(p.clienteId) || 0) + 1);
+  for (const [id, n] of Object.entries(loc)) if (!cnt.has(id)) cnt.set(id, (Number(n) || 0) / 1000);
+  const xs = AD.clientes.filter(c => cnt.get(c.id) && (!crearEnRep() || c.tipo !== "Local comercial")).sort((a, b) => cnt.get(b.id) - cnt.get(a.id) || a.nombre.localeCompare(b.nombre, "es")).slice(0, 8);
   if (!xs.length) return "";
-  return `<div class="ad-rec"><small class="ad-rec-t">⭐ Clientes más buscados</small><div class="ad-rec-l">${xs.map(c => `<button type="button" class="ad-rec-b" data-act="ad-cli-reciente" data-id="${esc(c.id)}" aria-pressed="${AD.clienteId === c.id}"><b>${esc(c.nombre)}</b><small>${esc([c.tipo === "Local comercial" ? "🏪 Local" : "👤 Particular", c.comuna].filter(Boolean).join(" · "))}</small></button>`).join("")}</div></div>`;
+  return `<div class="ad-rec"><small class="ad-rec-t">⭐ Clientes que más piden</small><div class="ad-rec-l">${xs.map(c => `<button type="button" class="ad-rec-b" data-act="ad-cli-reciente" data-id="${esc(c.id)}" aria-pressed="${AD.clienteId === c.id}"><b>${esc(c.nombre)}</b><small>${esc([c.tipo === "Local comercial" ? "🏪 Local" : "👤 Particular", c.comuna].filter(Boolean).join(" · "))}</small></button>`).join("")}</div></div>`;
 }
 function adOpcionesCli() {
   const lista = adCliFiltrados().slice(), selC = AD.clienteId && AD.clientes.find(c => c.id === AD.clienteId);
@@ -15054,7 +15055,7 @@ function edDevHTML(f, id) {
   </fieldset>`;
 }
 function edPedHTML(p) {
-  const f = S.edF, id = esc(p.id);
+  const f = S.edF, id = esc(p.id); if (f.sinBoleta === undefined) f.sinBoleta = !!p.sinBoleta;
   const sel = ORDEN.filter(x => f.items[x] > 0), otros = ORDEN.filter(x => !(f.items[x] > 0));
   return `<form class="form pg-form ed-ped" id="ed-ped-${id}" novalidate>
     <h3 class="sec">Editar pedido #${esc(codigo(p.id))}</h3>
@@ -15064,6 +15065,7 @@ function edPedHTML(p) {
     </fieldset>
     ${edDevHTML(f, id)}
     <div class="pg-2"><label class="campo"><span>Fecha de entrega</span><input type="date" name="fecha" value="${esc(f.fecha)}"></label><label class="campo"><span>Forma de pago</span><select name="pago">${["Transferencia", "Efectivo", "Cheque"].map(v => `<option ${f.pago === v ? "selected" : ""}>${v}</option>`).join("")}</select></label></div>
+    <label class="sb-op"><input type="checkbox" name="sinBoleta" ${f.sinBoleta ? "checked" : ""}><span><b>Venta sin boleta / factura</b><small>En el detalle del pedido aparece solo el precio final, sin IVA.</small></span></label>
     <div class="pg-2"><label class="campo"><span>Entregar desde</span><input type="time" name="hDesde" value="${esc(f.hDesde)}" step="900"></label><label class="campo"><span>Hasta</span><input type="time" name="hHasta" value="${esc(f.hHasta)}" step="900"></label></div>
     <label class="campo"><span>Dirección</span><input name="direccion" value="${esc(f.direccion)}" maxlength="120"></label>
     <div class="pg-2"><label class="campo"><span>Depto / oficina</span><input name="depto" value="${esc(f.depto)}" maxlength="40"></label><label class="campo"><span>Comuna</span><input name="comuna" value="${esc(f.comuna)}" maxlength="60"></label></div>
@@ -15078,6 +15080,7 @@ function edPedHTML(p) {
 function edLeer(id) {
   const fm = document.getElementById("ed-ped-" + id), f = S.edF; if (!fm || !f) return;
   for (const n of ["fecha", "pago", "hDesde", "hHasta", "direccion", "depto", "comuna", "telefono", "nota", "rep", "cupon"]) { const i = fm.elements[n]; if (i) f[n] = i.value; }
+  if (fm.elements.sinBoleta) f.sinBoleta = fm.elements.sinBoleta.checked;
 }
 function refrescarEd() { if (AD.local === "rep") renderListas(); else refrescarDelPed(); }
 async function edGuardar(id, btn) {
@@ -15132,9 +15135,12 @@ async function edGuardar(id, btn) {
       else { const nom = (edRepOpts(f).find(([rid]) => rid === f.rep) || [, f.rep])[1]; Object.assign(repUpd, { repartidorId: f.rep, repartidorNombre: nom }); if (d.estado === "pendiente") Object.assign(repUpd, { estado: "en_camino", tomado: Date.now() }); }
     }
     const nuevoEd = { ...repUpd, items: its, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() };
+    /* Venta sin boleta / factura: se puede marcar o quitar al editar. */
+    const sbUpd = f.sinBoleta ? { sinBoleta: true, conIva: false, iva: 0, ivaIncl: false } : d.sinBoleta ? Object.assign({ sinBoleta: false }, ivaAplicaCli({ tipo: d.clienteTipo || "", sinIva }) ? { conIva: true, iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}) : {};
+    if (!!f.sinBoleta !== !!d.sinBoleta) nuevoEd.sinBoleta = !!f.sinBoleta;
     const historial = histCon(d, nuevoEd, ((S.ses.admin || {}).nombre || "Administrador") + " (administrador)");
-    await conReintento(() => ref.update({ ...repUpd, ...cupUpd, historial, items: its, bidones: bid, total, ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim(), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "Administrador" }));
-    const p = S.pedidos.find(x => x.id === id); if (p) Object.assign(p, repUpd, cupUpd, { historial, editado: Date.now(), items: its, bidones: bid, total, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() });
+    await conReintento(() => ref.update({ ...repUpd, ...cupUpd, historial, items: its, bidones: bid, total, ...(d.conIva ? { iva: ivaIncDe(itSub(its)), ivaIncl: true } : {}), fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim(), editado: Date.now(), editadoPor: (S.ses.admin || {}).nombre || "Administrador", ...sbUpd }));
+    const p = S.pedidos.find(x => x.id === id); if (p) Object.assign(p, repUpd, cupUpd, sbUpd, { historial, editado: Date.now(), items: its, bidones: bid, total, fechaEntrega: f.fecha, horario: `${f.hDesde}–${f.hHasta}`, pago: f.pago, direccion: f.direccion.trim(), depto: f.depto.trim(), comuna: f.comuna.trim(), telefono: f.telefono.trim(), nota: f.nota.trim() });
     S.edPed = ""; S.edF = null; refrescarEd();
     toast(`Pedido #${codigo(id)} actualizado.`);
   } catch (e) { msg(msgError(e)); }
