@@ -6114,8 +6114,9 @@ function clientePagosHTML() {
       const tot = filas.reduce((t, f) => ({ ps: t.ps + f.ps, pe: t.pe + f.pe, npe: t.npe + f.npe, pa: t.pa + f.pa }), { ps: 0, pe: 0, npe: 0, pa: 0 });
       return `<h3 class="sec">Totales por local</h3><div class="tbl-wrap"><table class="tbl pl-tbl"><thead><tr><th>Local</th><th class="r">Pedidos</th><th class="r">Por pagar</th><th class="r">Pagado</th></tr></thead>
         <tbody>${filas.map(f => `<tr><td><b>${esc(f.n)}</b></td><td class="r">${f.ps}</td><td class="r ${f.pe ? "neg" : ""}">${clp(f.pe)}${f.npe ? `<br><small class="muted-s">${f.npe} ${f.npe === 1 ? "pedido" : "pedidos"}</small>` : ""}</td><td class="r">${clp(f.pa)}</td></tr>`).join("")}</tbody>
-        <tfoot><tr><td>Total</td><td class="r">${tot.ps}</td><td class="r">${clp(tot.pe)}</td><td class="r">${clp(tot.pa)}</td></tr></tfoot></table></div>
-        <div class="usu-tipo tp-est pl-chips" role="group" aria-label="Filtrar por local"><button type="button" data-act="cp-local" data-v="" aria-pressed="${!S.pagoLocal}">Todos los locales</button>${filas.map(f => `<button type="button" data-act="cp-local" data-v="${esc(f.id)}" aria-pressed="${S.pagoLocal === f.id}">${esc(f.n)}</button>`).join("")}</div>`; })() : "";
+        <tfoot><tr><td>Total</td><td class="r">${tot.ps}</td><td class="r">${clp(tot.pe)}</td><td class="r">${clp(tot.pa)}</td></tr></tfoot></table></div>`; })() : "";
+  /* Botones de local (Todos, cada local) arriba de «Pagar la semana / el mes». */
+  const chipsLoc = multi ? `<div class="usu-tipo tp-est pl-chips" role="group" aria-label="Filtrar por local"><button type="button" data-act="cp-local" data-v="" aria-pressed="${!S.pagoLocal}">Todos los locales</button>${ids.map(id => `<button type="button" data-act="cp-local" data-v="${esc(id)}" aria-pressed="${S.pagoLocal === id}">${esc(nomLoc(id))}</button>`).join("")}</div>` : "";
   const lista = (S.pagoEst === "pag" ? pag : pend).slice().sort((x, y) => String(y.fechaEntrega).localeCompare(String(x.fechaEntrega)) || (y.creado || 0) - (x.creado || 0));
   return `${sesPago}${segHTML("cp-per", S.pagoPer)}
     <div class="fecha-nav prod-nav">
@@ -6126,6 +6127,7 @@ function clientePagosHTML() {
       ${todosBtn("cp-hoy")}
     </div>
     <p class="rango-lbl">${esc(etiquetaPeriodo(S.pagoPer, a, b))}</p>
+    ${chipsLoc}
     ${loteHTML()}
     ${tablaLoc}
     ${pagoEstHTML("cp-est", S.pagoEst, pend.length, sum(pend), pag.length, sum(pag))}
