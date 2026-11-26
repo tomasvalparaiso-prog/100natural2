@@ -19248,7 +19248,12 @@ const ADT_ICO = {
   ped: ADT_SV('<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>')
 };
 /* Toca un botón «invisible» con esa acción (las secciones se abren con los mismos clics que en la página). */
-const adtClic = (act, extra) => { const t = document.createElement("button"); t.type = "button"; t.dataset.act = act; Object.assign(t.dataset, extra || {}); t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); window.scrollTo(0, 0); };
+const adtClic = (act, extra) => {
+  /* Si el botón real existe en la página (por ejemplo, en el menú de inicio), se toca ese: así la sección se abre igual que al tocarla a mano. */
+  const t0 = extra && extra.t, sel = `[data-act="${act}"]${t0 ? `[data-t="${t0}"]` : ""}`, reales = [...document.querySelectorAll(sel)].filter(x => !x.closest("#ad-top") && !x.closest("#adt-pan") && !x.disabled);
+  const real = reales.find(x => x.closest(".ag-main-tabs, .pa-main-tabs, .rep-main-tabs")) || reales.find(x => x.offsetParent);
+  if (real && act !== "ad-local" && act !== "ad-oscuro") { real.click(); window.scrollTo(0, 0); return; }
+  const t = document.createElement("button"); t.type = "button"; t.dataset.act = act; Object.assign(t.dataset, extra || {}); t.hidden = true; document.body.appendChild(t); t.click(); t.remove(); window.scrollTo(0, 0); };
 const adtIr = l => adtClic("ad-local", { l });
 const ADT_PORT = {
   admin: { quick: [["bus", "Buscar", () => adtClic("adbq-abrir")], ["agp", "Crear pedido", () => adtIr("agp")]],
@@ -19257,6 +19262,8 @@ const ADT_PORT = {
     conf: [["👤", "Mi perfil", () => adtClic("cli-tab", { t: "perf" })], ["🧾", "Mis pedidos", () => adtClic("cli-tab", { t: "mis" })], ["❤️", "Mis favoritos", () => adtClic("cli-favs")], ["🧺", "Grilla productos", () => adtClic("cli-grilla")]] },
   papas: { quick: [["pos", "Punto de venta", () => adtClic("papas-tab", { t: "pv" })], ["ped", "Pedidos diarios", () => adtClic("papas-tab", { t: "ped" })]],
     conf: [["👤", "Mi perfil", () => adtClic("papas-tab", { t: "perfil" })], ["➕", "Ingresar producción", () => adtClic("papas-tab", { t: "prod" })], ["📦", "Inventario producción", () => adtClic("papas-tab", { t: "disp" })], ["🥔", "Inventario sacos", () => adtClic("papas-tab", { t: "stock" })]] },
+  repartidor: { quick: [["ped", "Últimos pedidos", () => adtClic("rep-tab", { t: "ultimos" })], ["bus", "Buscar pedidos", () => adtClic("rep-tab", { t: "buscar" })]],
+    conf: [["👤", "Mi perfil", () => { const p = document.querySelector(".bar-perfil"); if (p) p.click(); }], ["📥", "Por tomar", () => adtClic("rep-tab", { t: "tomar" })], ["🛵", "En camino", () => adtClic("rep-tab", { t: "mios" })], ["🗺️", "Modo ruta", () => adtClic("rep-tab", { t: "tdisp" })], ["🫙", "Bidones prestados", () => adtClic("rep-tab", { t: "bidpend" })]] },
   agua: { quick: [["pos", "Punto de venta", () => adtClic("agua-tab", { t: "pv" })], ["ped", "Pedidos diarios", () => adtClic("agua-tab", { t: "pdped" })]],
     conf: [["👤", "Mi perfil", () => adtClic("agua-tab", { t: "perfil" })], ["➕", "Ingresar producción", () => adtClic("agua-tab", { t: "agregar" })], ["📦", "Inventario producción", () => adtClic("agua-tab", { t: "stock" })], ["📤", "Retiro de producto", () => adtClic("agua-tab", { t: "retiro" })]] }
 };
@@ -19271,6 +19278,12 @@ function adtNotis() {
     const camino = mios.filter(p => p.estado === "en_camino"), prox = mios.filter(p => p.estado === "pendiente").sort((a, b) => String(a.fechaEntrega).localeCompare(String(b.fechaEntrega))).slice(0, 10);
     const entreg = mios.filter(p => p.estado === "entregado" && (Number(p.entregadoEn || p.actualizado || p.creado) || 0) > ahora - 72 * 3600e3).slice(0, 10);
     return { cli: true, camino, prox, entreg, n: camino.length };
+  }
+  if (P === "repartidor") {
+    const yo = S.ses.repartidor || {}, mio = p => p.repartidorId && (p.repartidorId === yo.id || p.repartidorId === yo.nombre);
+    const porTomar = ps.filter(p => p.fechaEntrega === h && p.estado === "pendiente" && !p.repartidorId);
+    const camino = ps.filter(p => p.estado === "en_camino" && mio(p));
+    return { rep: true, porTomar, camino, n: porTomar.length };
   }
   const nuevos = ps.filter(p => p.estado !== "cancelado" && adtFam(p) && (P !== "admin" || !p.origen || p.origen === "cliente") && (Number(p.creado) || 0) > ahora - 48 * 3600e3).sort((a, b) => (b.creado || 0) - (a.creado || 0)).slice(0, 15);
   const pagos = P === "admin" ? ps.filter(p => p.estado !== "cancelado" && p.pagoCliente && !p.pagoAdmin).sort((a, b) => (b.pagoClienteEn || 0) - (a.pagoClienteEn || 0)).slice(0, 15) : [];
@@ -19296,11 +19309,15 @@ function adtPintar() {
 }
 function adtNotiHTML() {
   const x = adtNotis(), v = ADT.vistoAntes || 0, P = S.portal;
-  const it = (p, ico, txt, ir, nuevo, sub) => `<li><button type="button" data-adt-ir="${ir}" class="${nuevo ? "nuevo" : ""}"><span class="adt-i" aria-hidden="true">${ico}</span><span><b>${esc(txt)}</b><small>${esc(sub != null ? sub : (p.clienteNombre || ""))}${p.total ? " · " + clp(p.total) : ""}</small></span></button></li>`;
+  const it = (p, ico, txt, ir, nuevo, sub) => `<li><button type="button" data-adt-ir="${ir}" class="${nuevo ? "nuevo" : ""}"><span class="adt-i" aria-hidden="true">${ico}</span><span><b>${esc(txt)}</b><small>${esc(sub != null ? sub : (p.clienteNombre || ""))}${p.total && P === "admin" ? " · " + clp(p.total) : ""}</small></span></button></li>`;
   const sec = (t, xs) => xs.length ? `<h4>${t}</h4><ul class="adt-l">${xs.join("")}</ul>` : "";
   const avisos = `<div class="adt-avisos">${typeof avisosBtnHTML === "function" ? avisosBtnHTML() : ""}</div>`;
   let html;
-  if (x.cli) {
+  if (x.rep) {
+    const dir = p => [p.clienteNombre, p.direccion].filter(Boolean).join(" · ");
+    html = sec(`📥 Por tomar hoy (${x.porTomar.length})`, x.porTomar.slice(0, 20).map(p => it(p, "📥", `Entrega ${p.hDesde ? p.hDesde + "–" + (p.hHasta || "") : "hoy"}`, "tomar", false, dir(p))))
+      + sec(`🛵 Mis pedidos en camino (${x.camino.length})`, x.camino.map(p => it(p, "🛵", `Entrega ${p.hDesde ? p.hDesde + "–" + (p.hHasta || "") : "hoy"}`, "mios", false, dir(p))));
+  } else if (x.cli) {
     const num = p => `Pedido N° ${Number(p.numCliente) || "–"}`;
     html = sec(`🛵 En camino (${x.camino.length})`, x.camino.map(p => it(p, "🛵", "Tu pedido va en camino", "mis", true, num(p))))
       + sec("📅 Próximos pedidos", x.prox.map(p => it(p, "🧾", `Entrega ${fmtFecha(p.fechaEntrega)}${p.hDesde ? ` · ${p.hDesde}–${p.hHasta || ""}` : ""}`, "mis", false, num(p))))
@@ -19319,6 +19336,7 @@ function adtIrA(dest) {
   const P = S.portal;
   if (P === "admin") return adtIr(dest);
   if (P === "cliente") return adtClic("cli-tab", { t: "mis" });
+  if (P === "repartidor") return adtClic("rep-tab", { t: dest === "mios" ? "mios" : "tomar" });
   if (P === "papas") return adtClic("papas-tab", { t: "ped" });
   if (P === "agua") return adtClic("agua-tab", { t: "pdped" });
 }
