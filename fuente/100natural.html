@@ -4331,6 +4331,7 @@ function cpwPaso1HTML() {
     ${lista.length ? `<div class="wz-cont"><span>Tu pedido: <b>${esc(cuentaTxt(lista))}</b></span><button type="button" class="btn primario" data-act="cpw-ir" data-p="3">Continuar con mi pedido ›</button></div>` : ""}${sw}`;
 }
 function cpwNav2HTML() {
+  if (CPW.grupo === "fav") return ""; /* Mis favoritos: solo la ventanita con «Sacar» y «Siguiente» */
   if (cpwEsProx(CPW.grupo)) return `<div class="wz-nav"><button type="button" class="btn suave wz-sig" data-act="cpw-ir" data-p="1">‹ Volver a elegir agua o papas</button></div>`;
   const otro = cpwGrupos().find(g => g[0] !== CPW.grupo);
   return `<div class="wz-nav">${otro ? `<button type="button" class="btn suave" data-act="cpw-grupo" data-g="${otro[0]}">＋ Agregar ${otro[2].toLowerCase()}</button>` : "<span></span>"}<button type="button" class="btn primario wz-sig" data-act="cpw-ir" data-p="3">Siguiente ›</button></div>`;
