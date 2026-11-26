@@ -5860,7 +5860,7 @@ function cliIniPintar() {
   const ini = S.cliTab === "inicio";
   const cur = ini ? bar.querySelector(".bar-inicio") : S.cliTab === "sec" ? (S.cliSec ? bar.querySelector(`[data-act="${S.cliSec}"]`) : null) : bar.querySelector(`[data-act="cli-tab"][data-t="${S.cliTab}"]`);
   const sv = cur && cur.querySelector("svg"), nom = ini ? "Inicio" : cur ? (cur.querySelector(".rep-tt") || cur).textContent.trim() : "";
-  const h = nom ? `<div class="ini-row"><button type="button" class="nav-volver" data-act="nav-volver" ${(NAVH[S.portal] || []).length > 1 || !ini ? "" : "hidden"}><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button><button type="button" class="ini-tit cli-sec-btn" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true">${sv ? sv.outerHTML : ""}</span><span class="rep-tt">${esc(nom)}</span></button></div>` : "";
+  const h = nom ? `<div class="ini-row"><button type="button" class="nav-volver" data-act="nav-volver" ${!ini ? "" : "hidden"}><span class="rep-ti" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span><span class="rep-tt">Volver</span></button><button type="button" class="ini-tit cli-sec-btn" data-act="cli-inicio"><span class="rep-ti" aria-hidden="true">${sv ? sv.outerHTML : ""}</span><span class="rep-tt">${esc(nom)}</span></button></div>` : "";
   if (tit.dataset.h !== h) { tit.dataset.h = h; tit.innerHTML = h; }
   document.querySelectorAll(".cli-tabs .bar-inicio").forEach(b => { if (b.getAttribute("aria-selected") !== String(ini)) b.setAttribute("aria-selected", String(ini)); });
   if (pi && ini) {
@@ -10088,7 +10088,7 @@ function navEntrada(b) {
   const pre = b.closest(".ad-barra") ? ".ad-barra " : b.closest(".cli-tabs, #panel-ini") ? ".cli-tabs " : "";
   return { key, sel: pre + key };
 }
-function navVolverPintar() { const n = (NAVH[S.portal] || []).length > 1 || ((S.portal === "cliente" || S.portal === "cfd") && S.cliTab !== "inicio"); document.querySelectorAll(".nav-volver").forEach(v => { if (v.hidden === n) v.hidden = !n; }); }
+function navVolverPintar() { const hh = NAVH[S.portal] || [], cli = S.portal === "cliente" || S.portal === "cfd", enIni = cli ? S.cliTab === "inicio" : !hh.length || hh[hh.length - 1].key === "inicio"; /* en la página de inicio nunca se muestra «Volver» */ const n = !enIni && (hh.length > 1 || cli); document.querySelectorAll(".nav-volver").forEach(v => { if (v.hidden === n) v.hidden = !n; }); }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-act]"); if (!b) return;
   if (b.dataset.act === "nav-volver") {
