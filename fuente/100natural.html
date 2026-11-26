@@ -15035,7 +15035,8 @@ function edFormNuevo(p) {
   const its = {}; for (const i of items(p)) if (PROD[i.id]) its[i.id] = (its[i.id] || 0) + (Number(i.cant) || 0);
   const [hd, hh] = String(p.horario || "10:00–18:00").split(/[–-]/);
   const dev = {}; for (const t of TAM_BIDON) { const b = (p.bidones || {})[t]; if (b) dev[t] = Number(b.devueltos) || 0; }
-  return { dev, items: its, fecha: p.fechaEntrega || hoy(), hDesde: (hd || "10:00").trim().slice(0, 5), hHasta: (hh || "18:00").trim().slice(0, 5), direccion: p.direccion || "", depto: p.depto || "", comuna: p.comuna || "", telefono: p.telefono || "", nota: p.nota || "", cupon: p.cupon || "", pago: p.pago || "Transferencia", rep: p.repartidorId || "", repNom0: p.repartidorNombre || "" };
+  const precios = {}; for (const i of items(p)) if (PROD[i.id] && precios[i.id] === undefined) precios[i.id] = Math.round(Number(i.precio) || 0);
+  return { dev, precios, items: its, fecha: p.fechaEntrega || hoy(), hDesde: (hd || "10:00").trim().slice(0, 5), hHasta: (hh || "18:00").trim().slice(0, 5), direccion: p.direccion || "", depto: p.depto || "", comuna: p.comuna || "", telefono: p.telefono || "", nota: p.nota || "", cupon: p.cupon || "", pago: p.pago || "Transferencia", rep: p.repartidorId || "", repNom0: p.repartidorNombre || "" };
 }
 function edRepOpts(f) {
   subUsuarios();
@@ -15054,13 +15055,25 @@ function edDevHTML(f, id) {
     ${ts.map(t => { if (f.dev[t] === undefined) f.dev[t] = nb[t] || 0; const d = f.dev[t], pend = (nb[t] || 0) - d; return `<div class="bid-fila pg-fila on"><span class="bid-tit">Bidón ${t} L<small>Pide ${fmtN(nb[t] || 0)} · ${pend > 0 ? `${fmtN(pend)} sin devolver (+${clp(pend * VALOR_BIDON)})` : pend < 0 ? `devuelve ${fmtN(-pend)} de más (−${clp(-pend * VALOR_BIDON)})` : "devuelve todos"}</small></span><div class="bid-step"><button type="button" data-act="ed-dev" data-id="${id}" data-t="${t}" data-d="-1" aria-label="Uno menos" ${d > 0 ? "" : "disabled"}>−</button><b>${fmtN(d)}</b><button type="button" data-act="ed-dev" data-id="${id}" data-t="${t}" data-d="1" aria-label="Uno más">+</button></div></div>`; }).join("")}
   </fieldset>`;
 }
+/* Precio unitario de cada producto al editar un pedido (el administrador lo puede cambiar). */
+function edPrecioHTML(f, x, q) {
+  f.precios = f.precios || {}; const v = f.precios[x], n = esc(etiqueta(PROD[x]));
+  return `<div class="ed-pr"><label><span>Precio unitario $</span><input type="number" class="ed-pr-in" data-p="${x}" inputmode="numeric" min="0" step="1" value="${v != null && v !== "" ? esc(v) : ""}" placeholder="Precio de lista" aria-label="Precio unitario de ${n}"></label><small class="ed-pr-sub" data-p="${x}">${v != null && v !== "" ? `Subtotal <b>${clp(Number(v) * q)}</b>` : "Se usa el precio del cliente"}</small></div>`;
+}
+document.addEventListener("input", e => {
+  const i = e.target; if (!i.classList || !i.classList.contains("ed-pr-in") || !S.edF) return;
+  const x = i.dataset.p, v = i.value.trim(); S.edF.precios = S.edF.precios || {};
+  if (v === "") delete S.edF.precios[x]; else S.edF.precios[x] = Math.max(0, Math.round(Number(v) || 0));
+  const s = i.closest(".ed-pr") && i.closest(".ed-pr").querySelector(".ed-pr-sub"), q = S.edF.items[x] || 0;
+  if (s) s.innerHTML = v === "" ? "Se usa el precio del cliente" : `Subtotal <b>${clp(S.edF.precios[x] * q)}</b>`;
+});
 function edPedHTML(p) {
   const f = S.edF, id = esc(p.id); if (f.sinBoleta === undefined) f.sinBoleta = !!p.sinBoleta;
   const sel = ORDEN.filter(x => f.items[x] > 0), otros = ORDEN.filter(x => !(f.items[x] > 0));
   return `<form class="form pg-form ed-ped" id="ed-ped-${id}" novalidate>
     <h3 class="sec">Editar pedido #${esc(codigo(p.id))}</h3>
     <fieldset class="campo pg-prods"><legend>Productos</legend>
-      ${sel.map(x => { const pr = PROD[x], q = f.items[x]; return `<div class="bid-fila pg-fila on"><span class="bid-tit">${esc(etiqueta(pr))}<small>${esc(detalle(pr))}</small></span><div class="bid-step"><button type="button" data-act="ed-q" data-id="${id}" data-p="${x}" data-d="-1" aria-label="Uno menos">−</button><b>${q}</b><button type="button" data-act="ed-q" data-id="${id}" data-p="${x}" data-d="1" aria-label="Uno más">+</button></div></div>`; }).join("") || `<p class="muted">Sin productos.</p>`}
+      ${sel.map(x => { const pr = PROD[x], q = f.items[x]; return `<div class="bid-fila pg-fila on"><span class="bid-tit">${esc(etiqueta(pr))}<small>${esc(detalle(pr))}</small></span><div class="bid-step"><button type="button" data-act="ed-q" data-id="${id}" data-p="${x}" data-d="-1" aria-label="Uno menos">−</button><b>${q}</b><button type="button" data-act="ed-q" data-id="${id}" data-p="${x}" data-d="1" aria-label="Uno más">+</button></div>${edPrecioHTML(f, x, q)}</div>`; }).join("") || `<p class="muted">Sin productos.</p>`}
       ${otros.length ? `<label class="campo ed-add"><span>Agregar producto</span><select class="ed-add-sel" data-id="${id}"><option value="">Elegir…</option>${otros.map(x => `<option value="${x}">${esc(etiqueta(PROD[x]))} · ${esc(detalle(PROD[x]))}</option>`).join("")}</select></label>` : ""}
     </fieldset>
     ${edDevHTML(f, id)}
@@ -15100,6 +15113,7 @@ async function edGuardar(id, btn) {
     if (d.clienteId) { try { const cs = await conReintento(() => S.db.doc("clientes/" + d.clienteId).get()); if (cs.exists) { prCli = cs.data().precios || {}; sinIva = !!cs.data().sinIva; } } catch (_) {} }
     const prev = {}; for (const i of d.items || []) if (!prev[i.id]) prev[i.id] = i;
     const its = lista.map(x => prev[x] ? Object.assign({}, prev[x], { cant: f.items[x] }) : { id: x, nombre: etiqueta(PROD[x]), detalle: detalle(PROD[x]), precio: precioCli(x, prCli, sinIva, d.clienteTipo || ""), cant: f.items[x] });
+    for (const it of its) { const v = (f.precios || {})[it.id]; if (v != null && v !== "") it.precio = Math.max(0, Math.round(Number(v) || 0)); }
     let bid = d.bidones && typeof d.bidones === "object" ? JSON.parse(JSON.stringify(d.bidones)) : {};
     const nb = {}; for (const i of its) { const t = bidonTam(i.id); if (t) nb[t] = (nb[t] || 0) + i.cant; }
     let cargo = 0, hay = false;
@@ -20354,7 +20368,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-t0{background:#e0f2fe;border-color:#7dd3fc}.jg-t1{background:#fef3c7;border-color:#fcd34d}.jg-t2{background:#dcfce7;border-color:#86efac}.jg-c.resto .jg-frente{filter:saturate(.55);opacity:.85}.jg-c.elegida .jg-frente{border-color:#7c3aed}.jg-c.gano .jg-frente{border-color:#f59e0b;background:#fffbeb;animation:jg-brillo 1s ease-in-out 3}@keyframes jg-brillo{50%{box-shadow:0 0 0 4px #fde68a,0 0 22px #f59e0b}}
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
-.jg-ad-prods{display:grid;gap:6px}.jg-tr-bono{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#e0f2fe);color:#4c1d95;font-size:.9rem}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
+.jg-ad-prods{display:grid;gap:6px}.ed-ped .pg-fila{flex-wrap:wrap}.ed-pr{flex-basis:100%;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:6px}.ed-pr label{display:grid;gap:2px;font-size:.78rem;font-weight:700;color:var(--muted)}.ed-pr input{width:130px;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;font:inherit;font-weight:700;font-size:1rem;background:var(--surface);color:var(--ink)}.ed-pr-sub{color:var(--muted);font-size:.8rem;text-align:right}.jg-tr-bono{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#e0f2fe);color:#4c1d95;font-size:.9rem}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
 .gri-chips{display:flex;gap:8px;overflow-x:auto;margin:0 -4px 6px;padding:4px 4px 8px;scrollbar-width:none;position:sticky;top:0;z-index:4;background:linear-gradient(var(--bg,#eef2f6) 80%,transparent)}.gri-chips::-webkit-scrollbar{display:none}
 .gri-chips button{flex:none;display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-weight:700;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
 .gri-chips button small{padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:.72rem}.gri-chips button[aria-pressed="true"]{background:#0f766e;border-color:#0f766e;color:#fff}.gri-chips button[aria-pressed="true"] small{background:rgba(255,255,255,.22);color:#fff}
