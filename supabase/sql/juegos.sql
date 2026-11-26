@@ -41,20 +41,26 @@ begin
     'racha', jsonb_build_object('activo', coalesce((c->'racha'->>'activo')::boolean, true), 'meta', meta, 'premio', c->'racha'->>'premio',
       'semanas', (r->>'semanas')::int, 'estaSemana', (r->>'estaSemana')::boolean, 'listo', (r->>'semanas')::int >= meta));
 end $$;
-create or replace function public.juego_estado() returns jsonb language plpgsql security definer set search_path to 'public' as $$
-declare cid text := privado.dato('cuenta'); s jsonb;
+drop function if exists public.juego_estado(); drop function if exists public.juego_jugar(text); drop function if exists public.juego_jugar(); drop function if exists public.juego_racha(); drop function if exists public.juego_canjear(text[], text);
+-- Cliente que juega: el de la sesión (portal Clientes) o, si entra el personal viendo la página de un cliente, ese cliente.
+create or replace function privado.juego_cid(p_cliente text) returns text language plpgsql stable security definer set search_path to 'public' as $$
+declare p text := privado.dato('portal'); yo text := privado.dato('cuenta');
 begin
-  if privado.dato('portal') <> 'cliente' or cid is null then raise exception 'Solo clientes' using errcode = 'P0001'; end if;
+  if p = 'cliente' and yo is not null then return yo; end if;
+  if privado.es_personal() and p_cliente is not null and exists (select 1 from documentos where coleccion = 'clientes' and id = p_cliente) then return p_cliente; end if;
+  raise exception 'Solo clientes' using errcode = 'P0001';
+end $$;
+create or replace function public.juego_estado(p_cliente text default null) returns jsonb language plpgsql security definer set search_path to 'public' as $$
+declare cid text := privado.juego_cid(p_cliente); s jsonb;
+begin
   s := privado.juego_saldo(cid);
   return s || jsonb_build_object('local', privado.cliente_es_local(cid), 'ganados', coalesce((select jsonb_agg(jsonb_build_object('id', id) || data order by data->>'en' desc) from documentos
      where coleccion = 'juegos' and data->>'clienteId' = cid and (data->>'gano')::boolean), '[]'::jsonb));
 end $$;
-drop function if exists public.juego_jugar();
-create or replace function public.juego_jugar(tipo text default 'figuritas') returns jsonb language plpgsql security definer set search_path to 'public' as $$
-declare cid text := privado.dato('cuenta'); s jsonb; c jsonb := privado.juego_cfg(); gano boolean; prod text; ps jsonb; nid text; prob numeric;
+create or replace function public.juego_jugar(tipo text default 'figuritas', p_cliente text default null) returns jsonb language plpgsql security definer set search_path to 'public' as $$
+declare cid text := privado.juego_cid(p_cliente); s jsonb; c jsonb := privado.juego_cfg(); gano boolean; prod text; ps jsonb; nid text; prob numeric;
   ahora bigint := (extract(epoch from now()) * 1000)::bigint; act date := privado.juego_lunes(privado.juego_hoy());
 begin
-  if privado.dato('portal') <> 'cliente' or cid is null then raise exception 'Solo clientes' using errcode = 'P0001'; end if;
   if privado.cliente_es_local(cid) then raise exception 'Los juegos son para clientes particulares' using errcode = 'P0001'; end if;
   if tipo not in ('figuritas', 'ruleta', 'raspa') then raise exception 'Juego no válido' using errcode = 'P0001'; end if;
   perform pg_advisory_xact_lock(hashtext('juego_' || cid));
@@ -80,10 +86,9 @@ begin
     'fecha', privado.juego_hoy()::text, 'semana', act::text, 'estado', case when gano then 'pendiente' else null end));
   return jsonb_build_object('id', nid, 'gano', gano, 'prod', prod);
 end $$;
-create or replace function public.juego_racha() returns jsonb language plpgsql security definer set search_path to 'public' as $$
-declare cid text := privado.dato('cuenta'); c jsonb := privado.juego_cfg(); r jsonb; meta int; prod text; nid text; ahora bigint := (extract(epoch from now()) * 1000)::bigint;
+create or replace function public.juego_racha(p_cliente text default null) returns jsonb language plpgsql security definer set search_path to 'public' as $$
+declare cid text := privado.juego_cid(p_cliente); c jsonb := privado.juego_cfg(); r jsonb; meta int; prod text; nid text; ahora bigint := (extract(epoch from now()) * 1000)::bigint;
 begin
-  if privado.dato('portal') <> 'cliente' or cid is null then raise exception 'Solo clientes' using errcode = 'P0001'; end if;
   if privado.cliente_es_local(cid) then raise exception 'Los juegos son para clientes particulares' using errcode = 'P0001'; end if;
   if not coalesce((c->'racha'->>'activo')::boolean, true) then raise exception 'La racha no está disponible' using errcode = 'P0001'; end if;
   perform pg_advisory_xact_lock(hashtext('juego_' || cid));
@@ -94,17 +99,16 @@ begin
     'fecha', privado.juego_hoy()::text, 'semana', r->>'tope', 'estado', 'pendiente'));
   return jsonb_build_object('id', nid, 'gano', true, 'prod', prod);
 end $$;
-create or replace function public.juego_canjear(ids text[], pedido text) returns int language plpgsql security definer set search_path to 'public' as $$
-declare cid text := privado.dato('cuenta'); n int;
+create or replace function public.juego_canjear(ids text[], pedido text, p_cliente text default null) returns int language plpgsql security definer set search_path to 'public' as $$
+declare cid text := privado.juego_cid(p_cliente); n int;
 begin
-  if privado.dato('portal') <> 'cliente' or cid is null then return 0; end if;
   if not exists (select 1 from documentos where coleccion = 'pedidos' and id = pedido and data->>'clienteId' = cid) then return 0; end if;
   update documentos set data = data || jsonb_build_object('estado', 'canjeado', 'pedido', pedido, 'canjeadoEn', (extract(epoch from now()) * 1000)::bigint)
    where coleccion = 'juegos' and id = any(ids) and data->>'clienteId' = cid and data->>'estado' = 'pendiente';
   get diagnostics n = row_count; return n;
 end $$;
-revoke all on function public.juego_estado(), public.juego_jugar(text), public.juego_racha(), public.juego_canjear(text[], text) from public;
-grant execute on function public.juego_estado(), public.juego_jugar(text), public.juego_racha(), public.juego_canjear(text[], text) to anon, authenticated;
+revoke all on function public.juego_estado(text), public.juego_jugar(text, text), public.juego_racha(text), public.juego_canjear(text[], text, text) from public;
+grant execute on function public.juego_estado(text), public.juego_jugar(text, text), public.juego_racha(text), public.juego_canjear(text[], text, text) to anon, authenticated;
 -- Los clientes no escriben ni leen «juegos» directamente: todo va por las funciones de arriba.
 create or replace function privado.es_propio(c text, i text, d jsonb)
  returns boolean language plpgsql stable set search_path to 'public' as $function$
