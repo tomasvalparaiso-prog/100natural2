@@ -1,7 +1,7 @@
 -- Juegos (Figuritas, Ruleta, Raspa y gana, Racha de pedidos): todo pasa por estas funciones (el cliente no puede escribir «juegos»).
 create or replace function privado.juego_cfg() returns jsonb language plpgsql stable security definer set search_path to 'public' as $$
 declare d jsonb := jsonb_build_object('activo', true, 'prob', 0.05, 'cada', 1000, 'jugadas', 1, 'premios', '["ap20","p1b12","p1g"]'::jsonb, 'desde', 0,
-  'ruleta', '{"activo":true,"prob":0.1,"cada":1000}'::jsonb, 'raspa', '{"activo":true,"prob":0.15}'::jsonb, 'racha', '{"activo":true,"semanas":4,"premio":"ap20"}'::jsonb);
+  'ruleta', '{"activo":true,"prob":0.1,"cada":1000,"bonoTransf":3}'::jsonb, 'raspa', '{"activo":true,"prob":0.15}'::jsonb, 'racha', '{"activo":true,"semanas":4,"premio":"ap20"}'::jsonb);
   c jsonb := coalesce((select data from documentos where coleccion = 'config' and id = 'juego'), '{}'::jsonb);
 begin
   return d || c || jsonb_build_object('ruleta', (d->'ruleta') || coalesce(c->'ruleta', '{}'), 'raspa', (d->'raspa') || coalesce(c->'raspa', '{}'), 'racha', (d->'racha') || coalesce(c->'racha', '{}'));
@@ -23,20 +23,21 @@ begin
   return jsonb_build_object('semanas', n, 'tope', tope, 'estaSemana', esta);
 end $$;
 create or replace function privado.juego_saldo(cid text) returns jsonb language plpgsql stable security definer set search_path to 'public' as $$
-declare c jsonb := privado.juego_cfg(); compras numeric; npeds int; usadas int; nras int; nrul int; crul numeric; cada numeric; porc int; total int; act date := privado.juego_lunes(privado.juego_hoy()); r jsonb; meta int;
+declare c jsonb := privado.juego_cfg(); compras numeric; npeds int; ntr int; bt int; trul int; usadas int; nras int; nrul int; crul numeric; cada numeric; porc int; total int; act date := privado.juego_lunes(privado.juego_hoy()); r jsonb; meta int;
 begin
-  select coalesce(sum(nullif(data->>'total', '')::numeric), 0), count(*) into compras, npeds from documentos
+  select coalesce(sum(nullif(data->>'total', '')::numeric), 0), count(*), count(*) filter (where data->>'pago' = 'Transferencia') into compras, npeds, ntr from documentos
    where coleccion = 'pedidos' and data->>'clienteId' = cid and data->>'estado' = 'entregado'
      and coalesce(nullif(data->>'creado', '')::numeric, 0) >= coalesce((c->>'desde')::numeric, 0);
   select count(*) filter (where coalesce(data->>'tipo', 'figuritas') = 'figuritas'), count(*) filter (where data->>'tipo' = 'raspa'),
          count(*) filter (where data->>'tipo' = 'ruleta')
     into usadas, nras, nrul from documentos where coleccion = 'juegos' and data->>'clienteId' = cid;
   cada := greatest(1, coalesce((c->>'cada')::numeric, 1000)); porc := greatest(1, coalesce((c->>'jugadas')::int, 1));
-  total := floor(compras / cada)::int * porc; crul := greatest(1, coalesce((c->'ruleta'->>'cada')::numeric, 1000)); r := privado.juego_racha_de(cid); meta := greatest(2, coalesce((c->'racha'->>'semanas')::int, 4));
+  total := floor(compras / cada)::int * porc; crul := greatest(1, coalesce((c->'ruleta'->>'cada')::numeric, 1000));
+  bt := greatest(0, coalesce((c->'ruleta'->>'bonoTransf')::int, 3)); trul := floor(compras / crul)::int + bt * ntr; r := privado.juego_racha_de(cid); meta := greatest(2, coalesce((c->'racha'->>'semanas')::int, 4));
   return jsonb_build_object('compras', compras, 'total', total, 'usadas', usadas, 'restantes', greatest(0, total - usadas),
     'falta', cada - mod(compras, cada), 'cada', cada, 'porCompra', porc, 'activo', coalesce((c->>'activo')::boolean, true), 'premios', c->'premios',
-    'ruleta', jsonb_build_object('activo', coalesce((c->'ruleta'->>'activo')::boolean, true), 'cada', crul, 'total', floor(compras / crul)::int,
-      'restantes', greatest(0, floor(compras / crul)::int - nrul), 'falta', crul - mod(compras, crul)),
+    'ruleta', jsonb_build_object('activo', coalesce((c->'ruleta'->>'activo')::boolean, true), 'cada', crul, 'bonoTransf', bt, 'total', trul,
+      'restantes', greatest(0, trul - nrul), 'falta', crul - mod(compras, crul)),
     'raspa', jsonb_build_object('activo', coalesce((c->'raspa'->>'activo')::boolean, true), 'total', npeds, 'restantes', greatest(0, npeds - nras)),
     'racha', jsonb_build_object('activo', coalesce((c->'racha'->>'activo')::boolean, true), 'meta', meta, 'premio', c->'racha'->>'premio',
       'semanas', (r->>'semanas')::int, 'estaSemana', (r->>'estaSemana')::boolean, 'listo', (r->>'semanas')::int >= meta));
