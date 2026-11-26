@@ -4261,6 +4261,7 @@ function cpwGrupos() { const cs = catsCliente().filter(x => !PROXIMO.has(x.c.key
 function cpwHeadHTML() {
   const p = CPW.paso, g = CPW_GR.find(x => x[0] === CPW.grupo), gp = cpwEsProx(CPW.grupo);
   if (p === 5) return "";
+  if (p === 2 && CPW.grupo === "fav") return `<div class="wz-head"><div class="wz-tit"><b>❤️ Mis favoritos</b></div></div>`; /* Favoritos: sin «Atrás», sin «Paso 2 de 4» ni puntos */
   const tit = p === 2 && CPW.grupo === "fav" ? "Mis favoritos" : p === 2 && gp ? `${gp[2]} · Próximamente` : p === 2 && g ? ({ agua: "Agua purificada", papa: "Papas al vacío" }[g[0]] || g[2]) : CPW_TIT[p];
   return `<div class="wz-head"><button type="button" class="wz-atras" data-act="cpw-atras" ${p === 1 ? "hidden" : ""} aria-label="${p === 2 && window.__busqVolver ? "Volver a los resultados de la búsqueda" : "Paso anterior"}">${p === 2 && window.__busqVolver ? "‹ Resultados" : "‹ Atrás"}</button>
     <div class="wz-tit"><small>Paso ${p} de 4</small><b>${esc(tit)}</b></div>
@@ -5055,7 +5056,7 @@ function entregaHTML(c) {
             <div class="seg">
               <label><input type="radio" name="pago" id="e-pago-tr" value="Transferencia" checked><span>Transferencia</span></label>
               <label><input type="radio" name="pago" id="e-pago-ef" value="Efectivo"><span>Efectivo</span></label>
-            </div>
+            </div>${(() => { try { const c = jgCfg(); return c.ruleta.activo !== false && Number(c.ruleta.bonoTransf) > 0 ? `<p class="jg-tr-bono">🎡 Paga con <b>transferencia</b> y gana <b>${Number(c.ruleta.bonoTransf)} giros</b> en la ruleta.</p>` : ""; } catch (_) { return ""; } })()}
           </fieldset>`}
           ${`<div class="campo full" id="e-datos-tr"><details class="tr-det"><summary>🏦 Mostrar datos de transferencia</summary>${datosTrHTML()}</details></div>`}
           ${esLocal() || S.editPedido ? "" : `<div class="campo full comp-nuevo" id="e-comp">${compNuevoHTML()}</div>`}
@@ -15959,7 +15960,7 @@ document.addEventListener("click", e => {
   else if (a === "promo-pag-cerrar") { const m = $("#promo-pag"); if (m) m.remove(); }
   else if (a === "cli-musica") { if (window.pyaRadio) window.pyaRadio.abrir("fav"); else toast("La radio no está disponible en esta vista."); }
   else if (a === "cli-favs") { cambiarCliTab("nuevo"); setTimeout(() => { CPW.grupo = "fav"; cpwIr(2, true); const c = $("#catalogo"); if (c) { c.innerHTML = catalogoHTML(); updateCarritoUI(); } window.scrollTo({ top: 0, behavior: "smooth" }); }, 0); }
-  else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
+  else if (a === "cli-tab") { cambiarCliTab(b.dataset.t); if (b.dataset.t === "nuevo" && cpwOn() && CPW.grupo === "fav" && CPW.paso === 2) { CPW.grupo = null; cpwIr(1, true); } /* Crear pedido no queda en «Mis favoritos» */ if (b.closest(".cli2-nav, .cli-tabs")) window.scrollTo({ top: 0, behavior: "smooth" }); }
   else if (a === "fdc-carro") { cambiarCliTab("nuevo"); const e = $("#entrega"); if (e && carritoLista().length) e.scrollIntoView({ block: "start", behavior: "smooth" }); else { toast("Tu pedido está vacío: agrega productos con +."); const t = $("#cli2-todos"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); } }
   else if (a === "cfd-v") { CFD.v = b.dataset.v; try { localStorage.setItem("pya.cfdv", CFD.v); } catch (_) {} renderView(); }
   else if (a === "fdc-ayuda") toast("¿Dudas con tu pedido? Escríbenos por WhatsApp o llama a 100% Natural.");
@@ -18752,7 +18753,7 @@ document.addEventListener("click", e => { const b = e.target.closest && e.target
    (funciones juego_*), así nadie puede ganar haciendo trampa; la app solo lo muestra. Configuración en Administrador › Fidelización › Juegos. */
 const JG = { est: null, cargando: false, err: "", vista: null, board: null, vueltas: [], jugando: false, res: null, cfg: null, adSub: false, adDocs: [], adCargado: false, adEd: null, rot: 0, rul: null, ras: null };
 const JG_DEF = { activo: true, prob: 0.05, cada: 1000, jugadas: 1, premios: ["ap20", "p1b12", "p1g"] };
-const JG_SUB = { ruleta: { activo: true, prob: 0.1, cada: 1000 }, raspa: { activo: true, prob: 0.15 }, racha: { activo: true, semanas: 4, premio: "ap20" } };
+const JG_SUB = { ruleta: { activo: true, prob: 0.1, cada: 1000, bonoTransf: 3 }, raspa: { activo: true, prob: 0.15 }, racha: { activo: true, semanas: 4, premio: "ap20" } };
 const jgRpc = async (fn, args) => { if (!(window.__pya && window.__pya.cliente)) return null; const x = await window.__pya.cliente.rpc(fn, Object.assign({ p_cliente: S.ses.cliente ? S.ses.cliente.id : null }, args || {})); if (x.error) throw new Error(x.error.message || "Error"); return x.data; };
 const jgCfg = () => { const c = Object.assign({}, JG_DEF, JG.cfg || {}); for (const k in JG_SUB) c[k] = Object.assign({}, JG_SUB[k], (JG.cfg || {})[k] || {}); return c; };
 const jgEmo = id => { const p = PROD[id] || {}; return p.fam === "papa" ? (/bast/i.test(p.nombre || "") ? "🍟" : "🥔") : /alcalina/i.test(detalle(p) || "") ? "💎" : "💧"; };
@@ -18777,7 +18778,7 @@ async function jgEstadoLocal() {
   const de = t => docs.filter(d => (d.tipo || "figuritas") === t), total = Math.floor(compras / c.cada) * c.jugadas, sem = jgLunes(hoy());
   const ultR = de("racha").map(d => d.semana || "").sort().pop() || "", r = jgRachaDe(peds.map(p => jgLunes(jgDiaPed(p))), ultR);
   return { compras, total, usadas: de("figuritas").length, restantes: Math.max(0, total - de("figuritas").length), falta: c.cada - (compras % c.cada), cada: c.cada, porCompra: c.jugadas, activo: c.activo !== false, premios: c.premios, local: esLocal(),
-    ruleta: (() => { const cr = Math.max(1, Number(c.ruleta.cada) || 1000), t = Math.floor(compras / cr); return { activo: c.ruleta.activo !== false, cada: cr, total: t, restantes: Math.max(0, t - de("ruleta").length), falta: cr - (compras % cr) }; })(),
+    ruleta: (() => { const cr = Math.max(1, Number(c.ruleta.cada) || 1000), bt = Math.max(0, Number(c.ruleta.bonoTransf) || 0), ntr = peds.filter(p => p.pago === "Transferencia").length, t = Math.floor(compras / cr) + bt * ntr; return { activo: c.ruleta.activo !== false, cada: cr, bonoTransf: bt, total: t, restantes: Math.max(0, t - de("ruleta").length), falta: cr - (compras % cr) }; })(),
     raspa: { activo: c.raspa.activo !== false, total: peds.length, restantes: Math.max(0, peds.length - de("raspa").length) },
     racha: { activo: c.racha.activo !== false, meta: c.racha.semanas, premio: c.racha.premio, semanas: r.n, estaSemana: r.estaSemana, listo: r.n >= c.racha.semanas },
     ganados: docs.filter(d => d.gano).sort((a, b) => (b.en || 0) - (a.en || 0)) };
@@ -18906,7 +18907,7 @@ function jgRulHTML(e) {
   const st = JG.rul || (JG.rul = { segs: jgRulSeg() }), res = st.res;
   const pr = jgPrueba("rul"), q = pr || r.restantes;
   return `${jgpBanner("rul")}<div class="jg-saldo jg-saldo-1"><div><small>Giros disponibles</small><b>${fmtN(r.restantes)}</b></div></div>
-    <p class="muted-s jg-regla">Por cada <b>${clp(r.cada)}</b> en pedidos entregados tienes <b>1 giro</b>. Si la ruleta para en un producto, ¡te lo ganas!${r.restantes ? "" : ` Te faltan <b>${clp(r.falta)}</b> para tu próximo giro.`}</p>
+    <p class="muted-s jg-regla">Por cada <b>${clp(r.cada)}</b> en pedidos entregados tienes <b>1 giro</b>${r.bonoTransf ? `, y por cada pedido pagado con <b>transferencia</b> ganas <b>${r.bonoTransf} giros</b> más` : ""}. Si la ruleta para en un producto, ¡te lo ganas!${r.restantes ? "" : ` Te faltan <b>${clp(r.falta)}</b> para tu próximo giro.`}</p>
     <div class="jg-rueda"><div class="jg-flecha" aria-hidden="true">▼</div><div class="jg-rueda-in" style="transform:rotate(${JG.rot}deg)">${jgRuedaSVG(st.segs)}</div></div>
     ${res && res.prueba ? jgpRes(res, `La ruleta paró en ${esc(jgNom(res.prod))}.`) : res ? (res.gano ? `<div class="jg-res gano">🎉 <b>¡Ganaste ${esc(jgNom(res.prod))}!</b><br>Se agrega gratis a tu próximo pedido.</div>` : `<div class="jg-res">🍀 Esta vez no hubo premio. ${q ? "¡Gira otra vez!" : "¡Suerte la próxima!"}</div>`) : ""}
     ${!st.girando && q ? `<button type="button" class="btn primario jg-otra" data-act="jg-girar">🎡 ${pr ? `Giro de prueba (${pr})` : `${res ? "Girar otra vez" : "Girar la ruleta"} (${fmtN(q)})`}</button>` : ""}
@@ -19015,7 +19016,7 @@ function subJgAd() { subJgCfg(); if (JG.adSub || !S.db) return; JG.adSub = true;
 function jgAdHTML() {
   const c = jgCfg(), pc = x => Math.round((Number(x) || 0) * 1000) / 10;
   const f = JG.adEd || (JG.adEd = { activo: c.activo !== false, prob: pc(c.prob), cada: c.cada, jugadas: c.jugadas, premios: (c.premios || []).slice(),
-    rulA: c.ruleta.activo !== false, rulP: pc(c.ruleta.prob), rulC: c.ruleta.cada, rasA: c.raspa.activo !== false, rasP: pc(c.raspa.prob), racA: c.racha.activo !== false, racS: c.racha.semanas, racPr: c.racha.premio });
+    rulA: c.ruleta.activo !== false, rulP: pc(c.ruleta.prob), rulC: c.ruleta.cada, rulB: c.ruleta.bonoTransf, rasA: c.raspa.activo !== false, rasP: pc(c.raspa.prob), racA: c.racha.activo !== false, racS: c.racha.semanas, racPr: c.racha.premio });
   const ds = JG.adDocs, gan = ds.filter(d => d.gano).sort((a, b) => (b.en || 0) - (a.en || 0)), clis = new Map(((AD.clientes || []).concat((US.data && US.data.clientes) || [])).map(x => [x.id, x.nombre]));
   const prods = ORDEN.filter(id => PROD[id] && !PROX_IDS.has(id)), cnt = t => ds.filter(d => (d.tipo || "figuritas") === t).length;
   const pcCampo = (id, v, lbl) => `<label class="campo"><span>${lbl}</span><input id="${id}" type="number" min="0" max="100" step="0.5" inputmode="decimal" value="${esc(v)}"><small class="muted-s">${v > 0 ? `≈ 1 de cada ${Math.round(100 / v)} gana.` : "Nadie gana."}</small></label>`;
@@ -19027,7 +19028,7 @@ function jgAdHTML() {
         <div class="pg-2"><label class="campo"><span>Compras para jugar ($)</span><input id="jg-cada" type="number" min="100" step="100" inputmode="numeric" value="${esc(f.cada)}"></label><label class="campo"><span>Jugadas por ese monto</span><input id="jg-jug" type="number" min="1" max="20" inputmode="numeric" value="${esc(f.jugadas)}"></label></div>
         ${pcCampo("jg-prob", f.prob, "Probabilidad de ganar por jugada (%)")}</fieldset>
       <fieldset class="campo jg-ad-f"><legend>🎡 Ruleta <small class="muted-s">(${fmtN(cnt("ruleta"))} giros)</small></legend>
-        <label class="neon-chk"><input type="checkbox" id="jg-rul-a" ${f.rulA ? "checked" : ""}> Activa</label><label class="campo"><span>Compras por cada giro ($)</span><input id="jg-rul-c" type="number" min="100" step="100" inputmode="numeric" value="${esc(f.rulC)}"></label>${pcCampo("jg-rul-p", f.rulP, "Probabilidad de ganar por giro (%)")}</fieldset>
+        <label class="neon-chk"><input type="checkbox" id="jg-rul-a" ${f.rulA ? "checked" : ""}> Activa</label><div class="pg-2"><label class="campo"><span>Compras por cada giro ($)</span><input id="jg-rul-c" type="number" min="100" step="100" inputmode="numeric" value="${esc(f.rulC)}"></label><label class="campo"><span>Giros extra por pedido pagado con transferencia</span><input id="jg-rul-b" type="number" min="0" max="20" inputmode="numeric" value="${esc(f.rulB)}"></label></div>${pcCampo("jg-rul-p", f.rulP, "Probabilidad de ganar por giro (%)")}</fieldset>
       <fieldset class="campo jg-ad-f"><legend>🪙 Raspa y gana <small class="muted-s">(${fmtN(cnt("raspa"))} tarjetas)</small></legend><p class="muted-s">1 tarjeta por cada pedido entregado.</p>
         <label class="neon-chk"><input type="checkbox" id="jg-ras-a" ${f.rasA ? "checked" : ""}> Activo</label>${pcCampo("jg-ras-p", f.rasP, "Probabilidad de ganar por tarjeta (%)")}</fieldset>
       <fieldset class="campo jg-ad-f"><legend>🔥 Racha de pedidos <small class="muted-s">(${fmtN(cnt("racha"))} premios)</small></legend><p class="muted-s">Gana quien tiene pedidos entregados en semanas seguidas.</p>
@@ -19042,7 +19043,7 @@ function renderJgAd() { const el = $("#jgad-panel"); if (!el || AD.local !== "ju
 function jgAdLeer() {
   const f = JG.adEd; if (!f) return; const v = id => ($("#" + id) || {}).value, ck = id => !!($("#" + id) || {}).checked, pc = id => Math.max(0, Math.min(100, Number(String(v(id)).replace(",", ".")) || 0));
   f.activo = ck("jg-activo"); f.cada = Math.max(100, Math.round(Number(v("jg-cada")) || 1000)); f.jugadas = Math.max(1, Math.min(20, Math.round(Number(v("jg-jug")) || 1))); f.prob = pc("jg-prob");
-  f.rulA = ck("jg-rul-a"); f.rulP = pc("jg-rul-p"); f.rulC = Math.max(100, Math.round(Number(v("jg-rul-c")) || 1000)); f.rasA = ck("jg-ras-a"); f.rasP = pc("jg-ras-p"); f.racA = ck("jg-rac-a"); f.racS = Math.max(2, Math.min(12, Math.round(Number(v("jg-rac-s")) || 4))); f.racPr = v("jg-rac-pr") || f.racPr;
+  f.rulA = ck("jg-rul-a"); f.rulP = pc("jg-rul-p"); f.rulC = Math.max(100, Math.round(Number(v("jg-rul-c")) || 1000)); f.rulB = Math.max(0, Math.min(20, Math.round(Number(v("jg-rul-b")) || 0))); f.rasA = ck("jg-ras-a"); f.rasP = pc("jg-ras-p"); f.racA = ck("jg-rac-a"); f.racS = Math.max(2, Math.min(12, Math.round(Number(v("jg-rac-s")) || 4))); f.racPr = v("jg-rac-pr") || f.racPr;
   f.premios = [...document.querySelectorAll(".jg-ad-p:checked")].map(x => x.value);
 }
 document.addEventListener("click", async e => {
@@ -19050,7 +19051,7 @@ document.addEventListener("click", async e => {
   if (b.dataset.act === "jg-ad-guardar") {
     jgAdLeer(); const f = JG.adEd; ocupar(b, true, "Guardando…");
     try { await conReintento(() => S.db.doc("config/juego").set(Object.assign({}, JG.cfg || {}, { activo: f.activo, cada: f.cada, jugadas: f.jugadas, prob: f.prob / 100, premios: f.premios,
-      ruleta: { activo: f.rulA, prob: f.rulP / 100, cada: f.rulC }, raspa: { activo: f.rasA, prob: f.rasP / 100 }, racha: { activo: f.racA, semanas: f.racS, premio: f.racPr },
+      ruleta: { activo: f.rulA, prob: f.rulP / 100, cada: f.rulC, bonoTransf: f.rulB }, raspa: { activo: f.rasA, prob: f.rasP / 100 }, racha: { activo: f.racA, semanas: f.racS, premio: f.racPr },
       en: Date.now(), por: (S.ses.admin || {}).nombre || "" }, (JG.cfg || {}).desde ? {} : { desde: Date.now() }))); JG.adEd = null; toast("Juegos guardados."); }
     catch (er) { toast(msgError(er)); } finally { ocupar(b, false); renderJgAd(); }
   } else if (b.dataset.act === "jg-ad-anular") {
@@ -20346,7 +20347,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-t0{background:#e0f2fe;border-color:#7dd3fc}.jg-t1{background:#fef3c7;border-color:#fcd34d}.jg-t2{background:#dcfce7;border-color:#86efac}.jg-c.resto .jg-frente{filter:saturate(.55);opacity:.85}.jg-c.elegida .jg-frente{border-color:#7c3aed}.jg-c.gano .jg-frente{border-color:#f59e0b;background:#fffbeb;animation:jg-brillo 1s ease-in-out 3}@keyframes jg-brillo{50%{box-shadow:0 0 0 4px #fde68a,0 0 22px #f59e0b}}
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
-.jg-ad-prods{display:grid;gap:6px}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
+.jg-ad-prods{display:grid;gap:6px}.jg-tr-bono{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ede9fe,#e0f2fe);color:#4c1d95;font-size:.9rem}.jg-prueba{display:flex;align-items:center;gap:10px;margin:4px 0 10px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);border:1px solid #a5b4fc;color:#1e1b4b}.jg-prueba>span{font-size:1.6rem}.jg-prueba div{display:grid;gap:2px;flex:1}.jg-prueba small{font-size:.8rem;color:#3730a3}.jg-prueba button{flex:none;min-height:38px;padding:6px 12px;border:1px solid #6366f1;border-radius:999px;background:#fff;color:#4338ca;font:inherit;font-weight:700;cursor:pointer}.gri-box{padding-bottom:84px}.gri-sub{margin:2px 0 10px;color:var(--muted);font-size:.9rem;text-align:center}
 .gri-chips{display:flex;gap:8px;overflow-x:auto;margin:0 -4px 6px;padding:4px 4px 8px;scrollbar-width:none;position:sticky;top:0;z-index:4;background:linear-gradient(var(--bg,#eef2f6) 80%,transparent)}.gri-chips::-webkit-scrollbar{display:none}
 .gri-chips button{flex:none;display:flex;align-items:center;gap:6px;min-height:40px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font:inherit;font-weight:700;font-size:.88rem;color:var(--ink);cursor:pointer;white-space:nowrap}
 .gri-chips button small{padding:1px 7px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-size:.72rem}.gri-chips button[aria-pressed="true"]{background:#0f766e;border-color:#0f766e;color:#fff}.gri-chips button[aria-pressed="true"] small{background:rgba(255,255,255,.22);color:#fff}
