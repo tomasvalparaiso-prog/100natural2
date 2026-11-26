@@ -18831,7 +18831,7 @@ function jgHTML() {
 }
 function jgPintar() {
   const m = $("#jg-modal");
-  if (m && !(JG.vista === "rul" && JG.rul && JG.rul.girando) && !(JG.vista === "ras" && JG.ras && JG.ras.raspando)) { m.innerHTML = jgHTML(); if (JG.vista === "ras") jgRasMontar(); if (JG.anim && JG.anim.size) { const s = [...JG.anim]; JG.anim = null; m.offsetWidth; requestAnimationFrame(() => s.forEach(i => { const b = m.querySelector(`[data-act="jg-carta"][data-i="${i}"]`); if (b) b.classList.add("vuelta"); })); } }
+  if (m && !(JG.vista === "rul" && JG.rul && JG.rul.girando) && !(JG.vista === "ras" && JG.ras && JG.ras.raspando)) { const y = window.scrollY, hAnt = m.offsetHeight; m.style.minHeight = hAnt + "px"; m.innerHTML = jgHTML(); requestAnimationFrame(() => { m.style.minHeight = ""; }); if (Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y); if (JG.vista === "ras") jgRasMontar(); if (JG.anim && JG.anim.size) { const s = [...JG.anim]; JG.anim = null; m.offsetWidth; requestAnimationFrame(() => s.forEach(i => { const b = m.querySelector(`[data-act="jg-carta"][data-i="${i}"]`); if (b) b.classList.add("vuelta"); })); } }
   const rm = $("#rac-modal"); if (rm) rm.innerHTML = racHTML();
   const nr = $("#cnt-rac"); if (nr) { const t = JG.est && JG.est.racha && JG.est.racha.activo && JG.est.racha.listo ? "🎁" : ""; if (nr.textContent !== t) nr.textContent = t; }
   const n = $("#cnt-jg"); if (n) { const d = jgDisp(JG.est), t = d ? String(d) : ""; if (n.textContent !== t) n.textContent = t; }
@@ -18996,6 +18996,13 @@ document.addEventListener("click", e => {
   else if (a === "jg-racha") jgReclamarRacha(b);
 });
 setInterval(() => { if (S.portal === "cliente" && S.ses.cliente && !esLocal() && S.cargado && JG.estDe !== S.ses.cliente.id) { JG.estDe = S.ses.cliente.id; JG.est = null; subJgCfg(); jgCargar(); } }, 3000);
+/* «Volver» dentro de un juego (Figuritas, Ruleta, Raspa y gana) regresa al menú de Juegos, no al inicio. */
+window.addEventListener("click", e => {
+  const v = e.target.closest && e.target.closest(".nav-volver"); if (!v || (S.portal !== "cliente" && S.portal !== "cfd") || !JG.vista) return;
+  const m = $("#jg-modal"); if (!m || !document.body.contains(m) || !m.offsetParent) return;
+  if ((JG.rul && JG.rul.girando) || (JG.ras && JG.ras.raspando)) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+  e.preventDefault(); e.stopImmediatePropagation(); JG.vista = null; jgPintar(); window.scrollTo(0, 0);
+}, true);
 function subJgCfg() { if (JG.cfgSub || !S.db) return; JG.cfgSub = true; S.db.doc("config/juego").onSnapshot(d => { JG.cfg = d.exists ? d.data() || {} : {}; renderJgAd(); }, () => {}); }
 /* Premios en el pedido: se agregan gratis (precio $0) al próximo pedido del cliente y quedan canjeados al enviarlo. */
 const premiosCarrito = () => S.portal === "cliente" && S.ses.cliente && !esLocal() && !S.editPedido ? jgPendientes() : [];
@@ -20359,8 +20366,8 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-h-fig{background:linear-gradient(135deg,#ede9fe,#ddd6fe)}.jg-h-rul{background:linear-gradient(135deg,#e0f2fe,#bae6fd)}.jg-h-ras{background:linear-gradient(135deg,#fef3c7,#fde68a)}.jg-h-rac{background:linear-gradient(135deg,#ffe4e6,#fecdd3)}
 .jg-hub-i{font-size:2.4rem;width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:rgba(255,255,255,.7);flex:none}.jg-hub-t{display:grid;gap:2px}.jg-hub-t b{font-size:1.08rem}.jg-hub-t small{color:#475569;font-size:.82rem}.jg-hub-t em{font-style:normal;font-size:.86rem;color:#5b21b6}
 .pl-h .jg-atras{border:0;background:var(--surface-2);border-radius:999px;padding:6px 12px;font-weight:700;color:inherit;cursor:pointer}
-.jg-rueda{position:relative;width:min(100%,380px);margin:22px auto 10px;aspect-ratio:1}.jg-rueda-in{width:100%;height:100%;border-radius:50%;box-shadow:0 0 0 6px #7c3aed,0 0 0 10px #fde68a,0 14px 28px -10px rgba(30,27,75,.6);transition:transform 4.2s cubic-bezier(.12,.75,.15,1)}.jg-rueda-svg{width:100%;height:100%;display:block}
-.jg-flecha{position:absolute;top:-20px;left:50%;transform:translateX(-50%);z-index:2;font-size:2.4rem;color:#ef4444;text-shadow:0 2px 3px rgba(0,0,0,.3)}
+.jg-rueda{position:relative;width:min(100%,380px);margin:10px auto;aspect-ratio:1;overflow:hidden;contain:paint}.jg-rueda-in{position:absolute;inset:14px;border-radius:50%;will-change:transform;box-shadow:0 0 0 6px #7c3aed,0 0 0 10px #fde68a,0 14px 28px -10px rgba(30,27,75,.6);transition:transform 4.2s cubic-bezier(.12,.75,.15,1)}.jg-rueda-svg{width:100%;height:100%;display:block}
+.jg-flecha{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:2;font-size:2.4rem;color:#ef4444;text-shadow:0 2px 3px rgba(0,0,0,.3)}
 .jg-saldo-1{grid-template-columns:1fr}.jg-rasp{position:relative;width:100%;max-width:360px;margin:12px auto;aspect-ratio:600/320;border-radius:18px;overflow:hidden;box-shadow:0 10px 22px -12px rgba(30,27,75,.6)}
 .jg-rasp-fondo{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:6px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:3px dashed #f59e0b;border-radius:18px;text-align:center;padding:10px;color:#92400e}.jg-rasp-e{font-size:3rem}
 .jg-rasp-cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer}
