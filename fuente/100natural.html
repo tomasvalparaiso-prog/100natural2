@@ -4861,6 +4861,7 @@ function aficheHTML(key, part) {
 }
 /* Clientes › Todos: los volantes (fotos de los productos) en un carrusel para deslizar entre ellos; al tocar uno se abre su categoría. */
 function afichesCarruselHTML(lista) {
+  if (!verPrecios()) return ""; /* los volantes traen precios impresos */
   /* Volantes propios de la vista Todos (una foto por categoría). */
   const VOLP = { papas1: [680, 1018], papas5: [680, 1019], alcalina: [680, 1022], dispensadores: [680, 1022], helados: [680, 963], perritos: [680, 1018], camas: [680, 1018], completos: [680, 1018], jugos: [680, 1018], pizzascong: [680, 1020], purificada: [680, 1022] };
   FRUTAS.forEach(([k]) => { VOLP["fr_" + k] = [680, 1020]; });
@@ -4992,10 +4993,11 @@ function seccion(c, items, oc, sinAfiche) {
     <header class="cat-h">${ICO[c.fam] || ""}<h2>${c.titulo}</h2><span class="tag">Próximamente</span>${c.items.length === 1 ? cmpBtnHTML(c.items[0][0]) : ""}</header>${proxVolHTML(c)}</section>`;
   /* Con carrusel de fotos (Agua purificada, Agua alcalina, Dispensadores) no se muestra el selector manual de unidades: se agrega tocando la foto. */
   /* También en «Todos»: cada categoría con su carrusel de fotos (con título) y sin el selector manual de cantidades. */
-  const conCarrusel = !!AFP_CATS[c.key] && (!S.cliCat || S.cliCat === c.key) && !S.editando && esCliP() && !!S.ses.cliente;
+  /* Las fotos (volantes) traen el precio impreso: si el cliente no puede ver precios, se muestra la lista sin fotos. */
+  const conCarrusel = !!AFP_CATS[c.key] && (!S.cliCat || S.cliCat === c.key) && !S.editando && esCliP() && !!S.ses.cliente && verPrecios();
   return `<section class="cat fam-${c.fam} col-${c.color}${!S.cliCat ? " cat-todos" : ""}" id="cat-${c.key}">
     <header class="cat-h">${ICO[c.fam]}<h2>${c.titulo}</h2>${c.tag ? `<span class="tag">${c.tag}</span>` : ""}</header>
-    ${conCarrusel ? afpCarruselHTML(c.key, items) : sinAfiche && !VOL_FILAS.has(c.key) ? "" : aficheHTML(c.key, cliParticular())}
+    ${conCarrusel ? afpCarruselHTML(c.key, items) : (sinAfiche && !VOL_FILAS.has(c.key)) || !verPrecios() ? "" : aficheHTML(c.key, cliParticular())}
     ${conCarrusel ? "" : `<div class="prods">${items.map(p => prodHTML(p, oc.has(p.id))).join("")}</div>`}
   </section>`;
 }
@@ -19152,7 +19154,7 @@ function griHTML() {
   const car = Object.entries(S.carrito || {}).filter(([id, q]) => PROD[id] && q > 0), cant = car.reduce((a, [, q]) => a + q, 0), tot = car.reduce((a, [id, q]) => a + precioMio(id) * q, 0);
   const card = p => { const q = S.carrito[p.id] || 0, nom = esc(etiqueta(p));
     return `<article class="gri-it${q ? " en" : ""}">
-      <div class="gri-foto"><button type="button" class="gri-fb" data-act="mas" data-id="${p.id}" aria-label="Agregar 1 ${nom} a tu pedido">${GRI_FOTO.has(p.id) ? `<span class="gri-img" style="background-image:var(--afp${!loc && AFP_PART.has(p.id) ? "P" : ""}-${p.id})"></span>` : `<span class="gri-ico" aria-hidden="true">${ICO[p.fam] || "🛒"}</span>`}</button>
+      <div class="gri-foto"><button type="button" class="gri-fb" data-act="mas" data-id="${p.id}" aria-label="Agregar 1 ${nom} a tu pedido">${GRI_FOTO.has(p.id) && vp ? `<span class="gri-img" style="background-image:var(--afp${!loc && AFP_PART.has(p.id) ? "P" : ""}-${p.id})"></span>` : `<span class="gri-ico" aria-hidden="true">${ICO[p.fam] || "🛒"}</span>`}</button>
         ${q ? `<div class="gri-step"><button type="button" data-act="menos" data-id="${p.id}" aria-label="Quitar 1 ${nom}">−</button><output aria-live="polite">${fmtN(q)}</output><button type="button" data-act="mas" data-id="${p.id}" aria-label="Agregar 1 ${nom}">+</button></div>`
           : `<button type="button" class="gri-add" data-act="mas" data-id="${p.id}" aria-label="Agregar 1 ${nom}">+</button>`}</div>
       <div class="gri-txt"><b>${nom}</b><small>${esc(detalle(p) || p.medida || "")}</small>${vp ? `<span class="gri-pr">${clp(precioMio(p.id))}${loc ? "<em> + IVA</em>" : ""}</span>` : ""}</div></article>`; };
