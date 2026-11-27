@@ -704,7 +704,7 @@ body.banner-mini .banner-flot.banner-tap{pointer-events:auto}
 .sacar-pan{max-width:960px;margin:0 auto 10px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:0 -8px 24px -16px var(--shadow);max-height:45vh;overflow:auto}
 .sacar-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .sacar-l{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.sacar-l li{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.sacar-l li{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line)}.barra-l{max-height:32vh}.barra-l .sacar-l li:first-child{border-top:0}.barra-l .sacar-n{flex:1;min-width:0;display:grid;font-weight:700;font-size:.9rem}.barra-l .sacar-n small{font-weight:600;color:var(--muted);font-size:.76rem}.bl-q{display:flex;align-items:center;gap:4px}.bl-q output{min-width:24px;text-align:center;font-weight:800}.barra-l .sacar-b{min-width:38px;min-height:38px;padding:0 8px;border-radius:10px}.barra-l .bl-mas{background:#10b981;color:#fff;border-color:#10b981}.barra-l .sacar-x{min-width:34px;color:#b91c1c}
 .sacar-l li:first-child{border-top:0}
 .sacar-n{flex:1;min-width:0;font-weight:700;line-height:1.2}.sacar-n small{display:block;font-weight:500;color:var(--muted)}
 .sacar-b{min-height:42px;min-width:52px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
@@ -5219,8 +5219,9 @@ function updateBarra(lista, total) {
   const cuenta = cuentaTxt(lista);
   if (!ver) S.sacarAbierto = false;
   /* «Sacar»: abre una lista con los productos del pedido para quitar unidades. */
-  const sacar = ver && S.sacarAbierto ? `<div class="sacar-pan" role="region" aria-label="Sacar productos del pedido"><div class="sacar-h"><b>Sacar del pedido</b><button type="button" class="link" data-act="barra-sacar">Cerrar</button></div><ul class="sacar-l">${lista.map(x => `<li><span class="sacar-n">${esc(etiqueta(x.p))}<small>${esc(x.p.cat)} · ${fmtN(x.q)} en tu pedido</small></span><button type="button" class="sacar-b" data-act="menos" data-id="${x.p.id}" aria-label="Sacar 1 ${esc(etiqueta(x.p))}">− 1</button><button type="button" class="sacar-b sacar-x" data-act="sacar-todo" data-id="${x.p.id}" aria-label="Sacar todo ${esc(etiqueta(x.p))}">Quitar</button></li>`).join("")}</ul></div>` : "";
-  if (ver) b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${verPrecios() ? `${clp(total)}<small>${cuenta}</small>` : `${cuenta}<small>en tu pedido</small>`}</div><div class="barra-acc"><button type="button" class="btn suave barra-sacar" data-act="barra-sacar" aria-expanded="${!!S.sacarAbierto}">${S.sacarAbierto ? "✕ Cerrar" : "− Sacar"}</button>${cpwOn() ? `<button class="btn primario" data-act="cpw-ir" data-p="3">Siguiente ›</button>` : `<button class="btn primario" data-act="ir" data-to="entrega">${S.editPedido ? "Revisar y guardar" : "Revisar y enviar"}</button>`}</div></div>`;
+  /* Cada producto del pedido por separado, con − / + para cambiar la cantidad y × para quitarlo. */
+  const sacar = ver ? `<div class="sacar-pan barra-l" role="region" aria-label="Productos de tu pedido"><ul class="sacar-l">${lista.map(x => { const nm = esc(etiqueta(x.p)); return `<li><span class="sacar-n">${nm}<small>${esc(detalle(x.p) || x.p.cat || "")}${verPrecios() ? ` · ${clp(precioMio(x.p.id) * x.q)}` : ""}</small></span><span class="bl-q"><button type="button" class="sacar-b" data-act="menos" data-id="${x.p.id}" aria-label="Sacar 1 ${nm}">−</button><output>${fmtN(x.q)}</output><button type="button" class="sacar-b bl-mas" data-act="mas" data-id="${x.p.id}" aria-label="Agregar 1 ${nm}">+</button></span><button type="button" class="sacar-b sacar-x" data-act="sacar-todo" data-id="${x.p.id}" aria-label="Quitar ${nm} del pedido">✕</button></li>`; }).join("")}</ul></div>` : "";
+  if (ver) b.innerHTML = sacar + `<div class="barra-in"><div class="tot">${verPrecios() ? `${clp(total)}<small>${cuenta}</small>` : `${cuenta}<small>en tu pedido</small>`}</div><div class="barra-acc">${cpwOn() ? `<button class="btn primario" data-act="cpw-ir" data-p="3">Siguiente ›</button>` : `<button class="btn primario" data-act="ir" data-to="entrega">${S.editPedido ? "Revisar y guardar" : "Revisar y enviar"}</button>`}</div></div>`;
 }
 let io = null;
 function observarEntrega() {
@@ -19306,12 +19307,29 @@ function adtBarHTML() {
 function adtPintar() {
   const P = adtPort();
   let el = document.getElementById("ad-top");
-  if (!P) { if (el) el.hidden = true; adtCerrar(); document.body.classList.remove("con-adt"); return; }
-  if (!el) { const bn = document.getElementById("banner"); if (!bn) return; bn.insertAdjacentHTML("beforebegin", `<div id="ad-top" class="adt-bar" role="toolbar" aria-label="Accesos rápidos"></div>`); el = document.getElementById("ad-top"); }
+  if (!P) { if (el) el.hidden = true; const es = document.getElementById("adt-esp"); if (es) es.hidden = true; adtCerrar(); document.body.classList.remove("con-adt"); return; }
+  if (!el) { const bn = document.getElementById("banner"); if (!bn) return; bn.insertAdjacentHTML("beforebegin", `<div id="adt-esp" aria-hidden="true"></div><div id="ad-top" class="adt-bar" role="toolbar" aria-label="Accesos rápidos"></div>`); el = document.getElementById("ad-top"); adtFlotar(); }
+  { const es = document.getElementById("adt-esp"); if (es) es.hidden = false; }
   /* En Clientes, la barra neón queda arriba de esta barra. */
   const nb = document.getElementById("neon-bar"); if (nb && nb.nextElementSibling !== el && el.previousElementSibling !== nb) { /* sin cambios de orden */ }
   el.hidden = false; document.body.classList.add("con-adt"); const html = adtBarHTML(); if (el.dataset.p !== P || el.innerHTML !== html) { el.innerHTML = html; el.dataset.p = P; }
   const pan = document.getElementById("adt-pan"); if (pan && ADT.abierto === "noti" && !ADT.ficha) { const n = adtNotiHTML(); if (pan.dataset.h !== n) { pan.dataset.h = n; pan.querySelector(".adt-pan-in").innerHTML = n; } }
+}
+/* Barra flotante: se esconde al bajar o cuando no se usa por unos segundos, y vuelve al subir, al tocar arriba o al estar al inicio de la página. */
+function adtFlotar() {
+  if (ADT.flot) return; ADT.flot = true;
+  let yAnt = window.scrollY, t = 0;
+  const bar = () => document.getElementById("ad-top");
+  const ver = () => { const b = bar(); if (!b) return; b.classList.remove("oculta"); clearTimeout(t); t = setTimeout(esconder, 3500); };
+  const esconder = () => { const b = bar(); if (!b || ADT.abierto || window.scrollY < 30 || b.matches(":hover") || b.contains(document.activeElement)) return; b.classList.add("oculta"); };
+  window.addEventListener("scroll", () => { const y = window.scrollY, b = bar(); if (!b) return;
+    if (y < 30 || y < yAnt - 6) ver(); else if (y > yAnt + 6) { clearTimeout(t); if (!ADT.abierto) b.classList.add("oculta"); }
+    yAnt = y; }, { passive: true });
+  /* Tocar la parte de arriba de la pantalla la hace aparecer. */
+  document.addEventListener("pointerdown", e => { if (e.clientY < 56) ver(); }, { passive: true });
+  document.addEventListener("focusin", e => { if (e.target.closest && e.target.closest("#ad-top")) ver(); });
+  document.addEventListener("click", e => { if (e.target.closest && e.target.closest("#ad-top")) ver(); });
+  ver();
 }
 function adtNotiHTML() {
   const x = adtNotis(), v = ADT.vistoAntes || 0, P = S.portal;
@@ -20683,7 +20701,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
 .jg-ad-prods{display:grid;gap:6px}.pr-oculto{display:flex;align-items:center;gap:10px;margin:8px 0 12px;padding:10px 12px;border-radius:14px;background:#fffbeb;border:1px solid #fcd34d;color:#78350f}.pr-oculto>span{font-size:1.4rem}.pr-oculto div{display:grid;gap:2px;flex:1}.pr-oculto small{font-size:.8rem}.pr-oculto .btn{flex:none;min-height:40px}
-.adt-bar{display:flex;align-items:center;justify-content:space-between;gap:4px;max-width:min(calc(100% - 24px),var(--maxw,1100px));margin:8px auto 6px;padding:5px 6px;border-radius:999px;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);box-shadow:0 8px 22px -16px rgba(15,23,42,.55),inset 0 1px 0 rgba(255,255,255,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#adt-esp{height:56px}#adt-esp[hidden]{display:none}.adt-bar[hidden]{display:none!important}.adt-bar.oculta{transform:translateY(calc(-100% - 14px));opacity:0;pointer-events:none}@media (prefers-reduced-motion:reduce){.adt-bar.oculta{transform:none}}.adt-bar{position:fixed;top:calc(6px + env(safe-area-inset-top,0px));left:0;right:0;z-index:9980;transition:transform .28s ease,opacity .28s ease;display:flex;align-items:center;justify-content:space-between;gap:4px;width:min(calc(100% - 24px),var(--maxw,1100px));margin:0 auto;padding:5px 6px;border-radius:999px;background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid color-mix(in srgb,var(--line) 80%,transparent);box-shadow:0 8px 22px -16px rgba(15,23,42,.55),inset 0 1px 0 rgba(255,255,255,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .adt-b{position:relative;flex:1 1 0;max-width:52px;height:40px;display:grid;place-items:center;border:0;border-radius:999px;background:transparent;color:var(--c,var(--ink));cursor:pointer;transition:background .18s,transform .12s}
 .adt-b::before{content:"";position:absolute;inset:3px 6px;border-radius:999px;background:var(--c,var(--ink));opacity:0;transition:opacity .18s}.adt-b:hover::before{opacity:.1}.adt-b:active{transform:scale(.92)}.adt-b svg{position:relative}
 .adt-b.on{color:#fff}.adt-b.on::before{opacity:1}.adt-b.sonando svg{animation:adt-lat 1.2s ease-in-out infinite}@keyframes adt-lat{50%{transform:scale(1.15)}}
