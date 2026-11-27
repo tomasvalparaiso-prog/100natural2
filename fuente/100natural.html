@@ -4242,8 +4242,10 @@ document.addEventListener("click", e => {
 
 /* ---------- Cliente ---------- */
 const esLocal = () => !!(S.ses.cliente && S.ses.cliente.tipo === "Local comercial");
-/* Precios visibles para todos los clientes (también los locales comerciales, con sus precios). */
-const verPrecios = () => true;
+/* Precios: los clientes particulares los ven siempre; en los locales comerciales solo los ve la persona autorizada a pagar
+   (después de entrar en Pagos con su usuario). Las demás páginas no usan esta regla. */
+const verPrecios = () => { if (S.portal !== "cliente" || !esLocal()) return true; try { return pagoOk(); } catch (_) { return false; } };
+const preciosOcultosHTML = () => verPrecios() ? "" : `<div class="pr-oculto"><span aria-hidden="true">🔒</span><div><b>Precios solo para la persona autorizada a pagar</b><small>Si eres tú, entra en Pagos con tu usuario para ver los precios.</small></div><button type="button" class="btn suave" data-act="cli-tab" data-t="pag">Entrar</button></div>`;
 /* ---------- Clientes › Nuevo pedido en pasos (carrusel): 1 Agua o papas · 2 Productos · 3 Entrega · 4 Revisar y enviar · 5 Listo ---------- */
 const CPW = { paso: 1, grupo: "", fin: null };
 S.cliIr = ""; /* pedido recién enviado que se resalta al tocar «Ir al pedido» */
@@ -4663,7 +4665,7 @@ function perfilCliHTML() {
       ${fila("Correo", esc(c.email))}
     </dl></section>
     ${perfDirsHTML(c)}
-    <section class="perf-card"><h3>Condiciones</h3><div class="perf-tipo"><p class="perf-tipo-h">Tipo de cliente</p>${perfTipoHTML(c)}</div><dl>
+    <section class="perf-card"><h3>Condiciones</h3><dl><dt>Tipo de cliente</dt><dd>${esc(c.tipo || "Particular")}</dd>
       ${fila("Forma de pago", c.pagoFijo ? `<b>${esc(c.pagoFijo)}</b> <small class="muted-s">(fija)</small>` : "", "La eliges en cada pedido")}
       ${fila("Precios", c.sinIva ? "Netos (sin IVA)" : "Con IVA incluido")}
       ${fila("Precios especiales", esp.length ? `${fmtN(esp.length)} producto${esp.length === 1 ? "" : "s"}` : "", "No tiene")}
@@ -5020,7 +5022,7 @@ function entregaHTML(c) {
   return `<section class="card entrega${typeof esRetiro === "function" && esRetiro() ? " modo-retiro" : ""}" id="entrega" data-wz="3 4">
     <div class="entrega-grid">
       <div data-wz="4">
-        <h2 class="h2">Tu pedido</h2>
+        <h2 class="h2">Tu pedido</h2>${preciosOcultosHTML()}
         <ul class="resumen" id="resumen"></ul>
         ${verPrecios() ? `<div class="total"><span>Total</span><b id="total">$0</b></div>` : ""}
         ${verPrecios() && !S.editPedido ? `<div class="pts-gana" id="pts-gana" hidden></div><div class="cupon-box" id="cupon-box">${cuponBoxHTML()}</div><div id="puntos-box">${puntosBoxHTML()}</div>` : ""}
@@ -6013,7 +6015,7 @@ const pagoEstHTML = (act, actual, nPend, mPend, nPag, mPag) => `<div class="pago
     <button type="button" class="pe-pag" data-act="${act}" data-e="pag" aria-pressed="${actual === "pag"}"><span>Pagado</span><b>${fmtN(nPag)}</b><small>${clp(mPag)}</small></button>
   </div>`;
 const cliParticular = () => !!(S.ses.cliente && S.ses.cliente.tipo !== "Local comercial");
-const pagoOk = () => !!(S.ses.cliente && (cliParticular() || (S.pagoAuth && S.pagoAuth.clienteId === S.ses.cliente.id)));
+const pagoOk = () => { pagoAuthLeer(); return !!(S.ses.cliente && (cliParticular() || (S.pagoAuth && S.pagoAuth.clienteId === S.ses.cliente.id))); };
 function renderPagos() {
   const pc = $("#pagos-cli");
   if (pc) pc.innerHTML = pagoOk() ? clientePagosHTML() : pagoAuthHTML();
@@ -6021,6 +6023,10 @@ function renderPagos() {
   if (cp && !pagoOk()) cp.textContent = "";
   if (pagoOk()) renderListas();
 }
+/* La sesión de la persona autorizada a pagar se recuerda en esta pestaña (al recargar no hay que volver a entrar). */
+function pagoAuthGuardar() { try { if (S.pagoAuth) sessionStorage.setItem("pya.pagoAuth", JSON.stringify(S.pagoAuth)); else sessionStorage.removeItem("pya.pagoAuth"); } catch (_) {} }
+function pagoAuthLeer() { if (S.pagoAuth || !S.ses.cliente) return; try { const x = JSON.parse(sessionStorage.getItem("pya.pagoAuth") || "null"); if (x && x.clienteId === S.ses.cliente.id) S.pagoAuth = x; } catch (_) {} }
+function pagoRepintar() { const y = window.scrollY; try { renderView(); } catch (_) {} try { renderPagos(); } catch (_) {} window.scrollTo(0, y); }
 function pagoAuthHTML() {
   const t = S.pagoAuthTab || "entrar";
   return `<div class="card pago-auth">
@@ -6067,7 +6073,7 @@ async function entrarPago(f) {
     if (!snap || !snap.exists || snap.data().claveHash !== h) { err.textContent = "Usuario o clave de pagos incorrectos."; return; }
     regSesion("pago", { id: orig, nombre: String(snap.data().nombre || usuario) }, "cliente " + (cli.nombre || cli.id));
     S.pagoAuth = { clienteId: cli.id, id: orig, nombre: String(snap.data().nombre || usuario), locales: Array.isArray(snap.data().locales) ? snap.data().locales.map(String) : [] }; S.pagoLocal = "";
-    renderPagos();
+    pagoAuthGuardar(); renderPagos(); pagoRepintar();
   } catch (e) { err.textContent = msgError(e); }
   finally { if (btn.isConnected) ocupar(btn, false); }
 }
@@ -6092,7 +6098,7 @@ async function registrarPago(f) {
     const claveHash = await sha(`pya:pago:${cli.id}:${usuario}:${clave}`);
     await conReintento(() => ref.set({ clienteId: cli.id, clienteNombre: cli.nombre, nombre, cargo, telefono, usuario, claveHash, creado: Date.now() }));
     S.pagoAuth = { clienteId: cli.id, id: usuario, nombre };
-    renderPagos();
+    pagoAuthGuardar(); renderPagos(); pagoRepintar();
     toast(`Quedaste registrado como persona autorizada para pagos. Tu usuario es «${usuario}».`);
   } catch (e) { err.textContent = msgError(e); }
   finally { if (btn.isConnected) ocupar(btn, false); }
@@ -10096,7 +10102,7 @@ function navEntrada(b) {
   return { key, sel: pre + key };
 }
 /* Clientes: sin «Volver» en Inicio, Crear pedido, Mis pedidos y Favoritos. */
-function cliSinVolver() { return ["inicio", "nuevo", "mis"].includes(S.cliTab) || (S.cliTab === "sec" && S.cliSec === "cli-favs"); }
+function cliSinVolver() { return true; } /* Clientes: sin botón «Volver» en ninguna sección */
 function navVolverPintar() { const hh = NAVH[S.portal] || [], cli = S.portal === "cliente" || S.portal === "cfd", enIni = cli ? cliSinVolver() : !hh.length || hh[hh.length - 1].key === "inicio"; /* en la página de inicio nunca se muestra «Volver» */ const n = !enIni && (hh.length > 1 || cli); document.querySelectorAll(".nav-volver").forEach(v => { if (v.hidden === n) v.hidden = !n; }); }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-act]"); if (!b) return;
@@ -15859,7 +15865,7 @@ document.addEventListener("click", e => {
     const f = $(`#f-${b.dataset.k}-${b.dataset.t === "entrar" ? "entrar" : "registro"} input`); if (f) f.focus();
   } else if (a === "salir") {
     const k = b.dataset.k; S.ses[k] = null; guardarSesion(); if (k === "cliente") limpiarPedidoCli(); if (k === "pos") POS.noAuto = true; if (k === "prueba") PRB.noAuto = true; if (k === "pizzas") { PZZ.noAuto = true; PZZ.f = {}; PZZ.menuAbierto = false; }
-    if (k === "cliente") { S.carrito = {}; S.confirmar = null; S.editando = false; S.editPedido = null; S.repCli = null; S.pagoAuth = null; S.pagoAuthTab = "entrar"; }
+    if (k === "cliente") { S.carrito = {}; S.confirmar = null; S.editando = false; S.editPedido = null; S.repCli = null; S.pagoAuth = null; S.pagoAuthTab = "entrar"; try { sessionStorage.removeItem("pya.pagoAuth"); } catch (_) {} }
     renderView(); window.scrollTo(0, 0);
   } else if (a === "cli-inicio") {
     /* Clientes › Inicio: página con todos los íconos de la barra inferior. */
@@ -16400,7 +16406,7 @@ document.addEventListener("click", e => {
   else if (a === "pa-tab") {
     S.pagoAuthTab = b.dataset.t; renderPagos();
     const inp = $("#pagos-cli form input"); if (inp) inp.focus();
-  } else if (a === "pa-salir") { S.pagoAuth = null; S.pagoAuthTab = "entrar"; renderPagos(); }
+  } else if (a === "pa-salir") { S.pagoAuth = null; S.pagoAuthTab = "entrar"; pagoAuthGuardar(); renderPagos(); pagoRepintar(); }
   else if (a === "cp-per") { S.pagoPer = b.dataset.g; renderListas(); }
   else if (a === "cp-mover") { S.pagoRef = moverPeriodo(S.pagoPer, S.pagoRef, Number(b.dataset.d)); renderListas(); }
   else if (a === "cp-hoy") { S.pagoRef = hoy(); renderListas(); }
@@ -20676,7 +20682,7 @@ html:has(#msj-pan:not([hidden])) #respaldo-btn,html:has(#msj-pan:not([hidden])) 
 .jg-t0{background:#e0f2fe;border-color:#7dd3fc}.jg-t1{background:#fef3c7;border-color:#fcd34d}.jg-t2{background:#dcfce7;border-color:#86efac}.jg-c.resto .jg-frente{filter:saturate(.55);opacity:.85}.jg-c.elegida .jg-frente{border-color:#7c3aed}.jg-c.gano .jg-frente{border-color:#f59e0b;background:#fffbeb;animation:jg-brillo 1s ease-in-out 3}@keyframes jg-brillo{50%{box-shadow:0 0 0 4px #fde68a,0 0 22px #f59e0b}}
 .jg-hint{text-align:center;color:var(--muted);margin:4px 0}.jg-res{margin:8px 0;padding:12px;border-radius:14px;background:var(--surface-2);text-align:center;font-weight:600}.jg-res.gano{background:#fef3c7;color:#92400e;font-size:1.05rem}.jg-otra{display:block;width:100%;max-width:360px;margin:8px auto}
 .jg-prem-t{margin:14px 0 6px;font-weight:700;text-align:center}.jg-prem{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.jg-prem span{padding:6px 10px;border-radius:999px;background:var(--surface-2);font-size:.85rem;font-weight:600}.jg-pend{margin-top:12px;padding:12px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0}.jg-pend p{margin:6px 0 0}
-.jg-ad-prods{display:grid;gap:6px}
+.jg-ad-prods{display:grid;gap:6px}.pr-oculto{display:flex;align-items:center;gap:10px;margin:8px 0 12px;padding:10px 12px;border-radius:14px;background:#fffbeb;border:1px solid #fcd34d;color:#78350f}.pr-oculto>span{font-size:1.4rem}.pr-oculto div{display:grid;gap:2px;flex:1}.pr-oculto small{font-size:.8rem}.pr-oculto .btn{flex:none;min-height:40px}
 .adt-bar{display:flex;justify-content:flex-end;gap:6px;padding:4px 12px;max-width:var(--maxw,1100px);margin:0 auto}.adt-bar[hidden]{display:none}
 .adt-b{position:relative;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);cursor:pointer;box-shadow:0 4px 10px -8px rgba(15,23,42,.5)}.adt-b.on{background:#0f766e;color:#fff;border-color:#0f766e}.adt-b.sonando{color:#7c3aed;border-color:#c4b5fd}
 .adt-b svg{width:20px;height:20px}.adt-sep{width:1px;align-self:stretch;margin:4px 2px;background:var(--line)}.adt-b.girando svg{animation:adt-gira .8s linear infinite}@keyframes adt-gira{to{transform:rotate(360deg)}}.adt-n{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:.7rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
