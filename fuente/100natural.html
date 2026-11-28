@@ -12802,7 +12802,7 @@ function invAdHTML() {
     const dispK = k => r.prod[k] - r.ent[k] - r.pen[k];
     const filas = r.filas.slice().sort((x, y) => dispK(y[0]) - dispK(x[0])).map(([k, l]) => { const kg = r.prod[k] - r.ent[k] - r.pen[k], pid = p5[k], bol = Math.floor(kg / 5);
       const val = r.cargando ? "…" : kg <= 0 && kg === 0 ? `<b class="inv-sin">Sin stock</b>` : `<b class="${kg < 0 ? "neg-t" : ""}">${fmtS(kg)} kg</b>${kg > 0 ? `<small>≈ ${fmtN(bol)} ${bol === 1 ? "bolsa" : "bolsas"} de 5 kg</small>` : ""}`;
-      return `<tr class="${kg > 0 ? "" : "pz-cero"}"><td>${esc(l)}${corteProTxt(k)}</td><td class="num inv-v">${val}${!r.cargando && pid ? `<button type="button" class="link inv-aj-btn" data-act="invaj" data-id="${pid}">± Ajustar</button>` : ""}</td></tr>${pid && INVAD.aj === pid ? invAjFormHTML() : ""}`; }).join("");
+      return `<tr class="${kg > 0 ? "" : "pz-cero"}"><td>${esc(l)}${corteProTxt(k)}</td><td class="num inv-v">${val}${!r.cargando && pid ? `<button type="button" class="link inv-aj-btn" data-act="invaj" data-id="kg:${pid}">± Ajustar</button>` : ""}</td></tr>${pid && INVAD.aj === "kg:" + pid ? invAjFormHTML() : ""}`; }).join("");
     return `<h3 class="sec inv-cat">${ICO.papa || ""}Papas por corte</h3><div class="tbl-wrap"><table class="tbl inv-tbl"><thead><tr><th>Corte</th><th class="num">Disponible</th></tr></thead><tbody>${filas}</tbody></table></div>`;
   })();
   const bloque = (t, sub, html) => `<section class="inv-bloque"><h2 class="inv-bloque-h">${t}</h2>${sub ? `<p class="muted-s">${sub}</p>` : ""}${html}</section>`;
@@ -12817,8 +12817,9 @@ function invAdHTML() {
     <section class="inv-loc ${loc === "papa" ? "inv-loc-papa" : "inv-loc-agua"}" role="tabpanel">${cuerpo}</section></div>
     ${invAjHistHTML()}`;
 }
-const invAjNom = id => { if (String(id).startsWith("pa:")) { const p = PROD[String(id).slice(3)]; return p ? `${etiqueta(p)} · ${detalle(p)} (Local papas)` : id; } if (/^insp?:/.test(String(id))) { const k = String(id).split(":")[1]; return (INS_NOM[k] || k) + (String(id).startsWith("insp:") ? " (Local papas)" : ""); } const p = PROD[id]; return p ? `${etiqueta(p)} · ${detalle(p)}` : id; };
-const invAjUni = id => { if (String(id).startsWith("pa:")) return "unidades"; if (/^insp?:/.test(String(id))) { const k = String(id).split(":")[1]; return INS_CAJA[k] ? "cajas" : INS_UNI[k] ? INS_UNI[k][1] : "unidades"; } const p = PROD[id]; return p && p.fam === "papa" ? (kgDe({ id, cant: 1 }) === 1 ? "kg (bolsas de 1 kg)" : "bolsas") : "unidades"; };
+const invAjNom = id => { if (String(id).startsWith("kg:")) { const c = CORTE_DE[String(id).slice(3)]; const l = (CORTES.find(([k]) => k === c) || [])[1]; return (l || "Papas") + " (kilos)"; } if (String(id).startsWith("pa:")) { const p = PROD[String(id).slice(3)]; return p ? `${etiqueta(p)} · ${detalle(p)} (Local papas)` : id; } if (/^insp?:/.test(String(id))) { const k = String(id).split(":")[1]; return (INS_NOM[k] || k) + (String(id).startsWith("insp:") ? " (Local papas)" : ""); } const p = PROD[id]; return p ? `${etiqueta(p)} · ${detalle(p)}` : id; };
+/* Papas por corte: el ajuste se hace en kilos (igual que se muestra el inventario). */
+const invAjUni = id => { if (String(id).startsWith("kg:")) return "kilos"; if (String(id).startsWith("pa:")) return "unidades"; if (/^insp?:/.test(String(id))) { const k = String(id).split(":")[1]; return INS_CAJA[k] ? "cajas" : INS_UNI[k] ? INS_UNI[k][1] : "unidades"; } const p = PROD[id]; return p && p.fam === "papa" ? (kgDe({ id, cant: 1 }) === 1 ? "kg (bolsas de 1 kg)" : "bolsas") : "unidades"; };
 function invAjFormHTML() {
   const f = INVAD.f || {}, id = INVAD.aj, ing = f.modo !== "sal";
   return `<tr class="inv-aj-row"><td colspan="2"><div class="inv-aj-form">
@@ -12835,7 +12836,7 @@ function invAjHistHTML() {
   const L = AJ.docs.slice().sort((a, b) => (b.en || 0) - (a.en || 0));
   if (!L.length) return "";
   return `<h3 class="sec">Ajustes de productos <small>${fmtN(L.length)}</small></h3>
-    <ul class="log">${L.slice(0, 100).map(d => `<li><time>${esc(pzFY(d.fecha))}</time><div><p class="who">${Number(d.cant) > 0 ? "+" : "−"}${fmtN(Math.abs(Number(d.cant) || 0))} · ${esc(invAjNom(d.loc === "papas" ? "pa:" + d.prod : d.prod))}</p><p class="what">${Number(d.cant) > 0 ? "Agregó" : "Quitó"} ${esc(d.porNombre || "")}</p>${d.motivo ? `<p class="ped-nota">📝 ${esc(d.motivo)}</p>` : ""}
+    <ul class="log">${L.slice(0, 100).map(d => `<li><time>${esc(pzFY(d.fecha))}</time><div><p class="who">${Number(d.cant) > 0 ? "+" : "−"}${d.kg != null ? `${fmtN(Math.abs(Number(d.kg) || 0))} kg · ${esc(invAjNom("kg:" + d.prod))}` : `${fmtN(Math.abs(Number(d.cant) || 0))} · ${esc(invAjNom(d.loc === "papas" ? "pa:" + d.prod : d.prod))}`}</p><p class="what">${Number(d.cant) > 0 ? "Agregó" : "Quitó"} ${esc(d.porNombre || "")}</p>${d.motivo ? `<p class="ped-nota">📝 ${esc(d.motivo)}</p>` : ""}
       ${INVAD.del === d.id ? `<div class="acciones"><span class="estado-txt">¿Eliminar este ajuste? El stock vuelve a como estaba.</span><button type="button" class="btn chico peligro" data-act="invaj-del-si" data-id="${esc(d.id)}">Sí, eliminar</button><button type="button" class="btn chico suave" data-act="invaj-del-no">No</button></div>` : `<button type="button" class="link" data-act="invaj-del" data-id="${esc(d.id)}">Eliminar</button>`}</div></li>`).join("")}</ul>
     <p class="muted-s">Los ajustes de dispensadores e insumos quedan en Local agua › Ingresar insumos / Consumo de insumos.</p>`;
 }
@@ -12850,8 +12851,8 @@ async function invAjGuardar() {
       const k = String(id).split(":")[1];
       await movInsAgua({ [k]: sg * cant * (INS_CAJA[k] || 1) }, u.nombre || "", "Ajuste Inventario general" + (mot ? " · " + mot : ""), "inv", String(id).startsWith("insp:") ? "papas" : "agua");
     } else {
-      const pa = String(id).startsWith("pa:"), pid = pa ? String(id).slice(3) : id;
-      const did = "aj" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), d = { prod: pid, fam: (PROD[pid] || {}).fam || "", ...(pa ? { loc: "papas" } : {}), cant: sg * cant, motivo: mot, fecha: hoy(), en: Date.now(), porId: u.id || "", porNombre: u.nombre || "" };
+      const pa = String(id).startsWith("pa:"), kgM = String(id).startsWith("kg:"), pid = pa || kgM ? String(id).slice(3) : id, kgU = kgM ? (kgDe({ id: pid, cant: 1 }) || 1) : 0;
+      const did = "aj" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), d = { prod: pid, fam: (PROD[pid] || {}).fam || "", ...(pa ? { loc: "papas" } : {}), ...(kgM ? { kg: sg * cant } : {}), cant: kgM ? sg * cant / kgU : sg * cant, motivo: mot, fecha: hoy(), en: Date.now(), porId: u.id || "", porNombre: u.nombre || "" };
       await conReintento(() => S.db.doc("stock_ajustes/" + did).set(d));
       if (!AJ.docs.some(x => x.id === did)) AJ.docs.push(Object.assign({ id: did }, d));
     }
